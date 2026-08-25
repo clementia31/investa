@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Investa</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
 <style>
   * { box-sizing: border-box; }
   body { font-family: system-ui, sans-serif; margin: 0; background: #0f172a; color: #e2e8f0; }
@@ -241,9 +241,9 @@
 </div>
 
 <script>
-  const SUPABASE_URL = 'https://rhpjttobvyofpauccbrj.supabase.co';
+  const SUPABASE_URL = 'https://rhpjttobvyofpauccbrj.supabaseClient.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_GKzraD5eOxGYVB9SXWXY5g_UMXbw-Zz';
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   let currentImmeubleId = null;
   let currentLotId = null;
@@ -254,7 +254,7 @@
   async function sInscrire() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    const { error } = await supabase.auth.signUp({ email, password });
+    const { error } = await supabaseClient.auth.signUp({ email, password });
     document.getElementById('msg').textContent = error ? error.message : 'Compte créé, vérifie tes emails si confirmation requise.';
   }
 
@@ -262,7 +262,7 @@
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     document.getElementById('msg').textContent = '';
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
     if (error) {
       document.getElementById('msg').textContent = traduireErreurAuth(error);
       return;
@@ -282,13 +282,13 @@
   }
 
   async function seDeconnecter() {
-    await supabase.auth.signOut();
+    await supabaseClient.auth.signOut();
     document.getElementById('app').style.display = 'none';
     document.getElementById('auth').style.display = 'block';
   }
 
   async function afficherApp() {
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await supabaseClient.auth.getUser();
     if (!user) return;
     document.getElementById('auth').style.display = 'none';
     document.getElementById('app').style.display = 'block';
@@ -296,14 +296,14 @@
     allerDashboard();
   }
 
-  supabase.auth.getSession().then(({ data: { session } }) => { if (session) afficherApp(); });
+  supabaseClient.auth.getSession().then(({ data: { session } }) => { if (session) afficherApp(); });
 
   // ---------- STRUCTURES ----------
   async function creerStructure() {
     const nom = document.getElementById('nomStructure').value;
     const type = document.getElementById('typeStructure').value;
     if (!nom) return alert('Nom requis');
-    const { error } = await supabase.rpc('creer_structure', { p_nom: nom, p_type: type });
+    const { error } = await supabaseClient.rpc('creer_structure', { p_nom: nom, p_type: type });
     if (error) return alert('Erreur : ' + error.message);
     document.getElementById('nomStructure').value = '';
     chargerPatrimoine();
@@ -314,7 +314,7 @@
     const div = document.getElementById('arbrePatrimoine');
     div.textContent = 'Chargement...';
 
-    const { data: structures, error: errS } = await supabase.from('structures').select('*').order('created_at');
+    const { data: structures, error: errS } = await supabaseClient.from('structures').select('*').order('created_at');
     if (errS) { div.textContent = 'Erreur de chargement.'; return; }
     if (!structures.length) { div.textContent = 'Aucune structure pour le moment.'; return; }
 
@@ -322,7 +322,7 @@
     for (const s of structures) {
       html += `<div class="tree-structure">${s.nom} <span class="small">(${s.type})</span></div>`;
 
-      const { data: immeubles } = await supabase.from('immeubles').select('*').eq('structure_id', s.id).order('created_at');
+      const { data: immeubles } = await supabaseClient.from('immeubles').select('*').eq('structure_id', s.id).order('created_at');
 
       html += `<div class="card" style="margin:8px 0 8px 16px;">
         <h3>Ajouter un immeuble à ${s.nom}</h3>
@@ -332,7 +332,7 @@
 
       if (immeubles && immeubles.length) {
         for (const im of immeubles) {
-          const { count } = await supabase.from('lots').select('*', { count: 'exact', head: true }).eq('immeuble_id', im.id);
+          const { count } = await supabaseClient.from('lots').select('*', { count: 'exact', head: true }).eq('immeuble_id', im.id);
           html += `<div class="tree-immeuble" onclick="ouvrirFicheImmeuble('${im.id}')">
             🏢 ${im.adresse} <span class="small">— ${count || 0} lot(s)</span>
           </div>`;
@@ -345,7 +345,7 @@
   async function creerImmeuble(structureId) {
     const adresse = document.getElementById('adresseImmeuble_' + structureId).value;
     if (!adresse) return alert('Adresse requise');
-    const { error } = await supabase.from('immeubles').insert({ structure_id: structureId, adresse });
+    const { error } = await supabaseClient.from('immeubles').insert({ structure_id: structureId, adresse });
     if (error) return alert('Erreur : ' + error.message);
     chargerPatrimoine();
   }
@@ -357,7 +357,7 @@
     document.getElementById('vueFicheLot').style.display = 'none';
     document.getElementById('vueFicheImmeuble').style.display = 'block';
 
-    const { data: im } = await supabase.from('immeubles').select('*').eq('id', id).single();
+    const { data: im } = await supabaseClient.from('immeubles').select('*').eq('id', id).single();
     currentImmeuble = im;
     document.getElementById('infoImmeuble').innerHTML = `
       <h2>${im.adresse}</h2>
@@ -374,7 +374,7 @@
 
   async function chargerLots(immeubleId) {
     const div = document.getElementById('listeLots');
-    const { data: lots, error } = await supabase.from('lots').select('*').eq('immeuble_id', immeubleId).order('created_at');
+    const { data: lots, error } = await supabaseClient.from('lots').select('*').eq('immeuble_id', immeubleId).order('created_at');
     if (error) { div.textContent = 'Erreur de chargement.'; return; }
     if (!lots.length) { div.textContent = 'Aucun lot pour le moment.'; return; }
 
@@ -390,7 +390,7 @@
     const nom = document.getElementById('nomLot').value;
     const type = document.getElementById('typeLot').value;
     const surface = document.getElementById('surfaceLot').value;
-    const { error } = await supabase.from('lots').insert({
+    const { error } = await supabaseClient.from('lots').insert({
       immeuble_id: currentImmeubleId,
       nom: nom || null,
       type,
@@ -408,7 +408,7 @@
     document.getElementById('vueFicheImmeuble').style.display = 'none';
     document.getElementById('vueFicheLot').style.display = 'block';
 
-    const { data: lot } = await supabase.from('lots').select('*').eq('id', id).single();
+    const { data: lot } = await supabaseClient.from('lots').select('*').eq('id', id).single();
     currentLot = lot;
     document.getElementById('infoLot').innerHTML = `
       <h2>${lot.nom || lot.type}</h2>
@@ -430,7 +430,7 @@
     document.getElementById('vueFicheLot').style.display = 'none';
     document.getElementById('vueFicheLocataire').style.display = 'block';
 
-    const { data: locataire } = await supabase.from('locataires').select('*').eq('id', locataireId).single();
+    const { data: locataire } = await supabaseClient.from('locataires').select('*').eq('id', locataireId).single();
     document.getElementById('infoLocataire').innerHTML = `
       <h2>${locataire.nom}</h2>
       <div class="small">${locataire.email || 'Email non renseigné'}</div>
@@ -438,16 +438,16 @@
     `;
 
     // Trouver le/les bail(aux) de ce locataire
-    const { data: rattachements } = await supabase.from('bail_locataires').select('bail_id').eq('locataire_id', locataireId);
+    const { data: rattachements } = await supabaseClient.from('bail_locataires').select('bail_id').eq('locataire_id', locataireId);
     const bailIds = (rattachements || []).map(r => r.bail_id);
 
     // Colocataires (autres locataires sur le(s) même(s) bail(aux))
     let colocataires = [];
     if (bailIds.length) {
-      const { data: autresRattachements } = await supabase.from('bail_locataires').select('locataire_id').in('bail_id', bailIds).neq('locataire_id', locataireId);
+      const { data: autresRattachements } = await supabaseClient.from('bail_locataires').select('locataire_id').in('bail_id', bailIds).neq('locataire_id', locataireId);
       const autresIds = [...new Set((autresRattachements || []).map(r => r.locataire_id))];
       if (autresIds.length) {
-        const { data } = await supabase.from('locataires').select('*').in('id', autresIds);
+        const { data } = await supabaseClient.from('locataires').select('*').in('id', autresIds);
         colocataires = data || [];
       }
     }
@@ -459,7 +459,7 @@
     const div = document.getElementById('historiquePaiementsLocataire');
     if (!bailIds.length) { div.textContent = 'Aucun bail associé.'; return; }
 
-    const { data: paiements } = await supabase.from('paiements').select('*').in('bail_id', bailIds).order('mois', { ascending: false });
+    const { data: paiements } = await supabaseClient.from('paiements').select('*').in('bail_id', bailIds).order('mois', { ascending: false });
     if (!paiements || !paiements.length) { div.textContent = 'Aucun paiement enregistré.'; return; }
 
     div.innerHTML = paiements.map(p => `
@@ -478,15 +478,15 @@
 
   async function chargerBail(lotId) {
     const zone = document.getElementById('zoneBail');
-    const { data: baux } = await supabase.from('baux').select('*').eq('lot_id', lotId).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
+    const { data: baux } = await supabaseClient.from('baux').select('*').eq('lot_id', lotId).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
 
     if (baux && baux.length) {
       const bail = baux[0];
-      const { data: rattachements } = await supabase.from('bail_locataires').select('locataire_id').eq('bail_id', bail.id);
+      const { data: rattachements } = await supabaseClient.from('bail_locataires').select('locataire_id').eq('bail_id', bail.id);
       const ids = (rattachements || []).map(r => r.locataire_id);
       let locataires = [];
       if (ids.length) {
-        const { data } = await supabase.from('locataires').select('*').in('id', ids);
+        const { data } = await supabaseClient.from('locataires').select('*').in('id', ids);
         locataires = data || [];
       }
       zone.innerHTML = `
@@ -531,22 +531,22 @@
       .from('lots').select('immeuble_id, immeubles(structure_id)').eq('id', currentLotId).single();
     const structureId = structureLot.immeubles.structure_id;
 
-    const { data: bail, error: errBail } = await supabase.from('baux').insert({
+    const { data: bail, error: errBail } = await supabaseClient.from('baux').insert({
       lot_id: currentLotId, type, date_debut, loyer: parseFloat(loyer), charges: parseFloat(charges || 0)
     }).select().single();
     if (errBail) return alert('Erreur bail : ' + errBail.message);
 
     // 2. Créer les locataires + rattachements
     for (const nom of noms) {
-      const { data: locataire, error: errLoc } = await supabase.from('locataires').insert({
+      const { data: locataire, error: errLoc } = await supabaseClient.from('locataires').insert({
         structure_id: structureId, nom
       }).select().single();
       if (errLoc) { alert('Erreur locataire : ' + errLoc.message); continue; }
-      await supabase.from('bail_locataires').insert({ bail_id: bail.id, locataire_id: locataire.id });
+      await supabaseClient.from('bail_locataires').insert({ bail_id: bail.id, locataire_id: locataire.id });
     }
 
     // 3. Mettre le lot en "occupe"
-    await supabase.from('lots').update({ statut: 'occupe' }).eq('id', currentLotId);
+    await supabaseClient.from('lots').update({ statut: 'occupe' }).eq('id', currentLotId);
 
     chargerBail(currentLotId);
   }
@@ -574,7 +574,7 @@
     const moisDate = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-01';
     document.getElementById('dashPeriode').textContent = now.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
 
-    const { data: structures } = await supabase.from('structures').select('*').order('created_at');
+    const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
     if (!structures || !structures.length) {
       document.getElementById('dashAttendu').textContent = '0 €';
       document.getElementById('dashEncaisse').textContent = '0 €';
@@ -635,7 +635,7 @@
 
     const sel = document.getElementById('structureLoyers');
     if (!sel.options.length) {
-      const { data: structures } = await supabase.from('structures').select('*').order('created_at');
+      const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
       sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
     }
     const moisInput = document.getElementById('moisLoyers');
@@ -682,18 +682,18 @@
       let paiement = paiementsExistants && paiementsExistants[0];
 
       if (!paiement) {
-        const { data: nouveau } = await supabase.from('paiements').insert({
+        const { data: nouveau } = await supabaseClient.from('paiements').insert({
           bail_id: bail.id, mois: moisDate, montant_loyer: bail.loyer, montant_charges: bail.charges,
           statut: (new Date(moisDate) < new Date(new Date().getFullYear(), new Date().getMonth(), 1)) ? 'en_retard' : 'a_venir'
         }).select().single();
         paiement = nouveau;
       }
 
-      const { data: rattachements } = await supabase.from('bail_locataires').select('locataire_id').eq('bail_id', bail.id);
+      const { data: rattachements } = await supabaseClient.from('bail_locataires').select('locataire_id').eq('bail_id', bail.id);
       const ids = (rattachements || []).map(r => r.locataire_id);
       let noms = '';
       if (ids.length) {
-        const { data: locs } = await supabase.from('locataires').select('nom').in('id', ids);
+        const { data: locs } = await supabaseClient.from('locataires').select('nom').in('id', ids);
         noms = (locs || []).map(l => l.nom).join(', ');
       }
 
@@ -714,7 +714,7 @@
   }
 
   async function marquerPaye(paiementId) {
-    const { error } = await supabase.from('paiements').update({
+    const { error } = await supabaseClient.from('paiements').update({
       statut: 'paye', date_paiement: new Date().toISOString().split('T')[0]
     }).eq('id', paiementId);
     if (error) return alert('Erreur : ' + error.message);
@@ -728,7 +728,7 @@
 
     const sel = document.getElementById('structureFinances');
     if (!sel.options.length) {
-      const { data: structures } = await supabase.from('structures').select('*').order('created_at');
+      const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
       sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
     }
     chargerFinances();
@@ -739,7 +739,7 @@
     const structureId = document.getElementById('structureFinances').value;
     if (!structureId) return;
 
-    const { data: txs, error } = await supabase.from('transactions').select('*').eq('structure_id', structureId).order('date', { ascending: false });
+    const { data: txs, error } = await supabaseClient.from('transactions').select('*').eq('structure_id', structureId).order('date', { ascending: false });
     const div = document.getElementById('listeTransactions');
     if (error) { div.textContent = 'Erreur de chargement.'; return; }
 
@@ -770,7 +770,7 @@
     if (!structureId) return alert('Sélectionne une structure');
     if (!categorie || !montant || !date) return alert('Catégorie, montant et date sont requis');
 
-    const { error } = await supabase.from('transactions').insert({
+    const { error } = await supabaseClient.from('transactions').insert({
       structure_id: structureId, type, categorie, montant: parseFloat(montant), date, description: description || null
     });
     if (error) return alert('Erreur : ' + error.message);
@@ -789,11 +789,11 @@
 
     const sel = document.getElementById('immeublePrets');
     if (!sel.options.length) {
-      const { data: structures } = await supabase.from('structures').select('id, nom');
+      const { data: structures } = await supabaseClient.from('structures').select('id, nom');
       const structIds = (structures || []).map(s => s.id);
       let immeubles = [];
       if (structIds.length) {
-        const { data } = await supabase.from('immeubles').select('*').in('structure_id', structIds).order('created_at');
+        const { data } = await supabaseClient.from('immeubles').select('*').in('structure_id', structIds).order('created_at');
         immeubles = data || [];
       }
       sel.innerHTML = immeubles.map(i => `<option value="${i.id}">${i.adresse}</option>`).join('');
@@ -806,7 +806,7 @@
     const div = document.getElementById('listePrets');
     if (!immeubleId) { div.textContent = 'Aucun immeuble disponible.'; return; }
 
-    const { data: prets, error } = await supabase.from('prets').select('*').eq('immeuble_id', immeubleId).order('created_at', { ascending: false });
+    const { data: prets, error } = await supabaseClient.from('prets').select('*').eq('immeuble_id', immeubleId).order('created_at', { ascending: false });
     if (error) { div.textContent = 'Erreur de chargement.'; return; }
     if (!prets || !prets.length) { div.textContent = 'Aucun prêt pour cet immeuble.'; return; }
 
@@ -837,7 +837,7 @@
     if (!immeubleId) return alert('Sélectionne un immeuble');
     if (!capitalInitial) return alert('Capital initial requis');
 
-    const { error } = await supabase.from('prets').insert({
+    const { error } = await supabaseClient.from('prets').insert({
       immeuble_id: immeubleId,
       banque: banque || null,
       capital_initial: parseFloat(capitalInitial),
@@ -859,4 +859,3 @@
 
 </body>
 </html>
-
