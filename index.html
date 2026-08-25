@@ -1239,13 +1239,41 @@
   async function chargerColocatairesLot(lotId) {
     const div = document.getElementById('lotColocataires');
     div.textContent = 'Chargement...';
-    const { data: bauxActifs } = await supabaseClient.from('baux').select('id').eq('lot_id', lotId).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
+    const { data: bauxActifs } = await supabaseClient.from('baux').select('*').eq('lot_id', lotId).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
     if (!bauxActifs || !bauxActifs.length) { div.innerHTML = '<div class="empty-state">Aucun bail actif — crée un bail dans l\u2019onglet "Bail".</div>'; return; }
-    const { data: rattachements } = await supabaseClient.from('bail_locataires').select('locataire_id').eq('bail_id', bauxActifs[0].id);
-    const ids = (rattachements || []).map(r => r.locataire_id);
-    if (!ids.length) { div.innerHTML = '<div class="empty-state">Aucun locataire.</div>'; return; }
+    const bail = bauxActifs[0];
+    const { data: rattachements } = await supabaseClient.from('bail_locataires').select('*').eq('bail_id', bail.id);
+    if (!rattachements || !rattachements.length) { div.innerHTML = '<div class="empty-state">Aucun locataire.</div>'; return; }
+    const ids = rattachements.map(r => r.locataire_id);
     const { data: locataires } = await supabaseClient.from('locataires').select('*').in('id', ids);
-    div.innerHTML = (locataires || []).map(l => `<div class="row row-click" onclick="ouvrirFicheLocataire('${l.id}', 'lot')">${l.nom} ${l.email ? '<span class="small">' + l.email + '</span>' : ''}</div>`).join('');
+
+    if (bail.type === 'colocation') {
+      div.innerHTML = rattachements.map(r => {
+        const l = (locataires || []).find(loc => loc.id === r.locataire_id);
+        if (!l) return '';
+        return `
+          <div class="row" style="align-items:center;">
+            <span class="row-click" onclick="ouvrirFicheLocataire('${l.id}', 'lot')" style="flex:1;">${l.nom}</span>
+            <input type="text" placeholder="Chambre (ex: A)" value="${r.nom_chambre || ''}" style="width:110px; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); margin-right:6px;" id="chambre_${r.bail_id}_${r.locataire_id}">
+            <input type="number" placeholder="Loyer (€)" value="${r.loyer_part || ''}" style="width:100px; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); margin-right:6px;" id="loyerpart_${r.bail_id}_${r.locataire_id}">
+            <button class="btn-mark-paid" onclick="enregistrerPartColocataire('${r.bail_id}', '${r.locataire_id}')">OK</button>
+          </div>
+        `;
+      }).join('');
+    } else {
+      div.innerHTML = (locataires || []).map(l => `<div class="row row-click" onclick="ouvrirFicheLocataire('${l.id}', 'lot')">${l.nom} ${l.email ? '<span class="small">' + l.email + '</span>' : ''}</div>`).join('');
+    }
+  }
+
+  async function enregistrerPartColocataire(bailId, locataireId) {
+    const chambre = document.getElementById(`chambre_${bailId}_${locataireId}`).value;
+    const loyerPart = document.getElementById(`loyerpart_${bailId}_${locataireId}`).value;
+    const { error } = await supabaseClient.from('bail_locataires').update({
+      nom_chambre: chambre || null,
+      loyer_part: loyerPart ? parseFloat(loyerPart) : null
+    }).eq('bail_id', bailId).eq('locataire_id', locataireId);
+    if (error) return alert('Erreur : ' + error.message);
+    chargerColocatairesLot(currentLotId);
   }
 
   async function chargerChargesLot(lotId) {
@@ -1331,14 +1359,16 @@
     document.getElementById('locContact').textContent = [locataire.email, locataire.telephone].filter(Boolean).join(' · ') || 'Aucun contact renseigné';
     chargerDocuments('locataire', locataireId, 'listeDocumentsLocataire');
 
-    const { data: rattachements } = await supabaseClient.from('bail_locataires').select('bail_id').eq('locataire_id', locataireId);
+    const { data: rattachements } = await supabaseClient.from('bail_locataires').select('*').eq('locataire_id', locataireId);
     const bailIds = (rattachements || []).map(r => r.bail_id);
 
     let colocataires = [];
     let bailActuel = null;
+    let monRattachement = null;
     if (bailIds.length) {
       const { data: bauxDetails } = await supabaseClient.from('baux').select('*, lots(nom, type, immeubles(adresse))').in('id', bailIds).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
       bailActuel = bauxDetails && bauxDetails[0];
+      if (bailActuel) monRattachement = rattachements.find(r => r.bail_id === bailActuel.id);
 
       const { data: autresRattachements } = await supabaseClient.from('bail_locataires').select('locataire_id').in('bail_id', bailIds).neq('locataire_id', locataireId);
       const autresIds = [...new Set((autresRattachements || []).map(r => r.locataire_id))];
@@ -1349,13 +1379,15 @@
     }
 
     document.getElementById('locBadges').innerHTML = bailActuel
-      ? `<span class="badge-outline">${bailActuel.lots.nom || bailActuel.lots.type}</span><span class="badge-outline">${bailActuel.lots.immeubles.adresse}</span>${bailActuel.type === 'colocation' ? '<span class="badge-outline">Colocation</span>' : ''}`
+      ? `<span class="badge-outline">${bailActuel.lots.nom || bailActuel.lots.type}</span><span class="badge-outline">${bailActuel.lots.immeubles.adresse}</span>${bailActuel.type === 'colocation' ? '<span class="badge-outline">Colocation</span>' : ''}${monRattachement && monRattachement.nom_chambre ? `<span class="badge-outline">Chambre ${monRattachement.nom_chambre}</span>` : ''}`
       : '<span class="badge-outline">Aucun bail actif</span>';
+
+    const loyerAffiche = monRattachement && monRattachement.loyer_part ? Number(monRattachement.loyer_part) : (bailActuel ? Number(bailActuel.loyer) : 0);
 
     document.getElementById('locInformations').innerHTML = bailActuel ? `
       <div class="row"><span class="small">Lot</span><span>${bailActuel.lots.nom || bailActuel.lots.type}</span></div>
       <div class="row"><span class="small">Bail</span><span>Du ${bailActuel.date_debut} ${bailActuel.date_fin ? 'au ' + bailActuel.date_fin : '(sans fin)'}</span></div>
-      <div class="row"><span class="small">Loyer</span><span>${Number(bailActuel.loyer).toLocaleString('fr-FR')} €</span></div>
+      <div class="row"><span class="small">${monRattachement && monRattachement.loyer_part ? 'Loyer (ma part)' : 'Loyer'}</span><span>${loyerAffiche.toLocaleString('fr-FR')} €</span></div>
       <div class="row"><span class="small">Charges</span><span>${Number(bailActuel.charges).toLocaleString('fr-FR')} €</span></div>
       <div class="row"><span class="small">Dépôt de garantie</span><span>${bailActuel.depot_garantie ? Number(bailActuel.depot_garantie).toLocaleString('fr-FR') + ' €' : '—'}</span></div>
     ` : '<div class="empty-state">Aucun bail actif.</div>';
@@ -1618,9 +1650,68 @@
           <div class="small">Du ${p.date_debut || '—'} au ${p.date_fin || '—'}</div>
           <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;"></div></div>
           <div class="small">${pct}% remboursé</div>
+          <a href="#" onclick="toggleAmortissement('${p.id}'); return false;" style="color:var(--accent); font-size:0.85rem; display:inline-block; margin-top:8px;">Voir le tableau d'amortissement</a>
+          <div id="amort-${p.id}" style="display:none; margin-top:10px;"></div>
         </div>
       `;
     }).join('');
+  }
+
+  function calculerAmortissement(pret) {
+    const lignes = [];
+    let restant = Number(pret.capital_initial);
+    const tauxMensuel = pret.taux ? Number(pret.taux) / 100 / 12 : 0;
+    const mensualite = Number(pret.mensualite || 0);
+    if (!mensualite || mensualite <= 0 || !pret.date_debut) return lignes;
+
+    let dateCourante = new Date(pret.date_debut);
+    const dateFin = pret.date_fin ? new Date(pret.date_fin) : null;
+    let securite = 0;
+
+    while (restant > 0.5 && securite < 600) {
+      securite++;
+      const interets = restant * tauxMensuel;
+      let capitalRembourse = mensualite - interets;
+      if (capitalRembourse > restant) capitalRembourse = restant;
+      restant = Math.max(0, restant - capitalRembourse);
+      lignes.push({
+        mois: dateCourante.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' }),
+        mensualite: interets + capitalRembourse,
+        interets, capitalRembourse, restant
+      });
+      dateCourante = new Date(dateCourante.getFullYear(), dateCourante.getMonth() + 1, 1);
+      if (dateFin && dateCourante > dateFin) break;
+    }
+    return lignes;
+  }
+
+  async function toggleAmortissement(pretId) {
+    const zone = document.getElementById('amort-' + pretId);
+    if (zone.style.display === 'block') { zone.style.display = 'none'; return; }
+
+    const { data: pret, error } = await supabaseClient.from('prets').select('*').eq('id', pretId).single();
+    if (error) return alert('Erreur : ' + error.message);
+
+    const lignes = calculerAmortissement(pret);
+    if (!lignes.length) {
+      zone.innerHTML = '<div class="empty-state">Impossible de calculer (taux, mensualité ou date de début manquants).</div>';
+      zone.style.display = 'block';
+      return;
+    }
+
+    zone.innerHTML = `
+      <div class="table-header-paiements" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr;">
+        <span>Mois</span><span>Mensualité</span><span>Intérêts</span><span>Capital</span><span>Restant</span>
+      </div>
+      <div style="max-height:280px; overflow-y:auto;">
+        ${lignes.map(l => `
+          <div class="row" style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; font-size:0.82rem;">
+            <span>${l.mois}</span><span>${l.mensualite.toFixed(0)} €</span><span class="small">${l.interets.toFixed(0)} €</span><span class="small">${l.capitalRembourse.toFixed(0)} €</span><span>${l.restant.toFixed(0)} €</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    zone.style.display = 'block';
   }
 
   async function creerPret() {
