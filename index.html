@@ -131,7 +131,7 @@
       <div class="nav-item" onclick="allerPlaceholder('Tâches & Alertes', 'Échéances, retards et rappels automatiques.')"><span class="ic">🔔</span> Tâches & Alertes</div>
       <div class="nav-item" onclick="allerPlaceholder('Fiscalité', 'Synthèse annuelle par régime fiscal.')"><span class="ic">📊</span> Fiscalité</div>
       <div class="nav-item" onclick="allerPlaceholder('Rapports', 'Export Excel et rapports personnalisés.')"><span class="ic">📈</span> Rapports</div>
-      <div class="nav-item" onclick="allerPlaceholder('Paramètres', 'Structures, membres et préférences.')"><span class="ic">⚙️</span> Paramètres</div>
+      <div class="nav-item" id="nav-parametres" onclick="allerParametres()"><span class="ic">⚙️</span> Paramètres</div>
 
       <div class="nav-footer">
         <span id="userEmail"></span><br>
@@ -289,6 +289,27 @@
         <div class="card"><div id="listePrets">Sélectionne un immeuble.</div></div>
       </div>
 
+      <!-- ===== PARAMÈTRES ===== -->
+      <div id="page-parametres" style="display:none;">
+        <div class="page-header"><h2>Paramètres</h2></div>
+        <div class="card">
+          <h3>Mes structures</h3>
+          <div id="listeStructuresParams">Chargement...</div>
+        </div>
+        <div class="card" id="cardMembres" style="display:none;">
+          <h3>Membres de <span id="nomStructureSelectionnee"></span></h3>
+          <div id="listeMembres">Chargement...</div>
+          <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
+            <input id="emailInvite" type="email" placeholder="Email d'un membre (compte Investa existant)">
+            <select id="roleInvite">
+              <option value="gestionnaire">Gestionnaire</option>
+              <option value="lecture_seule">Lecture seule</option>
+            </select>
+            <button class="btn-primary" onclick="inviterMembre()">Ajouter</button>
+          </div>
+        </div>
+      </div>
+
       <!-- ===== PLACEHOLDER (écrans pas encore construits) ===== -->
       <div id="page-placeholder" style="display:none;">
         <div class="page-header"><h2 id="placeholderTitle"></h2></div>
@@ -357,8 +378,8 @@
   supabaseClient.auth.getSession().then(({ data: { session } }) => { if (session) afficherApp(); });
 
   // ---------- NAVIGATION ----------
-  const PAGES = ['dashboard', 'patrimoine', 'locataires', 'loyers', 'finances', 'prets', 'fiche-immeuble', 'fiche-lot', 'fiche-locataire', 'placeholder'];
-  const NAV_IDS = ['nav-dashboard', 'nav-patrimoine', 'nav-locataires', 'nav-loyers', 'nav-finances', 'nav-prets'];
+  const PAGES = ['dashboard', 'patrimoine', 'locataires', 'loyers', 'finances', 'prets', 'parametres', 'fiche-immeuble', 'fiche-lot', 'fiche-locataire', 'placeholder'];
+  const NAV_IDS = ['nav-dashboard', 'nav-patrimoine', 'nav-locataires', 'nav-loyers', 'nav-finances', 'nav-prets', 'nav-parametres'];
 
   function hideAllPages() {
     PAGES.forEach(p => { const el = document.getElementById('page-' + p); if (el) el.style.display = 'none'; });
@@ -854,6 +875,70 @@
     document.getElementById('tauxPret').value = '';
     document.getElementById('mensualitePret').value = '';
     chargerPrets();
+  }
+
+  // ---------- PARAMÈTRES ----------
+  let currentStructureParamsId = null;
+
+  async function allerParametres() {
+    setActiveNav('nav-parametres'); hideAllPages();
+    document.getElementById('page-parametres').style.display = 'block';
+    document.getElementById('cardMembres').style.display = 'none';
+    currentStructureParamsId = null;
+    chargerStructuresParams();
+  }
+
+  async function chargerStructuresParams() {
+    const div = document.getElementById('listeStructuresParams');
+    const { data: structures, error } = await supabaseClient.from('structures').select('*').order('created_at');
+    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
+    if (!structures || !structures.length) { div.innerHTML = '<div class="empty-state">Aucune structure pour le moment.</div>'; return; }
+    div.innerHTML = structures.map(s => `
+      <div class="row row-click" onclick="ouvrirMembresStructure('${s.id}', '${s.nom.replace(/'/g, "\\'")}')">
+        <span>${s.nom} <span class="small">(${s.type})</span></span>
+        <span class="small">Gérer les membres →</span>
+      </div>
+    `).join('');
+  }
+
+  function ouvrirMembresStructure(structureId, nom) {
+    currentStructureParamsId = structureId;
+    document.getElementById('nomStructureSelectionnee').textContent = nom;
+    document.getElementById('cardMembres').style.display = 'block';
+    chargerMembres();
+  }
+
+  async function chargerMembres() {
+    const div = document.getElementById('listeMembres');
+    div.textContent = 'Chargement...';
+    const { data: membres, error } = await supabaseClient.rpc('lister_membres_structure', { p_structure_id: currentStructureParamsId });
+    if (error) { div.innerHTML = '<div class="empty-state">Erreur : ' + error.message + '</div>'; return; }
+    if (!membres || !membres.length) { div.innerHTML = '<div class="empty-state">Aucun membre.</div>'; return; }
+    div.innerHTML = membres.map(m => `
+      <div class="row">
+        <span>${m.email} <span class="badge occupe" style="margin-left:6px;">${m.role.replace('_', ' ')}</span></span>
+        ${m.role !== 'proprietaire' ? `<button class="btn-mark-paid" style="background:var(--red);" onclick="retirerMembre('${m.membre_id}')">Retirer</button>` : ''}
+      </div>
+    `).join('');
+  }
+
+  async function inviterMembre() {
+    const email = document.getElementById('emailInvite').value;
+    const role = document.getElementById('roleInvite').value;
+    if (!email) return alert('Email requis');
+    const { data, error } = await supabaseClient.rpc('inviter_membre', { p_structure_id: currentStructureParamsId, p_email: email, p_role: role });
+    if (error) return alert('Erreur : ' + error.message);
+    if (data === 'introuvable') return alert("Aucun compte Investa n'existe avec cet email — la personne doit d'abord créer un compte.");
+    if (data === 'deja_membre') return alert('Cette personne est déjà membre de cette structure.');
+    document.getElementById('emailInvite').value = '';
+    chargerMembres();
+  }
+
+  async function retirerMembre(membreId) {
+    if (!confirm('Retirer ce membre de la structure ?')) return;
+    const { error } = await supabaseClient.rpc('retirer_membre', { p_membre_id: membreId });
+    if (error) return alert('Erreur : ' + error.message);
+    chargerMembres();
   }
 </script>
 
