@@ -6,58 +6,123 @@
 <title>Investa</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  body { font-family: system-ui, sans-serif; max-width: 480px; margin: 60px auto; padding: 0 20px; background: #0f172a; color: #e2e8f0; }
+  * { box-sizing: border-box; }
+  body { font-family: system-ui, sans-serif; margin: 0; background: #0f172a; color: #e2e8f0; }
+  .container { max-width: 480px; margin: 60px auto; padding: 0 20px; }
   h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.1rem; margin-top: 0; }
+  h3 { font-size: 1rem; margin: 8px 0; }
   input, select, button { width: 100%; padding: 10px; margin: 6px 0; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: #e2e8f0; box-sizing: border-box; }
   button { background: #3b82f6; border: none; cursor: pointer; font-weight: 600; }
   button:hover { background: #2563eb; }
-  #app { display: none; }
-  .card { background: #1e293b; padding: 16px; border-radius: 8px; margin: 8px 0; }
+  button.secondary { background: #334155; }
+  button.secondary:hover { background: #475569; }
+  button.danger { background: #dc2626; }
+  #app { display: none; max-width: 720px; margin: 0 auto; padding: 20px; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .card { background: #1e293b; padding: 16px; border-radius: 8px; margin: 10px 0; }
   #msg { color: #f87171; font-size: 0.9rem; }
+  .tree-structure { font-weight: 700; margin-top: 12px; }
+  .tree-immeuble { margin-left: 16px; padding: 8px 12px; background: #263548; border-radius: 6px; margin-top: 6px; cursor: pointer; }
+  .tree-immeuble:hover { background: #2f4258; }
+  .tree-lot { margin-left: 32px; padding: 4px 8px; font-size: 0.9rem; color: #94a3b8; }
+  .breadcrumb { font-size: 0.85rem; color: #94a3b8; margin-bottom: 12px; cursor: pointer; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: 600; }
+  .badge.occupe { background: #166534; color: #bbf7d0; }
+  .badge.vacant { background: #78350f; color: #fde68a; }
+  .badge.travaux { background: #7f1d1d; color: #fecaca; }
+  .lot-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #334155; cursor: pointer; }
+  .lot-row:hover { color: #93c5fd; }
+  .small { font-size: 0.85rem; color: #94a3b8; }
 </style>
 </head>
 <body>
 
-<h1>Investa</h1>
-
 <!-- Auth -->
-<div id="auth">
+<div class="container" id="auth">
+  <h1>Investa</h1>
   <input id="email" type="email" placeholder="Email">
   <input id="password" type="password" placeholder="Mot de passe">
   <button onclick="seConnecter()">Se connecter</button>
-  <button onclick="sInscrire()">Créer un compte</button>
+  <button class="secondary" onclick="sInscrire()">Créer un compte</button>
   <p id="msg"></p>
 </div>
 
 <!-- App -->
 <div id="app">
-  <p>Connecté : <span id="userEmail"></span> — <a href="#" onclick="seDeconnecter()">déconnexion</a></p>
-
-  <div class="card">
-    <h3>Créer une structure</h3>
-    <input id="nomStructure" placeholder="Nom (ex: SCI ALPHA)">
-    <select id="typeStructure">
-      <option value="sci_ir">SCI à l'IR</option>
-      <option value="sci_is">SCI à l'IS</option>
-      <option value="nom_propre">Nom propre</option>
-      <option value="sarl_immo">SARL immobilière</option>
-      <option value="autre">Autre</option>
-    </select>
-    <button onclick="creerStructure()">Créer</button>
+  <div class="topbar">
+    <h1>Investa</h1>
+    <div class="small"><span id="userEmail"></span> — <a href="#" onclick="seDeconnecter()" style="color:#93c5fd;">déconnexion</a></div>
   </div>
 
-  <div class="card">
-    <h3>Mes structures</h3>
-    <div id="listeStructures">Chargement...</div>
+  <!-- Vue Patrimoine -->
+  <div id="vuePatrimoine">
+    <div class="card">
+      <h2>Créer une structure</h2>
+      <input id="nomStructure" placeholder="Nom (ex: SCI ALPHA)">
+      <select id="typeStructure">
+        <option value="sci_ir">SCI à l'IR</option>
+        <option value="sci_is">SCI à l'IS</option>
+        <option value="nom_propre">Nom propre</option>
+        <option value="sarl_immo">SARL immobilière</option>
+        <option value="autre">Autre</option>
+      </select>
+      <button onclick="creerStructure()">Créer</button>
+    </div>
+
+    <div class="card">
+      <h2>Patrimoine</h2>
+      <div id="arbrePatrimoine">Chargement...</div>
+    </div>
   </div>
+
+  <!-- Vue Fiche Immeuble -->
+  <div id="vueFicheImmeuble" style="display:none;">
+    <div class="breadcrumb" onclick="retourPatrimoine()">← Retour au patrimoine</div>
+    <div class="card" id="infoImmeuble"></div>
+
+    <div class="card">
+      <h3>Ajouter un lot</h3>
+      <input id="nomLot" placeholder="Nom (ex: Appartement 3, Parking B12)">
+      <select id="typeLot">
+        <option value="appartement">Appartement</option>
+        <option value="chambre">Chambre</option>
+        <option value="studio">Studio</option>
+        <option value="parking">Parking</option>
+        <option value="garage">Garage</option>
+        <option value="local_commercial">Local commercial</option>
+      </select>
+      <input id="surfaceLot" type="number" placeholder="Surface (m²) — optionnel">
+      <button onclick="creerLot()">Ajouter le lot</button>
+    </div>
+
+    <div class="card">
+      <h3>Lots</h3>
+      <div id="listeLots">Chargement...</div>
+    </div>
+  </div>
+
+  <!-- Vue Fiche Lot (bail + locataires) -->
+  <div id="vueFicheLot" style="display:none;">
+    <div class="breadcrumb" onclick="retourFicheImmeuble()">← Retour à l'immeuble</div>
+    <div class="card" id="infoLot"></div>
+
+    <div class="card" id="zoneBail"></div>
+  </div>
+
 </div>
 
 <script>
   const SUPABASE_URL = 'https://rhpjttobvyofpauccbrj.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_GKzraD5eOxGYVB9SXWXY5g_UMXbw-Zz';
-
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  let currentImmeubleId = null;
+  let currentLotId = null;
+  let currentImmeuble = null;
+  let currentLot = null;
+
+  // ---------- AUTH ----------
   async function sInscrire() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
@@ -69,11 +134,8 @@
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      document.getElementById('msg').textContent = error.message;
-    } else {
-      afficherApp();
-    }
+    if (error) { document.getElementById('msg').textContent = error.message; }
+    else { afficherApp(); }
   }
 
   async function seDeconnecter() {
@@ -82,50 +144,220 @@
     document.getElementById('auth').style.display = 'block';
   }
 
-  async function creerStructure() {
-    const nom = document.getElementById('nomStructure').value;
-    const type = document.getElementById('typeStructure').value;
-    if (!nom) return alert('Nom requis');
-
-    const { error } = await supabase.rpc('creer_structure', {
-      p_nom: nom,
-      p_type: type
-    });
-
-    if (error) {
-      alert('Erreur : ' + error.message);
-    } else {
-      document.getElementById('nomStructure').value = '';
-      chargerStructures();
-    }
-  }
-
-  async function chargerStructures() {
-    const { data, error } = await supabase.from('structures').select('*').order('created_at', { ascending: false });
-    const div = document.getElementById('listeStructures');
-    if (error) {
-      div.textContent = 'Erreur de chargement.';
-      return;
-    }
-    if (!data.length) {
-      div.textContent = 'Aucune structure pour le moment.';
-      return;
-    }
-    div.innerHTML = data.map(s => `<div>${s.nom} — ${s.type}</div>`).join('');
-  }
-
   async function afficherApp() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     document.getElementById('auth').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     document.getElementById('userEmail').textContent = user.email;
-    chargerStructures();
+    chargerPatrimoine();
   }
 
-  supabase.auth.getSession().then(({ data: { session } }) => {
-    if (session) afficherApp();
-  });
+  supabase.auth.getSession().then(({ data: { session } }) => { if (session) afficherApp(); });
+
+  // ---------- STRUCTURES ----------
+  async function creerStructure() {
+    const nom = document.getElementById('nomStructure').value;
+    const type = document.getElementById('typeStructure').value;
+    if (!nom) return alert('Nom requis');
+    const { error } = await supabase.rpc('creer_structure', { p_nom: nom, p_type: type });
+    if (error) return alert('Erreur : ' + error.message);
+    document.getElementById('nomStructure').value = '';
+    chargerPatrimoine();
+  }
+
+  // ---------- PATRIMOINE (arborescence) ----------
+  async function chargerPatrimoine() {
+    const div = document.getElementById('arbrePatrimoine');
+    div.textContent = 'Chargement...';
+
+    const { data: structures, error: errS } = await supabase.from('structures').select('*').order('created_at');
+    if (errS) { div.textContent = 'Erreur de chargement.'; return; }
+    if (!structures.length) { div.textContent = 'Aucune structure pour le moment.'; return; }
+
+    let html = '';
+    for (const s of structures) {
+      html += `<div class="tree-structure">${s.nom} <span class="small">(${s.type})</span></div>`;
+
+      const { data: immeubles } = await supabase.from('immeubles').select('*').eq('structure_id', s.id).order('created_at');
+
+      html += `<div class="card" style="margin:8px 0 8px 16px;">
+        <h3>Ajouter un immeuble à ${s.nom}</h3>
+        <input id="adresseImmeuble_${s.id}" placeholder="Adresse">
+        <button class="secondary" onclick="creerImmeuble('${s.id}')">Ajouter</button>
+      </div>`;
+
+      if (immeubles && immeubles.length) {
+        for (const im of immeubles) {
+          const { count } = await supabase.from('lots').select('*', { count: 'exact', head: true }).eq('immeuble_id', im.id);
+          html += `<div class="tree-immeuble" onclick="ouvrirFicheImmeuble('${im.id}')">
+            🏢 ${im.adresse} <span class="small">— ${count || 0} lot(s)</span>
+          </div>`;
+        }
+      }
+    }
+    div.innerHTML = html;
+  }
+
+  async function creerImmeuble(structureId) {
+    const adresse = document.getElementById('adresseImmeuble_' + structureId).value;
+    if (!adresse) return alert('Adresse requise');
+    const { error } = await supabase.from('immeubles').insert({ structure_id: structureId, adresse });
+    if (error) return alert('Erreur : ' + error.message);
+    chargerPatrimoine();
+  }
+
+  // ---------- FICHE IMMEUBLE ----------
+  async function ouvrirFicheImmeuble(id) {
+    currentImmeubleId = id;
+    document.getElementById('vuePatrimoine').style.display = 'none';
+    document.getElementById('vueFicheLot').style.display = 'none';
+    document.getElementById('vueFicheImmeuble').style.display = 'block';
+
+    const { data: im } = await supabase.from('immeubles').select('*').eq('id', id).single();
+    currentImmeuble = im;
+    document.getElementById('infoImmeuble').innerHTML = `
+      <h2>${im.adresse}</h2>
+      <div class="small">${im.ville || ''} ${im.code_postal || ''}</div>
+      <div class="small">Valeur estimée : ${im.valeur_estimee ? im.valeur_estimee + ' €' : '—'} · Dette : ${im.dette_restante ? im.dette_restante + ' €' : '—'}</div>
+    `;
+
+    chargerLots(id);
+  }
+
+  function retourPatrimoine() {
+    document.getElementById('vueFicheImmeuble').style.display = 'none';
+    document.getElementById('vuePatrimoine').style.display = 'block';
+    chargerPatrimoine();
+  }
+
+  async function chargerLots(immeubleId) {
+    const div = document.getElementById('listeLots');
+    const { data: lots, error } = await supabase.from('lots').select('*').eq('immeuble_id', immeubleId).order('created_at');
+    if (error) { div.textContent = 'Erreur de chargement.'; return; }
+    if (!lots.length) { div.textContent = 'Aucun lot pour le moment.'; return; }
+
+    div.innerHTML = lots.map(l => `
+      <div class="lot-row" onclick="ouvrirFicheLot('${l.id}')">
+        <span>${l.nom || l.type} <span class="small">(${l.type}${l.surface ? ', ' + l.surface + ' m²' : ''})</span></span>
+        <span class="badge ${l.statut}">${l.statut}</span>
+      </div>
+    `).join('');
+  }
+
+  async function creerLot() {
+    const nom = document.getElementById('nomLot').value;
+    const type = document.getElementById('typeLot').value;
+    const surface = document.getElementById('surfaceLot').value;
+    const { error } = await supabase.from('lots').insert({
+      immeuble_id: currentImmeubleId,
+      nom: nom || null,
+      type,
+      surface: surface ? parseFloat(surface) : null
+    });
+    if (error) return alert('Erreur : ' + error.message);
+    document.getElementById('nomLot').value = '';
+    document.getElementById('surfaceLot').value = '';
+    chargerLots(currentImmeubleId);
+  }
+
+  // ---------- FICHE LOT (bail + locataires) ----------
+  async function ouvrirFicheLot(id) {
+    currentLotId = id;
+    document.getElementById('vueFicheImmeuble').style.display = 'none';
+    document.getElementById('vueFicheLot').style.display = 'block';
+
+    const { data: lot } = await supabase.from('lots').select('*').eq('id', id).single();
+    currentLot = lot;
+    document.getElementById('infoLot').innerHTML = `
+      <h2>${lot.nom || lot.type}</h2>
+      <div class="small">${lot.type}${lot.surface ? ' — ' + lot.surface + ' m²' : ''}</div>
+      <span class="badge ${lot.statut}">${lot.statut}</span>
+    `;
+
+    chargerBail(id);
+  }
+
+  function retourFicheImmeuble() {
+    document.getElementById('vueFicheLot').style.display = 'none';
+    document.getElementById('vueFicheImmeuble').style.display = 'block';
+    chargerLots(currentImmeubleId);
+  }
+
+  async function chargerBail(lotId) {
+    const zone = document.getElementById('zoneBail');
+    const { data: baux } = await supabase.from('baux').select('*').eq('lot_id', lotId).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
+
+    if (baux && baux.length) {
+      const bail = baux[0];
+      const { data: rattachements } = await supabase.from('bail_locataires').select('locataire_id').eq('bail_id', bail.id);
+      const ids = (rattachements || []).map(r => r.locataire_id);
+      let locataires = [];
+      if (ids.length) {
+        const { data } = await supabase.from('locataires').select('*').in('id', ids);
+        locataires = data || [];
+      }
+      zone.innerHTML = `
+        <h3>Bail en cours</h3>
+        <div class="small">Type : ${bail.type} · Loyer : ${bail.loyer} € · Charges : ${bail.charges} €</div>
+        <div class="small">Du ${bail.date_debut} ${bail.date_fin ? 'au ' + bail.date_fin : '(sans fin)'}</div>
+        <h3 style="margin-top:12px;">Locataire(s)</h3>
+        ${locataires.map(l => `<div>${l.nom} ${l.email ? '— ' + l.email : ''}</div>`).join('') || '<div class="small">Aucun</div>'}
+      `;
+    } else {
+      zone.innerHTML = `
+        <h3>Créer un bail</h3>
+        <select id="typeBail">
+          <option value="nu">Nu</option>
+          <option value="meuble">Meublé</option>
+          <option value="colocation">Colocation</option>
+          <option value="commercial">Commercial</option>
+          <option value="saisonnier">Saisonnier</option>
+        </select>
+        <input id="dateDebutBail" type="date">
+        <input id="loyerBail" type="number" placeholder="Loyer (€)">
+        <input id="chargesBail" type="number" placeholder="Charges (€)" value="0">
+        <input id="nomsLocataires" placeholder="Nom(s) locataire(s), séparés par une virgule si colocation">
+        <button onclick="creerBail()">Créer le bail</button>
+      `;
+    }
+  }
+
+  async function creerBail() {
+    const type = document.getElementById('typeBail').value;
+    const date_debut = document.getElementById('dateDebutBail').value;
+    const loyer = document.getElementById('loyerBail').value;
+    const charges = document.getElementById('chargesBail').value;
+    const nomsRaw = document.getElementById('nomsLocataires').value;
+
+    if (!date_debut || !loyer || !nomsRaw) return alert('Date de début, loyer et au moins un locataire sont requis');
+
+    const noms = nomsRaw.split(',').map(n => n.trim()).filter(Boolean);
+
+    // 1. Créer le bail
+    const { data: structureLot } = await supabase
+      .from('lots').select('immeuble_id, immeubles(structure_id)').eq('id', currentLotId).single();
+    const structureId = structureLot.immeubles.structure_id;
+
+    const { data: bail, error: errBail } = await supabase.from('baux').insert({
+      lot_id: currentLotId, type, date_debut, loyer: parseFloat(loyer), charges: parseFloat(charges || 0)
+    }).select().single();
+    if (errBail) return alert('Erreur bail : ' + errBail.message);
+
+    // 2. Créer les locataires + rattachements
+    for (const nom of noms) {
+      const { data: locataire, error: errLoc } = await supabase.from('locataires').insert({
+        structure_id: structureId, nom
+      }).select().single();
+      if (errLoc) { alert('Erreur locataire : ' + errLoc.message); continue; }
+      await supabase.from('bail_locataires').insert({ bail_id: bail.id, locataire_id: locataire.id });
+    }
+
+    // 3. Mettre le lot en "occupe"
+    await supabase.from('lots').update({ statut: 'occupe' }).eq('id', currentLotId);
+
+    chargerBail(currentLotId);
+  }
 </script>
 
 </body>
