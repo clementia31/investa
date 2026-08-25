@@ -48,6 +48,14 @@
   .paiement-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #263548; border-radius: 6px; margin: 6px 0; }
   .paiement-info { font-size: 0.9rem; }
   .btn-mark-paid { width: auto; padding: 6px 12px; font-size: 0.85rem; margin: 0; }
+  .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .dash-box { background: #263548; padding: 14px; border-radius: 8px; }
+  .dash-box .label { font-size: 0.8rem; color: #94a3b8; }
+  .dash-box .value { font-size: 1.4rem; font-weight: 700; margin-top: 4px; }
+  .dash-box.warn .value { color: #fbbf24; }
+  .dash-box.danger .value { color: #f87171; }
+  .dash-box.ok .value { color: #4ade80; }
+  .struct-line { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #334155; font-size: 0.9rem; }
 </style>
 </head>
 <body>
@@ -70,14 +78,32 @@
   </div>
 
   <div class="navtabs">
-    <div class="navtab active" id="navPatrimoine" onclick="allerPatrimoine()">Patrimoine</div>
+    <div class="navtab active" id="navDashboard" onclick="allerDashboard()">Dashboard</div>
+    <div class="navtab" id="navPatrimoine" onclick="allerPatrimoine()">Patrimoine</div>
     <div class="navtab" id="navLoyers" onclick="allerLoyers()">Loyers</div>
     <div class="navtab" id="navFinances" onclick="allerFinances()">Finances</div>
   </div>
 
-  <!-- Vue Patrimoine -->
-  <div id="vuePatrimoine">
+  <!-- Vue Dashboard -->
+  <div id="vueDashboard">
     <div class="card">
+      <h2>Vue d'ensemble</h2>
+      <div class="small" id="dashPeriode"></div>
+      <div class="dash-grid" style="margin-top:10px;">
+        <div class="dash-box ok"><div class="label">Loyers attendus (mois)</div><div class="value" id="dashAttendu">—</div></div>
+        <div class="dash-box ok"><div class="label">Loyers encaissés</div><div class="value" id="dashEncaisse">—</div></div>
+        <div class="dash-box danger"><div class="label">Loyers en retard</div><div class="value" id="dashRetard">—</div></div>
+        <div class="dash-box warn"><div class="label">Charges du mois</div><div class="value" id="dashCharges">—</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Répartition par structure</h3>
+      <div id="dashStructures">Chargement...</div>
+    </div>
+  </div>
+
+  <!-- Vue Patrimoine -->
+  <div id="vuePatrimoine" style="display:none;">    <div class="card">
       <h2>Créer une structure</h2>
       <input id="nomStructure" placeholder="Nom (ex: SCI ALPHA)">
       <select id="typeStructure">
@@ -212,7 +238,7 @@
     document.getElementById('auth').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     document.getElementById('userEmail').textContent = user.email;
-    chargerPatrimoine();
+    allerDashboard();
   }
 
   supabase.auth.getSession().then(({ data: { session } }) => { if (session) afficherApp(); });
@@ -419,6 +445,73 @@
     chargerBail(currentLotId);
   }
 
+  function hideAllViews() {
+    document.getElementById('vueDashboard').style.display = 'none';
+    document.getElementById('vuePatrimoine').style.display = 'none';
+    document.getElementById('vueLoyers').style.display = 'none';
+    document.getElementById('vueFinances').style.display = 'none';
+    document.getElementById('vueFicheImmeuble').style.display = 'none';
+    document.getElementById('vueFicheLot').style.display = 'none';
+  }
+
+  async function allerDashboard() {
+    setActiveTab('navDashboard');
+    hideAllViews();
+    document.getElementById('vueDashboard').style.display = 'block';
+    chargerDashboard();
+  }
+
+  async function chargerDashboard() {
+    const now = new Date();
+    const moisDate = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-01';
+    document.getElementById('dashPeriode').textContent = now.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+
+    const { data: structures } = await supabase.from('structures').select('*').order('created_at');
+    if (!structures || !structures.length) {
+      document.getElementById('dashAttendu').textContent = '0 €';
+      document.getElementById('dashEncaisse').textContent = '0 €';
+      document.getElementById('dashRetard').textContent = '0';
+      document.getElementById('dashCharges').textContent = '0 €';
+      document.getElementById('dashStructures').textContent = 'Aucune structure pour le moment.';
+      return;
+    }
+
+    // Tous les paiements du mois en cours, tous baux confondus (via jointure lots/immeubles/structure)
+    const { data: paiements } = await supabase
+      .from('paiements')
+      .select('*, baux(lot_id, lots(immeuble_id, immeubles(structure_id)))')
+      .eq('mois', moisDate);
+
+    let attendu = 0, encaisse = 0, retardCount = 0;
+    const parStructure = {};
+
+    (paiements || []).forEach(p => {
+      const total = Number(p.montant_loyer) + Number(p.montant_charges);
+      attendu += total;
+      if (p.statut === 'paye') encaisse += total;
+      if (p.statut === 'en_retard') retardCount++;
+
+      const sId = p.baux && p.baux.lots && p.baux.lots.immeubles ? p.baux.lots.immeubles.structure_id : null;
+      if (sId) parStructure[sId] = (parStructure[sId] || 0) + total;
+    });
+
+    // Charges (dépenses) du mois, toutes structures
+    const debutMois = moisDate;
+    const finMois = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+    const { data: depenses } = await supabase
+      .from('transactions').select('montant').eq('type', 'depense').gte('date', debutMois).lte('date', finMois);
+    const totalCharges = (depenses || []).reduce((a, t) => a + Number(t.montant), 0);
+
+    document.getElementById('dashAttendu').textContent = attendu.toLocaleString('fr-FR') + ' €';
+    document.getElementById('dashEncaisse').textContent = encaisse.toLocaleString('fr-FR') + ' €';
+    document.getElementById('dashRetard').textContent = retardCount;
+    document.getElementById('dashCharges').textContent = totalCharges.toLocaleString('fr-FR') + ' €';
+
+    document.getElementById('dashStructures').innerHTML = structures.map(s => `
+      <div class="struct-line"><span>${s.nom}</span><span>${(parStructure[s.id] || 0).toLocaleString('fr-FR')} €</span></div>
+    `).join('');
+  }
+
   // ---------- NAVIGATION ----------
   function allerPatrimoine() {
     setActiveTab('navPatrimoine');
@@ -448,14 +541,6 @@
   function setActiveTab(id) {
     document.querySelectorAll('.navtab').forEach(el => el.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-  }
-
-  function hideAllViews() {
-    document.getElementById('vuePatrimoine').style.display = 'none';
-    document.getElementById('vueLoyers').style.display = 'none';
-    document.getElementById('vueFinances').style.display = 'none';
-    document.getElementById('vueFicheImmeuble').style.display = 'none';
-    document.getElementById('vueFicheLot').style.display = 'none';
   }
 
   // ---------- LOYERS & PAIEMENTS ----------
