@@ -224,6 +224,20 @@
     <div class="card" id="zoneBail"></div>
   </div>
 
+  <!-- Vue Fiche Locataire -->
+  <div id="vueFicheLocataire" style="display:none;">
+    <div class="breadcrumb" onclick="retourFicheLot()">← Retour au lot</div>
+    <div class="card" id="infoLocataire"></div>
+    <div class="card">
+      <h3>Colocataire(s)</h3>
+      <div id="colocatairesLocataire"></div>
+    </div>
+    <div class="card">
+      <h3>Historique des paiements</h3>
+      <div id="historiquePaiementsLocataire">Chargement...</div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -396,6 +410,57 @@
     chargerLots(currentImmeubleId);
   }
 
+  // ---------- FICHE LOCATAIRE ----------
+  async function ouvrirFicheLocataire(locataireId) {
+    document.getElementById('vueFicheLot').style.display = 'none';
+    document.getElementById('vueFicheLocataire').style.display = 'block';
+
+    const { data: locataire } = await supabase.from('locataires').select('*').eq('id', locataireId).single();
+    document.getElementById('infoLocataire').innerHTML = `
+      <h2>${locataire.nom}</h2>
+      <div class="small">${locataire.email || 'Email non renseigné'}</div>
+      <div class="small">${locataire.telephone || 'Téléphone non renseigné'}</div>
+    `;
+
+    // Trouver le/les bail(aux) de ce locataire
+    const { data: rattachements } = await supabase.from('bail_locataires').select('bail_id').eq('locataire_id', locataireId);
+    const bailIds = (rattachements || []).map(r => r.bail_id);
+
+    // Colocataires (autres locataires sur le(s) même(s) bail(aux))
+    let colocataires = [];
+    if (bailIds.length) {
+      const { data: autresRattachements } = await supabase.from('bail_locataires').select('locataire_id').in('bail_id', bailIds).neq('locataire_id', locataireId);
+      const autresIds = [...new Set((autresRattachements || []).map(r => r.locataire_id))];
+      if (autresIds.length) {
+        const { data } = await supabase.from('locataires').select('*').in('id', autresIds);
+        colocataires = data || [];
+      }
+    }
+    document.getElementById('colocatairesLocataire').innerHTML = colocataires.length
+      ? colocataires.map(c => `<div>${c.nom}</div>`).join('')
+      : '<div class="small">Aucun (locataire seul)</div>';
+
+    // Historique des paiements sur ce(s) bail(aux)
+    const div = document.getElementById('historiquePaiementsLocataire');
+    if (!bailIds.length) { div.textContent = 'Aucun bail associé.'; return; }
+
+    const { data: paiements } = await supabase.from('paiements').select('*').in('bail_id', bailIds).order('mois', { ascending: false });
+    if (!paiements || !paiements.length) { div.textContent = 'Aucun paiement enregistré.'; return; }
+
+    div.innerHTML = paiements.map(p => `
+      <div class="tx-row">
+        <span>${p.mois}</span>
+        <span class="badge ${p.statut === 'paye' ? 'occupe' : (p.statut === 'en_retard' ? 'travaux' : 'vacant')}">${p.statut.replace('_', ' ')}</span>
+      </div>
+    `).join('');
+  }
+
+  function retourFicheLot() {
+    document.getElementById('vueFicheLocataire').style.display = 'none';
+    document.getElementById('vueFicheLot').style.display = 'block';
+    chargerBail(currentLotId);
+  }
+
   async function chargerBail(lotId) {
     const zone = document.getElementById('zoneBail');
     const { data: baux } = await supabase.from('baux').select('*').eq('lot_id', lotId).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
@@ -414,7 +479,7 @@
         <div class="small">Type : ${bail.type} · Loyer : ${bail.loyer} € · Charges : ${bail.charges} €</div>
         <div class="small">Du ${bail.date_debut} ${bail.date_fin ? 'au ' + bail.date_fin : '(sans fin)'}</div>
         <h3 style="margin-top:12px;">Locataire(s)</h3>
-        ${locataires.map(l => `<div>${l.nom} ${l.email ? '— ' + l.email : ''}</div>`).join('') || '<div class="small">Aucun</div>'}
+        ${locataires.map(l => `<div class="lot-row" onclick="ouvrirFicheLocataire('${l.id}')" style="cursor:pointer;">${l.nom} ${l.email ? '— ' + l.email : ''}</div>`).join('') || '<div class="small">Aucun</div>'}
       `;
     } else {
       zone.innerHTML = `
@@ -479,6 +544,7 @@
     document.getElementById('vuePrets').style.display = 'none';
     document.getElementById('vueFicheImmeuble').style.display = 'none';
     document.getElementById('vueFicheLot').style.display = 'none';
+    document.getElementById('vueFicheLocataire').style.display = 'none';
   }
 
   async function allerDashboard() {
