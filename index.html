@@ -31,7 +31,8 @@
   /* ---------- AUTH SCREEN ---------- */
   .auth-wrap { max-width: 400px; margin: 90px auto; padding: 0 24px; }
   .auth-wrap h1 { font-size: 1.6rem; margin-bottom: 28px; display: flex; align-items: center; gap: 10px; }
-  .auth-wrap h1::before { content: ""; width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), #8b5cf6); display: inline-block; }
+  .logo-mark { width: 28px; height: 28px; border-radius: 6px; background: #22c55e; flex-shrink: 0; position: relative; display: inline-block; vertical-align: middle; }
+  .logo-mark::after { content: ""; position: absolute; left: 6px; top: 12px; width: 16px; height: 4px; background: white; border-radius: 2px; }
   .auth-wrap input { width: 100%; padding: 12px 14px; margin: 6px 0; border-radius: 10px; border: 1px solid var(--border); background: var(--panel); color: var(--text); }
   .auth-wrap button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; }
   .btn-primary { background: var(--accent); color: white; }
@@ -45,7 +46,6 @@
 
   .sidebar { width: 232px; background: var(--sidebar-bg); border-right: 1px solid var(--border); flex-shrink: 0; padding: 20px 14px; display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; }
   .brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 20px 8px; font-weight: 700; font-size: 1.15rem; }
-  .brand-mark { width: 26px; height: 26px; border-radius: 7px; background: linear-gradient(135deg, var(--accent), #8b5cf6); flex-shrink: 0; }
   .nav-item { display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 9px; color: var(--text-dim); cursor: pointer; font-size: 0.92rem; margin-bottom: 2px; }
   .nav-item:hover { background: var(--panel); color: var(--text); }
   .nav-item.active { background: var(--panel-2); color: var(--text); font-weight: 600; }
@@ -90,22 +90,64 @@
   .placeholder-box { text-align: center; padding: 60px 20px; color: var(--text-dim); }
   .placeholder-box .ic { font-size: 2.2rem; margin-bottom: 12px; }
 
-  .tree-structure { font-weight: 700; margin: 16px 0 6px 0; font-size: 1rem; }
-  .tree-structure:first-child { margin-top: 0; }
-  .tree-immeuble { padding: 12px 14px; background: var(--panel-2); border-radius: 9px; margin-top: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-  .tree-immeuble:hover { background: #223055; }
-
   .progress-bar { background: var(--panel-2); border-radius: 6px; height: 7px; margin: 10px 0 4px 0; overflow: hidden; }
   .progress-fill { background: var(--accent); height: 100%; }
 
   .btn-mark-paid { padding: 6px 12px; font-size: 0.8rem; border-radius: 7px; border: none; background: var(--accent); color: white; cursor: pointer; }
+
+  .grid-cal { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 900px) { .grid-cal { grid-template-columns: 1fr; } }
+  .cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; font-size: 0.75rem; color: var(--text-dim); text-align: center; margin-bottom: 6px; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal-day { min-height: 78px; border-radius: 8px; background: var(--panel-2); padding: 6px; font-size: 0.75rem; }
+  .cal-day.empty { background: transparent; }
+  .cal-day .num { color: var(--text-dim); margin-bottom: 4px; }
+  .cal-day .item { border-radius: 5px; padding: 2px 5px; margin-bottom: 2px; font-size: 0.68rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+  .cal-day .item.paye { background: var(--green-bg); color: var(--green); }
+  .cal-day .item.a_venir { background: var(--amber-bg); color: var(--amber); }
+  .cal-day .item.en_retard { background: var(--red-bg); color: var(--red); }
+  .side-item { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+  .side-item:last-child { border-bottom: none; }
+
+  .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 140px; padding-top: 10px; }
+  .bar-chart .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+  .bar-chart .bar { width: 100%; border-radius: 4px 4px 0 0; background: var(--accent); min-height: 2px; }
+  .bar-chart .bar.negatif { background: var(--red); }
+  .bar-chart .bar-label { font-size: 0.65rem; color: var(--text-dim); margin-top: 6px; }
+
+  .donut-wrap { display: flex; align-items: center; gap: 20px; }
+  .donut-legend { flex: 1; }
+  .donut-legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; padding: 5px 0; }
+  .donut-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+  .alert-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.87rem; }
+  .alert-row:last-child { border-bottom: none; }
+  .alert-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .alert-dot.high { background: var(--red); }
+  .alert-dot.med { background: var(--amber); }
+
+  .arbre-header { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-dim); padding: 0 4px 8px 4px; border-bottom: 1px solid var(--border); margin-bottom: 6px; }
+  .arbre-row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; align-items: center; padding: 9px 4px; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .arbre-row.structure { font-weight: 700; }
+  .arbre-row.immeuble { cursor: pointer; }
+  .arbre-row.immeuble:hover { color: var(--accent); }
+  .arbre-row.immeuble .nom-col { padding-left: 18px; }
+  .arbre-total { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; padding: 10px 4px 0 4px; margin-top: 6px; border-top: 1px solid var(--border); font-weight: 700; font-size: 0.88rem; }
+
+  .immeuble-image { height: 140px; border-radius: 10px; background: var(--panel-2); display: flex; align-items: center; justify-content: center; font-size: 2.8rem; margin-bottom: 16px; }
+  .badge-outline { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.74rem; border: 1px solid var(--border); color: var(--text-dim); }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin: 18px 0 16px 0; }
+  .tab { padding: 9px 14px; cursor: pointer; color: var(--text-dim); font-size: 0.88rem; border-bottom: 2px solid transparent; }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--text); border-bottom-color: var(--accent); font-weight: 600; }
 </style>
 </head>
 <body>
 
 <!-- ============ AUTH ============ -->
 <div class="auth-wrap" id="auth">
-  <h1>Investa</h1>
+  <h1><span class="logo-mark"></span> Investa</h1>
   <input id="email" type="email" placeholder="Email">
   <input id="password" type="password" placeholder="Mot de passe">
   <button class="btn-primary" onclick="seConnecter()">Se connecter</button>
@@ -119,7 +161,7 @@
 
     <!-- SIDEBAR -->
     <div class="sidebar">
-      <div class="brand"><span class="brand-mark"></span> Investa</div>
+      <div class="brand"><span class="logo-mark"></span> Investa</div>
 
       <div class="nav-item active" id="nav-dashboard" onclick="allerDashboard()"><span class="ic">◈</span> Dashboard</div>
       <div class="nav-item" id="nav-patrimoine" onclick="allerPatrimoine()"><span class="ic">🏢</span> Patrimoine</div>
@@ -129,8 +171,8 @@
       <div class="nav-item" id="nav-prets" onclick="allerPrets()"><span class="ic">🏦</span> Prêts</div>
       <div class="nav-item" onclick="allerPlaceholder('Documents', 'Import, classement et recherche de vos documents.')"><span class="ic">📄</span> Documents</div>
       <div class="nav-item" id="nav-alertes" onclick="allerAlertes()"><span class="ic">🔔</span> Tâches & Alertes</div>
-      <div class="nav-item" onclick="allerPlaceholder('Fiscalité', 'Synthèse annuelle par régime fiscal.')"><span class="ic">📊</span> Fiscalité</div>
-      <div class="nav-item" onclick="allerPlaceholder('Rapports', 'Export Excel et rapports personnalisés.')"><span class="ic">📈</span> Rapports</div>
+      <div class="nav-item" id="nav-fiscalite" onclick="allerFiscalite()"><span class="ic">📊</span> Fiscalité</div>
+      <div class="nav-item" id="nav-rapports" onclick="allerRapports()"><span class="ic">📈</span> Rapports</div>
       <div class="nav-item" id="nav-parametres" onclick="allerParametres()"><span class="ic">⚙️</span> Paramètres</div>
 
       <div class="nav-footer">
@@ -145,7 +187,7 @@
       <!-- ===== DASHBOARD ===== -->
       <div id="page-dashboard">
         <div class="page-header">
-          <div><h2>Vue d'ensemble</h2><div class="page-sub" id="dashPeriode"></div></div>
+          <div><h2>Bonjour 👋</h2><div class="page-sub">Voici un aperçu de votre patrimoine — <span id="dashPeriode"></span></div></div>
         </div>
         <div class="grid-4">
           <div class="stat-card green"><div class="lbl">Loyers attendus</div><div class="val" id="dashAttendu">—</div></div>
@@ -153,9 +195,25 @@
           <div class="stat-card red"><div class="lbl">Loyers en retard</div><div class="val" id="dashRetard">—</div></div>
           <div class="stat-card amber"><div class="lbl">Charges du mois</div><div class="val" id="dashCharges">—</div></div>
         </div>
+        <div class="grid-4">
+          <div class="stat-card" id="dashCashflowCard"><div class="lbl">Cash-flow du mois</div><div class="val" id="dashCashflow">—</div></div>
+          <div class="stat-card"><div class="lbl">Taux d'occupation</div><div class="val" id="dashOccupation">—</div></div>
+          <div class="stat-card"><div class="lbl">Valeur du patrimoine</div><div class="val" id="dashValeur">—</div></div>
+          <div class="stat-card"><div class="lbl">Dette restante</div><div class="val" id="dashDette">—</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Cash-flow mensuel</h3>
+            <div id="dashChartCashflow">Chargement...</div>
+          </div>
+          <div class="card">
+            <h3>Répartition par structure</h3>
+            <div id="dashDonut">Chargement...</div>
+          </div>
+        </div>
         <div class="card">
-          <h3>Répartition par structure</h3>
-          <div id="dashStructures">Chargement...</div>
+          <h3>Alertes</h3>
+          <div id="dashAlertes">Chargement...</div>
         </div>
       </div>
 
@@ -175,34 +233,89 @@
           <button class="btn-primary" onclick="creerStructure()">Créer</button>
         </div>
         <div class="card">
-          <h3>Arborescence</h3>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h3 style="margin:0;">Arborescence</h3>
+            <input id="rechercheArbre" placeholder="Rechercher..." style="width:200px; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);" oninput="filtrerArbrePatrimoine()">
+          </div>
+          <div class="arbre-header">
+            <span>Nom</span><span>Type</span><span>Loyers mensuels</span>
+          </div>
           <div id="arbrePatrimoine">Chargement...</div>
+          <div class="arbre-total" id="arbreTotal"></div>
         </div>
       </div>
 
       <!-- ===== FICHE IMMEUBLE ===== -->
       <div id="page-fiche-immeuble" style="display:none;">
         <div class="breadcrumb" onclick="retourPatrimoine()">← Retour au patrimoine</div>
-        <div class="card" id="infoImmeuble"></div>
         <div class="card">
-          <h3>Ajouter un lot</h3>
-          <input id="nomLot" placeholder="Nom (ex: Appartement 3, Parking B12)">
-          <select id="typeLot">
-            <option value="appartement">Appartement</option>
-            <option value="chambre">Chambre</option>
-            <option value="studio">Studio</option>
-            <option value="parking">Parking</option>
-            <option value="garage">Garage</option>
-            <option value="local_commercial">Local commercial</option>
-          </select>
-          <input id="surfaceLot" type="number" placeholder="Surface (m²) — optionnel">
-          <button class="btn-primary" onclick="creerLot()">Ajouter le lot</button>
+          <div class="immeuble-image">🏢</div>
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <h2 style="margin:0 0 4px 0;" id="immTitre"></h2>
+              <div class="small" id="immSousTitre"></div>
+              <div style="margin-top:8px; display:flex; gap:6px;" id="immBadges"></div>
+            </div>
+            <button class="btn-secondary" style="padding:9px 16px; border-radius:8px; width:auto;" onclick="ouvrirEditionImmeuble()">Modifier</button>
+          </div>
+          <div class="grid-4" style="margin-top:18px; margin-bottom:0;">
+            <div class="stat-card"><div class="lbl">Valeur estimée</div><div class="val" id="immValeur">—</div></div>
+            <div class="stat-card red"><div class="lbl">Dette</div><div class="val" id="immDette">—</div></div>
+            <div class="stat-card amber"><div class="lbl">Charges annuelles</div><div class="val" id="immCharges">—</div></div>
+            <div class="stat-card green"><div class="lbl">Cash-flow annuel</div><div class="val" id="immCashflow">—</div></div>
+          </div>
+          <div class="stat-card" style="margin-top:14px;"><div class="lbl">Rendement brut</div><div class="val" id="immRendement">—</div></div>
         </div>
-        <div class="card">
-          <h3>Lots</h3>
-          <div id="listeLots">Chargement...</div>
+
+        <div class="tabs">
+          <div class="tab active" id="tabImmLots" onclick="switchTabImmeuble('lots')">Lots</div>
+          <div class="tab" id="tabImmFinances" onclick="switchTabImmeuble('finances')">Finances</div>
+          <div class="tab" id="tabImmDocuments" onclick="switchTabImmeuble('documents')">Documents</div>
+          <div class="tab" id="tabImmDiagnostics" onclick="switchTabImmeuble('diagnostics')">Diagnostics</div>
+          <div class="tab" id="tabImmInformations" onclick="switchTabImmeuble('informations')">Informations</div>
+        </div>
+
+        <div id="tabcontent-lots">
+          <div class="card">
+            <h3>Ajouter un lot</h3>
+            <input id="nomLot" placeholder="Nom (ex: Appartement 3, Parking B12)">
+            <select id="typeLot">
+              <option value="appartement">Appartement</option>
+              <option value="chambre">Chambre</option>
+              <option value="studio">Studio</option>
+              <option value="parking">Parking</option>
+              <option value="garage">Garage</option>
+              <option value="local_commercial">Local commercial</option>
+            </select>
+            <input id="surfaceLot" type="number" placeholder="Surface (m²) — optionnel">
+            <button class="btn-primary" onclick="creerLot()">Ajouter le lot</button>
+          </div>
+          <div class="card">
+            <h3>Lots</h3>
+            <div id="listeLots">Chargement...</div>
+          </div>
+        </div>
+
+        <div id="tabcontent-finances" style="display:none;">
+          <div class="card">
+            <h3>Transactions de cet immeuble</h3>
+            <div id="immTransactions">Chargement...</div>
+          </div>
+        </div>
+
+        <div id="tabcontent-documents" style="display:none;">
+          <div class="card"><div class="placeholder-box"><div class="ic">🚧</div>Documents de l'immeuble — bientôt disponible</div></div>
+        </div>
+
+        <div id="tabcontent-diagnostics" style="display:none;">
+          <div class="card"><div class="placeholder-box"><div class="ic">🚧</div>Suivi des diagnostics (DPE, amiante...) — bientôt disponible</div></div>
+        </div>
+
+        <div id="tabcontent-informations" style="display:none;">
+          <div class="card" id="immInformationsForm">Chargement...</div>
         </div>
       </div>
+
 
       <!-- ===== FICHE LOT ===== -->
       <div id="page-fiche-lot" style="display:none;">
@@ -235,14 +348,32 @@
 
       <!-- ===== LOYERS ===== -->
       <div id="page-loyers" style="display:none;">
-        <div class="page-header"><h2>Loyers & Paiements</h2></div>
-        <div class="card">
-          <select id="structureLoyers" onchange="chargerLoyers()"></select>
-          <input id="moisLoyers" type="month">
-          <button class="btn-secondary" onclick="chargerLoyers()">Afficher</button>
+        <div class="page-header">
+          <h2>Loyers & Paiements</h2>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <select id="structureLoyers" onchange="chargerCalendrierLoyers()" style="width:auto; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);"></select>
+            <button class="btn-secondary" style="padding:8px 12px; border-radius:8px;" onclick="moisLoyersPrecedent()">←</button>
+            <div id="moisLoyersLabel" style="min-width:130px; text-align:center; font-weight:600;"></div>
+            <button class="btn-secondary" style="padding:8px 12px; border-radius:8px;" onclick="moisLoyersSuivant()">→</button>
+          </div>
         </div>
-        <div class="card">
-          <div id="listePaiements">Sélectionne une structure et un mois.</div>
+        <div class="grid-cal">
+          <div class="card">
+            <div class="cal-weekdays">
+              <div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div>
+            </div>
+            <div class="cal-grid" id="calGrid">Chargement...</div>
+          </div>
+          <div>
+            <div class="card">
+              <h3>À venir</h3>
+              <div id="listeAVenir">—</div>
+            </div>
+            <div class="card">
+              <h3>En retard</h3>
+              <div id="listeEnRetard">—</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -323,6 +454,41 @@
         </div>
       </div>
 
+      <!-- ===== FISCALITÉ ===== -->
+      <div id="page-fiscalite" style="display:none;">
+        <div class="page-header"><h2>Fiscalité</h2></div>
+        <div class="card">
+          <select id="structureFiscalite" onchange="chargerFiscalite()"></select>
+          <select id="anneeFiscalite" onchange="chargerFiscalite()"></select>
+        </div>
+        <div class="grid-2" style="margin-bottom:16px;">
+          <div class="stat-card green"><div class="lbl">Revenus bruts</div><div class="val" id="fiscRevenus">—</div></div>
+          <div class="stat-card red"><div class="lbl">Charges déductibles</div><div class="val" id="fiscCharges">—</div></div>
+        </div>
+        <div class="stat-card" style="margin-bottom:16px;"><div class="lbl" id="fiscRegimeLabel">Résultat foncier</div><div class="val" id="fiscResultat">—</div></div>
+        <div class="card">
+          <div class="small">La répartition entre associés (SCI à l'IR) n'est pas encore disponible — bientôt.</div>
+        </div>
+      </div>
+
+      <!-- ===== RAPPORTS ===== -->
+      <div id="page-rapports" style="display:none;">
+        <div class="page-header"><h2>Rapports</h2></div>
+        <div class="card">
+          <select id="structureRapports"></select>
+        </div>
+        <div class="card">
+          <h3>Transactions (recettes & dépenses)</h3>
+          <div class="small" style="margin-bottom:10px;">Détail des flux par période, avec catégories.</div>
+          <button class="btn-primary" onclick="exporterTransactions()">Exporter en Excel (CSV)</button>
+        </div>
+        <div class="card">
+          <h3>Loyers & paiements</h3>
+          <div class="small" style="margin-bottom:10px;">Historique complet des paiements par bail.</div>
+          <button class="btn-primary" onclick="exporterPaiements()">Exporter en Excel (CSV)</button>
+        </div>
+      </div>
+
       <!-- ===== PLACEHOLDER (écrans pas encore construits) ===== -->
       <div id="page-placeholder" style="display:none;">
         <div class="page-header"><h2 id="placeholderTitle"></h2></div>
@@ -391,8 +557,8 @@
   supabaseClient.auth.getSession().then(({ data: { session } }) => { if (session) afficherApp(); });
 
   // ---------- NAVIGATION ----------
-  const PAGES = ['dashboard', 'patrimoine', 'locataires', 'loyers', 'finances', 'prets', 'parametres', 'alertes', 'fiche-immeuble', 'fiche-lot', 'fiche-locataire', 'placeholder'];
-  const NAV_IDS = ['nav-dashboard', 'nav-patrimoine', 'nav-locataires', 'nav-loyers', 'nav-finances', 'nav-prets', 'nav-parametres', 'nav-alertes'];
+  const PAGES = ['dashboard', 'patrimoine', 'locataires', 'loyers', 'finances', 'prets', 'parametres', 'alertes', 'fiscalite', 'rapports', 'fiche-immeuble', 'fiche-lot', 'fiche-locataire', 'placeholder'];
+  const NAV_IDS = ['nav-dashboard', 'nav-patrimoine', 'nav-locataires', 'nav-loyers', 'nav-finances', 'nav-prets', 'nav-parametres', 'nav-alertes', 'nav-fiscalite', 'nav-rapports'];
 
   function hideAllPages() {
     PAGES.forEach(p => { const el = document.getElementById('page-' + p); if (el) el.style.display = 'none'; });
@@ -424,19 +590,16 @@
 
     const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
     if (!structures || !structures.length) {
-      document.getElementById('dashAttendu').textContent = '0 €';
-      document.getElementById('dashEncaisse').textContent = '0 €';
-      document.getElementById('dashRetard').textContent = '0';
-      document.getElementById('dashCharges').textContent = '0 €';
-      document.getElementById('dashStructures').innerHTML = '<div class="empty-state">Aucune structure pour le moment.</div>';
+      ['dashAttendu','dashEncaisse','dashRetard','dashCharges','dashCashflow','dashOccupation','dashValeur','dashDette'].forEach(id => document.getElementById(id).textContent = '—');
+      document.getElementById('dashDonut').innerHTML = '<div class="empty-state">Aucune structure pour le moment.</div>';
+      document.getElementById('dashChartCashflow').innerHTML = '<div class="empty-state">—</div>';
+      document.getElementById('dashAlertes').innerHTML = '<div class="empty-state">—</div>';
       return;
     }
+    const structIds = structures.map(s => s.id);
 
-    const { data: paiements } = await supabaseClient
-      .from('paiements')
-      .select('*, baux(lot_id, lots(immeuble_id, immeubles(structure_id)))')
-      .eq('mois', moisDate);
-
+    // Loyers du mois
+    const { data: paiements } = await supabaseClient.from('paiements').select('*, baux(lot_id, lots(immeuble_id, immeubles(structure_id)))').eq('mois', moisDate);
     let attendu = 0, encaisse = 0, retardCount = 0;
     const parStructure = {};
     (paiements || []).forEach(p => {
@@ -448,18 +611,112 @@
       if (sId) parStructure[sId] = (parStructure[sId] || 0) + total;
     });
 
+    // Charges du mois
     const finMois = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
-    const { data: depenses } = await supabaseClient.from('transactions').select('montant').eq('type', 'depense').gte('date', moisDate).lte('date', finMois);
+    const { data: depenses } = await supabaseClient.from('transactions').select('montant').eq('type', 'depense').in('structure_id', structIds).gte('date', moisDate).lte('date', finMois);
     const totalCharges = (depenses || []).reduce((a, t) => a + Number(t.montant), 0);
+
+    // Valeur patrimoine / dette / occupation
+    const { data: immeubles } = await supabaseClient.from('immeubles').select('*').in('structure_id', structIds);
+    const valeurPatrimoine = (immeubles || []).reduce((a, i) => a + Number(i.valeur_estimee || 0), 0);
+    const dette = (immeubles || []).reduce((a, i) => a + Number(i.dette_restante || 0), 0);
+
+    const immeubleIds = (immeubles || []).map(i => i.id);
+    let tauxOccupation = 0;
+    if (immeubleIds.length) {
+      const { data: lots } = await supabaseClient.from('lots').select('statut').in('immeuble_id', immeubleIds);
+      if (lots && lots.length) {
+        const occupes = lots.filter(l => l.statut === 'occupe').length;
+        tauxOccupation = Math.round((occupes / lots.length) * 100);
+      }
+    }
 
     document.getElementById('dashAttendu').textContent = attendu.toLocaleString('fr-FR') + ' €';
     document.getElementById('dashEncaisse').textContent = encaisse.toLocaleString('fr-FR') + ' €';
     document.getElementById('dashRetard').textContent = retardCount;
     document.getElementById('dashCharges').textContent = totalCharges.toLocaleString('fr-FR') + ' €';
+    const cashflow = encaisse - totalCharges;
+    document.getElementById('dashCashflow').textContent = (cashflow >= 0 ? '+' : '') + cashflow.toLocaleString('fr-FR') + ' €';
+    document.getElementById('dashCashflowCard').className = 'stat-card ' + (cashflow >= 0 ? 'green' : 'red');
+    document.getElementById('dashOccupation').textContent = tauxOccupation + ' %';
+    document.getElementById('dashValeur').textContent = valeurPatrimoine.toLocaleString('fr-FR') + ' €';
+    document.getElementById('dashDette').textContent = dette.toLocaleString('fr-FR') + ' €';
 
-    document.getElementById('dashStructures').innerHTML = structures.map(s => `
-      <div class="row"><span>${s.nom}</span><span>${(parStructure[s.id] || 0).toLocaleString('fr-FR')} €</span></div>
-    `).join('');
+    // Donut répartition par structure
+    dessinerDonut(structures, parStructure, attendu);
+
+    // Graphique cash-flow 12 derniers mois
+    await dessinerCashflow12Mois(structIds);
+
+    // Alertes (retards + échéances proches)
+    await chargerAlertesDashboard(structIds);
+  }
+
+  const COULEURS_DONUT = ['#3b82f6', '#8b5cf6', '#22c55e', '#f59e0b', '#ec4899'];
+
+  function dessinerDonut(structures, parStructure, total) {
+    const div = document.getElementById('dashDonut');
+    if (!total) { div.innerHTML = '<div class="empty-state">Aucun loyer ce mois-ci.</div>'; return; }
+    let offset = 0;
+    const rayon = 45, circonference = 2 * Math.PI * rayon;
+    let cercles = '';
+    let legende = '';
+    structures.forEach((s, i) => {
+      const val = parStructure[s.id] || 0;
+      const part = val / total;
+      if (part <= 0) return;
+      const couleur = COULEURS_DONUT[i % COULEURS_DONUT.length];
+      const longueur = part * circonference;
+      cercles += `<circle cx="60" cy="60" r="${rayon}" fill="none" stroke="${couleur}" stroke-width="16" stroke-dasharray="${longueur} ${circonference - longueur}" stroke-dashoffset="${-offset}" transform="rotate(-90 60 60)"/>`;
+      offset += longueur;
+      legende += `<div class="donut-legend-item"><span class="donut-dot" style="background:${couleur};"></span>${s.nom} <span class="small" style="margin-left:auto;">${Math.round(part * 100)}%</span></div>`;
+    });
+    div.innerHTML = `<div class="donut-wrap"><svg width="120" height="120" viewBox="0 0 120 120">${cercles}</svg><div class="donut-legend">${legende}</div></div>`;
+  }
+
+  async function dessinerCashflow12Mois(structIds) {
+    const div = document.getElementById('dashChartCashflow');
+    const now = new Date();
+    const debut = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+    const { data: txs } = await supabaseClient.from('transactions').select('*').in('structure_id', structIds).gte('date', debut.toISOString().split('T')[0]);
+
+    const mois = [];
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      mois.push({ label: d.toLocaleDateString('fr-FR', { month: 'short' }), annee: d.getFullYear(), moisIdx: d.getMonth(), val: 0 });
+    }
+    (txs || []).forEach(t => {
+      const d = new Date(t.date);
+      const m = mois.find(mm => mm.annee === d.getFullYear() && mm.moisIdx === d.getMonth());
+      if (m) m.val += (t.type === 'recette' ? 1 : -1) * Number(t.montant);
+    });
+
+    const maxAbs = Math.max(1, ...mois.map(m => Math.abs(m.val)));
+    div.innerHTML = `<div class="bar-chart">${mois.map(m => `
+      <div class="bar-col">
+        <div class="bar ${m.val < 0 ? 'negatif' : ''}" style="height:${Math.max(2, Math.abs(m.val) / maxAbs * 110)}px;" title="${m.label} : ${m.val.toLocaleString('fr-FR')} €"></div>
+        <div class="bar-label">${m.label}</div>
+      </div>
+    `).join('')}</div>`;
+  }
+
+  async function chargerAlertesDashboard(structIds) {
+    const div = document.getElementById('dashAlertes');
+    const { data: retards } = await supabaseClient.from('paiements').select('*, baux(lots(nom, type, immeuble_id, immeubles(adresse, structure_id)))').eq('statut', 'en_retard');
+    const retardsFiltres = (retards || []).filter(p => p.baux && p.baux.lots && p.baux.lots.immeubles && structIds.includes(p.baux.lots.immeubles.structure_id));
+
+    const dans30jours = new Date(); dans30jours.setDate(dans30jours.getDate() + 30);
+    const { data: baux } = await supabaseClient.from('baux').select('*, lots(nom, type, immeubles(adresse, structure_id))').eq('statut', 'actif').not('date_fin', 'is', null).lte('date_fin', dans30jours.toISOString().split('T')[0]).gte('date_fin', new Date().toISOString().split('T')[0]);
+    const bauxFiltres = (baux || []).filter(b => b.lots && b.lots.immeubles && structIds.includes(b.lots.immeubles.structure_id));
+
+    let html = '';
+    retardsFiltres.slice(0, 3).forEach(p => {
+      html += `<div class="alert-row"><span class="alert-dot high"></span> Loyer en retard — ${p.baux.lots.nom || p.baux.lots.type}, ${p.baux.lots.immeubles.adresse}</div>`;
+    });
+    bauxFiltres.slice(0, 3).forEach(b => {
+      html += `<div class="alert-row"><span class="alert-dot med"></span> Bail arrivant à échéance le ${b.date_fin} — ${b.lots.nom || b.lots.type}, ${b.lots.immeubles.adresse}</div>`;
+    });
+    div.innerHTML = html || '<div class="empty-state">Aucune alerte pour le moment. 👍</div>';
   }
 
   // ---------- STRUCTURES ----------
@@ -480,31 +737,68 @@
     chargerPatrimoine();
   }
 
+  let donneesArbrePatrimoine = [];
+
   async function chargerPatrimoine() {
     const div = document.getElementById('arbrePatrimoine');
     div.textContent = 'Chargement...';
     const { data: structures, error: errS } = await supabaseClient.from('structures').select('*').order('created_at');
     if (errS) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
-    if (!structures.length) { div.innerHTML = '<div class="empty-state">Aucune structure pour le moment.</div>'; return; }
+    if (!structures.length) { div.innerHTML = '<div class="empty-state">Aucune structure pour le moment.</div>'; document.getElementById('arbreTotal').innerHTML = ''; return; }
 
-    let html = '';
+    donneesArbrePatrimoine = [];
     for (const s of structures) {
-      html += `<div class="tree-structure">${s.nom} <span class="small">(${s.type})</span></div>`;
       const { data: immeubles } = await supabaseClient.from('immeubles').select('*').eq('structure_id', s.id).order('created_at');
-      html += `<div style="display:flex; gap:8px; margin:8px 0;">
-        <input id="adresseImmeuble_${s.id}" placeholder="Adresse du nouvel immeuble" style="flex:1; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);">
-        <button class="btn-secondary" style="padding:9px 14px; border-radius:8px;" onclick="creerImmeuble('${s.id}')">Ajouter</button>
-      </div>`;
-      if (immeubles && immeubles.length) {
-        for (const im of immeubles) {
-          const { count } = await supabaseClient.from('lots').select('*', { count: 'exact', head: true }).eq('immeuble_id', im.id);
-          html += `<div class="tree-immeuble" onclick="ouvrirFicheImmeuble('${im.id}')">
-            <span>🏢 ${im.adresse}</span><span class="small">${count || 0} lot(s)</span>
-          </div>`;
+      const immeublesData = [];
+      for (const im of (immeubles || [])) {
+        const { data: lots } = await supabaseClient.from('lots').select('id').eq('immeuble_id', im.id);
+        const lotIds = (lots || []).map(l => l.id);
+        let loyersMensuels = 0;
+        if (lotIds.length) {
+          const { data: bauxActifs } = await supabaseClient.from('baux').select('loyer, charges').in('lot_id', lotIds).eq('statut', 'actif');
+          loyersMensuels = (bauxActifs || []).reduce((a, b) => a + Number(b.loyer) + Number(b.charges), 0);
         }
+        immeublesData.push({ id: im.id, adresse: im.adresse, nbLots: lotIds.length, loyersMensuels });
       }
+      donneesArbrePatrimoine.push({ id: s.id, nom: s.nom, type: s.type, immeubles: immeublesData });
     }
-    div.innerHTML = html;
+    rendreArbrePatrimoine('');
+  }
+
+  function filtrerArbrePatrimoine() {
+    rendreArbrePatrimoine(document.getElementById('rechercheArbre').value.toLowerCase());
+  }
+
+  function rendreArbrePatrimoine(filtre) {
+    const div = document.getElementById('arbrePatrimoine');
+    let html = '';
+    let totalGeneral = 0;
+
+    donneesArbrePatrimoine.forEach(s => {
+      const immeublesFiltres = filtre ? s.immeubles.filter(im => im.adresse.toLowerCase().includes(filtre)) : s.immeubles;
+      const structureMatch = !filtre || s.nom.toLowerCase().includes(filtre) || immeublesFiltres.length > 0;
+      if (!structureMatch) return;
+
+      const totalStructure = s.immeubles.reduce((a, im) => a + im.loyersMensuels, 0);
+      totalGeneral += totalStructure;
+
+      html += `<div class="arbre-row structure"><span>${s.nom}</span><span class="small">${s.type}</span><span>${totalStructure.toLocaleString('fr-FR')} €</span></div>`;
+      html += `<div style="display:flex; gap:8px; margin:8px 0 8px 18px;">
+        <input id="adresseImmeuble_${s.id}" placeholder="Adresse du nouvel immeuble" style="flex:1; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-size:0.85rem;">
+        <button class="btn-secondary" style="padding:8px 14px; border-radius:8px; font-size:0.85rem;" onclick="creerImmeuble('${s.id}')">Ajouter</button>
+      </div>`;
+
+      (filtre ? immeublesFiltres : s.immeubles).forEach(im => {
+        html += `<div class="arbre-row immeuble" onclick="ouvrirFicheImmeuble('${im.id}')">
+          <span class="nom-col">🏢 ${im.adresse} <span class="small">(${im.nbLots} lot${im.nbLots > 1 ? 's' : ''})</span></span>
+          <span class="small">Immeuble</span>
+          <span>${im.loyersMensuels.toLocaleString('fr-FR')} €</span>
+        </div>`;
+      });
+    });
+
+    div.innerHTML = html || '<div class="empty-state">Aucun résultat.</div>';
+    document.getElementById('arbreTotal').innerHTML = `<span>Total</span><span></span><span>${totalGeneral.toLocaleString('fr-FR')} €</span>`;
   }
 
   async function creerImmeuble(structureId) {
@@ -518,18 +812,101 @@
   function retourPatrimoine() { allerPatrimoine(); }
 
   // ---------- FICHE IMMEUBLE ----------
+  let currentImmeubleData = null;
+
   async function ouvrirFicheImmeuble(id) {
     currentImmeubleId = id;
     setActiveNav('nav-patrimoine'); hideAllPages();
     document.getElementById('page-fiche-immeuble').style.display = 'block';
 
     const { data: im } = await supabaseClient.from('immeubles').select('*').eq('id', id).single();
-    document.getElementById('infoImmeuble').innerHTML = `
-      <h3 style="margin-bottom:4px;">${im.adresse}</h3>
-      <div class="small">${im.ville || ''} ${im.code_postal || ''}</div>
-      <div class="small" style="margin-top:6px;">Valeur estimée : ${im.valeur_estimee ? im.valeur_estimee + ' €' : '—'} · Dette : ${im.dette_restante ? im.dette_restante + ' €' : '—'}</div>
+    currentImmeubleData = im;
+
+    document.getElementById('immTitre').textContent = im.adresse;
+    document.getElementById('immSousTitre').textContent = [im.ville, im.code_postal].filter(Boolean).join(' ') || 'Ville non renseignée';
+    document.getElementById('immBadges').innerHTML = `
+      <span class="badge-outline">Immeuble</span>
+      ${im.annee_construction ? `<span class="badge-outline">Construit en ${im.annee_construction}</span>` : ''}
     `;
+    document.getElementById('immValeur').textContent = im.valeur_estimee ? Number(im.valeur_estimee).toLocaleString('fr-FR') + ' €' : '—';
+    document.getElementById('immDette').textContent = im.dette_restante ? Number(im.dette_restante).toLocaleString('fr-FR') + ' €' : '—';
+
+    // Charges annuelles = dépenses des 12 derniers mois pour cet immeuble
+    const ilYA1An = new Date(); ilYA1An.setFullYear(ilYA1An.getFullYear() - 1);
+    const { data: depenses } = await supabaseClient.from('transactions').select('montant').eq('immeuble_id', id).eq('type', 'depense').gte('date', ilYA1An.toISOString().split('T')[0]);
+    const chargesAnnuelles = (depenses || []).reduce((a, t) => a + Number(t.montant), 0);
+    document.getElementById('immCharges').textContent = chargesAnnuelles.toLocaleString('fr-FR') + ' €';
+
+    // Loyers annuels = baux actifs des lots de cet immeuble, annualisés
+    const { data: lotsIm } = await supabaseClient.from('lots').select('id').eq('immeuble_id', id);
+    const lotIds = (lotsIm || []).map(l => l.id);
+    let loyersAnnuels = 0;
+    if (lotIds.length) {
+      const { data: bauxActifs } = await supabaseClient.from('baux').select('loyer, charges').in('lot_id', lotIds).eq('statut', 'actif');
+      loyersAnnuels = (bauxActifs || []).reduce((a, b) => a + (Number(b.loyer) + Number(b.charges)) * 12, 0);
+    }
+    const cashflowAnnuel = loyersAnnuels - chargesAnnuelles;
+    document.getElementById('immCashflow').textContent = (cashflowAnnuel >= 0 ? '+' : '') + cashflowAnnuel.toLocaleString('fr-FR') + ' €';
+
+    const rendement = im.valeur_estimee && Number(im.valeur_estimee) > 0 ? (loyersAnnuels / Number(im.valeur_estimee) * 100).toFixed(1) : null;
+    document.getElementById('immRendement').textContent = rendement !== null ? rendement + ' %' : '—';
+
+    switchTabImmeuble('lots');
     chargerLots(id);
+  }
+
+  function switchTabImmeuble(tab) {
+    ['lots', 'finances', 'documents', 'diagnostics', 'informations'].forEach(t => {
+      document.getElementById('tabcontent-' + t).style.display = t === tab ? 'block' : 'none';
+      document.getElementById('tabImm' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
+    });
+    if (tab === 'finances') chargerFinancesImmeuble();
+    if (tab === 'informations') chargerInformationsImmeuble();
+  }
+
+  async function chargerFinancesImmeuble() {
+    const div = document.getElementById('immTransactions');
+    div.textContent = 'Chargement...';
+    const { data: txs, error } = await supabaseClient.from('transactions').select('*').eq('immeuble_id', currentImmeubleId).order('date', { ascending: false });
+    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
+    if (!txs || !txs.length) { div.innerHTML = '<div class="empty-state">Aucune transaction rattachée à cet immeuble. (Rattache-les depuis Finances en précisant l\u2019immeuble.)</div>'; return; }
+    div.innerHTML = txs.map(t => `
+      <div class="row">
+        <span>${t.date} — ${t.categorie}${t.description ? ' (' + t.description + ')' : ''}</span>
+        <span style="color:${t.type === 'depense' ? 'var(--red)' : 'var(--green)'}; font-weight:600;">${t.type === 'depense' ? '-' : '+'}${Number(t.montant).toLocaleString('fr-FR')} €</span>
+      </div>
+    `).join('');
+  }
+
+  function chargerInformationsImmeuble() {
+    const im = currentImmeubleData;
+    document.getElementById('immInformationsForm').innerHTML = `
+      <h3>Informations générales</h3>
+      <input id="editAdresse" placeholder="Adresse" value="${(im.adresse || '').replace(/"/g, '&quot;')}">
+      <input id="editVille" placeholder="Ville" value="${(im.ville || '').replace(/"/g, '&quot;')}">
+      <input id="editCodePostal" placeholder="Code postal" value="${im.code_postal || ''}">
+      <input id="editAnnee" type="number" placeholder="Année de construction" value="${im.annee_construction || ''}">
+      <input id="editValeur" type="number" placeholder="Valeur estimée (€)" value="${im.valeur_estimee || ''}">
+      <input id="editDette" type="number" placeholder="Dette restante (€)" value="${im.dette_restante || ''}">
+      <button class="btn-primary" onclick="sauvegarderInformationsImmeuble()">Enregistrer</button>
+    `;
+  }
+
+  async function sauvegarderInformationsImmeuble() {
+    const { error } = await supabaseClient.from('immeubles').update({
+      adresse: document.getElementById('editAdresse').value,
+      ville: document.getElementById('editVille').value || null,
+      code_postal: document.getElementById('editCodePostal').value || null,
+      annee_construction: document.getElementById('editAnnee').value ? parseInt(document.getElementById('editAnnee').value) : null,
+      valeur_estimee: document.getElementById('editValeur').value ? parseFloat(document.getElementById('editValeur').value) : null,
+      dette_restante: document.getElementById('editDette').value ? parseFloat(document.getElementById('editDette').value) : null
+    }).eq('id', currentImmeubleId);
+    if (error) return alert('Erreur : ' + error.message);
+    ouvrirFicheImmeuble(currentImmeubleId);
+  }
+
+  function ouvrirEditionImmeuble() {
+    switchTabImmeuble('informations');
   }
 
   async function chargerLots(immeubleId) {
@@ -561,6 +938,7 @@
   function retourFicheImmeuble() {
     setActiveNav('nav-patrimoine'); hideAllPages();
     document.getElementById('page-fiche-immeuble').style.display = 'block';
+    switchTabImmeuble('lots');
     chargerLots(currentImmeubleId);
   }
 
@@ -704,7 +1082,10 @@
     `).join('');
   }
 
-  // ---------- LOYERS ----------
+  // ---------- LOYERS (calendrier) ----------
+  let moisLoyersCourant = new Date();
+  moisLoyersCourant.setDate(1);
+
   async function allerLoyers() {
     setActiveNav('nav-loyers'); hideAllPages();
     document.getElementById('page-loyers').style.display = 'block';
@@ -713,28 +1094,35 @@
       const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
       sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
     }
-    const moisInput = document.getElementById('moisLoyers');
-    if (!moisInput.value) {
-      const now = new Date();
-      moisInput.value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
-    }
-    chargerLoyers();
+    chargerCalendrierLoyers();
   }
 
-  async function chargerLoyers() {
+  function moisLoyersPrecedent() {
+    moisLoyersCourant.setMonth(moisLoyersCourant.getMonth() - 1);
+    chargerCalendrierLoyers();
+  }
+
+  function moisLoyersSuivant() {
+    moisLoyersCourant.setMonth(moisLoyersCourant.getMonth() + 1);
+    chargerCalendrierLoyers();
+  }
+
+  async function chargerCalendrierLoyers() {
     const structureId = document.getElementById('structureLoyers').value;
-    const moisStr = document.getElementById('moisLoyers').value;
-    if (!structureId || !moisStr) return;
-    const moisDate = moisStr + '-01';
-    const div = document.getElementById('listePaiements');
-    div.textContent = 'Chargement...';
+    document.getElementById('moisLoyersLabel').textContent = moisLoyersCourant.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    if (!structureId) return;
+
+    const annee = moisLoyersCourant.getFullYear();
+    const moisIdx = moisLoyersCourant.getMonth();
+    const moisDate = annee + '-' + String(moisIdx + 1).padStart(2, '0') + '-01';
 
     const { data: baux, error } = await supabaseClient.from('baux').select('*, lots(nom, type, immeubles(adresse, structure_id))').eq('statut', 'actif');
-    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
+    if (error) return;
     const bauxStructure = (baux || []).filter(b => b.lots && b.lots.immeubles && b.lots.immeubles.structure_id === structureId);
-    if (!bauxStructure.length) { div.innerHTML = '<div class="empty-state">Aucun bail actif pour cette structure.</div>'; return; }
 
-    let html = '';
+    const nbJoursMois = new Date(annee, moisIdx + 1, 0).getDate();
+    const items = [];
+
     for (const bail of bauxStructure) {
       let { data: paiementsExistants } = await supabaseClient.from('paiements').select('*').eq('bail_id', bail.id).eq('mois', moisDate);
       let paiement = paiementsExistants && paiementsExistants[0];
@@ -745,33 +1133,51 @@
         }).select().single();
         paiement = nouveau;
       }
-      const { data: rattachements } = await supabaseClient.from('bail_locataires').select('locataire_id').eq('bail_id', bail.id);
-      const ids = (rattachements || []).map(r => r.locataire_id);
-      let noms = '';
-      if (ids.length) {
-        const { data: locs } = await supabaseClient.from('locataires').select('nom').in('id', ids);
-        noms = (locs || []).map(l => l.nom).join(', ');
-      }
-      html += `
-        <div class="row">
-          <div>
-            <strong>${bail.lots.nom || bail.lots.type}</strong> — ${bail.lots.immeubles.adresse}<br>
-            <span class="small">${noms} · ${paiement.montant_loyer + paiement.montant_charges} €</span>
-          </div>
-          <div style="text-align:right;">
-            <span class="badge ${paiement.statut === 'paye' ? 'occupe' : (paiement.statut === 'en_retard' ? 'travaux' : 'vacant')}">${paiement.statut.replace('_', ' ')}</span>
-            ${paiement.statut !== 'paye' ? `<br><button class="btn-mark-paid" style="margin-top:6px;" onclick="marquerPaye('${paiement.id}')">Marquer payé</button>` : ''}
-          </div>
-        </div>
-      `;
+      const jourEcheance = Math.min(new Date(bail.date_debut).getDate(), nbJoursMois);
+      const lotNom = bail.lots.nom || bail.lots.type;
+      items.push({ paiement, jour: jourEcheance, lotNom, adresse: bail.lots.immeubles.adresse, montant: Number(paiement.montant_loyer) + Number(paiement.montant_charges) });
     }
-    div.innerHTML = html;
+
+    dessinerCalendrier(annee, moisIdx, items);
+    remplirListesLaterales(items);
+  }
+
+  function dessinerCalendrier(annee, moisIdx, items) {
+    const grid = document.getElementById('calGrid');
+    const premierJourSemaine = (new Date(annee, moisIdx, 1).getDay() + 6) % 7; // 0 = lundi
+    const nbJours = new Date(annee, moisIdx + 1, 0).getDate();
+    const aujourdhui = new Date();
+
+    let html = '';
+    for (let i = 0; i < premierJourSemaine; i++) html += '<div class="cal-day empty"></div>';
+    for (let jour = 1; jour <= nbJours; jour++) {
+      const itemsJour = items.filter(it => it.jour === jour);
+      const estAujourdhui = aujourdhui.getDate() === jour && aujourdhui.getMonth() === moisIdx && aujourdhui.getFullYear() === annee;
+      html += `<div class="cal-day" style="${estAujourdhui ? 'outline:1.5px solid var(--accent);' : ''}">
+        <div class="num">${jour}</div>
+        ${itemsJour.map(it => `<div class="item ${it.paiement.statut}" onclick="marquerPaye('${it.paiement.id}')" title="${it.lotNom} — ${it.montant} €">${it.lotNom} ${it.montant}€</div>`).join('')}
+      </div>`;
+    }
+    grid.innerHTML = html;
+  }
+
+  function remplirListesLaterales(items) {
+    const aVenir = items.filter(it => it.paiement.statut === 'a_venir');
+    const enRetard = items.filter(it => it.paiement.statut === 'en_retard');
+
+    document.getElementById('listeAVenir').innerHTML = aVenir.length
+      ? aVenir.map(it => `<div class="side-item"><span>${it.jour.toString().padStart(2,'0')}/${(moisLoyersCourant.getMonth()+1).toString().padStart(2,'0')} — ${it.lotNom}</span><span>${it.montant} €</span></div>`).join('')
+      : '<div class="empty-state">Aucun</div>';
+
+    document.getElementById('listeEnRetard').innerHTML = enRetard.length
+      ? enRetard.map(it => `<div class="side-item"><span>${it.lotNom}</span><span class="badge travaux">${it.montant} €</span></div>`).join('')
+      : '<div class="empty-state">Aucun</div>';
   }
 
   async function marquerPaye(paiementId) {
     const { error } = await supabaseClient.from('paiements').update({ statut: 'paye', date_paiement: new Date().toISOString().split('T')[0] }).eq('id', paiementId);
     if (error) return alert('Erreur : ' + error.message);
-    chargerLoyers();
+    chargerCalendrierLoyers();
   }
 
   // ---------- FINANCES ----------
@@ -1023,6 +1429,114 @@
         </div>
       `;
     }).join('');
+  }
+
+  // ---------- FISCALITÉ ----------
+  async function allerFiscalite() {
+    setActiveNav('nav-fiscalite'); hideAllPages();
+    document.getElementById('page-fiscalite').style.display = 'block';
+
+    const selS = document.getElementById('structureFiscalite');
+    if (!selS.options.length) {
+      const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
+      selS.innerHTML = (structures || []).map(s => `<option value="${s.id}" data-type="${s.type}">${s.nom}</option>`).join('');
+    }
+    const selA = document.getElementById('anneeFiscalite');
+    if (!selA.options.length) {
+      const now = new Date().getFullYear();
+      let opts = '';
+      for (let y = now; y >= now - 4; y--) opts += `<option value="${y}">${y}</option>`;
+      selA.innerHTML = opts;
+    }
+    chargerFiscalite();
+  }
+
+  async function chargerFiscalite() {
+    const selS = document.getElementById('structureFiscalite');
+    const structureId = selS.value;
+    const annee = document.getElementById('anneeFiscalite').value;
+    if (!structureId || !annee) return;
+
+    const typeStructure = selS.options[selS.selectedIndex] ? selS.options[selS.selectedIndex].dataset.type : '';
+    document.getElementById('fiscRegimeLabel').textContent = typeStructure === 'sci_is' ? 'Résultat (avant IS)' : 'Résultat foncier';
+
+    const debut = annee + '-01-01';
+    const fin = annee + '-12-31';
+    const { data: txs, error } = await supabaseClient.from('transactions').select('*').eq('structure_id', structureId).gte('date', debut).lte('date', fin);
+
+    if (error) {
+      document.getElementById('fiscRevenus').textContent = '—';
+      document.getElementById('fiscCharges').textContent = '—';
+      document.getElementById('fiscResultat').textContent = '—';
+      return;
+    }
+
+    const revenus = (txs || []).filter(t => t.type === 'recette').reduce((a, t) => a + Number(t.montant), 0);
+    const charges = (txs || []).filter(t => t.type === 'depense').reduce((a, t) => a + Number(t.montant), 0);
+
+    document.getElementById('fiscRevenus').textContent = revenus.toLocaleString('fr-FR') + ' €';
+    document.getElementById('fiscCharges').textContent = charges.toLocaleString('fr-FR') + ' €';
+    document.getElementById('fiscResultat').textContent = (revenus - charges).toLocaleString('fr-FR') + ' €';
+  }
+
+  // ---------- RAPPORTS ----------
+  async function allerRapports() {
+    setActiveNav('nav-rapports'); hideAllPages();
+    document.getElementById('page-rapports').style.display = 'block';
+    const sel = document.getElementById('structureRapports');
+    if (!sel.options.length) {
+      const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
+      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
+    }
+  }
+
+  function telechargerCSV(nomFichier, lignes) {
+    const csv = lignes.map(ligne => ligne.map(champ => {
+      const val = (champ === null || champ === undefined) ? '' : String(champ);
+      return '"' + val.replace(/"/g, '""') + '"';
+    }).join(';')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nomFichier;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  async function exporterTransactions() {
+    const structureId = document.getElementById('structureRapports').value;
+    if (!structureId) return alert('Sélectionne une structure');
+    const { data: txs, error } = await supabaseClient.from('transactions').select('*').eq('structure_id', structureId).order('date');
+    if (error) return alert('Erreur : ' + error.message);
+    const lignes = [['Date', 'Type', 'Catégorie', 'Montant', 'Description']];
+    (txs || []).forEach(t => lignes.push([t.date, t.type, t.categorie, t.montant, t.description || '']));
+    telechargerCSV('transactions.csv', lignes);
+  }
+
+  async function exporterPaiements() {
+    const structureId = document.getElementById('structureRapports').value;
+    if (!structureId) return alert('Sélectionne une structure');
+    const { data: baux } = await supabaseClient.from('baux').select('id, lots(nom, type, immeubles(adresse, structure_id))');
+    const bauxStructure = (baux || []).filter(b => b.lots && b.lots.immeubles && b.lots.immeubles.structure_id === structureId);
+    const bailIds = bauxStructure.map(b => b.id);
+    if (!bailIds.length) { telechargerCSV('paiements.csv', [['Aucun bail pour cette structure']]); return; }
+
+    const { data: paiements, error } = await supabaseClient.from('paiements').select('*, baux(id)').in('bail_id', bailIds).order('mois');
+    if (error) return alert('Erreur : ' + error.message);
+
+    const lignes = [['Mois', 'Lot', 'Immeuble', 'Loyer', 'Charges', 'Statut', 'Date de paiement']];
+    (paiements || []).forEach(p => {
+      const bail = bauxStructure.find(b => b.id === p.bail_id);
+      const lot = bail ? bail.lots : null;
+      lignes.push([
+        p.mois, lot ? (lot.nom || lot.type) : '', lot && lot.immeubles ? lot.immeubles.adresse : '',
+        p.montant_loyer, p.montant_charges, p.statut, p.date_paiement || ''
+      ]);
+    });
+    telechargerCSV('paiements.csv', lignes);
   }
 </script>
 
