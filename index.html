@@ -56,6 +56,8 @@
   .dash-box.danger .value { color: #f87171; }
   .dash-box.ok .value { color: #4ade80; }
   .struct-line { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #334155; font-size: 0.9rem; }
+  .progress-bar { background: #334155; border-radius: 6px; height: 8px; margin: 8px 0; overflow: hidden; }
+  .progress-fill { background: #3b82f6; height: 100%; }
 </style>
 </head>
 <body>
@@ -82,6 +84,7 @@
     <div class="navtab" id="navPatrimoine" onclick="allerPatrimoine()">Patrimoine</div>
     <div class="navtab" id="navLoyers" onclick="allerLoyers()">Loyers</div>
     <div class="navtab" id="navFinances" onclick="allerFinances()">Finances</div>
+    <div class="navtab" id="navPrets" onclick="allerPrets()">Prêts</div>
   </div>
 
   <!-- Vue Dashboard -->
@@ -161,6 +164,29 @@
     <div class="card">
       <h3>Transactions</h3>
       <div id="listeTransactions">Chargement...</div>
+    </div>
+  </div>
+
+  <!-- Vue Prêts -->
+  <div id="vuePrets" style="display:none;">
+    <div class="card">
+      <h2>Prêts & Financements</h2>
+      <select id="immeublePrets" onchange="chargerPrets()"></select>
+    </div>
+
+    <div class="card">
+      <h3>Ajouter un prêt</h3>
+      <input id="banquePret" placeholder="Banque (ex: Crédit Agricole)">
+      <input id="capitalInitialPret" type="number" placeholder="Capital initial (€)">
+      <input id="tauxPret" type="number" step="0.01" placeholder="Taux (%)">
+      <input id="mensualitePret" type="number" placeholder="Mensualité (€)">
+      <input id="dateDebutPret" type="date">
+      <input id="dateFinPret" type="date">
+      <button onclick="creerPret()">Ajouter</button>
+    </div>
+
+    <div class="card">
+      <div id="listePrets">Sélectionne un immeuble.</div>
     </div>
   </div>
 
@@ -450,6 +476,7 @@
     document.getElementById('vuePatrimoine').style.display = 'none';
     document.getElementById('vueLoyers').style.display = 'none';
     document.getElementById('vueFinances').style.display = 'none';
+    document.getElementById('vuePrets').style.display = 'none';
     document.getElementById('vueFicheImmeuble').style.display = 'none';
     document.getElementById('vueFicheLot').style.display = 'none';
   }
@@ -671,6 +698,81 @@
     document.getElementById('montantTx').value = '';
     document.getElementById('descriptionTx').value = '';
     chargerFinances();
+  }
+
+  // ---------- PRÊTS ----------
+  async function allerPrets() {
+    setActiveTab('navPrets');
+    hideAllViews();
+    document.getElementById('vuePrets').style.display = 'block';
+
+    const sel = document.getElementById('immeublePrets');
+    if (!sel.options.length) {
+      const { data: structures } = await supabase.from('structures').select('id, nom');
+      const structIds = (structures || []).map(s => s.id);
+      let immeubles = [];
+      if (structIds.length) {
+        const { data } = await supabase.from('immeubles').select('*').in('structure_id', structIds).order('created_at');
+        immeubles = data || [];
+      }
+      sel.innerHTML = immeubles.map(i => `<option value="${i.id}">${i.adresse}</option>`).join('');
+    }
+    chargerPrets();
+  }
+
+  async function chargerPrets() {
+    const immeubleId = document.getElementById('immeublePrets').value;
+    const div = document.getElementById('listePrets');
+    if (!immeubleId) { div.textContent = 'Aucun immeuble disponible.'; return; }
+
+    const { data: prets, error } = await supabase.from('prets').select('*').eq('immeuble_id', immeubleId).order('created_at', { ascending: false });
+    if (error) { div.textContent = 'Erreur de chargement.'; return; }
+    if (!prets || !prets.length) { div.textContent = 'Aucun prêt pour cet immeuble.'; return; }
+
+    div.innerHTML = prets.map(p => {
+      const pct = p.capital_initial > 0 ? Math.round(((p.capital_initial - p.capital_restant) / p.capital_initial) * 100) : 0;
+      return `
+        <div class="card" style="margin:8px 0;">
+          <strong>${p.banque || 'Prêt'}</strong>
+          <div class="small">Capital initial : ${p.capital_initial.toLocaleString('fr-FR')} € · Restant : ${p.capital_restant.toLocaleString('fr-FR')} €</div>
+          <div class="small">Taux : ${p.taux || '—'} % · Mensualité : ${p.mensualite ? p.mensualite.toLocaleString('fr-FR') + ' €' : '—'}</div>
+          <div class="small">Du ${p.date_debut || '—'} au ${p.date_fin || '—'}</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;"></div></div>
+          <div class="small">${pct}% remboursé</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function creerPret() {
+    const immeubleId = document.getElementById('immeublePrets').value;
+    const banque = document.getElementById('banquePret').value;
+    const capitalInitial = document.getElementById('capitalInitialPret').value;
+    const taux = document.getElementById('tauxPret').value;
+    const mensualite = document.getElementById('mensualitePret').value;
+    const dateDebut = document.getElementById('dateDebutPret').value;
+    const dateFin = document.getElementById('dateFinPret').value;
+
+    if (!immeubleId) return alert('Sélectionne un immeuble');
+    if (!capitalInitial) return alert('Capital initial requis');
+
+    const { error } = await supabase.from('prets').insert({
+      immeuble_id: immeubleId,
+      banque: banque || null,
+      capital_initial: parseFloat(capitalInitial),
+      capital_restant: parseFloat(capitalInitial),
+      taux: taux ? parseFloat(taux) : null,
+      mensualite: mensualite ? parseFloat(mensualite) : null,
+      date_debut: dateDebut || null,
+      date_fin: dateFin || null
+    });
+    if (error) return alert('Erreur : ' + error.message);
+
+    document.getElementById('banquePret').value = '';
+    document.getElementById('capitalInitialPret').value = '';
+    document.getElementById('tauxPret').value = '';
+    document.getElementById('mensualitePret').value = '';
+    chargerPrets();
   }
 </script>
 
