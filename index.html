@@ -165,6 +165,26 @@
   .fisc-line:last-child { border-bottom: none; font-weight: 700; padding-top: 8px; }
   .fisc-table-header { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 8px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-dim); padding: 0 4px 8px 4px; border-bottom: 1px solid var(--border); margin-bottom: 6px; }
   .fisc-assoc-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 8px; align-items: center; padding: 9px 4px; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+
+  .severite { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; }
+  .severite.haute { background: var(--red-bg); color: var(--red); }
+  .severite.moyenne { background: var(--amber-bg); color: var(--amber); }
+  .tache-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .tache-row:last-child { border-bottom: none; }
+  .tache-row.fait span.titre { text-decoration: line-through; color: var(--text-dim); }
+  .tache-check { width: 18px; height: 18px; cursor: pointer; flex-shrink: 0; }
+
+  .rapport-item { display: flex; justify-content: space-between; align-items: center; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px; }
+
+  .params-layout { display: grid; grid-template-columns: 220px 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 900px) { .params-layout { grid-template-columns: 1fr; } }
+  .params-menu { padding: 12px; }
+  .params-menu-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); padding: 6px 10px 10px 10px; }
+  .params-menu-item { padding: 9px 10px; border-radius: 8px; cursor: pointer; font-size: 0.88rem; color: var(--text-dim); }
+  .params-menu-item:hover { background: var(--panel-2); color: var(--text); }
+  .params-menu-item.active { background: var(--panel-2); color: var(--text); font-weight: 600; }
+  .params-menu-item.disabled { cursor: default; opacity: 0.45; }
+  .params-menu-item.disabled:hover { background: none; color: var(--text-dim); }
   .table-header-paiements { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-dim); padding: 0 4px 8px 4px; border-bottom: 1px solid var(--border); margin-bottom: 6px; }
 </style>
 </head>
@@ -329,7 +349,12 @@
         </div>
 
         <div id="tabcontent-documents" style="display:none;">
-          <div class="card"><div class="placeholder-box"><div class="ic">🚧</div>Documents de l'immeuble — bientôt disponible</div></div>
+          <div class="card">
+            <h3>Ajouter un document</h3>
+            <input type="file" id="fichierDocImmeuble">
+            <button class="btn-primary" onclick="uploaderDocument('immeuble', currentImmeubleId, currentImmeubleData.structure_id, 'fichierDocImmeuble')">Envoyer</button>
+          </div>
+          <div class="card"><div id="listeDocumentsImmeuble">Chargement...</div></div>
         </div>
 
         <div id="tabcontent-diagnostics" style="display:none;">
@@ -379,7 +404,12 @@
         </div>
 
         <div id="tabcontent-lot-documents" style="display:none;">
-          <div class="card"><div class="placeholder-box"><div class="ic">🚧</div>Documents du lot (bail signé, état des lieux...) — bientôt disponible</div></div>
+          <div class="card">
+            <h3>Ajouter un document</h3>
+            <input type="file" id="fichierDocLot">
+            <button class="btn-primary" onclick="uploaderDocument('lot', currentLotId, currentLotStructureId, 'fichierDocLot')">Envoyer</button>
+          </div>
+          <div class="card"><div id="listeDocumentsLot">Chargement...</div></div>
         </div>
 
         <div id="tabcontent-lot-charges" style="display:none;">
@@ -407,7 +437,9 @@
         <div class="grid-2">
           <div class="card">
             <h3>Documents</h3>
-            <div class="placeholder-box" style="padding:30px 10px;"><div class="ic">🚧</div>Bientôt disponible</div>
+            <input type="file" id="fichierDocLocataire" style="margin-bottom:8px;">
+            <button class="btn-primary" onclick="uploaderDocument('locataire', currentLocataireId, currentLocataireStructureId, 'fichierDocLocataire')">Envoyer</button>
+            <div id="listeDocumentsLocataire" style="margin-top:12px;">Chargement...</div>
           </div>
           <div class="card">
             <h3>Informations</h3>
@@ -537,27 +569,71 @@
       <!-- ===== PARAMÈTRES ===== -->
       <div id="page-parametres" style="display:none;">
         <div class="page-header"><h2>Paramètres</h2></div>
-        <div class="card">
-          <h3>Apparence</h3>
-          <div class="theme-switch">
-            <button class="theme-btn" id="btnThemeDark" onclick="definirTheme('dark')">🌙 Sombre</button>
-            <button class="theme-btn" id="btnThemeLight" onclick="definirTheme('light')">☀️ Clair</button>
+        <div class="params-layout">
+          <div class="card params-menu">
+            <div class="params-menu-title">Mon organisation</div>
+            <div class="params-menu-item active" id="pmStructures" onclick="switchParamsSection('structures')">Structures</div>
+            <div class="params-menu-item" id="pmComptes" onclick="switchParamsSection('comptes')">Comptes bancaires</div>
+            <div class="params-menu-item" id="pmCategories" onclick="switchParamsSection('categories')">Catégories</div>
+            <div class="params-menu-item disabled" title="Bientôt disponible">Automatisations</div>
+            <div class="params-menu-item disabled" title="Bientôt disponible">Modèles de documents</div>
+            <div class="params-menu-item" id="pmApparence" onclick="switchParamsSection('apparence')">Préférences</div>
           </div>
-        </div>
-        <div class="card">
-          <h3>Mes structures</h3>
-          <div id="listeStructuresParams">Chargement...</div>
-        </div>
-        <div class="card" id="cardMembres" style="display:none;">
-          <h3>Membres de <span id="nomStructureSelectionnee"></span></h3>
-          <div id="listeMembres">Chargement...</div>
-          <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
-            <input id="emailInvite" type="email" placeholder="Email d'un membre (compte Investa existant)">
-            <select id="roleInvite">
-              <option value="gestionnaire">Gestionnaire</option>
-              <option value="lecture_seule">Lecture seule</option>
-            </select>
-            <button class="btn-primary" onclick="inviterMembre()">Ajouter</button>
+
+          <div class="params-content">
+            <div id="ps-structures">
+              <div class="card">
+                <h3>Mes structures</h3>
+                <div id="listeStructuresParams">Chargement...</div>
+              </div>
+              <div class="card" id="cardMembres" style="display:none;">
+                <h3>Membres de <span id="nomStructureSelectionnee"></span></h3>
+                <div id="listeMembres">Chargement...</div>
+                <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
+                  <input id="emailInvite" type="email" placeholder="Email d'un membre (compte Investa existant)">
+                  <select id="roleInvite">
+                    <option value="gestionnaire">Gestionnaire</option>
+                    <option value="lecture_seule">Lecture seule</option>
+                  </select>
+                  <button class="btn-primary" onclick="inviterMembre()">Ajouter</button>
+                </div>
+              </div>
+            </div>
+
+            <div id="ps-comptes" style="display:none;">
+              <div class="card">
+                <select id="structureComptes" onchange="chargerComptesBancaires()"></select>
+                <div style="display:flex; gap:8px; margin-top:10px;">
+                  <input id="nomCompte" placeholder="Nom du compte (ex: Compte courant)" style="flex:2;">
+                  <input id="banqueCompte" placeholder="Banque" style="flex:1;">
+                  <input id="soldeCompte" type="number" placeholder="Solde (€)" style="flex:1;">
+                  <button class="btn-primary" style="width:auto; padding:10px 16px;" onclick="creerCompteBancaire()">Ajouter</button>
+                </div>
+              </div>
+              <div class="card"><div id="listeComptesBancaires">Sélectionne une structure.</div></div>
+            </div>
+
+            <div id="ps-categories" style="display:none;">
+              <div class="card">
+                <select id="structureCategories" onchange="chargerCategories()"></select>
+                <div style="display:flex; gap:8px; margin-top:10px;">
+                  <input id="nomCategorie" placeholder="Nom de la catégorie (ex: Assurance)" style="flex:2;">
+                  <select id="typeCategorie" style="flex:1;"><option value="depense">Dépense</option><option value="recette">Recette</option></select>
+                  <button class="btn-primary" style="width:auto; padding:10px 16px;" onclick="creerCategorie()">Ajouter</button>
+                </div>
+              </div>
+              <div class="card"><div id="listeCategories">Sélectionne une structure.</div></div>
+            </div>
+
+            <div id="ps-apparence" style="display:none;">
+              <div class="card">
+                <h3>Apparence</h3>
+                <div class="theme-switch">
+                  <button class="theme-btn" id="btnThemeDark" onclick="definirTheme('dark')">🌙 Sombre</button>
+                  <button class="theme-btn" id="btnThemeLight" onclick="definirTheme('light')">☀️ Clair</button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -565,13 +641,36 @@
       <!-- ===== ALERTES ===== -->
       <div id="page-alertes" style="display:none;">
         <div class="page-header"><h2>Tâches & Alertes</h2></div>
-        <div class="card">
-          <h3>Loyers en retard</h3>
-          <div id="alertesRetard">Chargement...</div>
+
+        <div class="tabs">
+          <div class="tab active" id="tabAlToutes" onclick="switchTabAlertes('toutes')">Toutes</div>
+          <div class="tab" id="tabAlAlertes" onclick="switchTabAlertes('alertes')">Alertes</div>
+          <div class="tab" id="tabAlTaches" onclick="switchTabAlertes('taches')">Tâches</div>
+          <div class="tab" id="tabAlInformations" onclick="switchTabAlertes('informations')">Informations</div>
         </div>
-        <div class="card">
-          <h3>Baux arrivant à échéance (60 prochains jours)</h3>
-          <div id="alertesEcheance">Chargement...</div>
+
+        <div id="tabcontent-al-toutes">
+          <div class="card"><div id="listeAlertesToutes">Chargement...</div></div>
+        </div>
+
+        <div id="tabcontent-al-alertes" style="display:none;">
+          <div class="card"><div id="listeAlertesSeules">Chargement...</div></div>
+        </div>
+
+        <div id="tabcontent-al-taches" style="display:none;">
+          <div class="card">
+            <select id="structureTaches" onchange="chargerTaches()" style="width:auto; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);"></select>
+            <div style="display:flex; gap:8px; margin-top:10px;">
+              <input id="titreTache" placeholder="Nouvelle tâche" style="flex:2;">
+              <input id="echeanceTache" type="date" style="flex:1;">
+              <button class="btn-primary" style="width:auto; padding:10px 16px;" onclick="creerTache()">Ajouter</button>
+            </div>
+          </div>
+          <div class="card"><div id="listeTaches">Sélectionne une structure.</div></div>
+        </div>
+
+        <div id="tabcontent-al-informations" style="display:none;">
+          <div class="card"><div class="placeholder-box"><div class="ic">🚧</div>DPE, assurance PNO, indexation annuelle — bientôt disponible</div></div>
         </div>
       </div>
 
@@ -599,19 +698,48 @@
 
       <!-- ===== RAPPORTS ===== -->
       <div id="page-rapports" style="display:none;">
-        <div class="page-header"><h2>Rapports</h2></div>
-        <div class="card">
-          <select id="structureRapports"></select>
+        <div class="page-header">
+          <h2>Rapports</h2>
+          <div style="display:flex; gap:10px;">
+            <select id="structureRapports" style="width:auto; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);"></select>
+            <select id="anneeRapports" style="width:auto; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);"></select>
+          </div>
         </div>
-        <div class="card">
-          <h3>Transactions (recettes & dépenses)</h3>
-          <div class="small" style="margin-bottom:10px;">Détail des flux par période, avec catégories.</div>
-          <button class="btn-primary" onclick="exporterTransactions()">Exporter en Excel (CSV)</button>
+
+        <div class="tabs">
+          <div class="tab active" id="tabRapFiscaux" onclick="switchTabRapports('fiscaux')">Fiscaux</div>
+          <div class="tab" id="tabRapComptables" onclick="switchTabRapports('comptables')">Comptables</div>
+          <div class="tab" id="tabRapPersonnalises" onclick="switchTabRapports('personnalises')">Personnalisés</div>
         </div>
-        <div class="card">
-          <h3>Loyers & paiements</h3>
-          <div class="small" style="margin-bottom:10px;">Historique complet des paiements par bail.</div>
-          <button class="btn-primary" onclick="exporterPaiements()">Exporter en Excel (CSV)</button>
+
+        <div id="tabcontent-rap-fiscaux">
+          <div class="rapport-item">
+            <div><strong>Synthèse revenus fonciers</strong><div class="small">Revenus, charges déductibles et résultat de la structure sélectionnée</div></div>
+            <button class="btn-secondary" style="width:auto; padding:9px 16px; border-radius:8px;" onclick="exporterSyntheseFiscale()">Exporter Excel</button>
+          </div>
+          <div class="rapport-item">
+            <div><strong>Répartition associés</strong><div class="small">Quote-parts et part du résultat par associé (SCI à l'IR)</div></div>
+            <button class="btn-secondary" style="width:auto; padding:9px 16px; border-radius:8px;" onclick="exporterRepartitionAssocies()">Exporter Excel</button>
+          </div>
+        </div>
+
+        <div id="tabcontent-rap-comptables" style="display:none;">
+          <div class="rapport-item">
+            <div><strong>Flux de trésorerie</strong><div class="small">Détail de toutes les transactions, avec catégories</div></div>
+            <button class="btn-secondary" style="width:auto; padding:9px 16px; border-radius:8px;" onclick="exporterTransactions()">Exporter Excel</button>
+          </div>
+          <div class="rapport-item">
+            <div><strong>Historique loyers & paiements</strong><div class="small">Tous les paiements par bail, avec statut</div></div>
+            <button class="btn-secondary" style="width:auto; padding:9px 16px; border-radius:8px;" onclick="exporterPaiements()">Exporter Excel</button>
+          </div>
+          <div class="rapport-item">
+            <div><strong>Synthèse par bien</strong><div class="small">Loyers annuels et charges par immeuble</div></div>
+            <button class="btn-secondary" style="width:auto; padding:9px 16px; border-radius:8px;" onclick="exporterSyntheseParBien()">Exporter Excel</button>
+          </div>
+        </div>
+
+        <div id="tabcontent-rap-personnalises" style="display:none;">
+          <div class="card"><div class="placeholder-box"><div class="ic">🚧</div>Générateur de rapport personnalisé — bientôt disponible</div></div>
         </div>
       </div>
 
@@ -641,6 +769,9 @@
 
   let currentImmeubleId = null;
   let currentLotId = null;
+  let currentLotStructureId = null;
+  let currentLocataireId = null;
+  let currentLocataireStructureId = null;
   let currentLocataireOrigin = 'lot';
 
   // ---------- AUTH ----------
@@ -990,6 +1121,7 @@
       document.getElementById('tabImm' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
     });
     if (tab === 'finances') chargerFinancesImmeuble();
+    if (tab === 'documents') chargerDocuments('immeuble', currentImmeubleId, 'listeDocumentsImmeuble');
     if (tab === 'informations') chargerInformationsImmeuble();
   }
 
@@ -1076,7 +1208,8 @@
     currentLotId = id;
     hideAllPages();
     document.getElementById('page-fiche-lot').style.display = 'block';
-    const { data: lot } = await supabaseClient.from('lots').select('*').eq('id', id).single();
+    const { data: lot } = await supabaseClient.from('lots').select('*, immeubles(structure_id)').eq('id', id).single();
+    currentLotStructureId = lot.immeubles.structure_id;
 
     document.getElementById('lotTitre').textContent = lot.nom || lot.type;
     document.getElementById('lotSousTitre').textContent = lot.type + (lot.surface ? ' — ' + lot.surface + ' m²' : '');
@@ -1099,6 +1232,7 @@
     });
     if (tab === 'coloc') chargerColocatairesLot(currentLotId);
     if (tab === 'bail') chargerBail(currentLotId);
+    if (tab === 'documents') chargerDocuments('lot', currentLotId, 'listeDocumentsLot');
     if (tab === 'charges') chargerChargesLot(currentLotId);
   }
 
@@ -1184,15 +1318,18 @@
   // ---------- FICHE LOCATAIRE ----------
   async function ouvrirFicheLocataire(locataireId, origine) {
     currentLocataireOrigin = origine || 'lot';
+    currentLocataireId = locataireId;
     hideAllPages();
     document.getElementById('page-fiche-locataire').style.display = 'block';
     document.getElementById('breadcrumbLocataire').textContent = currentLocataireOrigin === 'liste' ? '← Retour aux locataires' : '← Retour au lot';
 
     const { data: locataire } = await supabaseClient.from('locataires').select('*').eq('id', locataireId).single();
+    currentLocataireStructureId = locataire.structure_id;
     const initiales = locataire.nom.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
     document.getElementById('locAvatar').textContent = initiales;
     document.getElementById('locNom').textContent = locataire.nom;
     document.getElementById('locContact').textContent = [locataire.email, locataire.telephone].filter(Boolean).join(' · ') || 'Aucun contact renseigné';
+    chargerDocuments('locataire', locataireId, 'listeDocumentsLocataire');
 
     const { data: rattachements } = await supabaseClient.from('bail_locataires').select('bail_id').eq('locataire_id', locataireId);
     const bailIds = (rattachements || []).map(r => r.bail_id);
@@ -1517,8 +1654,20 @@
     document.getElementById('page-parametres').style.display = 'block';
     document.getElementById('cardMembres').style.display = 'none';
     currentStructureParamsId = null;
+    switchParamsSection('structures');
     mettreAJourBoutonsTheme(localStorage.getItem('investa-theme') || 'dark');
     chargerStructuresParams();
+  }
+
+  function switchParamsSection(section) {
+    ['structures', 'comptes', 'categories', 'apparence'].forEach(s => {
+      document.getElementById('ps-' + s).style.display = s === section ? 'block' : 'none';
+    });
+    ['pmStructures', 'pmComptes', 'pmCategories', 'pmApparence'].forEach(id => document.getElementById(id).classList.remove('active'));
+    const map = { structures: 'pmStructures', comptes: 'pmComptes', categories: 'pmCategories', apparence: 'pmApparence' };
+    document.getElementById(map[section]).classList.add('active');
+    if (section === 'comptes') initComptesBancaires();
+    if (section === 'categories') initCategories();
   }
 
   function definirTheme(mode) {
@@ -1589,71 +1738,94 @@
   async function allerAlertes() {
     setActiveNav('nav-alertes'); hideAllPages();
     document.getElementById('page-alertes').style.display = 'block';
-    chargerAlertesRetard();
-    chargerAlertesEcheance();
+    switchTabAlertes('toutes');
   }
 
-  async function chargerAlertesRetard() {
-    const div = document.getElementById('alertesRetard');
-    div.textContent = 'Chargement...';
-    const { data: paiements, error } = await supabaseClient
-      .from('paiements')
-      .select('*, baux(lot_id, lots(nom, type, immeuble_id, immeubles(adresse)))')
-      .eq('statut', 'en_retard')
-      .order('mois');
+  function switchTabAlertes(tab) {
+    ['toutes', 'alertes', 'taches', 'informations'].forEach(t => {
+      document.getElementById('tabcontent-al-' + t).style.display = t === tab ? 'block' : 'none';
+      document.getElementById('tabAl' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
+    });
+    if (tab === 'toutes' || tab === 'alertes') chargerToutesAlertes(tab);
+    if (tab === 'taches') initTaches();
+  }
 
-    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
-    if (!paiements || !paiements.length) { div.innerHTML = '<div class="empty-state">Aucun loyer en retard. 👍</div>'; return; }
-
-    div.innerHTML = paiements.map(p => {
+  async function collecterAlertes() {
+    const items = [];
+    const { data: paiements } = await supabaseClient.from('paiements').select('*, baux(lot_id, lots(nom, type, immeuble_id, immeubles(adresse)))').eq('statut', 'en_retard').order('mois');
+    (paiements || []).forEach(p => {
       const lot = p.baux && p.baux.lots ? p.baux.lots : null;
       const immeuble = lot && lot.immeubles ? lot.immeubles.adresse : '';
-      return `
-        <div class="row">
-          <div>
-            <strong>${lot ? (lot.nom || lot.type) : 'Lot inconnu'}</strong> — ${immeuble}<br>
-            <span class="small">Mois : ${p.mois} · ${(Number(p.montant_loyer) + Number(p.montant_charges)).toLocaleString('fr-FR')} €</span>
-          </div>
-          <span class="badge travaux">en retard</span>
-        </div>
-      `;
-    }).join('');
-  }
+      items.push({ severite: 'haute', titre: 'Loyer en retard', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (${p.mois})` });
+    });
 
-  async function chargerAlertesEcheance() {
-    const div = document.getElementById('alertesEcheance');
-    div.textContent = 'Chargement...';
-    const dansSoixanteJours = new Date();
-    dansSoixanteJours.setDate(dansSoixanteJours.getDate() + 60);
+    const dansSoixanteJours = new Date(); dansSoixanteJours.setDate(dansSoixanteJours.getDate() + 60);
     const today = new Date().toISOString().split('T')[0];
-    const limite = dansSoixanteJours.toISOString().split('T')[0];
-
-    const { data: baux, error } = await supabaseClient
-      .from('baux')
-      .select('*, lots(nom, type, immeubles(adresse))')
-      .eq('statut', 'actif')
-      .not('date_fin', 'is', null)
-      .gte('date_fin', today)
-      .lte('date_fin', limite)
-      .order('date_fin');
-
-    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
-    if (!baux || !baux.length) { div.innerHTML = '<div class="empty-state">Aucune échéance de bail dans les 60 prochains jours.</div>'; return; }
-
-    div.innerHTML = baux.map(b => {
+    const { data: baux } = await supabaseClient.from('baux').select('*, lots(nom, type, immeubles(adresse))').eq('statut', 'actif').not('date_fin', 'is', null).gte('date_fin', today).lte('date_fin', dansSoixanteJours.toISOString().split('T')[0]).order('date_fin');
+    (baux || []).forEach(b => {
       const lot = b.lots;
       const immeuble = lot && lot.immeubles ? lot.immeubles.adresse : '';
       const joursRestants = Math.ceil((new Date(b.date_fin) - new Date()) / (1000 * 60 * 60 * 24));
-      return `
-        <div class="row">
-          <div>
-            <strong>${lot ? (lot.nom || lot.type) : 'Lot inconnu'}</strong> — ${immeuble}<br>
-            <span class="small">Fin de bail le ${b.date_fin}</span>
-          </div>
-          <span class="badge ${joursRestants <= 30 ? 'travaux' : 'vacant'}">${joursRestants} j</span>
-        </div>
-      `;
-    }).join('');
+      items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'Bail arrivant à échéance', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (dans ${joursRestants} j)` });
+    });
+    return items;
+  }
+
+  async function chargerToutesAlertes(tab) {
+    const idDiv = tab === 'toutes' ? 'listeAlertesToutes' : 'listeAlertesSeules';
+    const div = document.getElementById(idDiv);
+    div.textContent = 'Chargement...';
+    const items = await collecterAlertes();
+    if (!items.length) { div.innerHTML = '<div class="empty-state">Aucune alerte pour le moment. 👍</div>'; return; }
+    div.innerHTML = items.map(it => `
+      <div class="row"><div><strong>${it.titre}</strong><br><span class="small">${it.detail}</span></div><span class="severite ${it.severite}">${it.severite === 'haute' ? 'Élevée' : 'Moyenne'}</span></div>
+    `).join('');
+  }
+
+  // ---------- TÂCHES ----------
+  async function initTaches() {
+    const sel = document.getElementById('structureTaches');
+    if (!sel.options.length) {
+      const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
+      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
+    }
+    chargerTaches();
+  }
+
+  async function chargerTaches() {
+    const structureId = document.getElementById('structureTaches').value;
+    const div = document.getElementById('listeTaches');
+    if (!structureId) { div.innerHTML = '<div class="empty-state">Sélectionne une structure.</div>'; return; }
+    div.textContent = 'Chargement...';
+    const { data: taches, error } = await supabaseClient.from('taches').select('*').eq('structure_id', structureId).order('fait').order('date_echeance', { nullsFirst: false });
+    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
+    if (!taches || !taches.length) { div.innerHTML = '<div class="empty-state">Aucune tâche.</div>'; return; }
+    div.innerHTML = taches.map(t => `
+      <div class="tache-row ${t.fait ? 'fait' : ''}">
+        <input type="checkbox" class="tache-check" ${t.fait ? 'checked' : ''} onchange="basculerTache('${t.id}', this.checked)">
+        <span class="titre">${t.titre}</span>
+        ${t.date_echeance ? `<span class="small" style="margin-left:auto;">${t.date_echeance}</span>` : ''}
+      </div>
+    `).join('');
+  }
+
+  async function creerTache() {
+    const structureId = document.getElementById('structureTaches').value;
+    const titre = document.getElementById('titreTache').value;
+    const echeance = document.getElementById('echeanceTache').value;
+    if (!structureId) return alert('Sélectionne une structure');
+    if (!titre) return alert('Titre requis');
+    const { error } = await supabaseClient.from('taches').insert({ structure_id: structureId, titre, date_echeance: echeance || null });
+    if (error) return alert('Erreur : ' + error.message);
+    document.getElementById('titreTache').value = '';
+    document.getElementById('echeanceTache').value = '';
+    chargerTaches();
+  }
+
+  async function basculerTache(id, fait) {
+    const { error } = await supabaseClient.from('taches').update({ fait }).eq('id', id);
+    if (error) return alert('Erreur : ' + error.message);
+    chargerTaches();
   }
 
   // ---------- FISCALITÉ ----------
@@ -1757,6 +1929,21 @@
       const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
       sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
     }
+    const selA = document.getElementById('anneeRapports');
+    if (!selA.options.length) {
+      const now = new Date().getFullYear();
+      let opts = '';
+      for (let y = now; y >= now - 4; y--) opts += `<option value="${y}">${y}</option>`;
+      selA.innerHTML = opts;
+    }
+    switchTabRapports('fiscaux');
+  }
+
+  function switchTabRapports(tab) {
+    ['fiscaux', 'comptables', 'personnalises'].forEach(t => {
+      document.getElementById('tabcontent-rap-' + t).style.display = t === tab ? 'block' : 'none';
+      document.getElementById('tabRap' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
+    });
   }
 
   function telechargerCSV(nomFichier, lignes) {
@@ -1806,6 +1993,189 @@
       ]);
     });
     telechargerCSV('paiements.csv', lignes);
+  }
+
+  async function exporterSyntheseFiscale() {
+    const structureId = document.getElementById('structureRapports').value;
+    const annee = document.getElementById('anneeRapports').value;
+    if (!structureId) return alert('Sélectionne une structure');
+    const debut = annee + '-01-01';
+    const fin = annee + '-12-31';
+    const { data: txs, error } = await supabaseClient.from('transactions').select('*').eq('structure_id', structureId).gte('date', debut).lte('date', fin);
+    if (error) return alert('Erreur : ' + error.message);
+    const revenus = (txs || []).filter(t => t.type === 'recette').reduce((a, t) => a + Number(t.montant), 0);
+    const charges = (txs || []).filter(t => t.type === 'depense').reduce((a, t) => a + Number(t.montant), 0);
+    telechargerCSV(`synthese_fiscale_${annee}.csv`, [
+      ['Année', annee],
+      ['Revenus bruts', revenus],
+      ['Charges déductibles', charges],
+      ['Résultat', revenus - charges]
+    ]);
+  }
+
+  async function exporterRepartitionAssocies() {
+    const structureId = document.getElementById('structureRapports').value;
+    const annee = document.getElementById('anneeRapports').value;
+    if (!structureId) return alert('Sélectionne une structure');
+    const debut = annee + '-01-01';
+    const fin = annee + '-12-31';
+    const { data: txs } = await supabaseClient.from('transactions').select('*').eq('structure_id', structureId).gte('date', debut).lte('date', fin);
+    const resultatTotal = (txs || []).filter(t => t.type === 'recette').reduce((a, t) => a + Number(t.montant), 0) - (txs || []).filter(t => t.type === 'depense').reduce((a, t) => a + Number(t.montant), 0);
+    const { data: associes, error } = await supabaseClient.from('associes').select('*').eq('structure_id', structureId);
+    if (error) return alert('Erreur : ' + error.message);
+    const lignes = [['Associé', 'Quote-part (%)', 'Part du résultat']];
+    (associes || []).forEach(a => lignes.push([a.nom, a.quote_part, (resultatTotal * Number(a.quote_part) / 100).toFixed(2)]));
+    telechargerCSV(`repartition_associes_${annee}.csv`, lignes);
+  }
+
+  async function exporterSyntheseParBien() {
+    const structureId = document.getElementById('structureRapports').value;
+    if (!structureId) return alert('Sélectionne une structure');
+    const { data: immeubles, error } = await supabaseClient.from('immeubles').select('*').eq('structure_id', structureId);
+    if (error) return alert('Erreur : ' + error.message);
+    const lignes = [['Immeuble', 'Loyers annuels (€)', 'Charges annuelles (€)']];
+    for (const im of (immeubles || [])) {
+      const { data: lots } = await supabaseClient.from('lots').select('id').eq('immeuble_id', im.id);
+      const lotIds = (lots || []).map(l => l.id);
+      let loyersAnnuels = 0;
+      if (lotIds.length) {
+        const { data: bauxActifs } = await supabaseClient.from('baux').select('loyer, charges').in('lot_id', lotIds).eq('statut', 'actif');
+        loyersAnnuels = (bauxActifs || []).reduce((a, b) => a + (Number(b.loyer) + Number(b.charges)) * 12, 0);
+      }
+      const ilYA1An = new Date(); ilYA1An.setFullYear(ilYA1An.getFullYear() - 1);
+      const { data: depenses } = await supabaseClient.from('transactions').select('montant').eq('immeuble_id', im.id).eq('type', 'depense').gte('date', ilYA1An.toISOString().split('T')[0]);
+      const chargesAnnuelles = (depenses || []).reduce((a, t) => a + Number(t.montant), 0);
+      lignes.push([im.adresse, loyersAnnuels.toFixed(2), chargesAnnuelles.toFixed(2)]);
+    }
+    telechargerCSV('synthese_par_bien.csv', lignes);
+  }
+
+  // ---------- COMPTES BANCAIRES ----------
+  async function initComptesBancaires() {
+    const sel = document.getElementById('structureComptes');
+    if (!sel.options.length) {
+      const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
+      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
+    }
+    chargerComptesBancaires();
+  }
+
+  async function chargerComptesBancaires() {
+    const structureId = document.getElementById('structureComptes').value;
+    const div = document.getElementById('listeComptesBancaires');
+    if (!structureId) { div.innerHTML = '<div class="empty-state">Sélectionne une structure.</div>'; return; }
+    div.textContent = 'Chargement...';
+    const { data: comptes, error } = await supabaseClient.from('comptes_bancaires').select('*').eq('structure_id', structureId).order('created_at');
+    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
+    if (!comptes || !comptes.length) { div.innerHTML = '<div class="empty-state">Aucun compte bancaire.</div>'; return; }
+    div.innerHTML = comptes.map(c => `
+      <div class="row"><span>${c.nom} ${c.banque ? '<span class="small">— ' + c.banque + '</span>' : ''}</span><span>${Number(c.solde || 0).toLocaleString('fr-FR')} €</span></div>
+    `).join('');
+  }
+
+  async function creerCompteBancaire() {
+    const structureId = document.getElementById('structureComptes').value;
+    const nom = document.getElementById('nomCompte').value;
+    const banque = document.getElementById('banqueCompte').value;
+    const solde = document.getElementById('soldeCompte').value;
+    if (!structureId) return alert('Sélectionne une structure');
+    if (!nom) return alert('Nom requis');
+    const { error } = await supabaseClient.from('comptes_bancaires').insert({ structure_id: structureId, nom, banque: banque || null, solde: solde ? parseFloat(solde) : 0 });
+    if (error) return alert('Erreur : ' + error.message);
+    document.getElementById('nomCompte').value = '';
+    document.getElementById('banqueCompte').value = '';
+    document.getElementById('soldeCompte').value = '';
+    chargerComptesBancaires();
+  }
+
+  // ---------- CATÉGORIES ----------
+  async function initCategories() {
+    const sel = document.getElementById('structureCategories');
+    if (!sel.options.length) {
+      const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
+      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
+    }
+    chargerCategories();
+  }
+
+  async function chargerCategories() {
+    const structureId = document.getElementById('structureCategories').value;
+    const div = document.getElementById('listeCategories');
+    if (!structureId) { div.innerHTML = '<div class="empty-state">Sélectionne une structure.</div>'; return; }
+    div.textContent = 'Chargement...';
+    const { data: categories, error } = await supabaseClient.from('categories').select('*').eq('structure_id', structureId).order('nom');
+    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
+    if (!categories || !categories.length) { div.innerHTML = '<div class="empty-state">Aucune catégorie personnalisée.</div>'; return; }
+    div.innerHTML = categories.map(c => `
+      <div class="row"><span>${c.nom}</span><span class="badge ${c.type === 'recette' ? 'occupe' : 'travaux'}">${c.type}</span></div>
+    `).join('');
+  }
+
+  async function creerCategorie() {
+    const structureId = document.getElementById('structureCategories').value;
+    const nom = document.getElementById('nomCategorie').value;
+    const type = document.getElementById('typeCategorie').value;
+    if (!structureId) return alert('Sélectionne une structure');
+    if (!nom) return alert('Nom requis');
+    const { error } = await supabaseClient.from('categories').insert({ structure_id: structureId, nom, type });
+    if (error) return alert('Erreur : ' + error.message);
+    document.getElementById('nomCategorie').value = '';
+    chargerCategories();
+  }
+
+  // ---------- DOCUMENTS (partagé Immeuble/Lot/Locataire) ----------
+  async function uploaderDocument(entityType, entityId, structureId, inputId) {
+    const input = document.getElementById(inputId);
+    const file = input.files[0];
+    if (!file) return alert('Choisis un fichier');
+    if (!structureId) return alert('Structure introuvable, réessaie dans quelques secondes.');
+
+    const cheminFichier = `${structureId}/${entityType}/${entityId}/${Date.now()}_${file.name}`;
+    const { error: errUpload } = await supabaseClient.storage.from('documents').upload(cheminFichier, file);
+    if (errUpload) return alert('Erreur d\u2019upload : ' + errUpload.message);
+
+    const { error: errInsert } = await supabaseClient.from('documents').insert({
+      structure_id: structureId, entity_type: entityType, entity_id: entityId,
+      nom: file.name, storage_path: cheminFichier, taille_octets: file.size
+    });
+    if (errInsert) return alert('Erreur : ' + errInsert.message);
+
+    input.value = '';
+    const targetDiv = entityType === 'immeuble' ? 'listeDocumentsImmeuble' : entityType === 'lot' ? 'listeDocumentsLot' : 'listeDocumentsLocataire';
+    chargerDocuments(entityType, entityId, targetDiv);
+  }
+
+  async function chargerDocuments(entityType, entityId, targetDivId) {
+    const div = document.getElementById(targetDivId);
+    if (!div) return;
+    div.textContent = 'Chargement...';
+    const { data: docs, error } = await supabaseClient.from('documents').select('*').eq('entity_type', entityType).eq('entity_id', entityId).order('created_at', { ascending: false });
+    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
+    if (!docs || !docs.length) { div.innerHTML = '<div class="empty-state">Aucun document.</div>'; return; }
+
+    div.innerHTML = docs.map(d => `
+      <div class="row">
+        <span>📎 ${d.nom} <span class="small">(${d.taille_octets ? Math.round(d.taille_octets / 1024) + ' Ko' : ''})</span></span>
+        <span>
+          <a href="#" onclick="telechargerDocument('${d.storage_path}'); return false;" style="color:var(--accent); margin-right:12px;">Ouvrir</a>
+          <a href="#" onclick="supprimerDocument('${d.id}', '${d.storage_path}', '${entityType}', '${entityId}', '${targetDivId}'); return false;" style="color:var(--red);">Supprimer</a>
+        </span>
+      </div>
+    `).join('');
+  }
+
+  async function telechargerDocument(storagePath) {
+    const { data, error } = await supabaseClient.storage.from('documents').createSignedUrl(storagePath, 60);
+    if (error) return alert('Erreur : ' + error.message);
+    window.open(data.signedUrl, '_blank');
+  }
+
+  async function supprimerDocument(id, storagePath, entityType, entityId, targetDivId) {
+    if (!confirm('Supprimer ce document ?')) return;
+    await supabaseClient.storage.from('documents').remove([storagePath]);
+    const { error } = await supabaseClient.from('documents').delete().eq('id', id);
+    if (error) return alert('Erreur : ' + error.message);
+    chargerDocuments(entityType, entityId, targetDivId);
   }
 </script>
 
