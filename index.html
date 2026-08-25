@@ -66,6 +66,7 @@
   .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
   .page-header h2 { margin: 0; font-size: 1.4rem; }
   .page-sub { color: var(--text-dim); font-size: 0.88rem; margin-top: 3px; }
+  .lang-badge { display: flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--panel); font-size: 0.85rem; font-weight: 600; color: var(--text-dim); cursor: default; }
 
   .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
   .card h3 { margin: 0 0 14px 0; font-size: 1rem; }
@@ -214,7 +215,7 @@
       <div class="nav-item" id="nav-loyers" onclick="allerLoyers()"><span class="ic">📅</span> Loyers</div>
       <div class="nav-item" id="nav-finances" onclick="allerFinances()"><span class="ic">💶</span> Finances</div>
       <div class="nav-item" id="nav-prets" onclick="allerPrets()"><span class="ic">🏦</span> Prêts</div>
-      <div class="nav-item" onclick="allerPlaceholder('Documents', 'Import, classement et recherche de vos documents.')"><span class="ic">📄</span> Documents</div>
+      <div class="nav-item" id="nav-documents" onclick="allerDocuments()"><span class="ic">📄</span> Documents</div>
       <div class="nav-item" id="nav-alertes" onclick="allerAlertes()"><span class="ic">🔔</span> Tâches & Alertes</div>
       <div class="nav-item" id="nav-fiscalite" onclick="allerFiscalite()"><span class="ic">📊</span> Fiscalité</div>
       <div class="nav-item" id="nav-rapports" onclick="allerRapports()"><span class="ic">📈</span> Rapports</div>
@@ -233,6 +234,7 @@
       <div id="page-dashboard">
         <div class="page-header">
           <div><h2>Bonjour 👋</h2><div class="page-sub">Voici un aperçu de votre patrimoine — <span id="dashPeriode"></span></div></div>
+          <div class="lang-badge" title="Anglais bientôt disponible">🇫🇷 FR</div>
         </div>
         <div class="grid-4">
           <div class="stat-card green"><div class="lbl">Loyers attendus</div><div class="val" id="dashAttendu">—</div></div>
@@ -743,6 +745,52 @@
         </div>
       </div>
 
+      <!-- ===== DOCUMENTS ===== -->
+      <div id="page-documents" style="display:none;">
+        <div class="page-header">
+          <h2>Documents</h2>
+          <div style="display:flex; gap:10px;">
+            <input id="rechercheDocuments" placeholder="Rechercher un document..." style="width:220px; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);" oninput="filtrerDocumentsGlobal()">
+            <button class="btn-primary" style="width:auto; padding:9px 16px;" onclick="ouvrirImportDocument()">Importer</button>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active" id="tabDocTous" onclick="switchTabDocuments('tous')">Tous</div>
+          <div class="tab" id="tabDocBail" onclick="switchTabDocuments('bail')">Baux</div>
+          <div class="tab" id="tabDocQuittance" onclick="switchTabDocuments('quittance')">Quittances</div>
+          <div class="tab" id="tabDocDiagnostic" onclick="switchTabDocuments('diagnostic')">Diagnostics</div>
+          <div class="tab" id="tabDocAssurance" onclick="switchTabDocuments('assurance')">Assurances</div>
+        </div>
+
+        <div class="card" id="cardImportDocument" style="display:none;">
+          <h3>Importer un document</h3>
+          <select id="structureImport" onchange="chargerCiblesImport()"></select>
+          <select id="typeImport" onchange="chargerCiblesImport()">
+            <option value="immeuble">Immeuble</option>
+            <option value="lot">Lot</option>
+            <option value="locataire">Locataire</option>
+          </select>
+          <select id="cibleImport"></select>
+          <select id="categorieImport">
+            <option value="bail">Bail</option>
+            <option value="quittance">Quittance</option>
+            <option value="diagnostic">Diagnostic</option>
+            <option value="assurance">Assurance</option>
+            <option value="autre">Autre</option>
+          </select>
+          <input type="file" id="fichierImportGlobal">
+          <button class="btn-primary" onclick="importerDocumentGlobal()">Envoyer</button>
+        </div>
+
+        <div class="card">
+          <div class="arbre-header" style="grid-template-columns: 2fr 1.5fr 1fr 1fr;">
+            <span>Nom</span><span>Bien / Lot</span><span>Type</span><span>Ajouté le</span>
+          </div>
+          <div id="listeDocumentsGlobal">Chargement...</div>
+        </div>
+      </div>
+
       <!-- ===== PLACEHOLDER (écrans pas encore construits) ===== -->
       <div id="page-placeholder" style="display:none;">
         <div class="page-header"><h2 id="placeholderTitle"></h2></div>
@@ -817,8 +865,8 @@
   supabaseClient.auth.getSession().then(({ data: { session } }) => { if (session) afficherApp(); });
 
   // ---------- NAVIGATION ----------
-  const PAGES = ['dashboard', 'patrimoine', 'locataires', 'loyers', 'finances', 'prets', 'parametres', 'alertes', 'fiscalite', 'rapports', 'fiche-immeuble', 'fiche-lot', 'fiche-locataire', 'placeholder'];
-  const NAV_IDS = ['nav-dashboard', 'nav-patrimoine', 'nav-locataires', 'nav-loyers', 'nav-finances', 'nav-prets', 'nav-parametres', 'nav-alertes', 'nav-fiscalite', 'nav-rapports'];
+  const PAGES = ['dashboard', 'patrimoine', 'locataires', 'loyers', 'finances', 'prets', 'parametres', 'alertes', 'fiscalite', 'rapports', 'documents', 'fiche-immeuble', 'fiche-lot', 'fiche-locataire', 'placeholder'];
+  const NAV_IDS = ['nav-dashboard', 'nav-patrimoine', 'nav-locataires', 'nav-loyers', 'nav-finances', 'nav-prets', 'nav-parametres', 'nav-alertes', 'nav-fiscalite', 'nav-rapports', 'nav-documents'];
 
   function hideAllPages() {
     PAGES.forEach(p => { const el = document.getElementById('page-' + p); if (el) el.style.display = 'none'; });
@@ -2215,7 +2263,7 @@
   }
 
   // ---------- DOCUMENTS (partagé Immeuble/Lot/Locataire) ----------
-  async function uploaderDocument(entityType, entityId, structureId, inputId) {
+  async function uploaderDocument(entityType, entityId, structureId, inputId, categorie) {
     const input = document.getElementById(inputId);
     const file = input.files[0];
     if (!file) return alert('Choisis un fichier');
@@ -2227,7 +2275,7 @@
 
     const { error: errInsert } = await supabaseClient.from('documents').insert({
       structure_id: structureId, entity_type: entityType, entity_id: entityId,
-      nom: file.name, storage_path: cheminFichier, taille_octets: file.size
+      nom: file.name, storage_path: cheminFichier, taille_octets: file.size, categorie: categorie || 'autre'
     });
     if (errInsert) return alert('Erreur : ' + errInsert.message);
 
@@ -2267,6 +2315,123 @@
     const { error } = await supabaseClient.from('documents').delete().eq('id', id);
     if (error) return alert('Erreur : ' + error.message);
     chargerDocuments(entityType, entityId, targetDivId);
+  }
+
+  // ---------- DOCUMENTS (écran global) ----------
+  let donneesDocumentsGlobal = [];
+  let categorieDocumentsActive = 'tous';
+
+  async function allerDocuments() {
+    setActiveNav('nav-documents'); hideAllPages();
+    document.getElementById('page-documents').style.display = 'block';
+    document.getElementById('cardImportDocument').style.display = 'none';
+    categorieDocumentsActive = 'tous';
+    switchTabDocuments('tous');
+  }
+
+  function switchTabDocuments(cat) {
+    categorieDocumentsActive = cat;
+    ['Tous', 'Bail', 'Quittance', 'Diagnostic', 'Assurance'].forEach(c => {
+      document.getElementById('tabDoc' + c).classList.toggle('active', c.toLowerCase() === cat);
+    });
+    chargerDocumentsGlobal();
+  }
+
+  async function chargerDocumentsGlobal() {
+    const div = document.getElementById('listeDocumentsGlobal');
+    div.textContent = 'Chargement...';
+
+    let query = supabaseClient.from('documents').select('*').order('created_at', { ascending: false });
+    if (categorieDocumentsActive !== 'tous') query = query.eq('categorie', categorieDocumentsActive);
+    const { data: docs, error } = await query;
+    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
+    if (!docs || !docs.length) { div.innerHTML = '<div class="empty-state">Aucun document.</div>'; return; }
+
+    // Résoudre les noms des entités (immeuble/lot/locataire) pour affichage
+    const idsParType = { immeuble: [], lot: [], locataire: [] };
+    docs.forEach(d => idsParType[d.entity_type].push(d.entity_id));
+    const noms = {};
+    if (idsParType.immeuble.length) {
+      const { data } = await supabaseClient.from('immeubles').select('id, adresse').in('id', idsParType.immeuble);
+      (data || []).forEach(i => noms[i.id] = i.adresse);
+    }
+    if (idsParType.lot.length) {
+      const { data } = await supabaseClient.from('lots').select('id, nom, type').in('id', idsParType.lot);
+      (data || []).forEach(l => noms[l.id] = l.nom || l.type);
+    }
+    if (idsParType.locataire.length) {
+      const { data } = await supabaseClient.from('locataires').select('id, nom').in('id', idsParType.locataire);
+      (data || []).forEach(l => noms[l.id] = l.nom);
+    }
+
+    donneesDocumentsGlobal = docs.map(d => ({ ...d, nomEntite: noms[d.entity_id] || '—' }));
+    rendreDocumentsGlobal();
+  }
+
+  function rendreDocumentsGlobal() {
+    const filtre = (document.getElementById('rechercheDocuments').value || '').toLowerCase();
+    const div = document.getElementById('listeDocumentsGlobal');
+    const items = donneesDocumentsGlobal.filter(d => !filtre || d.nom.toLowerCase().includes(filtre) || d.nomEntite.toLowerCase().includes(filtre));
+    if (!items.length) { div.innerHTML = '<div class="empty-state">Aucun document trouvé.</div>'; return; }
+
+    const labelsCat = { bail: 'Bail', quittance: 'Quittance', diagnostic: 'Diagnostic', assurance: 'Assurance', autre: 'Autre' };
+    div.innerHTML = items.map(d => `
+      <div class="row" style="display:grid; grid-template-columns: 2fr 1.5fr 1fr 1fr; align-items:center;">
+        <span onclick="telechargerDocument('${d.storage_path}')" style="cursor:pointer; color:var(--accent);">📎 ${d.nom}</span>
+        <span class="small">${d.nomEntite}</span>
+        <span class="badge-outline">${labelsCat[d.categorie] || 'Autre'}</span>
+        <span class="small">${new Date(d.created_at).toLocaleDateString('fr-FR')}</span>
+      </div>
+    `).join('');
+  }
+
+  function filtrerDocumentsGlobal() {
+    rendreDocumentsGlobal();
+  }
+
+  async function ouvrirImportDocument() {
+    const card = document.getElementById('cardImportDocument');
+    card.style.display = card.style.display === 'block' ? 'none' : 'block';
+    if (card.style.display !== 'block') return;
+
+    const selS = document.getElementById('structureImport');
+    if (!selS.options.length) {
+      const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
+      selS.innerHTML = (structures || []).map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
+    }
+    chargerCiblesImport();
+  }
+
+  async function chargerCiblesImport() {
+    const structureId = document.getElementById('structureImport').value;
+    const type = document.getElementById('typeImport').value;
+    const selCible = document.getElementById('cibleImport');
+    if (!structureId) { selCible.innerHTML = ''; return; }
+
+    if (type === 'immeuble') {
+      const { data } = await supabaseClient.from('immeubles').select('id, adresse').eq('structure_id', structureId);
+      selCible.innerHTML = (data || []).map(i => `<option value="${i.id}">${i.adresse}</option>`).join('');
+    } else if (type === 'lot') {
+      const { data: immeubles } = await supabaseClient.from('immeubles').select('id').eq('structure_id', structureId);
+      const immeubleIds = (immeubles || []).map(i => i.id);
+      const { data: lots } = immeubleIds.length ? await supabaseClient.from('lots').select('id, nom, type').in('immeuble_id', immeubleIds) : { data: [] };
+      selCible.innerHTML = (lots || []).map(l => `<option value="${l.id}">${l.nom || l.type}</option>`).join('');
+    } else {
+      const { data } = await supabaseClient.from('locataires').select('id, nom').eq('structure_id', structureId);
+      selCible.innerHTML = (data || []).map(l => `<option value="${l.id}">${l.nom}</option>`).join('');
+    }
+  }
+
+  async function importerDocumentGlobal() {
+    const structureId = document.getElementById('structureImport').value;
+    const type = document.getElementById('typeImport').value;
+    const cibleId = document.getElementById('cibleImport').value;
+    const categorie = document.getElementById('categorieImport').value;
+    if (!structureId || !cibleId) return alert('Sélectionne une structure et une cible');
+
+    await uploaderDocument(type, cibleId, structureId, 'fichierImportGlobal', categorie);
+    document.getElementById('cardImportDocument').style.display = 'none';
+    chargerDocumentsGlobal();
   }
 </script>
 
