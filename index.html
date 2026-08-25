@@ -45,6 +45,9 @@
   .tx-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #334155; font-size: 0.9rem; }
   .tx-amount.recette { color: #4ade80; }
   .tx-amount.depense { color: #f87171; }
+  .paiement-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #263548; border-radius: 6px; margin: 6px 0; }
+  .paiement-info { font-size: 0.9rem; }
+  .btn-mark-paid { width: auto; padding: 6px 12px; font-size: 0.85rem; margin: 0; }
 </style>
 </head>
 <body>
@@ -68,6 +71,7 @@
 
   <div class="navtabs">
     <div class="navtab active" id="navPatrimoine" onclick="allerPatrimoine()">Patrimoine</div>
+    <div class="navtab" id="navLoyers" onclick="allerLoyers()">Loyers</div>
     <div class="navtab" id="navFinances" onclick="allerFinances()">Finances</div>
   </div>
 
@@ -92,7 +96,18 @@
     </div>
   </div>
 
-  <!-- Vue Finances -->
+  <!-- Vue Loyers & Paiements -->
+  <div id="vueLoyers" style="display:none;">
+    <div class="card">
+      <h2>Loyers & Paiements</h2>
+      <select id="structureLoyers" onchange="chargerLoyers()"></select>
+      <input id="moisLoyers" type="month">
+      <button class="secondary" onclick="chargerLoyers()">Afficher</button>
+    </div>
+    <div class="card">
+      <div id="listePaiements">Sélectionne une structure et un mois.</div>
+    </div>
+  </div>
   <div id="vueFinances" style="display:none;">
     <div class="card">
       <h2>Finances</h2>
@@ -406,21 +421,116 @@
 
   // ---------- NAVIGATION ----------
   function allerPatrimoine() {
-    document.getElementById('navPatrimoine').classList.add('active');
-    document.getElementById('navFinances').classList.remove('active');
-    document.getElementById('vueFinances').style.display = 'none';
-    document.getElementById('vueFicheImmeuble').style.display = 'none';
-    document.getElementById('vueFicheLot').style.display = 'none';
+    setActiveTab('navPatrimoine');
+    hideAllViews();
     document.getElementById('vuePatrimoine').style.display = 'block';
     chargerPatrimoine();
   }
 
-  async function allerFinances() {
-    document.getElementById('navFinances').classList.add('active');
-    document.getElementById('navPatrimoine').classList.remove('active');
+  async function allerLoyers() {
+    setActiveTab('navLoyers');
+    hideAllViews();
+    document.getElementById('vueLoyers').style.display = 'block';
+
+    const sel = document.getElementById('structureLoyers');
+    if (!sel.options.length) {
+      const { data: structures } = await supabase.from('structures').select('*').order('created_at');
+      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
+    }
+    const moisInput = document.getElementById('moisLoyers');
+    if (!moisInput.value) {
+      const now = new Date();
+      moisInput.value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+    }
+    chargerLoyers();
+  }
+
+  function setActiveTab(id) {
+    document.querySelectorAll('.navtab').forEach(el => el.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function hideAllViews() {
     document.getElementById('vuePatrimoine').style.display = 'none';
+    document.getElementById('vueLoyers').style.display = 'none';
+    document.getElementById('vueFinances').style.display = 'none';
     document.getElementById('vueFicheImmeuble').style.display = 'none';
     document.getElementById('vueFicheLot').style.display = 'none';
+  }
+
+  // ---------- LOYERS & PAIEMENTS ----------
+  async function chargerLoyers() {
+    const structureId = document.getElementById('structureLoyers').value;
+    const moisStr = document.getElementById('moisLoyers').value; // format "2026-05"
+    if (!structureId || !moisStr) return;
+    const moisDate = moisStr + '-01';
+
+    const div = document.getElementById('listePaiements');
+    div.textContent = 'Chargement...';
+
+    // Baux actifs de la structure, avec lot + locataires
+    const { data: baux, error } = await supabase
+      .from('baux')
+      .select('*, lots(nom, type, immeubles(adresse, structure_id))')
+      .eq('statut', 'actif');
+
+    if (error) { div.textContent = 'Erreur de chargement.'; return; }
+
+    const bauxStructure = (baux || []).filter(b => b.lots && b.lots.immeubles && b.lots.immeubles.structure_id === structureId);
+
+    if (!bauxStructure.length) { div.textContent = 'Aucun bail actif pour cette structure.'; return; }
+
+    let html = '';
+    for (const bail of bauxStructure) {
+      // Chercher un paiement existant pour ce bail et ce mois
+      let { data: paiementsExistants } = await supabase
+        .from('paiements').select('*').eq('bail_id', bail.id).eq('mois', moisDate);
+
+      let paiement = paiementsExistants && paiementsExistants[0];
+
+      if (!paiement) {
+        const { data: nouveau } = await supabase.from('paiements').insert({
+          bail_id: bail.id, mois: moisDate, montant_loyer: bail.loyer, montant_charges: bail.charges,
+          statut: (new Date(moisDate) < new Date(new Date().getFullYear(), new Date().getMonth(), 1)) ? 'en_retard' : 'a_venir'
+        }).select().single();
+        paiement = nouveau;
+      }
+
+      const { data: rattachements } = await supabase.from('bail_locataires').select('locataire_id').eq('bail_id', bail.id);
+      const ids = (rattachements || []).map(r => r.locataire_id);
+      let noms = '';
+      if (ids.length) {
+        const { data: locs } = await supabase.from('locataires').select('nom').in('id', ids);
+        noms = (locs || []).map(l => l.nom).join(', ');
+      }
+
+      html += `
+        <div class="paiement-row">
+          <div class="paiement-info">
+            <strong>${bail.lots.nom || bail.lots.type}</strong> — ${bail.lots.immeubles.adresse}<br>
+            <span class="small">${noms} · ${paiement.montant_loyer + paiement.montant_charges} €</span>
+          </div>
+          <div>
+            <span class="badge ${paiement.statut === 'paye' ? 'occupe' : (paiement.statut === 'en_retard' ? 'travaux' : 'vacant')}">${paiement.statut.replace('_', ' ')}</span>
+            ${paiement.statut !== 'paye' ? `<button class="btn-mark-paid" onclick="marquerPaye('${paiement.id}')">Marquer payé</button>` : ''}
+          </div>
+        </div>
+      `;
+    }
+    div.innerHTML = html;
+  }
+
+  async function marquerPaye(paiementId) {
+    const { error } = await supabase.from('paiements').update({
+      statut: 'paye', date_paiement: new Date().toISOString().split('T')[0]
+    }).eq('id', paiementId);
+    if (error) return alert('Erreur : ' + error.message);
+    chargerLoyers();
+  }
+
+  async function allerFinances() {
+    setActiveTab('navFinances');
+    hideAllViews();
     document.getElementById('vueFinances').style.display = 'block';
 
     const sel = document.getElementById('structureFinances');
