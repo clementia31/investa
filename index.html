@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investa</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 480px; margin: 60px auto; padding: 0 20px; background: #0f172a; color: #e2e8f0; }
+  h1 { font-size: 1.5rem; }
+  input, select, button { width: 100%; padding: 10px; margin: 6px 0; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: #e2e8f0; box-sizing: border-box; }
+  button { background: #3b82f6; border: none; cursor: pointer; font-weight: 600; }
+  button:hover { background: #2563eb; }
+  #app { display: none; }
+  .card { background: #1e293b; padding: 16px; border-radius: 8px; margin: 8px 0; }
+  #msg { color: #f87171; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+
+<h1>Investa</h1>
+
+<!-- Auth -->
+<div id="auth">
+  <input id="email" type="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Mot de passe">
+  <button onclick="seConnecter()">Se connecter</button>
+  <button onclick="sInscrire()">Créer un compte</button>
+  <p id="msg"></p>
+</div>
+
+<!-- App -->
+<div id="app">
+  <p>Connecté : <span id="userEmail"></span> — <a href="#" onclick="seDeconnecter()">déconnexion</a></p>
+
+  <div class="card">
+    <h3>Créer une structure</h3>
+    <input id="nomStructure" placeholder="Nom (ex: SCI ALPHA)">
+    <select id="typeStructure">
+      <option value="sci_ir">SCI à l'IR</option>
+      <option value="sci_is">SCI à l'IS</option>
+      <option value="nom_propre">Nom propre</option>
+      <option value="sarl_immo">SARL immobilière</option>
+      <option value="autre">Autre</option>
+    </select>
+    <button onclick="creerStructure()">Créer</button>
+  </div>
+
+  <div class="card">
+    <h3>Mes structures</h3>
+    <div id="listeStructures">Chargement...</div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://rhpjttobvyofpauccbrj.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_GKzraD5eOxGYVB9SXWXY5g_UMXbw-Zz';
+
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  async function sInscrire() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const { error } = await supabase.auth.signUp({ email, password });
+    document.getElementById('msg').textContent = error ? error.message : 'Compte créé, vérifie tes emails si confirmation requise.';
+  }
+
+  async function seConnecter() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      document.getElementById('msg').textContent = error.message;
+    } else {
+      afficherApp();
+    }
+  }
+
+  async function seDeconnecter() {
+    await supabase.auth.signOut();
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('auth').style.display = 'block';
+  }
+
+  async function creerStructure() {
+    const nom = document.getElementById('nomStructure').value;
+    const type = document.getElementById('typeStructure').value;
+    if (!nom) return alert('Nom requis');
+
+    const { error } = await supabase.rpc('creer_structure', {
+      p_nom: nom,
+      p_type: type
+    });
+
+    if (error) {
+      alert('Erreur : ' + error.message);
+    } else {
+      document.getElementById('nomStructure').value = '';
+      chargerStructures();
+    }
+  }
+
+  async function chargerStructures() {
+    const { data, error } = await supabase.from('structures').select('*').order('created_at', { ascending: false });
+    const div = document.getElementById('listeStructures');
+    if (error) {
+      div.textContent = 'Erreur de chargement.';
+      return;
+    }
+    if (!data.length) {
+      div.textContent = 'Aucune structure pour le moment.';
+      return;
+    }
+    div.innerHTML = data.map(s => `<div>${s.nom} — ${s.type}</div>`).join('');
+  }
+
+  async function afficherApp() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    document.getElementById('auth').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('userEmail').textContent = user.email;
+    chargerStructures();
+  }
+
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    if (session) afficherApp();
+  });
+</script>
+
+</body>
+</html>
