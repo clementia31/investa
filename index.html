@@ -128,7 +128,7 @@
       <div class="nav-item" id="nav-finances" onclick="allerFinances()"><span class="ic">💶</span> Finances</div>
       <div class="nav-item" id="nav-prets" onclick="allerPrets()"><span class="ic">🏦</span> Prêts</div>
       <div class="nav-item" onclick="allerPlaceholder('Documents', 'Import, classement et recherche de vos documents.')"><span class="ic">📄</span> Documents</div>
-      <div class="nav-item" onclick="allerPlaceholder('Tâches & Alertes', 'Échéances, retards et rappels automatiques.')"><span class="ic">🔔</span> Tâches & Alertes</div>
+      <div class="nav-item" id="nav-alertes" onclick="allerAlertes()"><span class="ic">🔔</span> Tâches & Alertes</div>
       <div class="nav-item" onclick="allerPlaceholder('Fiscalité', 'Synthèse annuelle par régime fiscal.')"><span class="ic">📊</span> Fiscalité</div>
       <div class="nav-item" onclick="allerPlaceholder('Rapports', 'Export Excel et rapports personnalisés.')"><span class="ic">📈</span> Rapports</div>
       <div class="nav-item" id="nav-parametres" onclick="allerParametres()"><span class="ic">⚙️</span> Paramètres</div>
@@ -310,6 +310,19 @@
         </div>
       </div>
 
+      <!-- ===== ALERTES ===== -->
+      <div id="page-alertes" style="display:none;">
+        <div class="page-header"><h2>Tâches & Alertes</h2></div>
+        <div class="card">
+          <h3>Loyers en retard</h3>
+          <div id="alertesRetard">Chargement...</div>
+        </div>
+        <div class="card">
+          <h3>Baux arrivant à échéance (60 prochains jours)</h3>
+          <div id="alertesEcheance">Chargement...</div>
+        </div>
+      </div>
+
       <!-- ===== PLACEHOLDER (écrans pas encore construits) ===== -->
       <div id="page-placeholder" style="display:none;">
         <div class="page-header"><h2 id="placeholderTitle"></h2></div>
@@ -378,8 +391,8 @@
   supabaseClient.auth.getSession().then(({ data: { session } }) => { if (session) afficherApp(); });
 
   // ---------- NAVIGATION ----------
-  const PAGES = ['dashboard', 'patrimoine', 'locataires', 'loyers', 'finances', 'prets', 'parametres', 'fiche-immeuble', 'fiche-lot', 'fiche-locataire', 'placeholder'];
-  const NAV_IDS = ['nav-dashboard', 'nav-patrimoine', 'nav-locataires', 'nav-loyers', 'nav-finances', 'nav-prets', 'nav-parametres'];
+  const PAGES = ['dashboard', 'patrimoine', 'locataires', 'loyers', 'finances', 'prets', 'parametres', 'alertes', 'fiche-immeuble', 'fiche-lot', 'fiche-locataire', 'placeholder'];
+  const NAV_IDS = ['nav-dashboard', 'nav-patrimoine', 'nav-locataires', 'nav-loyers', 'nav-finances', 'nav-prets', 'nav-parametres', 'nav-alertes'];
 
   function hideAllPages() {
     PAGES.forEach(p => { const el = document.getElementById('page-' + p); if (el) el.style.display = 'none'; });
@@ -939,6 +952,77 @@
     const { error } = await supabaseClient.rpc('retirer_membre', { p_membre_id: membreId });
     if (error) return alert('Erreur : ' + error.message);
     chargerMembres();
+  }
+
+  // ---------- ALERTES ----------
+  async function allerAlertes() {
+    setActiveNav('nav-alertes'); hideAllPages();
+    document.getElementById('page-alertes').style.display = 'block';
+    chargerAlertesRetard();
+    chargerAlertesEcheance();
+  }
+
+  async function chargerAlertesRetard() {
+    const div = document.getElementById('alertesRetard');
+    div.textContent = 'Chargement...';
+    const { data: paiements, error } = await supabaseClient
+      .from('paiements')
+      .select('*, baux(lot_id, lots(nom, type, immeuble_id, immeubles(adresse)))')
+      .eq('statut', 'en_retard')
+      .order('mois');
+
+    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
+    if (!paiements || !paiements.length) { div.innerHTML = '<div class="empty-state">Aucun loyer en retard. 👍</div>'; return; }
+
+    div.innerHTML = paiements.map(p => {
+      const lot = p.baux && p.baux.lots ? p.baux.lots : null;
+      const immeuble = lot && lot.immeubles ? lot.immeubles.adresse : '';
+      return `
+        <div class="row">
+          <div>
+            <strong>${lot ? (lot.nom || lot.type) : 'Lot inconnu'}</strong> — ${immeuble}<br>
+            <span class="small">Mois : ${p.mois} · ${(Number(p.montant_loyer) + Number(p.montant_charges)).toLocaleString('fr-FR')} €</span>
+          </div>
+          <span class="badge travaux">en retard</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function chargerAlertesEcheance() {
+    const div = document.getElementById('alertesEcheance');
+    div.textContent = 'Chargement...';
+    const dansSoixanteJours = new Date();
+    dansSoixanteJours.setDate(dansSoixanteJours.getDate() + 60);
+    const today = new Date().toISOString().split('T')[0];
+    const limite = dansSoixanteJours.toISOString().split('T')[0];
+
+    const { data: baux, error } = await supabaseClient
+      .from('baux')
+      .select('*, lots(nom, type, immeubles(adresse))')
+      .eq('statut', 'actif')
+      .not('date_fin', 'is', null)
+      .gte('date_fin', today)
+      .lte('date_fin', limite)
+      .order('date_fin');
+
+    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
+    if (!baux || !baux.length) { div.innerHTML = '<div class="empty-state">Aucune échéance de bail dans les 60 prochains jours.</div>'; return; }
+
+    div.innerHTML = baux.map(b => {
+      const lot = b.lots;
+      const immeuble = lot && lot.immeubles ? lot.immeubles.adresse : '';
+      const joursRestants = Math.ceil((new Date(b.date_fin) - new Date()) / (1000 * 60 * 60 * 24));
+      return `
+        <div class="row">
+          <div>
+            <strong>${lot ? (lot.nom || lot.type) : 'Lot inconnu'}</strong> — ${immeuble}<br>
+            <span class="small">Fin de bail le ${b.date_fin}</span>
+          </div>
+          <span class="badge ${joursRestants <= 30 ? 'travaux' : 'vacant'}">${joursRestants} j</span>
+        </div>
+      `;
+    }).join('');
   }
 </script>
 
