@@ -261,9 +261,24 @@
   async function seConnecter() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) { document.getElementById('msg').textContent = error.message; }
-    else { afficherApp(); }
+    document.getElementById('msg').textContent = '';
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      document.getElementById('msg').textContent = traduireErreurAuth(error);
+      return;
+    }
+    if (!data.session) {
+      document.getElementById('msg').textContent = "Connexion refusée : vérifie que ton email est confirmé (regarde tes spams).";
+      return;
+    }
+    afficherApp();
+  }
+
+  function traduireErreurAuth(error) {
+    const msg = error.message || '';
+    if (msg.includes('Email not confirmed')) return "Ton email n'est pas encore confirmé — vérifie ta boîte mail (et les spams).";
+    if (msg.includes('Invalid login credentials')) return "Email ou mot de passe incorrect.";
+    return msg;
   }
 
   async function seDeconnecter() {
