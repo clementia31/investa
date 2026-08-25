@@ -24,6 +24,15 @@
     --red-bg: rgba(239,68,68,0.12);
     --radius: 12px;
   }
+  body.theme-light {
+    --bg: #f4f6fb;
+    --sidebar-bg: #ffffff;
+    --panel: #ffffff;
+    --panel-2: #f1f4fa;
+    --border: #e2e6f0;
+    --text: #1a2130;
+    --text-dim: #6b7690;
+  }
   * { box-sizing: border-box; }
   body { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; margin: 0; background: var(--bg); color: var(--text); }
   input, select, button { font-family: inherit; }
@@ -141,6 +150,22 @@
   .tab { padding: 9px 14px; cursor: pointer; color: var(--text-dim); font-size: 0.88rem; border-bottom: 2px solid transparent; }
   .tab:hover { color: var(--text); }
   .tab.active { color: var(--text); border-bottom-color: var(--accent); font-weight: 600; }
+
+  .avatar { width: 56px; height: 56px; border-radius: 50%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 700; flex-shrink: 0; }
+  .theme-switch { display: flex; gap: 8px; }
+  .theme-btn { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--panel-2); color: var(--text-dim); cursor: pointer; font-size: 0.9rem; font-weight: 600; }
+  .theme-btn.active { border-color: var(--accent); color: var(--text); background: var(--panel); }
+
+  .fisc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 16px; }
+  .fisc-card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; cursor: pointer; }
+  .fisc-card:hover { border-color: var(--accent); }
+  .fisc-card h4 { margin: 0 0 2px 0; font-size: 1rem; }
+  .fisc-card .regime { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 12px; }
+  .fisc-line { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
+  .fisc-line:last-child { border-bottom: none; font-weight: 700; padding-top: 8px; }
+  .fisc-table-header { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 8px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-dim); padding: 0 4px 8px 4px; border-bottom: 1px solid var(--border); margin-bottom: 6px; }
+  .fisc-assoc-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 8px; align-items: center; padding: 9px 4px; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .table-header-paiements { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-dim); padding: 0 4px 8px 4px; border-bottom: 1px solid var(--border); margin-bottom: 6px; }
 </style>
 </head>
 <body>
@@ -320,20 +345,86 @@
       <!-- ===== FICHE LOT ===== -->
       <div id="page-fiche-lot" style="display:none;">
         <div class="breadcrumb" onclick="retourFicheImmeuble()">← Retour à l'immeuble</div>
-        <div class="card" id="infoLot"></div>
-        <div class="card" id="zoneBail"></div>
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <h2 style="margin:0 0 4px 0;" id="lotTitre"></h2>
+              <div class="small" id="lotSousTitre"></div>
+              <div style="margin-top:8px;"><span class="badge" id="lotBadgeStatut"></span></div>
+            </div>
+          </div>
+          <div class="grid-2" style="margin-top:18px; margin-bottom:0; grid-template-columns:repeat(3,1fr);">
+            <div class="stat-card"><div class="lbl">Loyer mensuel</div><div class="val" id="lotLoyer">—</div></div>
+            <div class="stat-card"><div class="lbl">Charges mensuelles</div><div class="val" id="lotCharges">—</div></div>
+            <div class="stat-card"><div class="lbl">Dépôt de garantie</div><div class="val" id="lotDepot">—</div></div>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active" id="tabLotColoc" onclick="switchTabLot('coloc')">Colocataires</div>
+          <div class="tab" id="tabLotBail" onclick="switchTabLot('bail')">Bail</div>
+          <div class="tab" id="tabLotDocuments" onclick="switchTabLot('documents')">Documents</div>
+          <div class="tab" id="tabLotCharges" onclick="switchTabLot('charges')">Charges</div>
+        </div>
+
+        <div id="tabcontent-lot-coloc">
+          <div class="card">
+            <h3>Locataire(s)</h3>
+            <div id="lotColocataires">Chargement...</div>
+          </div>
+        </div>
+
+        <div id="tabcontent-lot-bail" style="display:none;">
+          <div class="card" id="zoneBail"></div>
+        </div>
+
+        <div id="tabcontent-lot-documents" style="display:none;">
+          <div class="card"><div class="placeholder-box"><div class="ic">🚧</div>Documents du lot (bail signé, état des lieux...) — bientôt disponible</div></div>
+        </div>
+
+        <div id="tabcontent-lot-charges" style="display:none;">
+          <div class="card">
+            <h3>Charges de ce lot</h3>
+            <div id="lotCharges2">Chargement...</div>
+          </div>
+        </div>
       </div>
 
       <!-- ===== FICHE LOCATAIRE ===== -->
       <div id="page-fiche-locataire" style="display:none;">
         <div class="breadcrumb" id="breadcrumbLocataire" onclick="retourDepuisLocataire()">← Retour</div>
-        <div class="card" id="infoLocataire"></div>
+        <div class="card">
+          <div style="display:flex; gap:16px; align-items:center;">
+            <div class="avatar" id="locAvatar"></div>
+            <div>
+              <h2 style="margin:0 0 4px 0;" id="locNom"></h2>
+              <div class="small" id="locContact"></div>
+              <div style="margin-top:8px; display:flex; gap:6px;" id="locBadges"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Documents</h3>
+            <div class="placeholder-box" style="padding:30px 10px;"><div class="ic">🚧</div>Bientôt disponible</div>
+          </div>
+          <div class="card">
+            <h3>Informations</h3>
+            <div id="locInformations">Chargement...</div>
+          </div>
+        </div>
+
         <div class="card">
           <h3>Colocataire(s)</h3>
           <div id="colocatairesLocataire"></div>
         </div>
+
         <div class="card">
           <h3>Historique des paiements</h3>
+          <div class="table-header-paiements">
+            <span>Mois</span><span>Type</span><span>Montant</span><span>Statut</span>
+          </div>
           <div id="historiquePaiementsLocataire">Chargement...</div>
         </div>
       </div>
@@ -379,15 +470,26 @@
 
       <!-- ===== FINANCES ===== -->
       <div id="page-finances" style="display:none;">
-        <div class="page-header"><h2>Finances</h2></div>
-        <div class="card">
-          <select id="structureFinances" onchange="chargerFinances()"></select>
-          <div class="grid-2" style="margin-top:10px;">
-            <div class="stat-card green"><div class="lbl">Recettes</div><div class="val" id="totalRecettes">0 €</div></div>
-            <div class="stat-card red"><div class="lbl">Dépenses</div><div class="val" id="totalDepenses">0 €</div></div>
+        <div class="page-header">
+          <h2>Finances</h2>
+          <div style="display:flex; gap:10px;">
+            <select id="structureFinances" onchange="chargerFinances()" style="width:auto; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);"></select>
+            <input id="moisFinances" type="month" onchange="chargerFinances()" style="padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);">
           </div>
-          <div class="stat-card" style="margin-top:10px;"><div class="lbl">Résultat</div><div class="val" id="totalResultat">0 €</div></div>
         </div>
+        <div class="grid-2">
+          <div class="stat-card green"><div class="lbl">Recettes</div><div class="val" id="totalRecettes">0 €</div></div>
+          <div class="stat-card red"><div class="lbl">Dépenses</div><div class="val" id="totalDepenses">0 €</div></div>
+        </div>
+        <div class="stat-card" style="margin:14px 0;"><div class="lbl">Résultat</div><div class="val" id="totalResultat">0 €</div></div>
+
+        <div class="tabs">
+          <div class="tab active" id="tabFinFlux" onclick="switchTabFinances('flux')">Flux</div>
+          <div class="tab" id="tabFinDepenses" onclick="switchTabFinances('depenses')">Dépenses</div>
+          <div class="tab" id="tabFinRecettes" onclick="switchTabFinances('recettes')">Recettes</div>
+          <div class="tab" id="tabFinVirements" onclick="switchTabFinances('virements')">Virements</div>
+        </div>
+
         <div class="card">
           <h3>Ajouter une transaction</h3>
           <select id="typeTx"><option value="recette">Recette</option><option value="depense">Dépense</option></select>
@@ -397,9 +499,21 @@
           <input id="descriptionTx" placeholder="Description — optionnel">
           <button class="btn-primary" onclick="creerTransaction()">Ajouter</button>
         </div>
-        <div class="card">
-          <h3>Transactions</h3>
+
+        <div id="tabcontent-fin-flux" class="card">
+          <h3>Toutes les transactions</h3>
           <div id="listeTransactions">Chargement...</div>
+        </div>
+        <div id="tabcontent-fin-depenses" class="card" style="display:none;">
+          <h3>Dépenses</h3>
+          <div id="listeDepenses">Chargement...</div>
+        </div>
+        <div id="tabcontent-fin-recettes" class="card" style="display:none;">
+          <h3>Recettes</h3>
+          <div id="listeRecettes">Chargement...</div>
+        </div>
+        <div id="tabcontent-fin-virements" class="card" style="display:none;">
+          <div class="placeholder-box"><div class="ic">🚧</div>Virements entre comptes — bientôt disponible (nécessite la gestion des comptes bancaires)</div>
         </div>
       </div>
 
@@ -423,6 +537,13 @@
       <!-- ===== PARAMÈTRES ===== -->
       <div id="page-parametres" style="display:none;">
         <div class="page-header"><h2>Paramètres</h2></div>
+        <div class="card">
+          <h3>Apparence</h3>
+          <div class="theme-switch">
+            <button class="theme-btn" id="btnThemeDark" onclick="definirTheme('dark')">🌙 Sombre</button>
+            <button class="theme-btn" id="btnThemeLight" onclick="definirTheme('light')">☀️ Clair</button>
+          </div>
+        </div>
         <div class="card">
           <h3>Mes structures</h3>
           <div id="listeStructuresParams">Chargement...</div>
@@ -456,18 +577,23 @@
 
       <!-- ===== FISCALITÉ ===== -->
       <div id="page-fiscalite" style="display:none;">
-        <div class="page-header"><h2>Fiscalité</h2></div>
-        <div class="card">
-          <select id="structureFiscalite" onchange="chargerFiscalite()"></select>
-          <select id="anneeFiscalite" onchange="chargerFiscalite()"></select>
+        <div class="page-header">
+          <h2>Fiscalité</h2>
+          <select id="anneeFiscalite" onchange="chargerFiscalite()" style="width:auto; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);"></select>
         </div>
-        <div class="grid-2" style="margin-bottom:16px;">
-          <div class="stat-card green"><div class="lbl">Revenus bruts</div><div class="val" id="fiscRevenus">—</div></div>
-          <div class="stat-card red"><div class="lbl">Charges déductibles</div><div class="val" id="fiscCharges">—</div></div>
-        </div>
-        <div class="stat-card" style="margin-bottom:16px;"><div class="lbl" id="fiscRegimeLabel">Résultat foncier</div><div class="val" id="fiscResultat">—</div></div>
-        <div class="card">
-          <div class="small">La répartition entre associés (SCI à l'IR) n'est pas encore disponible — bientôt.</div>
+        <div class="fisc-grid" id="fiscGrid">Chargement...</div>
+
+        <div class="card" id="cardAssocies" style="display:none;">
+          <h3>Associés — Répartition <span id="nomStructureAssocies" class="small"></span></h3>
+          <div class="fisc-table-header">
+            <span>Nom</span><span>Quote-part</span><span>Résultat foncier</span><span>À déclarer</span>
+          </div>
+          <div id="listeAssocies">Chargement...</div>
+          <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border); display:flex; gap:8px;">
+            <input id="nomAssocie" placeholder="Nom de l'associé" style="flex:2;">
+            <input id="quotePartAssocie" type="number" placeholder="Quote-part %" style="flex:1;">
+            <button class="btn-primary" style="width:auto; padding:10px 16px;" onclick="ajouterAssocie()">Ajouter</button>
+          </div>
         </div>
       </div>
 
@@ -509,6 +635,9 @@
   const SUPABASE_URL = 'https://rhpjttobvyofpauccbrj.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_GKzraD5eOxGYVB9SXWXY5g_UMXbw-Zz';
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Applique le thème sauvegardé immédiatement pour éviter tout flash
+  if (localStorage.getItem('investa-theme') === 'light') document.body.classList.add('theme-light');
 
   let currentImmeubleId = null;
   let currentLotId = null;
@@ -948,12 +1077,55 @@
     hideAllPages();
     document.getElementById('page-fiche-lot').style.display = 'block';
     const { data: lot } = await supabaseClient.from('lots').select('*').eq('id', id).single();
-    document.getElementById('infoLot').innerHTML = `
-      <h3 style="margin-bottom:4px;">${lot.nom || lot.type}</h3>
-      <div class="small">${lot.type}${lot.surface ? ' — ' + lot.surface + ' m²' : ''}</div>
-      <span class="badge ${lot.statut}" style="margin-top:8px; display:inline-block;">${lot.statut}</span>
-    `;
-    chargerBail(id);
+
+    document.getElementById('lotTitre').textContent = lot.nom || lot.type;
+    document.getElementById('lotSousTitre').textContent = lot.type + (lot.surface ? ' — ' + lot.surface + ' m²' : '');
+    document.getElementById('lotBadgeStatut').className = 'badge ' + lot.statut;
+    document.getElementById('lotBadgeStatut').textContent = lot.statut;
+
+    const { data: bauxActifs } = await supabaseClient.from('baux').select('*').eq('lot_id', id).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
+    const bail = bauxActifs && bauxActifs[0];
+    document.getElementById('lotLoyer').textContent = bail ? Number(bail.loyer).toLocaleString('fr-FR') + ' €' : '—';
+    document.getElementById('lotCharges').textContent = bail ? Number(bail.charges).toLocaleString('fr-FR') + ' €' : '—';
+    document.getElementById('lotDepot').textContent = bail && bail.depot_garantie ? Number(bail.depot_garantie).toLocaleString('fr-FR') + ' €' : '—';
+
+    switchTabLot('coloc');
+  }
+
+  function switchTabLot(tab) {
+    ['coloc', 'bail', 'documents', 'charges'].forEach(t => {
+      document.getElementById('tabcontent-lot-' + t).style.display = t === tab ? 'block' : 'none';
+      document.getElementById('tabLot' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
+    });
+    if (tab === 'coloc') chargerColocatairesLot(currentLotId);
+    if (tab === 'bail') chargerBail(currentLotId);
+    if (tab === 'charges') chargerChargesLot(currentLotId);
+  }
+
+  async function chargerColocatairesLot(lotId) {
+    const div = document.getElementById('lotColocataires');
+    div.textContent = 'Chargement...';
+    const { data: bauxActifs } = await supabaseClient.from('baux').select('id').eq('lot_id', lotId).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
+    if (!bauxActifs || !bauxActifs.length) { div.innerHTML = '<div class="empty-state">Aucun bail actif — crée un bail dans l\u2019onglet "Bail".</div>'; return; }
+    const { data: rattachements } = await supabaseClient.from('bail_locataires').select('locataire_id').eq('bail_id', bauxActifs[0].id);
+    const ids = (rattachements || []).map(r => r.locataire_id);
+    if (!ids.length) { div.innerHTML = '<div class="empty-state">Aucun locataire.</div>'; return; }
+    const { data: locataires } = await supabaseClient.from('locataires').select('*').in('id', ids);
+    div.innerHTML = (locataires || []).map(l => `<div class="row row-click" onclick="ouvrirFicheLocataire('${l.id}', 'lot')">${l.nom} ${l.email ? '<span class="small">' + l.email + '</span>' : ''}</div>`).join('');
+  }
+
+  async function chargerChargesLot(lotId) {
+    const div = document.getElementById('lotCharges2');
+    div.textContent = 'Chargement...';
+    const { data: txs, error } = await supabaseClient.from('transactions').select('*').eq('lot_id', lotId).order('date', { ascending: false });
+    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
+    if (!txs || !txs.length) { div.innerHTML = '<div class="empty-state">Aucune transaction rattachée à ce lot.</div>'; return; }
+    div.innerHTML = txs.map(t => `
+      <div class="row">
+        <span>${t.date} — ${t.categorie}${t.description ? ' (' + t.description + ')' : ''}</span>
+        <span style="color:${t.type === 'depense' ? 'var(--red)' : 'var(--green)'}; font-weight:600;">${t.type === 'depense' ? '-' : '+'}${Number(t.montant).toLocaleString('fr-FR')} €</span>
+      </div>
+    `).join('');
   }
 
   async function chargerBail(lotId) {
@@ -962,19 +1134,10 @@
 
     if (baux && baux.length) {
       const bail = baux[0];
-      const { data: rattachements } = await supabaseClient.from('bail_locataires').select('locataire_id').eq('bail_id', bail.id);
-      const ids = (rattachements || []).map(r => r.locataire_id);
-      let locataires = [];
-      if (ids.length) {
-        const { data } = await supabaseClient.from('locataires').select('*').in('id', ids);
-        locataires = data || [];
-      }
       zone.innerHTML = `
         <h3>Bail en cours</h3>
-        <div class="small">Type : ${bail.type} · Loyer : ${bail.loyer} € · Charges : ${bail.charges} €</div>
+        <div class="small">Type : ${bail.type} · Loyer : ${bail.loyer} € · Charges : ${bail.charges} €${bail.depot_garantie ? ' · Dépôt : ' + bail.depot_garantie + ' €' : ''}</div>
         <div class="small">Du ${bail.date_debut} ${bail.date_fin ? 'au ' + bail.date_fin : '(sans fin)'}</div>
-        <h3 style="margin-top:16px;">Locataire(s)</h3>
-        ${locataires.map(l => `<div class="row row-click" onclick="ouvrirFicheLocataire('${l.id}', 'lot')">${l.nom} ${l.email ? '<span class="small">' + l.email + '</span>' : ''}</div>`).join('') || '<div class="empty-state">Aucun</div>'}
       `;
     } else {
       zone.innerHTML = `
@@ -1015,7 +1178,7 @@
       await supabaseClient.from('bail_locataires').insert({ bail_id: bail.id, locataire_id: locataire.id });
     }
     await supabaseClient.from('lots').update({ statut: 'occupe' }).eq('id', currentLotId);
-    chargerBail(currentLotId);
+    ouvrirFicheLot(currentLotId);
   }
 
   // ---------- FICHE LOCATAIRE ----------
@@ -1026,17 +1189,20 @@
     document.getElementById('breadcrumbLocataire').textContent = currentLocataireOrigin === 'liste' ? '← Retour aux locataires' : '← Retour au lot';
 
     const { data: locataire } = await supabaseClient.from('locataires').select('*').eq('id', locataireId).single();
-    document.getElementById('infoLocataire').innerHTML = `
-      <h3 style="margin-bottom:4px;">${locataire.nom}</h3>
-      <div class="small">${locataire.email || 'Email non renseigné'}</div>
-      <div class="small">${locataire.telephone || 'Téléphone non renseigné'}</div>
-    `;
+    const initiales = locataire.nom.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+    document.getElementById('locAvatar').textContent = initiales;
+    document.getElementById('locNom').textContent = locataire.nom;
+    document.getElementById('locContact').textContent = [locataire.email, locataire.telephone].filter(Boolean).join(' · ') || 'Aucun contact renseigné';
 
     const { data: rattachements } = await supabaseClient.from('bail_locataires').select('bail_id').eq('locataire_id', locataireId);
     const bailIds = (rattachements || []).map(r => r.bail_id);
 
     let colocataires = [];
+    let bailActuel = null;
     if (bailIds.length) {
+      const { data: bauxDetails } = await supabaseClient.from('baux').select('*, lots(nom, type, immeubles(adresse))').in('id', bailIds).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
+      bailActuel = bauxDetails && bauxDetails[0];
+
       const { data: autresRattachements } = await supabaseClient.from('bail_locataires').select('locataire_id').in('bail_id', bailIds).neq('locataire_id', locataireId);
       const autresIds = [...new Set((autresRattachements || []).map(r => r.locataire_id))];
       if (autresIds.length) {
@@ -1044,6 +1210,19 @@
         colocataires = data || [];
       }
     }
+
+    document.getElementById('locBadges').innerHTML = bailActuel
+      ? `<span class="badge-outline">${bailActuel.lots.nom || bailActuel.lots.type}</span><span class="badge-outline">${bailActuel.lots.immeubles.adresse}</span>${bailActuel.type === 'colocation' ? '<span class="badge-outline">Colocation</span>' : ''}`
+      : '<span class="badge-outline">Aucun bail actif</span>';
+
+    document.getElementById('locInformations').innerHTML = bailActuel ? `
+      <div class="row"><span class="small">Lot</span><span>${bailActuel.lots.nom || bailActuel.lots.type}</span></div>
+      <div class="row"><span class="small">Bail</span><span>Du ${bailActuel.date_debut} ${bailActuel.date_fin ? 'au ' + bailActuel.date_fin : '(sans fin)'}</span></div>
+      <div class="row"><span class="small">Loyer</span><span>${Number(bailActuel.loyer).toLocaleString('fr-FR')} €</span></div>
+      <div class="row"><span class="small">Charges</span><span>${Number(bailActuel.charges).toLocaleString('fr-FR')} €</span></div>
+      <div class="row"><span class="small">Dépôt de garantie</span><span>${bailActuel.depot_garantie ? Number(bailActuel.depot_garantie).toLocaleString('fr-FR') + ' €' : '—'}</span></div>
+    ` : '<div class="empty-state">Aucun bail actif.</div>';
+
     document.getElementById('colocatairesLocataire').innerHTML = colocataires.length
       ? colocataires.map(c => `<div class="row">${c.nom}</div>`).join('')
       : '<div class="empty-state">Aucun (locataire seul)</div>';
@@ -1053,7 +1232,10 @@
     const { data: paiements } = await supabaseClient.from('paiements').select('*').in('bail_id', bailIds).order('mois', { ascending: false });
     if (!paiements || !paiements.length) { div.innerHTML = '<div class="empty-state">Aucun paiement enregistré.</div>'; return; }
     div.innerHTML = paiements.map(p => `
-      <div class="row"><span>${p.mois}</span><span class="badge ${p.statut === 'paye' ? 'occupe' : (p.statut === 'en_retard' ? 'travaux' : 'vacant')}">${p.statut.replace('_', ' ')}</span></div>
+      <div class="table-header-paiements" style="border:none; padding:9px 4px; margin:0; text-transform:none; letter-spacing:normal; color:var(--text); font-size:0.88rem; border-bottom:1px solid var(--border);">
+        <span>${p.mois}</span><span class="small">Loyer + charges</span><span>${(Number(p.montant_loyer) + Number(p.montant_charges)).toLocaleString('fr-FR')} €</span>
+        <span><span class="badge ${p.statut === 'paye' ? 'occupe' : (p.statut === 'en_retard' ? 'travaux' : 'vacant')}">${p.statut.replace('_', ' ')}</span></span>
+      </div>
     `).join('');
   }
 
@@ -1062,7 +1244,7 @@
     else {
       hideAllPages();
       document.getElementById('page-fiche-lot').style.display = 'block';
-      chargerBail(currentLotId);
+      switchTabLot('coloc');
     }
   }
 
@@ -1189,15 +1371,40 @@
       const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
       sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
     }
+    const moisInput = document.getElementById('moisFinances');
+    if (!moisInput.value) {
+      const now = new Date();
+      moisInput.value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+    }
+    switchTabFinances('flux');
     chargerFinances();
+  }
+
+  function switchTabFinances(tab) {
+    ['flux', 'depenses', 'recettes', 'virements'].forEach(t => {
+      document.getElementById('tabcontent-fin-' + t).style.display = t === tab ? 'block' : 'none';
+      document.getElementById('tabFin' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
+    });
   }
 
   async function chargerFinances() {
     const structureId = document.getElementById('structureFinances').value;
+    const moisStr = document.getElementById('moisFinances').value;
     if (!structureId) return;
-    const { data: txs, error } = await supabaseClient.from('transactions').select('*').eq('structure_id', structureId).order('date', { ascending: false });
-    const div = document.getElementById('listeTransactions');
-    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
+
+    let query = supabaseClient.from('transactions').select('*').eq('structure_id', structureId);
+    if (moisStr) {
+      const debut = moisStr + '-01';
+      const [an, mo] = moisStr.split('-').map(Number);
+      const fin = new Date(an, mo, 0).toISOString().split('T')[0];
+      query = query.gte('date', debut).lte('date', fin);
+    }
+    const { data: txs, error } = await query.order('date', { ascending: false });
+
+    if (error) {
+      ['listeTransactions', 'listeDepenses', 'listeRecettes'].forEach(id => document.getElementById(id).innerHTML = '<div class="empty-state">Erreur de chargement.</div>');
+      return;
+    }
 
     const recettes = (txs || []).filter(t => t.type === 'recette').reduce((a, t) => a + Number(t.montant), 0);
     const depenses = (txs || []).filter(t => t.type === 'depense').reduce((a, t) => a + Number(t.montant), 0);
@@ -1205,13 +1412,19 @@
     document.getElementById('totalDepenses').textContent = depenses.toLocaleString('fr-FR') + ' €';
     document.getElementById('totalResultat').textContent = (recettes - depenses).toLocaleString('fr-FR') + ' €';
 
-    if (!txs || !txs.length) { div.innerHTML = '<div class="empty-state">Aucune transaction pour le moment.</div>'; return; }
-    div.innerHTML = txs.map(t => `
-      <div class="row">
-        <span>${t.date} — ${t.categorie}${t.description ? ' (' + t.description + ')' : ''}</span>
-        <span style="color:${t.type === 'depense' ? 'var(--red)' : 'var(--green)'}; font-weight:600;">${t.type === 'depense' ? '-' : '+'}${Number(t.montant).toLocaleString('fr-FR')} €</span>
-      </div>
-    `).join('');
+    const rendreListe = (id, liste) => {
+      const el = document.getElementById(id);
+      el.innerHTML = liste.length ? liste.map(t => `
+        <div class="row">
+          <span>${t.date} — ${t.categorie}${t.description ? ' (' + t.description + ')' : ''}</span>
+          <span style="color:${t.type === 'depense' ? 'var(--red)' : 'var(--green)'}; font-weight:600;">${t.type === 'depense' ? '-' : '+'}${Number(t.montant).toLocaleString('fr-FR')} €</span>
+        </div>
+      `).join('') : '<div class="empty-state">Aucune transaction.</div>';
+    };
+
+    rendreListe('listeTransactions', txs || []);
+    rendreListe('listeDepenses', (txs || []).filter(t => t.type === 'depense'));
+    rendreListe('listeRecettes', (txs || []).filter(t => t.type === 'recette'));
   }
 
   async function creerTransaction() {
@@ -1304,7 +1517,19 @@
     document.getElementById('page-parametres').style.display = 'block';
     document.getElementById('cardMembres').style.display = 'none';
     currentStructureParamsId = null;
+    mettreAJourBoutonsTheme(localStorage.getItem('investa-theme') || 'dark');
     chargerStructuresParams();
+  }
+
+  function definirTheme(mode) {
+    document.body.classList.toggle('theme-light', mode === 'light');
+    localStorage.setItem('investa-theme', mode);
+    mettreAJourBoutonsTheme(mode);
+  }
+
+  function mettreAJourBoutonsTheme(mode) {
+    document.getElementById('btnThemeDark').classList.toggle('active', mode === 'dark');
+    document.getElementById('btnThemeLight').classList.toggle('active', mode === 'light');
   }
 
   async function chargerStructuresParams() {
@@ -1432,15 +1657,14 @@
   }
 
   // ---------- FISCALITÉ ----------
+  let currentStructureFiscaliteId = null;
+
   async function allerFiscalite() {
     setActiveNav('nav-fiscalite'); hideAllPages();
     document.getElementById('page-fiscalite').style.display = 'block';
+    document.getElementById('cardAssocies').style.display = 'none';
+    currentStructureFiscaliteId = null;
 
-    const selS = document.getElementById('structureFiscalite');
-    if (!selS.options.length) {
-      const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
-      selS.innerHTML = (structures || []).map(s => `<option value="${s.id}" data-type="${s.type}">${s.nom}</option>`).join('');
-    }
     const selA = document.getElementById('anneeFiscalite');
     if (!selA.options.length) {
       const now = new Date().getFullYear();
@@ -1452,31 +1676,76 @@
   }
 
   async function chargerFiscalite() {
-    const selS = document.getElementById('structureFiscalite');
-    const structureId = selS.value;
     const annee = document.getElementById('anneeFiscalite').value;
-    if (!structureId || !annee) return;
+    if (!annee) return;
+    const div = document.getElementById('fiscGrid');
+    div.textContent = 'Chargement...';
 
-    const typeStructure = selS.options[selS.selectedIndex] ? selS.options[selS.selectedIndex].dataset.type : '';
-    document.getElementById('fiscRegimeLabel').textContent = typeStructure === 'sci_is' ? 'Résultat (avant IS)' : 'Résultat foncier';
+    const { data: structures, error } = await supabaseClient.from('structures').select('*').order('created_at');
+    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
+    if (!structures || !structures.length) { div.innerHTML = '<div class="empty-state">Aucune structure pour le moment.</div>'; return; }
 
     const debut = annee + '-01-01';
     const fin = annee + '-12-31';
-    const { data: txs, error } = await supabaseClient.from('transactions').select('*').eq('structure_id', structureId).gte('date', debut).lte('date', fin);
+    const labelsRegime = { sci_ir: "SCI à l'IR", sci_is: "SCI à l'IS", nom_propre: 'Nom propre', sarl_immo: 'SARL immobilière', autre: 'Autre' };
 
-    if (error) {
-      document.getElementById('fiscRevenus').textContent = '—';
-      document.getElementById('fiscCharges').textContent = '—';
-      document.getElementById('fiscResultat').textContent = '—';
-      return;
+    let html = '';
+    for (const s of structures) {
+      const { data: txs } = await supabaseClient.from('transactions').select('*').eq('structure_id', s.id).gte('date', debut).lte('date', fin);
+      const revenus = (txs || []).filter(t => t.type === 'recette').reduce((a, t) => a + Number(t.montant), 0);
+      const charges = (txs || []).filter(t => t.type === 'depense').reduce((a, t) => a + Number(t.montant), 0);
+      const resultat = revenus - charges;
+      html += `<div class="fisc-card" onclick="ouvrirAssociesStructure('${s.id}', '${s.nom.replace(/'/g, "\\'")}')">
+        <h4>${s.nom}</h4>
+        <div class="regime">${labelsRegime[s.type] || s.type}</div>
+        <div class="fisc-line"><span>Revenus bruts</span><span>${revenus.toLocaleString('fr-FR')} €</span></div>
+        <div class="fisc-line"><span>Charges déductibles</span><span>${charges.toLocaleString('fr-FR')} €</span></div>
+        <div class="fisc-line"><span>${s.type === 'sci_is' ? 'Résultat (avant IS)' : 'Résultat foncier'}</span><span>${resultat.toLocaleString('fr-FR')} €</span></div>
+      </div>`;
     }
+    div.innerHTML = html;
+  }
 
-    const revenus = (txs || []).filter(t => t.type === 'recette').reduce((a, t) => a + Number(t.montant), 0);
-    const charges = (txs || []).filter(t => t.type === 'depense').reduce((a, t) => a + Number(t.montant), 0);
+  async function ouvrirAssociesStructure(structureId, nom) {
+    currentStructureFiscaliteId = structureId;
+    document.getElementById('nomStructureAssocies').textContent = '— ' + nom;
+    document.getElementById('cardAssocies').style.display = 'block';
+    document.getElementById('cardAssocies').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    chargerAssocies();
+  }
 
-    document.getElementById('fiscRevenus').textContent = revenus.toLocaleString('fr-FR') + ' €';
-    document.getElementById('fiscCharges').textContent = charges.toLocaleString('fr-FR') + ' €';
-    document.getElementById('fiscResultat').textContent = (revenus - charges).toLocaleString('fr-FR') + ' €';
+  async function chargerAssocies() {
+    const div = document.getElementById('listeAssocies');
+    div.textContent = 'Chargement...';
+    const annee = document.getElementById('anneeFiscalite').value;
+    const debut = annee + '-01-01';
+    const fin = annee + '-12-31';
+
+    const { data: txs } = await supabaseClient.from('transactions').select('*').eq('structure_id', currentStructureFiscaliteId).gte('date', debut).lte('date', fin);
+    const resultatTotal = (txs || []).filter(t => t.type === 'recette').reduce((a, t) => a + Number(t.montant), 0) - (txs || []).filter(t => t.type === 'depense').reduce((a, t) => a + Number(t.montant), 0);
+
+    const { data: associes, error } = await supabaseClient.from('associes').select('*').eq('structure_id', currentStructureFiscaliteId).order('created_at');
+    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
+    if (!associes || !associes.length) { div.innerHTML = '<div class="empty-state">Aucun associé renseigné.</div>'; return; }
+
+    div.innerHTML = associes.map(a => {
+      const part = resultatTotal * (Number(a.quote_part) / 100);
+      return `<div class="fisc-assoc-row">
+        <span>${a.nom}</span><span>${a.quote_part} %</span><span>${part.toLocaleString('fr-FR')} €</span>
+        <span class="small">À déclarer</span>
+      </div>`;
+    }).join('');
+  }
+
+  async function ajouterAssocie() {
+    const nom = document.getElementById('nomAssocie').value;
+    const quotePart = document.getElementById('quotePartAssocie').value;
+    if (!nom || !quotePart) return alert('Nom et quote-part requis');
+    const { error } = await supabaseClient.from('associes').insert({ structure_id: currentStructureFiscaliteId, nom, quote_part: parseFloat(quotePart) });
+    if (error) return alert('Erreur : ' + error.message);
+    document.getElementById('nomAssocie').value = '';
+    document.getElementById('quotePartAssocie').value = '';
+    chargerAssocies();
   }
 
   // ---------- RAPPORTS ----------
