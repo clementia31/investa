@@ -34,6 +34,17 @@
   .lot-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #334155; cursor: pointer; }
   .lot-row:hover { color: #93c5fd; }
   .small { font-size: 0.85rem; color: #94a3b8; }
+  .navtabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .navtab { flex: 1; text-align: center; padding: 8px; border-radius: 6px; background: #1e293b; cursor: pointer; font-size: 0.9rem; }
+  .navtab.active { background: #3b82f6; font-weight: 600; }
+  .stats-row { display: flex; gap: 10px; margin: 10px 0; }
+  .stat-box { flex: 1; background: #263548; padding: 10px; border-radius: 6px; text-align: center; }
+  .stat-box .val { font-size: 1.2rem; font-weight: 700; }
+  .stat-box.recette .val { color: #4ade80; }
+  .stat-box.depense .val { color: #f87171; }
+  .tx-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #334155; font-size: 0.9rem; }
+  .tx-amount.recette { color: #4ade80; }
+  .tx-amount.depense { color: #f87171; }
 </style>
 </head>
 <body>
@@ -55,6 +66,11 @@
     <div class="small"><span id="userEmail"></span> — <a href="#" onclick="seDeconnecter()" style="color:#93c5fd;">déconnexion</a></div>
   </div>
 
+  <div class="navtabs">
+    <div class="navtab active" id="navPatrimoine" onclick="allerPatrimoine()">Patrimoine</div>
+    <div class="navtab" id="navFinances" onclick="allerFinances()">Finances</div>
+  </div>
+
   <!-- Vue Patrimoine -->
   <div id="vuePatrimoine">
     <div class="card">
@@ -73,6 +89,37 @@
     <div class="card">
       <h2>Patrimoine</h2>
       <div id="arbrePatrimoine">Chargement...</div>
+    </div>
+  </div>
+
+  <!-- Vue Finances -->
+  <div id="vueFinances" style="display:none;">
+    <div class="card">
+      <h2>Finances</h2>
+      <select id="structureFinances" onchange="chargerFinances()"></select>
+      <div class="stats-row">
+        <div class="stat-box recette"><div class="small">Recettes</div><div class="val" id="totalRecettes">0 €</div></div>
+        <div class="stat-box depense"><div class="small">Dépenses</div><div class="val" id="totalDepenses">0 €</div></div>
+        <div class="stat-box"><div class="small">Résultat</div><div class="val" id="totalResultat">0 €</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Ajouter une transaction</h3>
+      <select id="typeTx">
+        <option value="recette">Recette</option>
+        <option value="depense">Dépense</option>
+      </select>
+      <input id="categorieTx" placeholder="Catégorie (ex: loyer, travaux, assurance)">
+      <input id="montantTx" type="number" placeholder="Montant (€)">
+      <input id="dateTx" type="date">
+      <input id="descriptionTx" placeholder="Description — optionnel">
+      <button onclick="creerTransaction()">Ajouter</button>
+    </div>
+
+    <div class="card">
+      <h3>Transactions</h3>
+      <div id="listeTransactions">Chargement...</div>
     </div>
   </div>
 
@@ -226,9 +273,7 @@
   }
 
   function retourPatrimoine() {
-    document.getElementById('vueFicheImmeuble').style.display = 'none';
-    document.getElementById('vuePatrimoine').style.display = 'block';
-    chargerPatrimoine();
+    allerPatrimoine();
   }
 
   async function chargerLots(immeubleId) {
@@ -357,6 +402,80 @@
     await supabase.from('lots').update({ statut: 'occupe' }).eq('id', currentLotId);
 
     chargerBail(currentLotId);
+  }
+
+  // ---------- NAVIGATION ----------
+  function allerPatrimoine() {
+    document.getElementById('navPatrimoine').classList.add('active');
+    document.getElementById('navFinances').classList.remove('active');
+    document.getElementById('vueFinances').style.display = 'none';
+    document.getElementById('vueFicheImmeuble').style.display = 'none';
+    document.getElementById('vueFicheLot').style.display = 'none';
+    document.getElementById('vuePatrimoine').style.display = 'block';
+    chargerPatrimoine();
+  }
+
+  async function allerFinances() {
+    document.getElementById('navFinances').classList.add('active');
+    document.getElementById('navPatrimoine').classList.remove('active');
+    document.getElementById('vuePatrimoine').style.display = 'none';
+    document.getElementById('vueFicheImmeuble').style.display = 'none';
+    document.getElementById('vueFicheLot').style.display = 'none';
+    document.getElementById('vueFinances').style.display = 'block';
+
+    const sel = document.getElementById('structureFinances');
+    if (!sel.options.length) {
+      const { data: structures } = await supabase.from('structures').select('*').order('created_at');
+      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
+    }
+    chargerFinances();
+  }
+
+  // ---------- FINANCES ----------
+  async function chargerFinances() {
+    const structureId = document.getElementById('structureFinances').value;
+    if (!structureId) return;
+
+    const { data: txs, error } = await supabase.from('transactions').select('*').eq('structure_id', structureId).order('date', { ascending: false });
+    const div = document.getElementById('listeTransactions');
+    if (error) { div.textContent = 'Erreur de chargement.'; return; }
+
+    const recettes = (txs || []).filter(t => t.type === 'recette').reduce((a, t) => a + Number(t.montant), 0);
+    const depenses = (txs || []).filter(t => t.type === 'depense').reduce((a, t) => a + Number(t.montant), 0);
+    document.getElementById('totalRecettes').textContent = recettes.toLocaleString('fr-FR') + ' €';
+    document.getElementById('totalDepenses').textContent = depenses.toLocaleString('fr-FR') + ' €';
+    document.getElementById('totalResultat').textContent = (recettes - depenses).toLocaleString('fr-FR') + ' €';
+
+    if (!txs || !txs.length) { div.textContent = 'Aucune transaction pour le moment.'; return; }
+
+    div.innerHTML = txs.map(t => `
+      <div class="tx-row">
+        <span>${t.date} — ${t.categorie}${t.description ? ' (' + t.description + ')' : ''}</span>
+        <span class="tx-amount ${t.type}">${t.type === 'depense' ? '-' : '+'}${Number(t.montant).toLocaleString('fr-FR')} €</span>
+      </div>
+    `).join('');
+  }
+
+  async function creerTransaction() {
+    const structureId = document.getElementById('structureFinances').value;
+    const type = document.getElementById('typeTx').value;
+    const categorie = document.getElementById('categorieTx').value;
+    const montant = document.getElementById('montantTx').value;
+    const date = document.getElementById('dateTx').value;
+    const description = document.getElementById('descriptionTx').value;
+
+    if (!structureId) return alert('Sélectionne une structure');
+    if (!categorie || !montant || !date) return alert('Catégorie, montant et date sont requis');
+
+    const { error } = await supabase.from('transactions').insert({
+      structure_id: structureId, type, categorie, montant: parseFloat(montant), date, description: description || null
+    });
+    if (error) return alert('Erreur : ' + error.message);
+
+    document.getElementById('categorieTx').value = '';
+    document.getElementById('montantTx').value = '';
+    document.getElementById('descriptionTx').value = '';
+    chargerFinances();
   }
 </script>
 
