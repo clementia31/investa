@@ -574,6 +574,7 @@
         <div class="params-layout">
           <div class="card params-menu">
             <div class="params-menu-title">Mon organisation</div>
+            <div class="params-menu-item" id="pmOrganisation" onclick="switchParamsSection('organisation')">Organisation</div>
             <div class="params-menu-item active" id="pmStructures" onclick="switchParamsSection('structures')">Structures</div>
             <div class="params-menu-item" id="pmComptes" onclick="switchParamsSection('comptes')">Comptes bancaires</div>
             <div class="params-menu-item" id="pmCategories" onclick="switchParamsSection('categories')">Catégories</div>
@@ -583,6 +584,18 @@
           </div>
 
           <div class="params-content">
+            <div id="ps-organisation" style="display:none;">
+              <div class="card">
+                <h3>Mes organisations</h3>
+                <div class="small" style="margin-bottom:12px;">Une organisation regroupe plusieurs structures (SCI) sous un même abonnement — pratique si tu gères plusieurs SCI pour un même client.</div>
+                <div id="listeOrganisations">Chargement...</div>
+                <div style="display:flex; gap:8px; margin-top:14px;">
+                  <input id="nomOrganisation" placeholder="Nom de l'organisation" style="flex:1;">
+                  <button class="btn-primary" style="width:auto; padding:10px 16px;" onclick="creerOrganisation()">Créer</button>
+                </div>
+              </div>
+            </div>
+
             <div id="ps-structures">
               <div class="card">
                 <h3>Mes structures</h3>
@@ -1799,12 +1812,13 @@
   }
 
   function switchParamsSection(section) {
-    ['structures', 'comptes', 'categories', 'apparence'].forEach(s => {
+    ['organisation', 'structures', 'comptes', 'categories', 'apparence'].forEach(s => {
       document.getElementById('ps-' + s).style.display = s === section ? 'block' : 'none';
     });
-    ['pmStructures', 'pmComptes', 'pmCategories', 'pmApparence'].forEach(id => document.getElementById(id).classList.remove('active'));
-    const map = { structures: 'pmStructures', comptes: 'pmComptes', categories: 'pmCategories', apparence: 'pmApparence' };
+    ['pmOrganisation', 'pmStructures', 'pmComptes', 'pmCategories', 'pmApparence'].forEach(id => document.getElementById(id).classList.remove('active'));
+    const map = { organisation: 'pmOrganisation', structures: 'pmStructures', comptes: 'pmComptes', categories: 'pmCategories', apparence: 'pmApparence' };
     document.getElementById(map[section]).classList.add('active');
+    if (section === 'organisation') chargerOrganisations();
     if (section === 'comptes') initComptesBancaires();
     if (section === 'categories') initCategories();
   }
@@ -1825,12 +1839,26 @@
     const { data: structures, error } = await supabaseClient.from('structures').select('*').order('created_at');
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
     if (!structures || !structures.length) { div.innerHTML = '<div class="empty-state">Aucune structure pour le moment.</div>'; return; }
+
+    const { data: organisations } = await supabaseClient.from('organizations').select('*').order('created_at');
+    const optionsOrg = '<option value="">Aucune organisation</option>' + (organisations || []).map(o => `<option value="${o.id}">${o.nom}</option>`).join('');
+
     div.innerHTML = structures.map(s => `
-      <div class="row row-click" onclick="ouvrirMembresStructure('${s.id}', '${s.nom.replace(/'/g, "\\'")}')">
-        <span>${s.nom} <span class="small">(${s.type})</span></span>
-        <span class="small">Gérer les membres →</span>
+      <div class="row" style="align-items:center;">
+        <span class="row-click" onclick="ouvrirMembresStructure('${s.id}', '${s.nom.replace(/'/g, "\\'")}')" style="flex:1;">${s.nom} <span class="small">(${s.type})</span></span>
+        <select class="plan-select-inline" onchange="rattacherOrganisation('${s.id}', this.value)" style="width:auto; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-size:0.82rem;">
+          ${optionsOrg.replace(`value="${s.organization_id || ''}"`, `value="${s.organization_id || ''}" selected`)}
+        </select>
       </div>
     `).join('');
+  }
+
+  async function rattacherOrganisation(structureId, organizationId) {
+    const { error } = await supabaseClient.rpc('rattacher_structure_organisation', {
+      p_structure_id: structureId, p_organization_id: organizationId || null
+    });
+    if (error) return alert('Erreur : ' + error.message);
+    chargerStructuresParams();
   }
 
   function ouvrirMembresStructure(structureId, nom) {
@@ -2432,6 +2460,31 @@
     await uploaderDocument(type, cibleId, structureId, 'fichierImportGlobal', categorie);
     document.getElementById('cardImportDocument').style.display = 'none';
     chargerDocumentsGlobal();
+  }
+
+  // ---------- ORGANISATION (regroupement facturation) ----------
+  async function chargerOrganisations() {
+    const div = document.getElementById('listeOrganisations');
+    div.textContent = 'Chargement...';
+    const { data: organisations, error } = await supabaseClient.from('organizations').select('*').order('created_at');
+    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
+    if (!organisations || !organisations.length) { div.innerHTML = '<div class="empty-state">Aucune organisation — crée-en une si tu gères plusieurs SCI pour un même client.</div>'; return; }
+
+    let html = '';
+    for (const o of organisations) {
+      const { count } = await supabaseClient.from('structures').select('*', { count: 'exact', head: true }).eq('organization_id', o.id);
+      html += `<div class="row"><span>${o.nom}</span><span class="small">${count || 0} structure(s) rattachée(s)</span></div>`;
+    }
+    div.innerHTML = html;
+  }
+
+  async function creerOrganisation() {
+    const nom = document.getElementById('nomOrganisation').value;
+    if (!nom) return alert('Nom requis');
+    const { error } = await supabaseClient.rpc('creer_organisation', { p_nom: nom });
+    if (error) return alert('Erreur : ' + error.message);
+    document.getElementById('nomOrganisation').value = '';
+    chargerOrganisations();
   }
 </script>
 
