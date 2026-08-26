@@ -1067,22 +1067,44 @@
     if (errS) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
     if (!structures.length) { div.innerHTML = '<div class="empty-state">Aucune structure pour le moment.</div>'; document.getElementById('arbreTotal').innerHTML = ''; return; }
 
-    donneesArbrePatrimoine = [];
-    for (const s of structures) {
-      const { data: immeubles } = await supabaseClient.from('immeubles').select('*').eq('structure_id', s.id).order('created_at');
-      const immeublesData = [];
-      for (const im of (immeubles || [])) {
-        const { data: lots } = await supabaseClient.from('lots').select('id').eq('immeuble_id', im.id);
-        const lotIds = (lots || []).map(l => l.id);
-        let loyersMensuels = 0;
-        if (lotIds.length) {
-          const { data: bauxActifs } = await supabaseClient.from('baux').select('loyer, charges').in('lot_id', lotIds).eq('statut', 'actif');
-          loyersMensuels = (bauxActifs || []).reduce((a, b) => a + Number(b.loyer) + Number(b.charges), 0);
-        }
-        immeublesData.push({ id: im.id, adresse: im.adresse, nbLots: lotIds.length, loyersMensuels });
-      }
-      donneesArbrePatrimoine.push({ id: s.id, nom: s.nom, type: s.type, immeubles: immeublesData });
-    }
+    const structureIds = structures.map(s => s.id);
+
+    // 1 requête groupée pour TOUS les immeubles de toutes les structures
+    const { data: tousImmeubles } = await supabaseClient.from('immeubles').select('*').in('structure_id', structureIds).order('created_at');
+    const immeubleIds = (tousImmeubles || []).map(im => im.id);
+
+    // 1 requête groupée pour TOUS les lots de tous les immeubles
+    const { data: tousLots } = immeubleIds.length
+      ? await supabaseClient.from('lots').select('id, immeuble_id').in('immeuble_id', immeubleIds)
+      : { data: [] };
+    const lotIds = (tousLots || []).map(l => l.id);
+
+    // 1 requête groupée pour TOUS les baux actifs de tous les lots
+    const { data: tousBauxActifs } = lotIds.length
+      ? await supabaseClient.from('baux').select('lot_id, loyer, charges').in('lot_id', lotIds).eq('statut', 'actif')
+      : { data: [] };
+
+    // Regroupement en mémoire (JS), plus aucune requête réseau supplémentaire
+    const lotsParImmeuble = {};
+    (tousLots || []).forEach(l => {
+      if (!lotsParImmeuble[l.immeuble_id]) lotsParImmeuble[l.immeuble_id] = [];
+      lotsParImmeuble[l.immeuble_id].push(l.id);
+    });
+    const loyerParLot = {};
+    (tousBauxActifs || []).forEach(b => {
+      loyerParLot[b.lot_id] = (loyerParLot[b.lot_id] || 0) + Number(b.loyer) + Number(b.charges);
+    });
+
+    donneesArbrePatrimoine = structures.map(s => {
+      const immeublesDeStructure = (tousImmeubles || []).filter(im => im.structure_id === s.id);
+      const immeublesData = immeublesDeStructure.map(im => {
+        const lotsDeImmeuble = lotsParImmeuble[im.id] || [];
+        const loyersMensuels = lotsDeImmeuble.reduce((a, lotId) => a + (loyerParLot[lotId] || 0), 0);
+        return { id: im.id, adresse: im.adresse, nbLots: lotsDeImmeuble.length, loyersMensuels };
+      });
+      return { id: s.id, nom: s.nom, type: s.type, immeubles: immeublesData };
+    });
+
     rendreArbrePatrimoine('');
   }
 
@@ -1531,24 +1553,36 @@
     const { data: baux, error } = await supabaseClient.from('baux').select('*, lots(nom, type, immeubles(adresse, structure_id))').eq('statut', 'actif');
     if (error) return;
     const bauxStructure = (baux || []).filter(b => b.lots && b.lots.immeubles && b.lots.immeubles.structure_id === structureId);
-
     const nbJoursMois = new Date(annee, moisIdx + 1, 0).getDate();
-    const items = [];
 
-    for (const bail of bauxStructure) {
-      let { data: paiementsExistants } = await supabaseClient.from('paiements').select('*').eq('bail_id', bail.id).eq('mois', moisDate);
-      let paiement = paiementsExistants && paiementsExistants[0];
-      if (!paiement) {
-        const { data: nouveau } = await supabaseClient.from('paiements').insert({
-          bail_id: bail.id, mois: moisDate, montant_loyer: bail.loyer, montant_charges: bail.charges,
-          statut: (new Date(moisDate) < new Date(new Date().getFullYear(), new Date().getMonth(), 1)) ? 'en_retard' : 'a_venir'
-        }).select().single();
-        paiement = nouveau;
-      }
-      const jourEcheance = Math.min(new Date(bail.date_debut).getDate(), nbJoursMois);
-      const lotNom = bail.lots.nom || bail.lots.type;
-      items.push({ paiement, jour: jourEcheance, lotNom, adresse: bail.lots.immeubles.adresse, montant: Number(paiement.montant_loyer) + Number(paiement.montant_charges) });
+    if (!bauxStructure.length) { dessinerCalendrier(annee, moisIdx, []); remplirListesLaterales([]); return; }
+
+    const bailIds = bauxStructure.map(b => b.id);
+
+    // 1 requête groupée : tous les paiements déjà existants pour ce mois, pour tous les baux d'un coup
+    const { data: paiementsExistants } = await supabaseClient.from('paiements').select('*').in('bail_id', bailIds).eq('mois', moisDate);
+    const paiementParBail = {};
+    (paiementsExistants || []).forEach(p => paiementParBail[p.bail_id] = p);
+
+    // Baux sans paiement pour ce mois : on les crée en UNE seule requête groupée (insert multiple lignes)
+    const bauxSansPaiement = bauxStructure.filter(b => !paiementParBail[b.id]);
+    if (bauxSansPaiement.length) {
+      const statutParDefaut = (new Date(moisDate) < new Date(new Date().getFullYear(), new Date().getMonth(), 1)) ? 'en_retard' : 'a_venir';
+      const nouvellesLignes = bauxSansPaiement.map(b => ({
+        bail_id: b.id, mois: moisDate, montant_loyer: b.loyer, montant_charges: b.charges, statut: statutParDefaut
+      }));
+      const { data: inseres } = await supabaseClient.from('paiements').insert(nouvellesLignes).select();
+      (inseres || []).forEach(p => paiementParBail[p.bail_id] = p);
     }
+
+    const items = bauxStructure.map(bail => {
+      const paiement = paiementParBail[bail.id];
+      const jourEcheance = Math.min(new Date(bail.date_debut).getDate(), nbJoursMois);
+      return {
+        paiement, jour: jourEcheance, lotNom: bail.lots.nom || bail.lots.type,
+        adresse: bail.lots.immeubles.adresse, montant: Number(paiement.montant_loyer) + Number(paiement.montant_charges)
+      };
+    });
 
     dessinerCalendrier(annee, moisIdx, items);
     remplirListesLaterales(items);
@@ -2028,11 +2062,17 @@
     const fin = annee + '-12-31';
     const labelsRegime = { sci_ir: "SCI à l'IR", sci_is: "SCI à l'IS", nom_propre: 'Nom propre', sarl_immo: 'SARL immobilière', autre: 'Autre' };
 
+    // 1 requête groupée pour toutes les transactions de toutes les structures, au lieu d'une par structure
+    const structureIds = structures.map(s => s.id);
+    const { data: toutesTxs } = await supabaseClient.from('transactions').select('*').in('structure_id', structureIds).gte('date', debut).lte('date', fin);
+    const txsParStructure = {};
+    (toutesTxs || []).forEach(t => { (txsParStructure[t.structure_id] = txsParStructure[t.structure_id] || []).push(t); });
+
     let html = '';
-    for (const s of structures) {
-      const { data: txs } = await supabaseClient.from('transactions').select('*').eq('structure_id', s.id).gte('date', debut).lte('date', fin);
-      const revenus = (txs || []).filter(t => t.type === 'recette').reduce((a, t) => a + Number(t.montant), 0);
-      const charges = (txs || []).filter(t => t.type === 'depense').reduce((a, t) => a + Number(t.montant), 0);
+    structures.forEach(s => {
+      const txs = txsParStructure[s.id] || [];
+      const revenus = txs.filter(t => t.type === 'recette').reduce((a, t) => a + Number(t.montant), 0);
+      const charges = txs.filter(t => t.type === 'depense').reduce((a, t) => a + Number(t.montant), 0);
       const resultat = revenus - charges;
       html += `<div class="fisc-card" onclick="ouvrirAssociesStructure('${s.id}', '${s.nom.replace(/'/g, "\\'")}')">
         <h4>${s.nom}</h4>
@@ -2041,7 +2081,7 @@
         <div class="fisc-line"><span>Charges déductibles</span><span>${charges.toLocaleString('fr-FR')} €</span></div>
         <div class="fisc-line"><span>${s.type === 'sci_is' ? 'Résultat (avant IS)' : 'Résultat foncier'}</span><span>${resultat.toLocaleString('fr-FR')} €</span></div>
       </div>`;
-    }
+    });
     div.innerHTML = html;
   }
 
@@ -2200,20 +2240,32 @@
     if (!structureId) return alert('Sélectionne une structure');
     const { data: immeubles, error } = await supabaseClient.from('immeubles').select('*').eq('structure_id', structureId);
     if (error) return alert('Erreur : ' + error.message);
+    if (!immeubles || !immeubles.length) { telechargerCSV('synthese_par_bien.csv', [['Aucun immeuble pour cette structure']]); return; }
+
+    const immeubleIds = immeubles.map(im => im.id);
+
+    // Requêtes groupées : tous les lots, tous les baux actifs, toutes les dépenses d'un coup
+    const { data: tousLots } = await supabaseClient.from('lots').select('id, immeuble_id').in('immeuble_id', immeubleIds);
+    const lotIds = (tousLots || []).map(l => l.id);
+    const { data: tousBauxActifs } = lotIds.length
+      ? await supabaseClient.from('baux').select('lot_id, loyer, charges').in('lot_id', lotIds).eq('statut', 'actif')
+      : { data: [] };
+    const ilYA1An = new Date(); ilYA1An.setFullYear(ilYA1An.getFullYear() - 1);
+    const { data: toutesDepenses } = await supabaseClient.from('transactions').select('immeuble_id, montant').in('immeuble_id', immeubleIds).eq('type', 'depense').gte('date', ilYA1An.toISOString().split('T')[0]);
+
+    // Regroupement en mémoire
+    const lotsParImmeuble = {};
+    (tousLots || []).forEach(l => { (lotsParImmeuble[l.immeuble_id] = lotsParImmeuble[l.immeuble_id] || []).push(l.id); });
+    const loyerParLot = {};
+    (tousBauxActifs || []).forEach(b => { loyerParLot[b.lot_id] = (loyerParLot[b.lot_id] || 0) + (Number(b.loyer) + Number(b.charges)) * 12; });
+    const chargesParImmeuble = {};
+    (toutesDepenses || []).forEach(t => { chargesParImmeuble[t.immeuble_id] = (chargesParImmeuble[t.immeuble_id] || 0) + Number(t.montant); });
+
     const lignes = [['Immeuble', 'Loyers annuels (€)', 'Charges annuelles (€)']];
-    for (const im of (immeubles || [])) {
-      const { data: lots } = await supabaseClient.from('lots').select('id').eq('immeuble_id', im.id);
-      const lotIds = (lots || []).map(l => l.id);
-      let loyersAnnuels = 0;
-      if (lotIds.length) {
-        const { data: bauxActifs } = await supabaseClient.from('baux').select('loyer, charges').in('lot_id', lotIds).eq('statut', 'actif');
-        loyersAnnuels = (bauxActifs || []).reduce((a, b) => a + (Number(b.loyer) + Number(b.charges)) * 12, 0);
-      }
-      const ilYA1An = new Date(); ilYA1An.setFullYear(ilYA1An.getFullYear() - 1);
-      const { data: depenses } = await supabaseClient.from('transactions').select('montant').eq('immeuble_id', im.id).eq('type', 'depense').gte('date', ilYA1An.toISOString().split('T')[0]);
-      const chargesAnnuelles = (depenses || []).reduce((a, t) => a + Number(t.montant), 0);
-      lignes.push([im.adresse, loyersAnnuels.toFixed(2), chargesAnnuelles.toFixed(2)]);
-    }
+    immeubles.forEach(im => {
+      const loyersAnnuels = (lotsParImmeuble[im.id] || []).reduce((a, lotId) => a + (loyerParLot[lotId] || 0), 0);
+      lignes.push([im.adresse, loyersAnnuels.toFixed(2), (chargesParImmeuble[im.id] || 0).toFixed(2)]);
+    });
     telechargerCSV('synthese_par_bien.csv', lignes);
   }
 
