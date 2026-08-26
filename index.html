@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Investa</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   :root {
     --bg: #0b1120;
@@ -177,6 +178,8 @@
   .tache-check { width: 18px; height: 18px; cursor: pointer; flex-shrink: 0; }
 
   .rapport-item { display: flex; justify-content: space-between; align-items: center; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px; }
+  .rapport-btns { display: flex; gap: 8px; flex-shrink: 0; }
+  .rapport-btns button { width: auto; padding: 9px 16px; border-radius: 8px; margin: 0; }
 
   .params-layout { display: grid; grid-template-columns: 220px 1fr; gap: 16px; align-items: start; }
   @media (max-width: 900px) { .params-layout { grid-template-columns: 1fr; } }
@@ -731,26 +734,41 @@
         <div id="tabcontent-rap-fiscaux">
           <div class="rapport-item">
             <div><strong>Synthèse revenus fonciers</strong><div class="small">Revenus, charges déductibles et résultat de la structure sélectionnée</div></div>
-            <button class="btn-secondary" style="width:auto; padding:9px 16px; border-radius:8px;" onclick="exporterSyntheseFiscale()">Exporter Excel</button>
+            <div class="rapport-btns">
+              <button class="btn-secondary" onclick="exporterSyntheseFiscale('csv')">CSV</button>
+              <button class="btn-secondary" onclick="exporterSyntheseFiscale('xlsx')">Excel</button>
+            </div>
           </div>
           <div class="rapport-item">
             <div><strong>Répartition associés</strong><div class="small">Quote-parts et part du résultat par associé (SCI à l'IR)</div></div>
-            <button class="btn-secondary" style="width:auto; padding:9px 16px; border-radius:8px;" onclick="exporterRepartitionAssocies()">Exporter Excel</button>
+            <div class="rapport-btns">
+              <button class="btn-secondary" onclick="exporterRepartitionAssocies('csv')">CSV</button>
+              <button class="btn-secondary" onclick="exporterRepartitionAssocies('xlsx')">Excel</button>
+            </div>
           </div>
         </div>
 
         <div id="tabcontent-rap-comptables" style="display:none;">
           <div class="rapport-item">
             <div><strong>Flux de trésorerie</strong><div class="small">Détail de toutes les transactions, avec catégories</div></div>
-            <button class="btn-secondary" style="width:auto; padding:9px 16px; border-radius:8px;" onclick="exporterTransactions()">Exporter Excel</button>
+            <div class="rapport-btns">
+              <button class="btn-secondary" onclick="exporterTransactions('csv')">CSV</button>
+              <button class="btn-secondary" onclick="exporterTransactions('xlsx')">Excel</button>
+            </div>
           </div>
           <div class="rapport-item">
             <div><strong>Historique loyers & paiements</strong><div class="small">Tous les paiements par bail, avec statut</div></div>
-            <button class="btn-secondary" style="width:auto; padding:9px 16px; border-radius:8px;" onclick="exporterPaiements()">Exporter Excel</button>
+            <div class="rapport-btns">
+              <button class="btn-secondary" onclick="exporterPaiements('csv')">CSV</button>
+              <button class="btn-secondary" onclick="exporterPaiements('xlsx')">Excel</button>
+            </div>
           </div>
           <div class="rapport-item">
             <div><strong>Synthèse par bien</strong><div class="small">Loyers annuels et charges par immeuble</div></div>
-            <button class="btn-secondary" style="width:auto; padding:9px 16px; border-radius:8px;" onclick="exporterSyntheseParBien()">Exporter Excel</button>
+            <div class="rapport-btns">
+              <button class="btn-secondary" onclick="exporterSyntheseParBien('csv')">CSV</button>
+              <button class="btn-secondary" onclick="exporterSyntheseParBien('xlsx')">Excel</button>
+            </div>
           </div>
         </div>
 
@@ -2175,23 +2193,36 @@
     URL.revokeObjectURL(url);
   }
 
-  async function exporterTransactions() {
+  function telechargerXLSX(nomFichier, lignes) {
+    const feuille = XLSX.utils.aoa_to_sheet(lignes);
+    const classeur = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(classeur, feuille, 'Rapport');
+    XLSX.writeFile(classeur, nomFichier);
+  }
+
+  // Choisit le bon format de téléchargement selon ce que l'utilisateur a cliqué
+  function telechargerRapport(nomBase, lignes, format) {
+    if (format === 'xlsx') telechargerXLSX(nomBase + '.xlsx', lignes);
+    else telechargerCSV(nomBase + '.csv', lignes);
+  }
+
+  async function exporterTransactions(format) {
     const structureId = document.getElementById('structureRapports').value;
     if (!structureId) return alert('Sélectionne une structure');
     const { data: txs, error } = await supabaseClient.from('transactions').select('*').eq('structure_id', structureId).order('date');
     if (error) return alert('Erreur : ' + error.message);
     const lignes = [['Date', 'Type', 'Catégorie', 'Montant', 'Description']];
     (txs || []).forEach(t => lignes.push([t.date, t.type, t.categorie, t.montant, t.description || '']));
-    telechargerCSV('transactions.csv', lignes);
+    telechargerRapport('transactions', lignes, format);
   }
 
-  async function exporterPaiements() {
+  async function exporterPaiements(format) {
     const structureId = document.getElementById('structureRapports').value;
     if (!structureId) return alert('Sélectionne une structure');
     const { data: baux } = await supabaseClient.from('baux').select('id, lots(nom, type, immeubles(adresse, structure_id))');
     const bauxStructure = (baux || []).filter(b => b.lots && b.lots.immeubles && b.lots.immeubles.structure_id === structureId);
     const bailIds = bauxStructure.map(b => b.id);
-    if (!bailIds.length) { telechargerCSV('paiements.csv', [['Aucun bail pour cette structure']]); return; }
+    if (!bailIds.length) { telechargerRapport('paiements', [['Aucun bail pour cette structure']], format); return; }
 
     const { data: paiements, error } = await supabaseClient.from('paiements').select('*, baux(id)').in('bail_id', bailIds).order('mois');
     if (error) return alert('Erreur : ' + error.message);
@@ -2205,10 +2236,10 @@
         p.montant_loyer, p.montant_charges, p.statut, p.date_paiement || ''
       ]);
     });
-    telechargerCSV('paiements.csv', lignes);
+    telechargerRapport('paiements', lignes, format);
   }
 
-  async function exporterSyntheseFiscale() {
+  async function exporterSyntheseFiscale(format) {
     const structureId = document.getElementById('structureRapports').value;
     const annee = document.getElementById('anneeRapports').value;
     if (!structureId) return alert('Sélectionne une structure');
@@ -2218,15 +2249,15 @@
     if (error) return alert('Erreur : ' + error.message);
     const revenus = (txs || []).filter(t => t.type === 'recette').reduce((a, t) => a + Number(t.montant), 0);
     const charges = (txs || []).filter(t => t.type === 'depense').reduce((a, t) => a + Number(t.montant), 0);
-    telechargerCSV(`synthese_fiscale_${annee}.csv`, [
+    telechargerRapport(`synthese_fiscale_${annee}`, [
       ['Année', annee],
       ['Revenus bruts', revenus],
       ['Charges déductibles', charges],
       ['Résultat', revenus - charges]
-    ]);
+    ], format);
   }
 
-  async function exporterRepartitionAssocies() {
+  async function exporterRepartitionAssocies(format) {
     const structureId = document.getElementById('structureRapports').value;
     const annee = document.getElementById('anneeRapports').value;
     if (!structureId) return alert('Sélectionne une structure');
@@ -2238,15 +2269,15 @@
     if (error) return alert('Erreur : ' + error.message);
     const lignes = [['Associé', 'Quote-part (%)', 'Part du résultat']];
     (associes || []).forEach(a => lignes.push([a.nom, a.quote_part, (resultatTotal * Number(a.quote_part) / 100).toFixed(2)]));
-    telechargerCSV(`repartition_associes_${annee}.csv`, lignes);
+    telechargerRapport(`repartition_associes_${annee}`, lignes, format);
   }
 
-  async function exporterSyntheseParBien() {
+  async function exporterSyntheseParBien(format) {
     const structureId = document.getElementById('structureRapports').value;
     if (!structureId) return alert('Sélectionne une structure');
     const { data: immeubles, error } = await supabaseClient.from('immeubles').select('*').eq('structure_id', structureId);
     if (error) return alert('Erreur : ' + error.message);
-    if (!immeubles || !immeubles.length) { telechargerCSV('synthese_par_bien.csv', [['Aucun immeuble pour cette structure']]); return; }
+    if (!immeubles || !immeubles.length) { telechargerRapport('synthese_par_bien', [['Aucun immeuble pour cette structure']], format); return; }
 
     const immeubleIds = immeubles.map(im => im.id);
 
@@ -2272,7 +2303,7 @@
       const loyersAnnuels = (lotsParImmeuble[im.id] || []).reduce((a, lotId) => a + (loyerParLot[lotId] || 0), 0);
       lignes.push([im.adresse, loyersAnnuels.toFixed(2), (chargesParImmeuble[im.id] || 0).toFixed(2)]);
     });
-    telechargerCSV('synthese_par_bien.csv', lignes);
+    telechargerRapport('synthese_par_bien', lignes, format);
   }
 
   // ---------- COMPTES BANCAIRES ----------
