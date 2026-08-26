@@ -46,6 +46,8 @@
   .auth-wrap input { width: 100%; padding: 12px 14px; margin: 6px 0; border-radius: 10px; border: 1px solid var(--border); background: var(--panel); color: var(--text); }
   .auth-wrap button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; }
   .btn-primary { background: var(--accent); color: white; }
+  .btn-green { background: #22c55e; color: white; }
+  .btn-green:hover { background: #16a34a; }
   .btn-primary:hover { background: var(--accent-hover); }
   .btn-secondary { background: var(--panel-2); color: var(--text); border: 1px solid var(--border) !important; }
   #msg { color: var(--red); font-size: 0.9rem; margin-top: 8px; }
@@ -145,6 +147,26 @@
   .arbre-row.immeuble .nom-col { padding-left: 18px; }
   .arbre-total { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; padding: 10px 4px 0 4px; margin-top: 6px; border-top: 1px solid var(--border); font-weight: 700; font-size: 0.88rem; }
   .pagination-bar { display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+
+  .quick-add-tabs { display: flex; gap: 8px; margin: 4px 0 16px 0; }
+  .quick-tab { flex: 1; text-align: center; padding: 10px; border-radius: var(--radius); background: var(--panel); border: 1px solid var(--border); cursor: pointer; font-size: 0.88rem; color: var(--text-dim); }
+  .quick-tab:hover { color: var(--text); }
+  .quick-tab.active { background: var(--panel-2); color: var(--text); border-color: var(--accent); font-weight: 600; }
+
+  .type-picker { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+  .type-card { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--panel-2); cursor: pointer; font-size: 0.78rem; }
+  .type-card:hover { border-color: var(--border-strong, var(--border)); }
+  .type-card .ic { font-size: 1.4rem; }
+  .type-card.selected { border-color: var(--accent); background: rgba(59,130,246,0.12); }
+
+  .qty-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 10px; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 6px; }
+  .qty-row.qty-row-autre { border-style: dashed; margin-top: 2px; }
+  .qty-label { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; flex: 1; }
+  .qty-label .ic { font-size: 1.1rem; }
+  .qty-label input { border: none; background: transparent; padding: 0; height: auto; font-size: 0.88rem; margin: 0; }
+  .qty-stepper { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .qty-stepper button { width: 26px; height: 26px; padding: 0; margin: 0; border-radius: 6px; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); cursor: pointer; }
+  .qty-stepper span { min-width: 18px; text-align: center; font-weight: 600; font-size: 0.88rem; }
 
   .immeuble-image { height: 140px; border-radius: 10px; background: var(--panel-2); display: flex; align-items: center; justify-content: center; font-size: 2.8rem; margin-bottom: 16px; }
   .badge-outline { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.74rem; border: 1px solid var(--border); color: var(--text-dim); }
@@ -283,6 +305,53 @@
           </select>
           <button class="btn-primary" onclick="creerStructure()">Créer</button>
         </div>
+
+        <div class="quick-add-tabs">
+          <div class="quick-tab active" id="qtBien" onclick="switchQuickAdd('bien')">+ Ajouter un bien</div>
+          <div class="quick-tab" id="qtImmeuble" onclick="switchQuickAdd('immeuble')">+ Ajouter un immeuble</div>
+        </div>
+
+        <!-- Ajout rapide d'un bien seul (maison, appartement isolé...) -->
+        <div class="card" id="qa-bien">
+          <select id="structureQuickBien"></select>
+          <p class="small" style="margin:12px 0 8px;">Type de bien</p>
+          <div class="type-picker" id="typePickerBien">
+            <div class="type-card" data-type="appartement" onclick="selectionnerTypeBien('appartement')"><span class="ic">🏢</span><span>Appartement</span></div>
+            <div class="type-card" data-type="maison" onclick="selectionnerTypeBien('maison')"><span class="ic">🏠</span><span>Maison</span></div>
+            <div class="type-card" data-type="studio" onclick="selectionnerTypeBien('studio')"><span class="ic">🛏️</span><span>Studio</span></div>
+            <div class="type-card" data-type="parking" onclick="selectionnerTypeBien('parking')"><span class="ic">🅿️</span><span>Parking</span></div>
+            <div class="type-card" data-type="garage" onclick="selectionnerTypeBien('garage')"><span class="ic">🚗</span><span>Garage</span></div>
+            <div class="type-card" data-type="local_commercial" onclick="selectionnerTypeBien('local_commercial')"><span class="ic">🏬</span><span>Local</span></div>
+          </div>
+          <input id="adresseQuickBien" placeholder="Adresse">
+          <div class="grid-2" style="margin-bottom:0;">
+            <input id="surfaceQuickBien" type="number" placeholder="Surface (m²)">
+            <input id="loyerQuickBien" type="number" placeholder="Loyer mensuel (€)">
+          </div>
+          <input id="chargesQuickBien" type="number" placeholder="Charges (€)">
+          <button class="btn-primary" onclick="creerBienRapide()">Créer le bien</button>
+          <p class="small" style="text-align:center; margin-top:6px;">Rien n'est obligatoire à part le type — complète le reste plus tard si tu veux</p>
+        </div>
+
+        <!-- Ajout rapide d'un immeuble avec plusieurs lots générés d'un coup -->
+        <div class="card" id="qa-immeuble" style="display:none;">
+          <select id="structureQuickImmeuble"></select>
+          <input id="adresseQuickImmeuble" placeholder="Adresse de l'immeuble" style="margin-top:8px;">
+          <p class="small" style="margin:12px 0 8px;">Composition de l'immeuble</p>
+          <div id="qtyListImmeuble"></div>
+          <div class="qty-row qty-row-autre">
+            <div class="qty-label"><span class="ic">➕</span><input id="autreLabelImmeuble" placeholder="Autre (ex: Cave, Buanderie)"></div>
+            <div class="qty-stepper">
+              <button onclick="changerQuantite('autre', -1)">-</button>
+              <span id="qty-autre">0</span>
+              <button onclick="changerQuantite('autre', 1)">+</button>
+            </div>
+          </div>
+          <div class="small" id="recapQuantites" style="margin:12px 0;">Aucun lot pour l'instant</div>
+          <button class="btn-green" onclick="creerImmeubleRapide()">Créer l'immeuble</button>
+          <p class="small" style="text-align:center; margin-top:6px;">Chaque lot sera nommé automatiquement (Appartement 1, 2, 3...)</p>
+        </div>
+
         <div class="card">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
             <h3 style="margin:0;">Arborescence</h3>
@@ -1073,13 +1142,164 @@
     const { error } = await supabaseClient.rpc('creer_structure', { p_nom: nom, p_type: type });
     if (error) return alert('Erreur : ' + error.message);
     document.getElementById('nomStructure').value = '';
+    // Vide les sélecteurs des formulaires rapides pour qu'ils se rechargent avec la nouvelle structure
+    document.getElementById('structureQuickBien').innerHTML = '';
+    document.getElementById('structureQuickImmeuble').innerHTML = '';
+    switchQuickAdd(document.getElementById('qtBien').classList.contains('active') ? 'bien' : 'immeuble');
     chargerPatrimoine();
+  }
+
+  // ---------- AJOUT RAPIDE (bien seul + immeuble par quantités) ----------
+  const LABELS_TYPE_LOT = {
+    appartement: 'Appartement', maison: 'Maison', studio: 'Studio', chambre: 'Chambre',
+    parking: 'Parking', garage: 'Garage', local_commercial: 'Local'
+  };
+  let selectedTypeBien = null;
+  const quantitesImmeuble = { appartement: 0, maison: 0, studio: 0, chambre: 0, parking: 0, garage: 0, local_commercial: 0, autre: 0 };
+
+  async function switchQuickAdd(section) {
+    document.getElementById('qtBien').classList.toggle('active', section === 'bien');
+    document.getElementById('qtImmeuble').classList.toggle('active', section === 'immeuble');
+    document.getElementById('qa-bien').style.display = section === 'bien' ? 'block' : 'none';
+    document.getElementById('qa-immeuble').style.display = section === 'immeuble' ? 'block' : 'none';
+
+    const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
+    const options = (structures || []).map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
+    ['structureQuickBien', 'structureQuickImmeuble'].forEach(id => {
+      const sel = document.getElementById(id);
+      if (!sel.options.length) sel.innerHTML = options;
+    });
+
+    if (section === 'immeuble' && !document.getElementById('qtyListImmeuble').children.length) {
+      construireListeQuantites();
+    }
+  }
+
+  function selectionnerTypeBien(type) {
+    selectedTypeBien = type;
+    document.querySelectorAll('#typePickerBien .type-card').forEach(el => el.classList.toggle('selected', el.dataset.type === type));
+  }
+
+  async function creerBienRapide() {
+    const structureId = document.getElementById('structureQuickBien').value;
+    if (!structureId) return alert('Crée d\u2019abord une structure ci-dessus');
+    if (!selectedTypeBien) return alert('Choisis un type de bien');
+
+    const adresse = document.getElementById('adresseQuickBien').value || 'Adresse à compléter';
+    const surface = document.getElementById('surfaceQuickBien').value;
+    const loyer = document.getElementById('loyerQuickBien').value;
+    const charges = document.getElementById('chargesQuickBien').value;
+
+    const { data: immeuble, error: errImm } = await supabaseClient.from('immeubles').insert({ structure_id: structureId, adresse }).select().single();
+    if (errImm) return alert('Erreur : ' + errImm.message);
+
+    const { data: lot, error: errLot } = await supabaseClient.from('lots').insert({
+      immeuble_id: immeuble.id, type: selectedTypeBien, surface: surface ? parseFloat(surface) : null
+    }).select().single();
+    if (errLot) return alert('Erreur : ' + errLot.message);
+
+    if (loyer) {
+      await supabaseClient.from('baux').insert({
+        lot_id: lot.id, type: 'nu', date_debut: new Date().toISOString().split('T')[0],
+        loyer: parseFloat(loyer), charges: charges ? parseFloat(charges) : 0, statut: 'actif'
+      });
+    }
+
+    // Reset du formulaire
+    document.getElementById('adresseQuickBien').value = '';
+    document.getElementById('surfaceQuickBien').value = '';
+    document.getElementById('loyerQuickBien').value = '';
+    document.getElementById('chargesQuickBien').value = '';
+    selectedTypeBien = null;
+    document.querySelectorAll('#typePickerBien .type-card').forEach(el => el.classList.remove('selected'));
+
+    currentImmeubleId = immeuble.id;
+    ouvrirFicheLot(lot.id);
+  }
+
+  function construireListeQuantites() {
+    const div = document.getElementById('qtyListImmeuble');
+    const icones = { appartement: '🏢', maison: '🏠', studio: '🛏️', chambre: '🛌', parking: '🅿️', garage: '🚗', local_commercial: '🏬' };
+    div.innerHTML = Object.keys(LABELS_TYPE_LOT).map(key => `
+      <div class="qty-row">
+        <div class="qty-label"><span class="ic">${icones[key]}</span><span>${LABELS_TYPE_LOT[key]}s</span></div>
+        <div class="qty-stepper">
+          <button onclick="changerQuantite('${key}', -1)">-</button>
+          <span id="qty-${key}">0</span>
+          <button onclick="changerQuantite('${key}', 1)">+</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function changerQuantite(key, delta) {
+    quantitesImmeuble[key] = Math.max(0, quantitesImmeuble[key] + delta);
+    document.getElementById('qty-' + key).textContent = quantitesImmeuble[key];
+    mettreAJourRecapQuantites();
+  }
+
+  function mettreAJourRecapQuantites() {
+    const parts = [];
+    let total = 0;
+    Object.keys(LABELS_TYPE_LOT).forEach(key => {
+      if (quantitesImmeuble[key] > 0) {
+        parts.push(`${quantitesImmeuble[key]} ${LABELS_TYPE_LOT[key].toLowerCase()}${quantitesImmeuble[key] > 1 ? 's' : ''}`);
+        total += quantitesImmeuble[key];
+      }
+    });
+    if (quantitesImmeuble.autre > 0) {
+      const label = document.getElementById('autreLabelImmeuble').value.trim() || 'autre';
+      parts.push(`${quantitesImmeuble.autre} ${label.toLowerCase()}`);
+      total += quantitesImmeuble.autre;
+    }
+    document.getElementById('recapQuantites').textContent = parts.length ? `${total} lot${total > 1 ? 's' : ''} au total : ${parts.join(', ')}` : 'Aucun lot pour l\'instant';
+  }
+
+  async function creerImmeubleRapide() {
+    const structureId = document.getElementById('structureQuickImmeuble').value;
+    if (!structureId) return alert('Crée d\u2019abord une structure ci-dessus');
+
+    const totalLots = Object.values(quantitesImmeuble).reduce((a, n) => a + n, 0);
+    if (totalLots === 0) return alert('Ajoute au moins un lot avec les boutons +');
+
+    const adresse = document.getElementById('adresseQuickImmeuble').value || 'Adresse à compléter';
+    const { data: immeuble, error: errImm } = await supabaseClient.from('immeubles').insert({ structure_id: structureId, adresse }).select().single();
+    if (errImm) return alert('Erreur : ' + errImm.message);
+
+    const lignesLots = [];
+    Object.keys(LABELS_TYPE_LOT).forEach(key => {
+      for (let i = 1; i <= quantitesImmeuble[key]; i++) {
+        lignesLots.push({ immeuble_id: immeuble.id, type: key, nom: `${LABELS_TYPE_LOT[key]} ${i}` });
+      }
+    });
+    if (quantitesImmeuble.autre > 0) {
+      const labelAutre = document.getElementById('autreLabelImmeuble').value.trim() || 'Autre';
+      for (let i = 1; i <= quantitesImmeuble.autre; i++) {
+        lignesLots.push({ immeuble_id: immeuble.id, type: 'autre', nom: `${labelAutre} ${i}` });
+      }
+    }
+
+    const { error: errLots } = await supabaseClient.from('lots').insert(lignesLots);
+    if (errLots) return alert('Erreur : ' + errLots.message);
+
+    // Reset du formulaire
+    document.getElementById('adresseQuickImmeuble').value = '';
+    document.getElementById('autreLabelImmeuble').value = '';
+    Object.keys(quantitesImmeuble).forEach(key => {
+      quantitesImmeuble[key] = 0;
+      const span = document.getElementById('qty-' + key);
+      if (span) span.textContent = '0';
+    });
+    mettreAJourRecapQuantites();
+
+    ouvrirFicheImmeuble(immeuble.id);
   }
 
   // ---------- PATRIMOINE ----------
   async function allerPatrimoine() {
     setActiveNav('nav-patrimoine'); hideAllPages();
     document.getElementById('page-patrimoine').style.display = 'block';
+    switchQuickAdd('bien');
     chargerPatrimoine();
   }
 
