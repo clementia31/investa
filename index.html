@@ -154,6 +154,9 @@
   .quick-tab.active { background: var(--panel-2); color: var(--text); border-color: var(--accent); font-weight: 600; }
 
   .type-picker { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+  .type-picker-small .type-card { padding: 8px 6px; font-size: 0.7rem; }
+  .type-picker-small .type-card .ic { font-size: 1.1rem; }
+  .struct-quick-panel { background: var(--panel-2); border: 1px dashed var(--border); border-radius: var(--radius); padding: 12px; margin-top: 8px; }
   .type-card { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--panel-2); cursor: pointer; font-size: 0.78rem; }
   .type-card:hover { border-color: var(--border-strong, var(--border)); }
   .type-card .ic { font-size: 1.4rem; }
@@ -313,7 +316,20 @@
 
         <!-- Ajout rapide d'un bien seul (maison, appartement isolé...) -->
         <div class="card" id="qa-bien">
-          <select id="structureQuickBien"></select>
+          <div style="display:flex; gap:8px;">
+            <select id="structureQuickBien" style="flex:1;"></select>
+            <button class="btn-secondary" style="width:auto; padding:0 14px; white-space:nowrap;" onclick="toggleStructurePanel('bien')">+ Structure</button>
+          </div>
+          <div class="struct-quick-panel" id="panelStructureBien" style="display:none;">
+            <input id="nomStructureBienQuick" placeholder="Nom de la structure (ex: SCI Alpha)">
+            <p class="small" style="margin:8px 0 6px;">Type (optionnel)</p>
+            <div class="type-picker type-picker-small">
+              <div class="type-card" data-type="sci_ir" onclick="selectionnerTypeStructureQuick('bien','sci_ir')"><span class="ic">🏛️</span><span>SCI</span></div>
+              <div class="type-card" data-type="sarl_immo" onclick="selectionnerTypeStructureQuick('bien','sarl_immo')"><span class="ic">💼</span><span>SARL</span></div>
+              <div class="type-card" data-type="autre" onclick="selectionnerTypeStructureQuick('bien','autre')"><span class="ic">📁</span><span>Autre</span></div>
+            </div>
+            <button class="btn-primary" onclick="creerStructureRapide('bien')">Créer la structure</button>
+          </div>
           <p class="small" style="margin:12px 0 8px;">Type de bien</p>
           <div class="type-picker" id="typePickerBien">
             <div class="type-card" data-type="appartement" onclick="selectionnerTypeBien('appartement')"><span class="ic">🏢</span><span>Appartement</span></div>
@@ -335,7 +351,20 @@
 
         <!-- Ajout rapide d'un immeuble avec plusieurs lots générés d'un coup -->
         <div class="card" id="qa-immeuble" style="display:none;">
-          <select id="structureQuickImmeuble"></select>
+          <div style="display:flex; gap:8px;">
+            <select id="structureQuickImmeuble" style="flex:1;"></select>
+            <button class="btn-secondary" style="width:auto; padding:0 14px; white-space:nowrap;" onclick="toggleStructurePanel('immeuble')">+ Structure</button>
+          </div>
+          <div class="struct-quick-panel" id="panelStructureImmeuble" style="display:none;">
+            <input id="nomStructureImmeubleQuick" placeholder="Nom de la structure (ex: SCI Alpha)">
+            <p class="small" style="margin:8px 0 6px;">Type (optionnel)</p>
+            <div class="type-picker type-picker-small">
+              <div class="type-card" data-type="sci_ir" onclick="selectionnerTypeStructureQuick('immeuble','sci_ir')"><span class="ic">🏛️</span><span>SCI</span></div>
+              <div class="type-card" data-type="sarl_immo" onclick="selectionnerTypeStructureQuick('immeuble','sarl_immo')"><span class="ic">💼</span><span>SARL</span></div>
+              <div class="type-card" data-type="autre" onclick="selectionnerTypeStructureQuick('immeuble','autre')"><span class="ic">📁</span><span>Autre</span></div>
+            </div>
+            <button class="btn-primary" onclick="creerStructureRapide('immeuble')">Créer la structure</button>
+          </div>
           <input id="adresseQuickImmeuble" placeholder="Adresse de l'immeuble" style="margin-top:8px;">
           <p class="small" style="margin:12px 0 8px;">Composition de l'immeuble</p>
           <div id="qtyListImmeuble"></div>
@@ -1155,7 +1184,44 @@
     parking: 'Parking', garage: 'Garage', local_commercial: 'Local'
   };
   let selectedTypeBien = null;
+  const selectedTypeStructureQuick = { bien: null, immeuble: null };
   const quantitesImmeuble = { appartement: 0, maison: 0, studio: 0, chambre: 0, parking: 0, garage: 0, local_commercial: 0, autre: 0 };
+
+  function toggleStructurePanel(which) {
+    const panel = document.getElementById(which === 'bien' ? 'panelStructureBien' : 'panelStructureImmeuble');
+    panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+  }
+
+  function selectionnerTypeStructureQuick(which, type) {
+    selectedTypeStructureQuick[which] = type;
+    const panelId = which === 'bien' ? 'panelStructureBien' : 'panelStructureImmeuble';
+    document.querySelectorAll('#' + panelId + ' .type-card').forEach(el => el.classList.toggle('selected', el.dataset.type === type));
+  }
+
+  async function creerStructureRapide(which) {
+    const inputId = which === 'bien' ? 'nomStructureBienQuick' : 'nomStructureImmeubleQuick';
+    const nom = document.getElementById(inputId).value;
+    if (!nom) return alert('Nom requis');
+    const type = selectedTypeStructureQuick[which] || 'autre';
+
+    const { data: newId, error } = await supabaseClient.rpc('creer_structure', { p_nom: nom, p_type: type });
+    if (error) return alert('Erreur : ' + error.message);
+
+    // Rafraîchit les deux sélecteurs (bien + immeuble) avec la nouvelle structure, et la présélectionne
+    const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
+    const options = (structures || []).map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
+    document.getElementById('structureQuickBien').innerHTML = options;
+    document.getElementById('structureQuickImmeuble').innerHTML = options;
+    const selCourant = which === 'bien' ? 'structureQuickBien' : 'structureQuickImmeuble';
+    document.getElementById(selCourant).value = newId;
+
+    // Reset du panneau
+    document.getElementById(inputId).value = '';
+    selectedTypeStructureQuick[which] = null;
+    const panelId = which === 'bien' ? 'panelStructureBien' : 'panelStructureImmeuble';
+    document.querySelectorAll('#' + panelId + ' .type-card').forEach(el => el.classList.remove('selected'));
+    document.getElementById(panelId).style.display = 'none';
+  }
 
   async function switchQuickAdd(section) {
     document.getElementById('qtBien').classList.toggle('active', section === 'bien');
