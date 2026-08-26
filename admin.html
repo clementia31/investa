@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investa — Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
+<style>
+  :root {
+    --bg: #0b1120; --panel: #141d33; --panel-2: #1a2540; --border: #24304d;
+    --text: #e8ecf5; --text-dim: #8b96b3; --accent: #3b82f6;
+    --green: #22c55e; --amber: #f59e0b; --red: #ef4444;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; margin: 0; background: var(--bg); color: var(--text); }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+  h1 { font-size: 1.4rem; display: flex; align-items: center; gap: 10px; }
+  h1::before { content: ""; width: 24px; height: 24px; border-radius: 6px; background: #22c55e; }
+
+  .auth-box { max-width: 380px; margin: 100px auto; }
+  .auth-box input { width: 100%; padding: 12px; margin: 6px 0; border-radius: 8px; border: 1px solid var(--border); background: var(--panel); color: var(--text); }
+  .auth-box button { width: 100%; padding: 12px; margin-top: 8px; border-radius: 8px; border: none; background: var(--accent); color: white; font-weight: 600; cursor: pointer; }
+  #msgAuth { color: var(--red); font-size: 0.9rem; margin-top: 8px; }
+  #accesRefuse { text-align: center; margin-top: 100px; color: var(--red); }
+
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 16px; }
+  @media (max-width: 800px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+  .stat-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+  .stat-card .lbl { color: var(--text-dim); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  .stat-card .val { font-size: 1.55rem; font-weight: 700; margin-top: 6px; }
+  .stat-card.green .val { color: var(--green); }
+  .stat-card.amber .val { color: var(--amber); }
+  .stat-card.red .val { color: var(--red); }
+
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .card h3 { margin: 0 0 14px 0; font-size: 1rem; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  th { text-align: left; color: var(--text-dim); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; padding: 0 8px 10px 8px; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 8px; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+
+  .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 120px; padding-top: 10px; }
+  .bar-chart .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+  .bar-chart .bar { width: 100%; border-radius: 4px 4px 0 0; background: var(--accent); min-height: 2px; }
+  .bar-chart .bar-label { font-size: 0.65rem; color: var(--text-dim); margin-top: 6px; }
+
+  .small { font-size: 0.8rem; color: var(--text-dim); }
+</style>
+</head>
+<body>
+
+<div class="auth-box" id="auth">
+  <h1>Investa Admin</h1>
+  <input id="email" type="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Mot de passe">
+  <button onclick="seConnecter()">Se connecter</button>
+  <p id="msgAuth"></p>
+</div>
+
+<div id="accesRefuse" style="display:none;">
+  <h2>Accès refusé</h2>
+  <p class="small">Cette page est réservée à l'administrateur d'Investa.</p>
+</div>
+
+<div id="app" style="display:none;">
+  <div class="wrap">
+    <h1>Investa Admin</h1>
+
+    <div class="grid-4">
+      <div class="stat-card"><div class="lbl">Utilisateurs</div><div class="val" id="mTotalUsers">—</div></div>
+      <div class="stat-card"><div class="lbl">Structures</div><div class="val" id="mTotalStructures">—</div></div>
+      <div class="stat-card"><div class="lbl">Immeubles</div><div class="val" id="mTotalImmeubles">—</div></div>
+      <div class="stat-card"><div class="lbl">Lots</div><div class="val" id="mTotalLots">—</div></div>
+    </div>
+    <div class="grid-4">
+      <div class="stat-card green"><div class="lbl">Taux d'occupation global</div><div class="val" id="mOccupation">—</div></div>
+      <div class="stat-card"><div class="lbl">Locataires</div><div class="val" id="mTotalLocataires">—</div></div>
+      <div class="stat-card"><div class="lbl">Baux actifs</div><div class="val" id="mBauxActifs">—</div></div>
+      <div class="stat-card"><div class="lbl">Documents stockés</div><div class="val" id="mDocuments">—</div></div>
+    </div>
+
+    <div class="card">
+      <h3>Paiements du mois en cours</h3>
+      <div class="grid-4" style="margin-bottom:0;">
+        <div class="stat-card green"><div class="lbl">Payés</div><div class="val" id="mPayes">—</div></div>
+        <div class="stat-card amber"><div class="lbl">À venir</div><div class="val" id="mAVenir">—</div></div>
+        <div class="stat-card red"><div class="lbl">En retard</div><div class="val" id="mEnRetard">—</div></div>
+        <div class="stat-card"><div class="lbl">Volume stockage</div><div class="val" id="mTailleStockage">—</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Inscriptions (12 derniers mois)</h3>
+      <div id="chartInscriptions">Chargement...</div>
+    </div>
+
+    <div class="card">
+      <h3>Structures</h3>
+      <table>
+        <thead><tr><th>Nom</th><th>Type</th><th>Membres</th><th>Immeubles</th><th>Créée le</th></tr></thead>
+        <tbody id="tableStructures"><tr><td colspan="5">Chargement...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://rhpjttobvyofpauccbrj.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_GKzraD5eOxGYVB9SXWXY5g_UMXbw-Zz';
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const ADMIN_EMAIL = 'meletclement@gmail.com';
+
+  async function seConnecter() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) { document.getElementById('msgAuth').textContent = error.message; return; }
+    verifierAcces(data.user);
+  }
+
+  function verifierAcces(user) {
+    document.getElementById('auth').style.display = 'none';
+    if (!user || user.email !== ADMIN_EMAIL) {
+      document.getElementById('accesRefuse').style.display = 'block';
+      return;
+    }
+    document.getElementById('app').style.display = 'block';
+    chargerMetriques();
+  }
+
+  supabaseClient.auth.getSession().then(({ data: { session } }) => {
+    if (session) verifierAcces(session.user);
+  });
+
+  async function chargerMetriques() {
+    const { data, error } = await supabaseClient.rpc('admin_get_metrics');
+    if (error) {
+      document.getElementById('app').innerHTML = '<div class="wrap"><p style="color:var(--red);">Erreur : ' + error.message + '</p></div>';
+      return;
+    }
+
+    document.getElementById('mTotalUsers').textContent = data.total_users;
+    document.getElementById('mTotalStructures').textContent = data.total_structures;
+    document.getElementById('mTotalImmeubles').textContent = data.total_immeubles;
+    document.getElementById('mTotalLots').textContent = data.total_lots;
+    document.getElementById('mTotalLocataires').textContent = data.total_locataires;
+    document.getElementById('mBauxActifs').textContent = data.total_baux_actifs;
+    document.getElementById('mDocuments').textContent = data.total_documents;
+
+    const tauxOccupation = data.total_lots > 0 ? Math.round((data.lots_occupes / data.total_lots) * 100) : 0;
+    document.getElementById('mOccupation').textContent = tauxOccupation + ' %';
+
+    document.getElementById('mPayes').textContent = data.paiements_ce_mois.payes;
+    document.getElementById('mAVenir').textContent = data.paiements_ce_mois.a_venir;
+    document.getElementById('mEnRetard').textContent = data.paiements_ce_mois.en_retard;
+
+    const mo = data.taille_documents_octets;
+    const tailleLisible = mo > 1024 * 1024 ? (mo / (1024 * 1024)).toFixed(1) + ' Mo' : (mo / 1024).toFixed(0) + ' Ko';
+    document.getElementById('mTailleStockage').textContent = tailleLisible;
+
+    // Graphique inscriptions
+    const moisMap = {};
+    (data.inscriptions_par_mois || []).forEach(m => moisMap[m.mois] = m.nb);
+    const mois12 = [];
+    const now = new Date();
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+      mois12.push({ label: d.toLocaleDateString('fr-FR', { month: 'short' }), val: moisMap[key] || 0 });
+    }
+    const max = Math.max(1, ...mois12.map(m => m.val));
+    document.getElementById('chartInscriptions').innerHTML = `<div class="bar-chart">${mois12.map(m => `
+      <div class="bar-col">
+        <div class="bar" style="height:${Math.max(2, m.val / max * 100)}px;" title="${m.label} : ${m.val}"></div>
+        <div class="bar-label">${m.label}</div>
+      </div>
+    `).join('')}</div>`;
+
+    // Table structures
+    const labelsType = { sci_ir: "SCI IR", sci_is: "SCI IS", nom_propre: "Nom propre", sarl_immo: "SARL", autre: "Autre" };
+    document.getElementById('tableStructures').innerHTML = (data.structures_liste || []).map(s => `
+      <tr>
+        <td>${s.nom}</td>
+        <td>${labelsType[s.type] || s.type}</td>
+        <td>${s.nb_membres}</td>
+        <td>${s.nb_immeubles}</td>
+        <td class="small">${new Date(s.created_at).toLocaleDateString('fr-FR')}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="5">Aucune structure.</td></tr>';
+  }
+</script>
+
+</body>
+</html>
