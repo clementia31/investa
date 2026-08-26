@@ -46,6 +46,11 @@
   .bar-chart .bar-label { font-size: 0.65rem; color: var(--text-dim); margin-top: 6px; }
 
   .small { font-size: 0.8rem; color: var(--text-dim); }
+  .plan-select { padding: 5px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--panel-2); color: var(--text); font-size: 0.82rem; }
+  .plan-badge { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; }
+  .plan-badge.gratuit { background: rgba(139,150,179,0.15); color: var(--text-dim); }
+  .plan-badge.pro { background: rgba(59,130,246,0.15); color: var(--accent); }
+  .plan-badge.business { background: rgba(34,197,94,0.15); color: var(--green); }
 </style>
 </head>
 <body>
@@ -93,6 +98,14 @@
     <div class="card">
       <h3>Inscriptions (12 derniers mois)</h3>
       <div id="chartInscriptions">Chargement...</div>
+    </div>
+
+    <div class="card">
+      <h3>Utilisateurs</h3>
+      <table>
+        <thead><tr><th>Email</th><th>Forfait</th><th>Structures</th><th>Inscrit le</th><th></th></tr></thead>
+        <tbody id="tableUtilisateurs"><tr><td colspan="5">Chargement...</td></tr></tbody>
+      </table>
     </div>
 
     <div class="card">
@@ -148,6 +161,8 @@
     document.getElementById('mBauxActifs').textContent = data.total_baux_actifs;
     document.getElementById('mDocuments').textContent = data.total_documents;
 
+    chargerUtilisateurs();
+
     const tauxOccupation = data.total_lots > 0 ? Math.round((data.lots_occupes / data.total_lots) * 100) : 0;
     document.getElementById('mOccupation').textContent = tauxOccupation + ' %';
 
@@ -188,6 +203,35 @@
         <td class="small">${new Date(s.created_at).toLocaleDateString('fr-FR')}</td>
       </tr>
     `).join('') || '<tr><td colspan="5">Aucune structure.</td></tr>';
+  }
+
+  async function chargerUtilisateurs() {
+    const { data: utilisateurs, error } = await supabaseClient.rpc('admin_list_users');
+    const tbody = document.getElementById('tableUtilisateurs');
+    if (error) { tbody.innerHTML = `<tr><td colspan="5">Erreur : ${error.message}</td></tr>`; return; }
+    if (!utilisateurs || !utilisateurs.length) { tbody.innerHTML = '<tr><td colspan="5">Aucun utilisateur.</td></tr>'; return; }
+
+    tbody.innerHTML = utilisateurs.map(u => `
+      <tr>
+        <td>${u.email}</td>
+        <td>
+          <select class="plan-select" onchange="changerForfait('${u.id}', this.value)">
+            <option value="gratuit" ${u.plan === 'gratuit' ? 'selected' : ''}>Gratuit</option>
+            <option value="pro" ${u.plan === 'pro' ? 'selected' : ''}>Pro</option>
+            <option value="business" ${u.plan === 'business' ? 'selected' : ''}>Business</option>
+          </select>
+        </td>
+        <td>${u.nb_structures}</td>
+        <td class="small">${new Date(u.created_at).toLocaleDateString('fr-FR')}</td>
+        <td><span class="plan-badge ${u.plan}">${u.plan}</span></td>
+      </tr>
+    `).join('');
+  }
+
+  async function changerForfait(userId, plan) {
+    const { error } = await supabaseClient.rpc('admin_set_plan', { p_user_id: userId, p_plan: plan });
+    if (error) return alert('Erreur : ' + error.message);
+    chargerUtilisateurs();
   }
 </script>
 
