@@ -657,12 +657,40 @@
         <div class="page-header">
           <h2>Loyers & Paiements</h2>
           <div style="display:flex; align-items:center; gap:10px;">
-            <select id="structureLoyers" onchange="chargerCalendrierLoyers()" style="width:auto; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);"></select>
+            <select id="structureLoyers" onchange="chargerCalendrierLoyers(); initFormulaireTravaux();" style="width:auto; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);"></select>
             <button class="btn-secondary" style="padding:8px 12px; border-radius:8px;" onclick="moisLoyersPrecedent()">←</button>
             <div id="moisLoyersLabel" style="min-width:130px; text-align:center; font-weight:600;"></div>
             <button class="btn-secondary" style="padding:8px 12px; border-radius:8px;" onclick="moisLoyersSuivant()">→</button>
           </div>
         </div>
+
+        <button class="btn-ajout-replie" id="btnAjoutTravaux" onclick="toggleFormulaire('formAjoutTravaux','btnAjoutTravaux')">+ Ajouter des travaux (avec facture)</button>
+        <div class="card" id="formAjoutTravaux" style="display:none;">
+          <select id="immeubleTravaux"></select>
+          <input id="montantTravaux" type="number" placeholder="Montant (€)">
+          <input id="dateTravaux" type="date">
+          <input id="descriptionTravaux" placeholder="Description (ex: réparation chauffe-eau)">
+          <p class="small" style="margin:8px 0 4px;">Facture — optionnel</p>
+          <input type="file" id="fichierFactureTravaux">
+          <button class="btn-primary" onclick="enregistrerTravaux()">Enregistrer</button>
+        </div>
+
+        <div class="card" id="panelPaiementDetail" style="display:none;">
+          <div class="section-header-ajout">
+            <h3 id="detailPaiementTitre"></h3>
+            <button class="icon-btn-round" onclick="fermerDetailPaiement()" aria-label="Fermer">✕</button>
+          </div>
+          <p class="small" id="detailPaiementSousTitre" style="margin:0 0 12px;"></p>
+          <div class="row"><span class="small">Montant</span><span id="detailPaiementMontant"></span></div>
+          <p class="small" style="margin:12px 0 4px;">Date de paiement</p>
+          <input id="detailPaiementDate" type="date">
+          <div style="display:flex; gap:8px; margin-top:10px;">
+            <button class="btn-primary" style="flex:1;" onclick="confirmerStatutPaiement('paye')">✓ Payé</button>
+            <button class="btn-secondary" style="flex:1;" onclick="confirmerStatutPaiement('en_retard')">En retard</button>
+            <button class="btn-secondary" style="flex:1;" onclick="confirmerStatutPaiement('a_venir')">À venir</button>
+          </div>
+        </div>
+
         <div class="grid-cal">
           <div class="card">
             <div class="cal-weekdays">
@@ -2038,6 +2066,7 @@
       sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${echapper(s.nom)}</option>`).join('');
     }
     chargerCalendrierLoyers();
+    initFormulaireTravaux();
   }
 
   function moisLoyersPrecedent() {
@@ -2088,7 +2117,7 @@
       const paiement = paiementParBail[bail.id];
       const jourEcheance = Math.min(new Date(bail.date_debut).getDate(), nbJoursMois);
       return {
-        paiement, jour: jourEcheance, lotNom: bail.lots.nom || bail.lots.type,
+        paiement, jour: jourEcheance, lotNom: bail.lots.nom || bail.lots.type, lotId: bail.lot_id,
         adresse: bail.lots.immeubles.adresse, montant: Number(paiement.montant_loyer) + Number(paiement.montant_charges)
       };
     });
@@ -2097,7 +2126,10 @@
     remplirListesLaterales(items);
   }
 
+  let donneesItemsCalendrier = [];
+
   function dessinerCalendrier(annee, moisIdx, items) {
+    donneesItemsCalendrier = items;
     const grid = document.getElementById('calGrid');
     const premierJourSemaine = (new Date(annee, moisIdx, 1).getDay() + 6) % 7; // 0 = lundi
     const nbJours = new Date(annee, moisIdx + 1, 0).getDate();
@@ -2110,7 +2142,7 @@
       const estAujourdhui = aujourdhui.getDate() === jour && aujourdhui.getMonth() === moisIdx && aujourdhui.getFullYear() === annee;
       html += `<div class="cal-day" style="${estAujourdhui ? 'outline:1.5px solid var(--accent);' : ''}">
         <div class="num">${jour}</div>
-        ${itemsJour.map(it => `<div class="item ${it.paiement.statut}" onclick="marquerPaye('${it.paiement.id}')" title="${it.lotNom} — ${it.montant} €">${it.lotNom} ${it.montant}€</div>`).join('')}
+        ${itemsJour.map(it => `<div class="item ${it.paiement.statut}" onclick="ouvrirDetailPaiement('${it.paiement.id}')" title="${echapper(it.lotNom)} — ${it.montant} €">${echapper(it.lotNom)} ${it.montant}€</div>`).join('')}
       </div>`;
     }
     grid.innerHTML = html;
@@ -2121,19 +2153,90 @@
     const enRetard = items.filter(it => it.paiement.statut === 'en_retard');
 
     document.getElementById('listeAVenir').innerHTML = aVenir.length
-      ? aVenir.map(it => `<div class="side-item"><span>${it.jour.toString().padStart(2,'0')}/${(moisLoyersCourant.getMonth()+1).toString().padStart(2,'0')} — ${it.lotNom}</span><span>${it.montant} €</span></div>`).join('')
+      ? aVenir.map(it => `<div class="side-item row-click" onclick="ouvrirDetailPaiement('${it.paiement.id}')"><span>${it.jour.toString().padStart(2,'0')}/${(moisLoyersCourant.getMonth()+1).toString().padStart(2,'0')} — ${echapper(it.lotNom)}</span><span>${it.montant} €</span></div>`).join('')
       : '<div class="empty-state">Aucun</div>';
 
     document.getElementById('listeEnRetard').innerHTML = enRetard.length
-      ? enRetard.map(it => `<div class="side-item"><span>${it.lotNom}</span><span class="badge travaux">${it.montant} €</span></div>`).join('')
+      ? enRetard.map(it => `<div class="side-item row-click" onclick="ouvrirDetailPaiement('${it.paiement.id}')"><span>${echapper(it.lotNom)}</span><span class="badge travaux">${it.montant} €</span></div>`).join('')
       : '<div class="empty-state">Aucun</div>';
   }
 
-  async function marquerPaye(paiementId) {
-    const { error } = await supabaseClient.from('paiements').update({ statut: 'paye', date_paiement: new Date().toISOString().split('T')[0] }).eq('id', paiementId);
+  let paiementDetailCourantId = null;
+  let lotDetailCourantId = null;
+
+  function ouvrirDetailPaiement(paiementId) {
+    const item = donneesItemsCalendrier.find(it => it.paiement.id === paiementId);
+    if (!item) return;
+    paiementDetailCourantId = paiementId;
+    lotDetailCourantId = item.lotId;
+
+    document.getElementById('detailPaiementTitre').innerHTML = `<a href="#" onclick="ouvrirFicheLot('${item.lotId}'); return false;" style="color:var(--accent);">${echapper(item.lotNom)}</a>`;
+    document.getElementById('detailPaiementSousTitre').textContent = item.adresse;
+    document.getElementById('detailPaiementMontant').textContent = item.montant.toLocaleString('fr-FR') + ' €';
+    document.getElementById('detailPaiementDate').value = item.paiement.date_paiement || new Date().toISOString().split('T')[0];
+    document.getElementById('panelPaiementDetail').style.display = 'block';
+    document.getElementById('panelPaiementDetail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function fermerDetailPaiement() {
+    document.getElementById('panelPaiementDetail').style.display = 'none';
+    paiementDetailCourantId = null;
+  }
+
+  async function confirmerStatutPaiement(statut) {
+    if (!paiementDetailCourantId) return;
+    const dateChoisie = document.getElementById('detailPaiementDate').value;
+    const { error } = await supabaseClient.from('paiements').update({
+      statut, date_paiement: statut === 'paye' ? (dateChoisie || new Date().toISOString().split('T')[0]) : null
+    }).eq('id', paiementDetailCourantId);
     if (error) return alert('Erreur : ' + error.message);
-    genererQuittanceAuto(paiementId).catch(e => console.error('Génération quittance échouée :', e));
+    if (statut === 'paye') genererQuittanceAuto(paiementDetailCourantId).catch(e => console.error('Génération quittance échouée :', e));
+    fermerDetailPaiement();
     chargerCalendrierLoyers();
+  }
+
+  // ---------- TRAVAUX (dépense + facture, depuis l'écran Loyers) ----------
+  async function initFormulaireTravaux() {
+    const structureId = document.getElementById('structureLoyers').value;
+    const sel = document.getElementById('immeubleTravaux');
+    if (!structureId) { sel.innerHTML = ''; return; }
+    const { data: immeubles } = await supabaseClient.from('immeubles').select('id, adresse').eq('structure_id', structureId);
+    sel.innerHTML = (immeubles || []).map(im => `<option value="${im.id}">${echapper(im.adresse)}</option>`).join('');
+  }
+
+  async function enregistrerTravaux() {
+    const structureId = document.getElementById('structureLoyers').value;
+    const immeubleId = document.getElementById('immeubleTravaux').value;
+    const montant = document.getElementById('montantTravaux').value;
+    const date = document.getElementById('dateTravaux').value;
+    const description = document.getElementById('descriptionTravaux').value;
+    const fichier = document.getElementById('fichierFactureTravaux').files[0];
+
+    if (!structureId || !immeubleId) return alert('Sélectionne un immeuble');
+    if (!montant || !date) return alert('Montant et date requis');
+
+    const { error: errTx } = await supabaseClient.from('transactions').insert({
+      structure_id: structureId, immeuble_id: immeubleId, type: 'depense', categorie: 'travaux',
+      montant: parseFloat(montant), date, description: description || null
+    });
+    if (errTx) return alert('Erreur : ' + errTx.message);
+
+    if (fichier) {
+      const cheminFichier = `${structureId}/immeuble/${immeubleId}/${Date.now()}_${fichier.name}`;
+      const { error: errUpload } = await supabaseClient.storage.from('documents').upload(cheminFichier, fichier);
+      if (!errUpload) {
+        await supabaseClient.from('documents').insert({
+          structure_id: structureId, entity_type: 'immeuble', entity_id: immeubleId,
+          nom: fichier.name, storage_path: cheminFichier, taille_octets: fichier.size, categorie: 'travaux'
+        });
+      }
+    }
+
+    document.getElementById('montantTravaux').value = '';
+    document.getElementById('dateTravaux').value = '';
+    document.getElementById('descriptionTravaux').value = '';
+    document.getElementById('fichierFactureTravaux').value = '';
+    toggleFormulaire('formAjoutTravaux', 'btnAjoutTravaux');
   }
 
   // Génère automatiquement une quittance PDF et la classe dans Documents, sur chaque locataire du bail.
