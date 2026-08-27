@@ -984,6 +984,27 @@
   const SUPABASE_ANON_KEY = 'sb_publishable_GKzraD5eOxGYVB9SXWXY5g_UMXbw-Zz';
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  // Échappe tout texte saisi par l'utilisateur avant de l'injecter dans le HTML — protection XSS.
+  // Utiliser SYSTÉMATIQUEMENT sur les champs texte libres (nom, adresse, email, description...)
+  // avant de les insérer via innerHTML. Les nombres/dates n'en ont pas besoin.
+  function echapper(texte) {
+    if (texte === null || texte === undefined) return '';
+    const div = document.createElement('div');
+    div.textContent = String(texte);
+    return div.innerHTML;
+  }
+
+  // Échappement spécifique pour une valeur injectée À L'INTÉRIEUR d'un attribut onclick="...'${valeur}'..."
+  // (contexte différent : il faut protéger à la fois la chaîne JS et l'attribut HTML qui l'entoure)
+  function echapperPourOnclick(texte) {
+    return String(texte === null || texte === undefined ? '' : texte)
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
   // Applique le thème sauvegardé immédiatement pour éviter tout flash
   if (localStorage.getItem('investa-theme') === 'light') document.body.classList.add('theme-light');
 
@@ -998,8 +1019,18 @@
   async function sInscrire() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    const { error } = await supabaseClient.auth.signUp({ email, password });
-    document.getElementById('msg').textContent = error ? error.message : 'Compte créé, vérifie tes emails si confirmation requise.';
+    document.getElementById('msg').textContent = '';
+    if (!email || !password) { document.getElementById('msg').textContent = 'Email et mot de passe requis.'; return; }
+
+    const { data, error } = await supabaseClient.auth.signUp({ email, password });
+    if (error) { document.getElementById('msg').textContent = traduireErreurAuth(error); return; }
+
+    // Si la confirmation par email est désactivée côté Supabase, signUp() renvoie déjà
+    // une session valide : on ouvre l'app directement plutôt que de laisser le client
+    // bloqué sur l'écran de connexion.
+    if (data.session) { afficherApp(); return; }
+
+    document.getElementById('msg').textContent = 'Compte créé ! Vérifie tes emails pour confirmer avant de te connecter.';
   }
 
   async function seConnecter() {
@@ -1016,6 +1047,9 @@
     const msg = error.message || '';
     if (msg.includes('Email not confirmed')) return "Ton email n'est pas encore confirmé — vérifie ta boîte mail (et les spams).";
     if (msg.includes('Invalid login credentials')) return "Email ou mot de passe incorrect.";
+    if (msg.includes('User already registered')) return "Un compte existe déjà avec cet email — connecte-toi plutôt.";
+    if (msg.includes('Password should be at least')) return "Le mot de passe doit faire au moins 6 caractères.";
+    if (msg.toLowerCase().includes('invalid') && msg.toLowerCase().includes('email')) return "Adresse email invalide.";
     return msg;
   }
 
@@ -1162,10 +1196,10 @@
     if (retardCount > 0) html += `<div class="alert-row row-click" onclick="allerLoyers()"><span class="alert-dot high"></span> ${retardCount} loyer${retardCount > 1 ? 's' : ''} en retard</div>`;
     if (tachesEnRetard && tachesEnRetard.length) html += `<div class="alert-row row-click" onclick="allerAlertes()"><span class="alert-dot med"></span> ${tachesEnRetard.length} tâche${tachesEnRetard.length > 1 ? 's' : ''} en retard</div>`;
     retardsFiltres.slice(0, 2).forEach(p => {
-      html += `<div class="alert-row"><span class="alert-dot high"></span> ${p.baux.lots.nom || p.baux.lots.type}, ${p.baux.lots.immeubles.adresse}</div>`;
+      html += `<div class="alert-row"><span class="alert-dot high"></span> ${echapper(p.baux.lots.nom || p.baux.lots.type)}, ${echapper(p.baux.lots.immeubles.adresse)}</div>`;
     });
     bauxFiltres.slice(0, 2).forEach(b => {
-      html += `<div class="alert-row"><span class="alert-dot med"></span> Bail expire le ${b.date_fin} — ${b.lots.nom || b.lots.type}</div>`;
+      html += `<div class="alert-row"><span class="alert-dot med"></span> Bail expire le ${b.date_fin} — ${echapper(b.lots.nom || b.lots.type)}</div>`;
     });
     div.innerHTML = html || '<div class="empty-state">Rien à signaler pour le moment. 👍</div>';
   }
@@ -1424,7 +1458,7 @@
       const totalStructure = s.immeubles.reduce((a, im) => a + im.loyersMensuels, 0);
       totalGeneral += totalStructure;
 
-      html += `<div class="structure-header"><span>${s.nom}</span><span class="small">${s.type} · ${totalStructure.toLocaleString('fr-FR')} €</span></div>`;
+      html += `<div class="structure-header"><span>${echapper(s.nom)}</span><span class="small">${echapper(s.type)} · ${totalStructure.toLocaleString('fr-FR')} €</span></div>`;
       html += `<div style="display:flex; gap:8px; margin:8px 0 14px;">
         <input id="adresseImmeuble_${s.id}" placeholder="Adresse du nouvel immeuble" style="flex:1; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-size:0.85rem;">
         <button class="btn-secondary" style="padding:8px 14px; border-radius:8px; font-size:0.85rem;" onclick="creerImmeuble('${s.id}')">Ajouter</button>
@@ -1463,14 +1497,14 @@
       <div class="bien-card" onclick="${onclick}">
         <div class="bien-card-top">
           <span class="bien-card-icon">${icone}</span>
-          <span class="bien-card-titre">${titre}</span>
+          <span class="bien-card-titre">${echapper(titre)}</span>
         </div>
-        <p class="small" style="margin:0 0 10px;">${sousTitre}</p>
+        <p class="small" style="margin:0 0 10px;">${echapper(sousTitre)}</p>
         <div class="bien-card-bottom">
           <span class="badge-pill ${badgeClasse}">${badgeTexte}</span>
           <span class="bien-card-loyer">${loyer.toLocaleString('fr-FR')} €</span>
         </div>
-        ${alerte ? `<div class="bien-card-alerte">⚠ ${alerte}</div>` : ''}
+        ${alerte ? `<div class="bien-card-alerte">⚠ ${echapper(alerte)}</div>` : ''}
       </div>
     `;
   }
@@ -1547,7 +1581,7 @@
     if (!txs || !txs.length) { div.innerHTML = '<div class="empty-state">Aucune transaction rattachée à cet immeuble. (Rattache-les depuis Finances en précisant l\u2019immeuble.)</div>'; return; }
     div.innerHTML = txs.map(t => `
       <div class="row">
-        <span>${t.date} — ${t.categorie}${t.description ? ' (' + t.description + ')' : ''}</span>
+        <span>${t.date} — ${echapper(t.categorie)}${t.description ? ' (' + echapper(t.description) + ')' : ''}</span>
         <span style="color:${t.type === 'depense' ? 'var(--red)' : 'var(--green)'}; font-weight:600;">${t.type === 'depense' ? '-' : '+'}${Number(t.montant).toLocaleString('fr-FR')} €</span>
       </div>
     `).join('');
@@ -1707,15 +1741,15 @@
         if (!l) return '';
         return `
           <div class="row" style="align-items:center;">
-            <span class="row-click" onclick="ouvrirFicheLocataire('${l.id}', 'lot')" style="flex:1;">${l.nom}</span>
-            <input type="text" placeholder="Chambre (ex: A)" value="${r.nom_chambre || ''}" style="width:110px; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); margin-right:6px;" id="chambre_${r.bail_id}_${r.locataire_id}">
+            <span class="row-click" onclick="ouvrirFicheLocataire('${l.id}', 'lot')" style="flex:1;">${echapper(l.nom)}</span>
+            <input type="text" placeholder="Chambre (ex: A)" value="${echapper(r.nom_chambre || '')}" style="width:110px; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); margin-right:6px;" id="chambre_${r.bail_id}_${r.locataire_id}">
             <input type="number" placeholder="Loyer (€)" value="${r.loyer_part || ''}" style="width:100px; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); margin-right:6px;" id="loyerpart_${r.bail_id}_${r.locataire_id}">
             <button class="btn-mark-paid" onclick="enregistrerPartColocataire('${r.bail_id}', '${r.locataire_id}')">OK</button>
           </div>
         `;
       }).join('');
     } else {
-      div.innerHTML = (locataires || []).map(l => `<div class="row row-click" onclick="ouvrirFicheLocataire('${l.id}', 'lot')">${l.nom} ${l.email ? '<span class="small">' + l.email + '</span>' : ''}</div>`).join('');
+      div.innerHTML = (locataires || []).map(l => `<div class="row row-click" onclick="ouvrirFicheLocataire('${l.id}', 'lot')">${echapper(l.nom)} ${l.email ? '<span class="small">' + echapper(l.email) + '</span>' : ''}</div>`).join('');
     }
   }
 
@@ -1814,8 +1848,8 @@
     document.getElementById('garantieLocataire').value = locataire.garantie || '';
 
     document.getElementById('locContactIcons').innerHTML = `
-      ${locataire.email ? `<a class="icon-btn-round" href="mailto:${locataire.email}" title="${locataire.email}">✉️</a>` : ''}
-      ${locataire.telephone ? `<a class="icon-btn-round" href="tel:${locataire.telephone}" title="${locataire.telephone}">📞</a>` : ''}
+      ${locataire.email ? `<a class="icon-btn-round" href="mailto:${echapper(locataire.email)}" title="${echapper(locataire.email)}">✉️</a>` : ''}
+      ${locataire.telephone ? `<a class="icon-btn-round" href="tel:${echapper(locataire.telephone)}" title="${echapper(locataire.telephone)}">📞</a>` : ''}
     `;
 
     switchTabLocataire('bail');
@@ -1841,17 +1875,17 @@
     }
 
     document.getElementById('locSousTitre').textContent = bailActuel
-      ? `${bailActuel.lots.nom || bailActuel.lots.type} · ${bailActuel.lots.immeubles.adresse}`
+      ? `${echapper(bailActuel.lots.nom || bailActuel.lots.type)} · ${echapper(bailActuel.lots.immeubles.adresse)}`
       : 'Aucun bail actif';
 
     document.getElementById('locBadges').innerHTML = bailActuel
-      ? `${bailActuel.type === 'colocation' ? '<span class="badge-outline">Colocation</span>' : ''}${monRattachement && monRattachement.nom_chambre ? `<span class="badge-outline">Chambre ${monRattachement.nom_chambre}</span>` : ''}`
+      ? `${bailActuel.type === 'colocation' ? '<span class="badge-outline">Colocation</span>' : ''}${monRattachement && monRattachement.nom_chambre ? `<span class="badge-outline">Chambre ${echapper(monRattachement.nom_chambre)}</span>` : ''}`
       : '<span class="badge-outline">Aucun bail actif</span>';
 
     const loyerAffiche = monRattachement && monRattachement.loyer_part ? Number(monRattachement.loyer_part) : (bailActuel ? Number(bailActuel.loyer) : 0);
 
     document.getElementById('locInformations').innerHTML = bailActuel ? `
-      <div class="row"><span class="small">Lot</span><span>${bailActuel.lots.nom || bailActuel.lots.type}</span></div>
+      <div class="row"><span class="small">Lot</span><span>${echapper(bailActuel.lots.nom || bailActuel.lots.type)}</span></div>
       <div class="row"><span class="small">Bail</span><span>Du ${bailActuel.date_debut} ${bailActuel.date_fin ? 'au ' + bailActuel.date_fin : '(sans fin)'}</span></div>
       <div class="row"><span class="small">${monRattachement && monRattachement.loyer_part ? 'Loyer (ma part)' : 'Loyer'}</span><span>${loyerAffiche.toLocaleString('fr-FR')} €</span></div>
       <div class="row"><span class="small">Charges</span><span>${Number(bailActuel.charges).toLocaleString('fr-FR')} €</span></div>
@@ -1859,7 +1893,7 @@
     ` : '<div class="empty-state">Aucun bail actif.</div>';
 
     document.getElementById('colocatairesLocataire').innerHTML = colocataires.length
-      ? colocataires.map(c => `<div class="row">${c.nom}</div>`).join('')
+      ? colocataires.map(c => `<div class="row">${echapper(c.nom)}</div>`).join('')
       : '<div class="empty-state">Aucun (locataire seul)</div>';
 
     const div = document.getElementById('historiquePaiementsLocataire');
@@ -1908,7 +1942,7 @@
     if (!locataires || !locataires.length) { div.innerHTML = '<div class="empty-state">Aucun locataire pour le moment.</div>'; return; }
     div.innerHTML = locataires.map(l => `
       <div class="row row-click" onclick="ouvrirFicheLocataire('${l.id}', 'liste')">
-        <span>${l.nom}</span><span class="small">${l.email || ''}</span>
+        <span>${echapper(l.nom)}</span><span class="small">${echapper(l.email || '')}</span>
       </div>
     `).join('');
   }
@@ -1923,7 +1957,7 @@
     const sel = document.getElementById('structureLoyers');
     if (!sel.options.length) {
       const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
-      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
+      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${echapper(s.nom)}</option>`).join('');
     }
     chargerCalendrierLoyers();
   }
@@ -2030,7 +2064,7 @@
     const sel = document.getElementById('structureFinances');
     if (!sel.options.length) {
       const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
-      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
+      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${echapper(s.nom)}</option>`).join('');
     }
     const moisInput = document.getElementById('moisFinances');
     if (!moisInput.value) {
@@ -2120,7 +2154,7 @@
         const { data } = await supabaseClient.from('immeubles').select('*').in('structure_id', structIds).order('created_at');
         immeubles = data || [];
       }
-      sel.innerHTML = immeubles.map(i => `<option value="${i.id}">${i.adresse}</option>`).join('');
+      sel.innerHTML = immeubles.map(i => `<option value="${i.id}">${echapper(i.adresse)}</option>`).join('');
     }
     chargerPrets();
   }
@@ -2136,7 +2170,7 @@
       const pct = p.capital_initial > 0 ? Math.round(((p.capital_initial - p.capital_restant) / p.capital_initial) * 100) : 0;
       return `
         <div style="padding:14px 0; border-bottom:1px solid var(--border);">
-          <strong>${p.banque || 'Prêt'}</strong>
+          <strong>${echapper(p.banque) || 'Prêt'}</strong>
           <div class="small">Capital initial : ${p.capital_initial.toLocaleString('fr-FR')} € · Restant : ${p.capital_restant.toLocaleString('fr-FR')} €</div>
           <div class="small">Taux : ${p.taux || '—'} % · Mensualité : ${p.mensualite ? p.mensualite.toLocaleString('fr-FR') + ' €' : '—'}</div>
           <div class="small">Du ${p.date_debut || '—'} au ${p.date_fin || '—'}</div>
@@ -2272,11 +2306,11 @@
     if (!structures || !structures.length) { div.innerHTML = '<div class="empty-state">Aucune structure pour le moment.</div>'; return; }
 
     const { data: organisations } = await supabaseClient.from('organizations').select('*').order('created_at');
-    const optionsOrg = '<option value="">Aucune organisation</option>' + (organisations || []).map(o => `<option value="${o.id}">${o.nom}</option>`).join('');
+    const optionsOrg = '<option value="">Aucune organisation</option>' + (organisations || []).map(o => `<option value="${o.id}">${echapper(o.nom)}</option>`).join('');
 
     div.innerHTML = structures.map(s => `
       <div class="row" style="align-items:center;">
-        <span class="row-click" onclick="ouvrirMembresStructure('${s.id}', '${s.nom.replace(/'/g, "\\'")}')" style="flex:1;">${s.nom} <span class="small">(${s.type})</span></span>
+        <span class="row-click" onclick="ouvrirMembresStructure('${s.id}', '${echapperPourOnclick(s.nom)}')" style="flex:1;">${echapper(s.nom)} <span class="small">(${echapper(s.type)})</span></span>
         <select class="plan-select-inline" onchange="rattacherOrganisation('${s.id}', this.value)" style="width:auto; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-size:0.82rem;">
           ${optionsOrg.replace(`value="${s.organization_id || ''}"`, `value="${s.organization_id || ''}" selected`)}
         </select>
@@ -2307,7 +2341,7 @@
     if (!membres || !membres.length) { div.innerHTML = '<div class="empty-state">Aucun membre.</div>'; return; }
     div.innerHTML = membres.map(m => `
       <div class="row">
-        <span>${m.email} <span class="badge occupe" style="margin-left:6px;">${m.role.replace('_', ' ')}</span></span>
+        <span>${echapper(m.email)} <span class="badge occupe" style="margin-left:6px;">${m.role.replace('_', ' ')}</span></span>
         ${m.role !== 'proprietaire' ? `<button class="btn-mark-paid" style="background:var(--red);" onclick="retirerMembre('${m.membre_id}')">Retirer</button>` : ''}
       </div>
     `).join('');
@@ -2376,7 +2410,7 @@
     const items = await collecterAlertes();
     if (!items.length) { div.innerHTML = '<div class="empty-state">Aucune alerte pour le moment. 👍</div>'; return; }
     div.innerHTML = items.map(it => `
-      <div class="row"><div><strong>${it.titre}</strong><br><span class="small">${it.detail}</span></div><span class="severite ${it.severite}">${it.severite === 'haute' ? 'Élevée' : 'Moyenne'}</span></div>
+      <div class="row"><div><strong>${echapper(it.titre)}</strong><br><span class="small">${echapper(it.detail)}</span></div><span class="severite ${it.severite}">${it.severite === 'haute' ? 'Élevée' : 'Moyenne'}</span></div>
     `).join('');
   }
 
@@ -2385,7 +2419,7 @@
     const sel = document.getElementById('structureTaches');
     if (!sel.options.length) {
       const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
-      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
+      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${echapper(s.nom)}</option>`).join('');
     }
     chargerTaches();
   }
@@ -2401,7 +2435,7 @@
     div.innerHTML = taches.map(t => `
       <div class="tache-row ${t.fait ? 'fait' : ''}">
         <input type="checkbox" class="tache-check" ${t.fait ? 'checked' : ''} onchange="basculerTache('${t.id}', this.checked)">
-        <span class="titre">${t.titre}</span>
+        <span class="titre">${echapper(t.titre)}</span>
         ${t.date_echeance ? `<span class="small" style="margin-left:auto;">${t.date_echeance}</span>` : ''}
       </div>
     `).join('');
@@ -2471,8 +2505,8 @@
       const revenus = txs.filter(t => t.type === 'recette').reduce((a, t) => a + Number(t.montant), 0);
       const charges = txs.filter(t => t.type === 'depense').reduce((a, t) => a + Number(t.montant), 0);
       const resultat = revenus - charges;
-      html += `<div class="fisc-card" onclick="ouvrirAssociesStructure('${s.id}', '${s.nom.replace(/'/g, "\\'")}')">
-        <h4>${s.nom}</h4>
+      html += `<div class="fisc-card" onclick="ouvrirAssociesStructure('${s.id}', '${echapperPourOnclick(s.nom)}')">
+        <h4>${echapper(s.nom)}</h4>
         <div class="regime">${labelsRegime[s.type] || s.type}</div>
         <div class="fisc-line"><span>Revenus bruts</span><span>${revenus.toLocaleString('fr-FR')} €</span></div>
         <div class="fisc-line"><span>Charges déductibles</span><span>${charges.toLocaleString('fr-FR')} €</span></div>
@@ -2507,7 +2541,7 @@
     div.innerHTML = associes.map(a => {
       const part = resultatTotal * (Number(a.quote_part) / 100);
       return `<div class="fisc-assoc-row">
-        <span>${a.nom}</span><span>${a.quote_part} %</span><span>${part.toLocaleString('fr-FR')} €</span>
+        <span>${echapper(a.nom)}</span><span>${a.quote_part} %</span><span>${part.toLocaleString('fr-FR')} €</span>
         <span class="small">À déclarer</span>
       </div>`;
     }).join('');
@@ -2531,7 +2565,7 @@
     const sel = document.getElementById('structureRapports');
     if (!sel.options.length) {
       const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
-      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
+      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${echapper(s.nom)}</option>`).join('');
     }
     const selA = document.getElementById('anneeRapports');
     if (!selA.options.length) {
@@ -2699,7 +2733,7 @@
     const sel = document.getElementById('structureComptes');
     if (!sel.options.length) {
       const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
-      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
+      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${echapper(s.nom)}</option>`).join('');
     }
     chargerComptesBancaires();
   }
@@ -2713,7 +2747,7 @@
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
     if (!comptes || !comptes.length) { div.innerHTML = '<div class="empty-state">Aucun compte bancaire.</div>'; return; }
     div.innerHTML = comptes.map(c => `
-      <div class="row"><span>${c.nom} ${c.banque ? '<span class="small">— ' + c.banque + '</span>' : ''}</span><span>${Number(c.solde || 0).toLocaleString('fr-FR')} €</span></div>
+      <div class="row"><span>${echapper(c.nom)} ${c.banque ? '<span class="small">— ' + echapper(c.banque) + '</span>' : ''}</span><span>${Number(c.solde || 0).toLocaleString('fr-FR')} €</span></div>
     `).join('');
   }
 
@@ -2737,7 +2771,7 @@
     const sel = document.getElementById('structureCategories');
     if (!sel.options.length) {
       const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
-      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
+      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${echapper(s.nom)}</option>`).join('');
     }
     chargerCategories();
   }
@@ -2751,7 +2785,7 @@
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
     if (!categories || !categories.length) { div.innerHTML = '<div class="empty-state">Aucune catégorie personnalisée.</div>'; return; }
     div.innerHTML = categories.map(c => `
-      <div class="row"><span>${c.nom}</span><span class="badge ${c.type === 'recette' ? 'occupe' : 'travaux'}">${c.type}</span></div>
+      <div class="row"><span>${echapper(c.nom)}</span><span class="badge ${c.type === 'recette' ? 'occupe' : 'travaux'}">${c.type}</span></div>
     `).join('');
   }
 
@@ -2799,7 +2833,7 @@
 
     div.innerHTML = docs.map(d => `
       <div class="row">
-        <span>📎 ${d.nom} <span class="small">(${d.taille_octets ? Math.round(d.taille_octets / 1024) + ' Ko' : ''})</span></span>
+        <span>📎 ${echapper(d.nom)} <span class="small">(${d.taille_octets ? Math.round(d.taille_octets / 1024) + ' Ko' : ''})</span></span>
         <span>
           <a href="#" onclick="telechargerDocument('${d.storage_path}'); return false;" style="color:var(--accent); margin-right:12px;">Ouvrir</a>
           <a href="#" onclick="supprimerDocument('${d.id}', '${d.storage_path}', '${entityType}', '${entityId}', '${targetDivId}'); return false;" style="color:var(--red);">Supprimer</a>
@@ -2906,8 +2940,8 @@
     const labelsCat = { bail: 'Bail', quittance: 'Quittance', diagnostic: 'Diagnostic', assurance: 'Assurance', autre: 'Autre' };
     div.innerHTML = items.map(d => `
       <div class="row" style="display:grid; grid-template-columns: 2fr 1.5fr 1fr 1fr; align-items:center;">
-        <span onclick="telechargerDocument('${d.storage_path}')" style="cursor:pointer; color:var(--accent);">📎 ${d.nom}</span>
-        <span class="small">${d.nomEntite}</span>
+        <span onclick="telechargerDocument('${d.storage_path}')" style="cursor:pointer; color:var(--accent);">📎 ${echapper(d.nom)}</span>
+        <span class="small">${echapper(d.nomEntite)}</span>
         <span class="badge-outline">${labelsCat[d.categorie] || 'Autre'}</span>
         <span class="small">${new Date(d.created_at).toLocaleDateString('fr-FR')}</span>
       </div>
@@ -2926,7 +2960,7 @@
     const selS = document.getElementById('structureImport');
     if (!selS.options.length) {
       const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
-      selS.innerHTML = (structures || []).map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
+      selS.innerHTML = (structures || []).map(s => `<option value="${s.id}">${echapper(s.nom)}</option>`).join('');
     }
     chargerCiblesImport();
   }
@@ -2939,15 +2973,15 @@
 
     if (type === 'immeuble') {
       const { data } = await supabaseClient.from('immeubles').select('id, adresse').eq('structure_id', structureId);
-      selCible.innerHTML = (data || []).map(i => `<option value="${i.id}">${i.adresse}</option>`).join('');
+      selCible.innerHTML = (data || []).map(i => `<option value="${i.id}">${echapper(i.adresse)}</option>`).join('');
     } else if (type === 'lot') {
       const { data: immeubles } = await supabaseClient.from('immeubles').select('id').eq('structure_id', structureId);
       const immeubleIds = (immeubles || []).map(i => i.id);
       const { data: lots } = immeubleIds.length ? await supabaseClient.from('lots').select('id, nom, type').in('immeuble_id', immeubleIds) : { data: [] };
-      selCible.innerHTML = (lots || []).map(l => `<option value="${l.id}">${l.nom || l.type}</option>`).join('');
+      selCible.innerHTML = (lots || []).map(l => `<option value="${l.id}">${echapper(l.nom || l.type)}</option>`).join('');
     } else {
       const { data } = await supabaseClient.from('locataires').select('id, nom').eq('structure_id', structureId);
-      selCible.innerHTML = (data || []).map(l => `<option value="${l.id}">${l.nom}</option>`).join('');
+      selCible.innerHTML = (data || []).map(l => `<option value="${l.id}">${echapper(l.nom)}</option>`).join('');
     }
   }
 
@@ -2974,7 +3008,7 @@
     let html = '';
     for (const o of organisations) {
       const { count } = await supabaseClient.from('structures').select('*', { count: 'exact', head: true }).eq('organization_id', o.id);
-      html += `<div class="row"><span>${o.nom}</span><span class="small">${count || 0} structure(s) rattachée(s)</span></div>`;
+      html += `<div class="row"><span>${echapper(o.nom)}</span><span class="small">${count || 0} structure(s) rattachée(s)</span></div>`;
     }
     div.innerHTML = html;
   }
