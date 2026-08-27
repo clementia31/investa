@@ -6,6 +6,7 @@
 <title>Investa</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <style>
   :root {
     --bg: #0b1120;
@@ -313,12 +314,8 @@
       <div class="nav-item" id="nav-patrimoine" onclick="allerPatrimoine()"><span class="ic">🏢</span> Patrimoine</div>
       <div class="nav-item" id="nav-locataires" onclick="allerLocataires()"><span class="ic">👤</span> Locataires</div>
       <div class="nav-item" id="nav-loyers" onclick="allerLoyers()"><span class="ic">📅</span> Loyers</div>
-      <div class="nav-item" id="nav-finances" onclick="allerFinances()"><span class="ic">💶</span> Finances</div>
-      <div class="nav-item" id="nav-prets" onclick="allerPrets()"><span class="ic">🏦</span> Prêts</div>
       <div class="nav-item" id="nav-documents" onclick="allerDocuments()"><span class="ic">📄</span> Documents</div>
       <div class="nav-item" id="nav-alertes" onclick="allerAlertes()"><span class="ic">🔔</span> Tâches & Alertes</div>
-      <div class="nav-item" id="nav-fiscalite" onclick="allerFiscalite()"><span class="ic">📊</span> Fiscalité</div>
-      <div class="nav-item" id="nav-rapports" onclick="allerRapports()"><span class="ic">📈</span> Rapports</div>
       <div class="nav-item" id="nav-parametres" onclick="allerParametres()"><span class="ic">⚙️</span> Paramètres</div>
 
       <div class="nav-footer">
@@ -510,7 +507,6 @@
 
         <div id="tabcontent-infos" style="display:none;">
           <div class="card" id="immInformationsForm">Chargement...</div>
-          <div class="card"><div class="placeholder-box"><div class="ic">🚧</div>Suivi des diagnostics (DPE, amiante...) — bientôt disponible</div></div>
         </div>
       </div>
 
@@ -756,84 +752,11 @@
       <!-- ===== PARAMÈTRES ===== -->
       <div id="page-parametres" style="display:none;">
         <div class="page-header"><h2>Paramètres</h2></div>
-        <div class="params-layout">
-          <div class="card params-menu">
-            <div class="params-menu-title">Mon organisation</div>
-            <div class="params-menu-item" id="pmOrganisation" onclick="switchParamsSection('organisation')">Organisation</div>
-            <div class="params-menu-item active" id="pmStructures" onclick="switchParamsSection('structures')">Structures</div>
-            <div class="params-menu-item" id="pmComptes" onclick="switchParamsSection('comptes')">Comptes bancaires</div>
-            <div class="params-menu-item" id="pmCategories" onclick="switchParamsSection('categories')">Catégories</div>
-            <div class="params-menu-item disabled" title="Bientôt disponible">Automatisations</div>
-            <div class="params-menu-item disabled" title="Bientôt disponible">Modèles de documents</div>
-            <div class="params-menu-item" id="pmApparence" onclick="switchParamsSection('apparence')">Préférences</div>
-          </div>
-
-          <div class="params-content">
-            <div id="ps-organisation" style="display:none;">
-              <div class="card">
-                <h3>Mes organisations</h3>
-                <div class="small" style="margin-bottom:12px;">Une organisation regroupe plusieurs structures (SCI) sous un même abonnement — pratique si tu gères plusieurs SCI pour un même client.</div>
-                <div id="listeOrganisations">Chargement...</div>
-                <div style="display:flex; gap:8px; margin-top:14px;">
-                  <input id="nomOrganisation" placeholder="Nom de l'organisation" style="flex:1;">
-                  <button class="btn-primary" style="width:auto; padding:10px 16px;" onclick="creerOrganisation()">Créer</button>
-                </div>
-              </div>
-            </div>
-
-            <div id="ps-structures">
-              <div class="card">
-                <h3>Mes structures</h3>
-                <div id="listeStructuresParams">Chargement...</div>
-              </div>
-              <div class="card" id="cardMembres" style="display:none;">
-                <h3>Membres de <span id="nomStructureSelectionnee"></span></h3>
-                <div id="listeMembres">Chargement...</div>
-                <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
-                  <input id="emailInvite" type="email" placeholder="Email d'un membre (compte Investa existant)">
-                  <select id="roleInvite">
-                    <option value="gestionnaire">Gestionnaire</option>
-                    <option value="lecture_seule">Lecture seule</option>
-                  </select>
-                  <button class="btn-primary" onclick="inviterMembre()">Ajouter</button>
-                </div>
-              </div>
-            </div>
-
-            <div id="ps-comptes" style="display:none;">
-              <div class="card">
-                <select id="structureComptes" onchange="chargerComptesBancaires()"></select>
-                <div style="display:flex; gap:8px; margin-top:10px;">
-                  <input id="nomCompte" placeholder="Nom du compte (ex: Compte courant)" style="flex:2;">
-                  <input id="banqueCompte" placeholder="Banque" style="flex:1;">
-                  <input id="soldeCompte" type="number" placeholder="Solde (€)" style="flex:1;">
-                  <button class="btn-primary" style="width:auto; padding:10px 16px;" onclick="creerCompteBancaire()">Ajouter</button>
-                </div>
-              </div>
-              <div class="card"><div id="listeComptesBancaires">Sélectionne une structure.</div></div>
-            </div>
-
-            <div id="ps-categories" style="display:none;">
-              <div class="card">
-                <select id="structureCategories" onchange="chargerCategories()"></select>
-                <div style="display:flex; gap:8px; margin-top:10px;">
-                  <input id="nomCategorie" placeholder="Nom de la catégorie (ex: Assurance)" style="flex:2;">
-                  <select id="typeCategorie" style="flex:1;"><option value="depense">Dépense</option><option value="recette">Recette</option></select>
-                  <button class="btn-primary" style="width:auto; padding:10px 16px;" onclick="creerCategorie()">Ajouter</button>
-                </div>
-              </div>
-              <div class="card"><div id="listeCategories">Sélectionne une structure.</div></div>
-            </div>
-
-            <div id="ps-apparence" style="display:none;">
-              <div class="card">
-                <h3>Apparence</h3>
-                <div class="theme-switch">
-                  <button class="theme-btn" id="btnThemeDark" onclick="definirTheme('dark')">🌙 Sombre</button>
-                  <button class="theme-btn" id="btnThemeLight" onclick="definirTheme('light')">☀️ Clair</button>
-                </div>
-              </div>
-            </div>
+        <div class="card">
+          <h3>Apparence</h3>
+          <div class="theme-switch">
+            <button class="theme-btn" id="btnThemeDark" onclick="definirTheme('dark')">🌙 Sombre</button>
+            <button class="theme-btn" id="btnThemeLight" onclick="definirTheme('light')">☀️ Clair</button>
           </div>
         </div>
       </div>
@@ -1121,7 +1044,7 @@
 
   // ---------- NAVIGATION ----------
   const PAGES = ['dashboard', 'patrimoine', 'locataires', 'loyers', 'finances', 'prets', 'parametres', 'alertes', 'fiscalite', 'rapports', 'documents', 'fiche-immeuble', 'fiche-lot', 'fiche-locataire'];
-  const NAV_IDS = ['nav-dashboard', 'nav-patrimoine', 'nav-locataires', 'nav-loyers', 'nav-finances', 'nav-prets', 'nav-parametres', 'nav-alertes', 'nav-fiscalite', 'nav-rapports', 'nav-documents'];
+  const NAV_IDS = ['nav-dashboard', 'nav-patrimoine', 'nav-locataires', 'nav-loyers', 'nav-parametres', 'nav-alertes', 'nav-documents'];
 
   function hideAllPages() {
     PAGES.forEach(p => { const el = document.getElementById('page-' + p); if (el) el.style.display = 'none'; });
@@ -1241,9 +1164,15 @@
 
     const { data: tachesEnRetard } = await supabaseClient.from('taches').select('id').in('structure_id', structIds).eq('fait', false).not('date_echeance', 'is', null).lt('date_echeance', new Date().toISOString().split('T')[0]);
 
+    const dans60jours = new Date(); dans60jours.setDate(dans60jours.getDate() + 60);
+    const { data: immeublesDpe } = await supabaseClient.from('immeubles').select('adresse, dpe_date_expiration').in('structure_id', structIds).not('dpe_date_expiration', 'is', null).lte('dpe_date_expiration', dans60jours.toISOString().split('T')[0]);
+
     let html = '';
     if (retardCount > 0) html += `<div class="alert-row row-click" onclick="allerLoyers()"><span class="alert-dot high"></span> ${retardCount} loyer${retardCount > 1 ? 's' : ''} en retard</div>`;
     if (tachesEnRetard && tachesEnRetard.length) html += `<div class="alert-row row-click" onclick="allerAlertes()"><span class="alert-dot med"></span> ${tachesEnRetard.length} tâche${tachesEnRetard.length > 1 ? 's' : ''} en retard</div>`;
+    (immeublesDpe || []).slice(0, 2).forEach(im => {
+      html += `<div class="alert-row"><span class="alert-dot med"></span> DPE expire le ${im.dpe_date_expiration} — ${echapper(im.adresse)}</div>`;
+    });
     retardsFiltres.slice(0, 2).forEach(p => {
       html += `<div class="alert-row"><span class="alert-dot high"></span> ${echapper(p.baux.lots.nom || p.baux.lots.type)}, ${echapper(p.baux.lots.immeubles.adresse)}</div>`;
     });
@@ -1664,6 +1593,8 @@
       <input id="editAnnee" type="number" placeholder="Année de construction" value="${im.annee_construction || ''}">
       <input id="editValeur" type="number" placeholder="Valeur estimée (€)" value="${im.valeur_estimee || ''}">
       <input id="editDette" type="number" placeholder="Dette restante (€)" value="${im.dette_restante || ''}">
+      <p class="small" style="margin:12px 0 4px;">DPE — date d'expiration</p>
+      <input id="editDpe" type="date" value="${im.dpe_date_expiration || ''}">
       <button class="btn-primary" onclick="sauvegarderInformationsImmeuble()">Enregistrer</button>
     `;
   }
@@ -1675,7 +1606,8 @@
       code_postal: document.getElementById('editCodePostal').value || null,
       annee_construction: document.getElementById('editAnnee').value ? parseInt(document.getElementById('editAnnee').value) : null,
       valeur_estimee: document.getElementById('editValeur').value ? parseFloat(document.getElementById('editValeur').value) : null,
-      dette_restante: document.getElementById('editDette').value ? parseFloat(document.getElementById('editDette').value) : null
+      dette_restante: document.getElementById('editDette').value ? parseFloat(document.getElementById('editDette').value) : null,
+      dpe_date_expiration: document.getElementById('editDpe').value || null
     }).eq('id', currentImmeubleId);
     if (error) return alert('Erreur : ' + error.message);
     ouvrirFicheImmeuble(currentImmeubleId);
@@ -2200,8 +2132,74 @@
   async function marquerPaye(paiementId) {
     const { error } = await supabaseClient.from('paiements').update({ statut: 'paye', date_paiement: new Date().toISOString().split('T')[0] }).eq('id', paiementId);
     if (error) return alert('Erreur : ' + error.message);
+    genererQuittanceAuto(paiementId).catch(e => console.error('Génération quittance échouée :', e));
     chargerCalendrierLoyers();
   }
+
+  // Génère automatiquement une quittance PDF et la classe dans Documents, sur chaque locataire du bail.
+  // L'ENVOI PAR EMAIL n'est pas encore branché — dès que la clé API Resend sera configurée,
+  // il suffira d'appeler envoyerQuittanceParEmail(...) juste après l'upload ci-dessous (voir le TODO).
+  async function genererQuittanceAuto(paiementId) {
+    const { data: paiement } = await supabaseClient.from('paiements').select('*, baux(*, lots(nom, type, immeubles(adresse, ville, structure_id, structures(nom))))').eq('id', paiementId).single();
+    if (!paiement || !paiement.baux) return;
+    const bail = paiement.baux;
+    const lot = bail.lots;
+    const immeuble = lot.immeubles;
+    const structureId = immeuble.structure_id;
+    const nomStructure = immeuble.structures ? immeuble.structures.nom : '';
+
+    const { data: rattachements } = await supabaseClient.from('bail_locataires').select('locataire_id').eq('bail_id', bail.id);
+    const locataireIds = (rattachements || []).map(r => r.locataire_id);
+    if (!locataireIds.length) return;
+    const { data: locataires } = await supabaseClient.from('locataires').select('*').in('id', locataireIds);
+    const nomsLocataires = (locataires || []).map(l => l.nom).join(' et ');
+
+    const montantLoyer = Number(paiement.montant_loyer);
+    const montantCharges = Number(paiement.montant_charges);
+    const total = montantLoyer + montantCharges;
+    const moisLabel = new Date(paiement.mois).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    const dateEmission = new Date().toLocaleDateString('fr-FR');
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text('QUITTANCE DE LOYER', 20, 20);
+    doc.setFontSize(11);
+    doc.text(`Émise le ${dateEmission}`, 20, 28);
+    doc.setFontSize(12);
+    doc.text(`Bailleur : ${nomStructure || 'Propriétaire'}`, 20, 42);
+    doc.text(`Locataire : ${nomsLocataires}`, 20, 50);
+    doc.text(`Bien : ${lot.nom || lot.type} — ${immeuble.adresse}${immeuble.ville ? ', ' + immeuble.ville : ''}`, 20, 58);
+    doc.text(`Période : ${moisLabel}`, 20, 66);
+    doc.line(20, 72, 190, 72);
+    doc.text(`Loyer hors charges : ${montantLoyer.toLocaleString('fr-FR')} €`, 20, 82);
+    doc.text(`Charges : ${montantCharges.toLocaleString('fr-FR')} €`, 20, 90);
+    doc.setFontSize(13);
+    doc.text(`Total payé : ${total.toLocaleString('fr-FR')} €`, 20, 100);
+    doc.setFontSize(10);
+    doc.text("Le bailleur donne quittance au locataire pour le paiement ci-dessus et lui donne", 20, 116);
+    doc.text("quittance de son loyer et de ses charges pour la période indiquée.", 20, 122);
+
+    const pdfBlob = doc.output('blob');
+
+    for (const locataireId of locataireIds) {
+      const nomFichier = `Quittance_${moisLabel.replace(' ', '_')}.pdf`;
+      const cheminFichier = `${structureId}/locataire/${locataireId}/${Date.now()}_${nomFichier}`;
+      const { error: errUpload } = await supabaseClient.storage.from('documents').upload(cheminFichier, pdfBlob, { contentType: 'application/pdf' });
+      if (errUpload) { console.error('Upload quittance échoué :', errUpload.message); continue; }
+      await supabaseClient.from('documents').insert({
+        structure_id: structureId, entity_type: 'locataire', entity_id: locataireId,
+        nom: nomFichier, storage_path: cheminFichier, taille_octets: pdfBlob.size, categorie: 'quittance'
+      });
+      // TODO (dès la clé API Resend configurée) :
+      // await envoyerQuittanceParEmail(locataireId, cheminFichier, moisLabel, total);
+    }
+  }
+
+  // Stub en attente de la clé API Resend — ne fait rien pour l'instant, ne pas appeler automatiquement.
+  // async function envoyerQuittanceParEmail(locataireId, cheminFichierPdf, moisLabel, montant) {
+  //   // Appellera une Edge Function Supabase qui utilise la clé Resend côté serveur (jamais côté client).
+  // }
 
   // ---------- FINANCES ----------
   async function allerFinances() {
@@ -2415,23 +2413,7 @@
   async function allerParametres() {
     setActiveNav('nav-parametres'); hideAllPages();
     document.getElementById('page-parametres').style.display = 'block';
-    document.getElementById('cardMembres').style.display = 'none';
-    currentStructureParamsId = null;
-    switchParamsSection('structures');
     mettreAJourBoutonsTheme(localStorage.getItem('investa-theme') || 'dark');
-    chargerStructuresParams();
-  }
-
-  function switchParamsSection(section) {
-    ['organisation', 'structures', 'comptes', 'categories', 'apparence'].forEach(s => {
-      document.getElementById('ps-' + s).style.display = s === section ? 'block' : 'none';
-    });
-    ['pmOrganisation', 'pmStructures', 'pmComptes', 'pmCategories', 'pmApparence'].forEach(id => document.getElementById(id).classList.remove('active'));
-    const map = { organisation: 'pmOrganisation', structures: 'pmStructures', comptes: 'pmComptes', categories: 'pmCategories', apparence: 'pmApparence' };
-    document.getElementById(map[section]).classList.add('active');
-    if (section === 'organisation') chargerOrganisations();
-    if (section === 'comptes') initComptesBancaires();
-    if (section === 'categories') initCategories();
   }
 
   function definirTheme(mode) {
@@ -2445,72 +2427,6 @@
     document.getElementById('btnThemeLight').classList.toggle('active', mode === 'light');
   }
 
-  async function chargerStructuresParams() {
-    const div = document.getElementById('listeStructuresParams');
-    const { data: structures, error } = await supabaseClient.from('structures').select('*').order('created_at');
-    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
-    if (!structures || !structures.length) { div.innerHTML = '<div class="empty-state">Aucune structure pour le moment.</div>'; return; }
-
-    const { data: organisations } = await supabaseClient.from('organizations').select('*').order('created_at');
-    const optionsOrg = '<option value="">Aucune organisation</option>' + (organisations || []).map(o => `<option value="${o.id}">${echapper(o.nom)}</option>`).join('');
-
-    div.innerHTML = structures.map(s => `
-      <div class="row" style="align-items:center;">
-        <span class="row-click" onclick="ouvrirMembresStructure('${s.id}', '${echapperPourOnclick(s.nom)}')" style="flex:1;">${echapper(s.nom)} <span class="small">(${echapper(s.type)})</span></span>
-        <select class="plan-select-inline" onchange="rattacherOrganisation('${s.id}', this.value)" style="width:auto; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-size:0.82rem;">
-          ${optionsOrg.replace(`value="${s.organization_id || ''}"`, `value="${s.organization_id || ''}" selected`)}
-        </select>
-      </div>
-    `).join('');
-  }
-
-  async function rattacherOrganisation(structureId, organizationId) {
-    const { error } = await supabaseClient.rpc('rattacher_structure_organisation', {
-      p_structure_id: structureId, p_organization_id: organizationId || null
-    });
-    if (error) return alert('Erreur : ' + error.message);
-    chargerStructuresParams();
-  }
-
-  function ouvrirMembresStructure(structureId, nom) {
-    currentStructureParamsId = structureId;
-    document.getElementById('nomStructureSelectionnee').textContent = nom;
-    document.getElementById('cardMembres').style.display = 'block';
-    chargerMembres();
-  }
-
-  async function chargerMembres() {
-    const div = document.getElementById('listeMembres');
-    div.textContent = 'Chargement...';
-    const { data: membres, error } = await supabaseClient.rpc('lister_membres_structure', { p_structure_id: currentStructureParamsId });
-    if (error) { div.innerHTML = '<div class="empty-state">Erreur : ' + error.message + '</div>'; return; }
-    if (!membres || !membres.length) { div.innerHTML = '<div class="empty-state">Aucun membre.</div>'; return; }
-    div.innerHTML = membres.map(m => `
-      <div class="row">
-        <span>${echapper(m.email)} <span class="badge occupe" style="margin-left:6px;">${m.role.replace('_', ' ')}</span></span>
-        ${m.role !== 'proprietaire' ? `<button class="btn-mark-paid" style="background:var(--red);" onclick="retirerMembre('${m.membre_id}')">Retirer</button>` : ''}
-      </div>
-    `).join('');
-  }
-
-  async function inviterMembre() {
-    const email = document.getElementById('emailInvite').value;
-    const role = document.getElementById('roleInvite').value;
-    if (!email) return alert('Email requis');
-    const { data, error } = await supabaseClient.rpc('inviter_membre', { p_structure_id: currentStructureParamsId, p_email: email, p_role: role });
-    if (error) return alert('Erreur : ' + error.message);
-    if (data === 'introuvable') return alert("Aucun compte Investa n'existe avec cet email — la personne doit d'abord créer un compte.");
-    if (data === 'deja_membre') return alert('Cette personne est déjà membre de cette structure.');
-    document.getElementById('emailInvite').value = '';
-    chargerMembres();
-  }
-
-  async function retirerMembre(membreId) {
-    if (!confirm('Retirer ce membre de la structure ?')) return;
-    const { error } = await supabaseClient.rpc('retirer_membre', { p_membre_id: membreId });
-    if (error) return alert('Erreur : ' + error.message);
-    chargerMembres();
-  }
 
   // ---------- ALERTES ----------
   async function allerAlertes() {
@@ -2546,6 +2462,13 @@
       const joursRestants = Math.ceil((new Date(b.date_fin) - new Date()) / (1000 * 60 * 60 * 24));
       items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'Bail arrivant à échéance', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (dans ${joursRestants} j)` });
     });
+
+    const { data: immeublesDpe } = await supabaseClient.from('immeubles').select('adresse, dpe_date_expiration').not('dpe_date_expiration', 'is', null).lte('dpe_date_expiration', dansSoixanteJours.toISOString().split('T')[0]);
+    (immeublesDpe || []).forEach(im => {
+      const joursRestants = Math.ceil((new Date(im.dpe_date_expiration) - new Date()) / (1000 * 60 * 60 * 24));
+      items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'DPE arrivant à expiration', detail: `${im.adresse} (dans ${joursRestants} j)` });
+    });
+
     return items;
   }
 
@@ -2874,79 +2797,6 @@
     telechargerRapport('synthese_par_bien', lignes, format);
   }
 
-  // ---------- COMPTES BANCAIRES ----------
-  async function initComptesBancaires() {
-    const sel = document.getElementById('structureComptes');
-    if (!sel.options.length) {
-      const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
-      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${echapper(s.nom)}</option>`).join('');
-    }
-    chargerComptesBancaires();
-  }
-
-  async function chargerComptesBancaires() {
-    const structureId = document.getElementById('structureComptes').value;
-    const div = document.getElementById('listeComptesBancaires');
-    if (!structureId) { div.innerHTML = '<div class="empty-state">Sélectionne une structure.</div>'; return; }
-    div.textContent = 'Chargement...';
-    const { data: comptes, error } = await supabaseClient.from('comptes_bancaires').select('*').eq('structure_id', structureId).order('created_at');
-    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
-    if (!comptes || !comptes.length) { div.innerHTML = '<div class="empty-state">Aucun compte bancaire.</div>'; return; }
-    div.innerHTML = comptes.map(c => `
-      <div class="row"><span>${echapper(c.nom)} ${c.banque ? '<span class="small">— ' + echapper(c.banque) + '</span>' : ''}</span><span>${Number(c.solde || 0).toLocaleString('fr-FR')} €</span></div>
-    `).join('');
-  }
-
-  async function creerCompteBancaire() {
-    const structureId = document.getElementById('structureComptes').value;
-    const nom = document.getElementById('nomCompte').value;
-    const banque = document.getElementById('banqueCompte').value;
-    const solde = document.getElementById('soldeCompte').value;
-    if (!structureId) return alert('Sélectionne une structure');
-    if (!nom) return alert('Nom requis');
-    const { error } = await supabaseClient.from('comptes_bancaires').insert({ structure_id: structureId, nom, banque: banque || null, solde: solde ? parseFloat(solde) : 0 });
-    if (error) return alert('Erreur : ' + error.message);
-    document.getElementById('nomCompte').value = '';
-    document.getElementById('banqueCompte').value = '';
-    document.getElementById('soldeCompte').value = '';
-    chargerComptesBancaires();
-  }
-
-  // ---------- CATÉGORIES ----------
-  async function initCategories() {
-    const sel = document.getElementById('structureCategories');
-    if (!sel.options.length) {
-      const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
-      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${echapper(s.nom)}</option>`).join('');
-    }
-    chargerCategories();
-  }
-
-  async function chargerCategories() {
-    const structureId = document.getElementById('structureCategories').value;
-    const div = document.getElementById('listeCategories');
-    if (!structureId) { div.innerHTML = '<div class="empty-state">Sélectionne une structure.</div>'; return; }
-    div.textContent = 'Chargement...';
-    const { data: categories, error } = await supabaseClient.from('categories').select('*').eq('structure_id', structureId).order('nom');
-    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
-    if (!categories || !categories.length) { div.innerHTML = '<div class="empty-state">Aucune catégorie personnalisée.</div>'; return; }
-    div.innerHTML = categories.map(c => `
-      <div class="row"><span>${echapper(c.nom)}</span><span class="badge ${c.type === 'recette' ? 'occupe' : 'travaux'}">${c.type}</span></div>
-    `).join('');
-  }
-
-  async function creerCategorie() {
-    const structureId = document.getElementById('structureCategories').value;
-    const nom = document.getElementById('nomCategorie').value;
-    const type = document.getElementById('typeCategorie').value;
-    if (!structureId) return alert('Sélectionne une structure');
-    if (!nom) return alert('Nom requis');
-    const { error } = await supabaseClient.from('categories').insert({ structure_id: structureId, nom, type });
-    if (error) return alert('Erreur : ' + error.message);
-    document.getElementById('nomCategorie').value = '';
-    chargerCategories();
-  }
-
   // ---------- DOCUMENTS (partagé Immeuble/Lot/Locataire) ----------
   async function uploaderDocument(entityType, entityId, structureId, inputId, categorie) {
     const input = document.getElementById(inputId);
@@ -3141,31 +2991,6 @@
     await uploaderDocument(type, cibleId, structureId, 'fichierImportGlobal', categorie);
     document.getElementById('cardImportDocument').style.display = 'none';
     chargerDocumentsGlobal();
-  }
-
-  // ---------- ORGANISATION (regroupement facturation) ----------
-  async function chargerOrganisations() {
-    const div = document.getElementById('listeOrganisations');
-    div.textContent = 'Chargement...';
-    const { data: organisations, error } = await supabaseClient.from('organizations').select('*').order('created_at');
-    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
-    if (!organisations || !organisations.length) { div.innerHTML = '<div class="empty-state">Aucune organisation — crée-en une si tu gères plusieurs SCI pour un même client.</div>'; return; }
-
-    let html = '';
-    for (const o of organisations) {
-      const { count } = await supabaseClient.from('structures').select('*', { count: 'exact', head: true }).eq('organization_id', o.id);
-      html += `<div class="row"><span>${echapper(o.nom)}</span><span class="small">${count || 0} structure(s) rattachée(s)</span></div>`;
-    }
-    div.innerHTML = html;
-  }
-
-  async function creerOrganisation() {
-    const nom = document.getElementById('nomOrganisation').value;
-    if (!nom) return alert('Nom requis');
-    const { error } = await supabaseClient.rpc('creer_organisation', { p_nom: nom });
-    if (error) return alert('Erreur : ' + error.message);
-    document.getElementById('nomOrganisation').value = '';
-    chargerOrganisations();
   }
 </script>
 
