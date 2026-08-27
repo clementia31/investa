@@ -257,6 +257,9 @@
   .export-menu button { display: block; width: 100%; text-align: left; padding: 8px 10px; border-radius: 6px; background: transparent; border: none; color: var(--text); font-size: 0.85rem; cursor: pointer; margin: 0; }
   .export-menu button:hover { background: var(--panel); }
 
+  .icon-btn-round { width: 36px; height: 36px; padding: 0; border-radius: 50%; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); display: flex; align-items: center; justify-content: center; font-size: 1rem; text-decoration: none; cursor: pointer; }
+  .icon-btn-round:hover { border-color: var(--accent); color: var(--accent); }
+
   .params-layout { display: grid; grid-template-columns: 220px 1fr; gap: 16px; align-items: start; }
   @media (max-width: 900px) { .params-layout { grid-template-columns: 1fr; } }
   .params-menu { padding: 12px; }
@@ -544,38 +547,55 @@
         <div class="card">
           <div style="display:flex; gap:16px; align-items:center;">
             <div class="avatar" id="locAvatar"></div>
-            <div>
+            <div style="flex:1;">
               <h2 style="margin:0 0 4px 0;" id="locNom"></h2>
-              <div class="small" id="locContact"></div>
+              <div class="small" id="locSousTitre"></div>
               <div style="margin-top:8px; display:flex; gap:6px;" id="locBadges"></div>
             </div>
+            <div style="display:flex; gap:8px;" id="locContactIcons"></div>
           </div>
         </div>
 
-        <div class="grid-2">
+        <div class="tabs">
+          <div class="tab active" id="tabLocBail" onclick="switchTabLocataire('bail')">Bail</div>
+          <div class="tab" id="tabLocPaiements" onclick="switchTabLocataire('paiements')">Paiements</div>
+          <div class="tab" id="tabLocDocuments" onclick="switchTabLocataire('documents')">Documents</div>
+        </div>
+
+        <div id="tabcontent-loc-bail">
+          <div class="card">
+            <h3>Informations bancaires</h3>
+            <input id="ibanLocataire" placeholder="IBAN">
+            <input id="garantieLocataire" placeholder="Garantie / répondant (nom, coordonnées)">
+            <button class="btn-primary" onclick="enregistrerInfosLocataire()">Enregistrer</button>
+          </div>
+          <div class="card">
+            <h3>Résumé du bail</h3>
+            <div id="locInformations">Chargement...</div>
+          </div>
+          <div class="card">
+            <h3>Colocataire(s)</h3>
+            <div id="colocatairesLocataire"></div>
+          </div>
+        </div>
+
+        <div id="tabcontent-loc-paiements" style="display:none;">
+          <div class="card">
+            <h3>Historique des paiements</h3>
+            <div class="table-header-paiements">
+              <span>Mois</span><span>Type</span><span>Montant</span><span>Statut</span>
+            </div>
+            <div id="historiquePaiementsLocataire">Chargement...</div>
+          </div>
+        </div>
+
+        <div id="tabcontent-loc-documents" style="display:none;">
           <div class="card">
             <h3>Documents</h3>
             <input type="file" id="fichierDocLocataire" style="margin-bottom:8px;">
             <button class="btn-primary" onclick="uploaderDocument('locataire', currentLocataireId, currentLocataireStructureId, 'fichierDocLocataire')">Envoyer</button>
             <div id="listeDocumentsLocataire" style="margin-top:12px;">Chargement...</div>
           </div>
-          <div class="card">
-            <h3>Informations</h3>
-            <div id="locInformations">Chargement...</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3>Colocataire(s)</h3>
-          <div id="colocatairesLocataire"></div>
-        </div>
-
-        <div class="card">
-          <h3>Historique des paiements</h3>
-          <div class="table-header-paiements">
-            <span>Mois</span><span>Type</span><span>Montant</span><span>Statut</span>
-          </div>
-          <div id="historiquePaiementsLocataire">Chargement...</div>
         </div>
       </div>
 
@@ -1790,7 +1810,15 @@
     const initiales = locataire.nom.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
     document.getElementById('locAvatar').textContent = initiales;
     document.getElementById('locNom').textContent = locataire.nom;
-    document.getElementById('locContact').textContent = [locataire.email, locataire.telephone].filter(Boolean).join(' · ') || 'Aucun contact renseigné';
+    document.getElementById('ibanLocataire').value = locataire.iban || '';
+    document.getElementById('garantieLocataire').value = locataire.garantie || '';
+
+    document.getElementById('locContactIcons').innerHTML = `
+      ${locataire.email ? `<a class="icon-btn-round" href="mailto:${locataire.email}" title="${locataire.email}">✉️</a>` : ''}
+      ${locataire.telephone ? `<a class="icon-btn-round" href="tel:${locataire.telephone}" title="${locataire.telephone}">📞</a>` : ''}
+    `;
+
+    switchTabLocataire('bail');
     chargerDocuments('locataire', locataireId, 'listeDocumentsLocataire');
 
     const { data: rattachements } = await supabaseClient.from('bail_locataires').select('*').eq('locataire_id', locataireId);
@@ -1812,8 +1840,12 @@
       }
     }
 
+    document.getElementById('locSousTitre').textContent = bailActuel
+      ? `${bailActuel.lots.nom || bailActuel.lots.type} · ${bailActuel.lots.immeubles.adresse}`
+      : 'Aucun bail actif';
+
     document.getElementById('locBadges').innerHTML = bailActuel
-      ? `<span class="badge-outline">${bailActuel.lots.nom || bailActuel.lots.type}</span><span class="badge-outline">${bailActuel.lots.immeubles.adresse}</span>${bailActuel.type === 'colocation' ? '<span class="badge-outline">Colocation</span>' : ''}${monRattachement && monRattachement.nom_chambre ? `<span class="badge-outline">Chambre ${monRattachement.nom_chambre}</span>` : ''}`
+      ? `${bailActuel.type === 'colocation' ? '<span class="badge-outline">Colocation</span>' : ''}${monRattachement && monRattachement.nom_chambre ? `<span class="badge-outline">Chambre ${monRattachement.nom_chambre}</span>` : ''}`
       : '<span class="badge-outline">Aucun bail actif</span>';
 
     const loyerAffiche = monRattachement && monRattachement.loyer_part ? Number(monRattachement.loyer_part) : (bailActuel ? Number(bailActuel.loyer) : 0);
@@ -1840,6 +1872,20 @@
         <span><span class="badge ${p.statut === 'paye' ? 'occupe' : (p.statut === 'en_retard' ? 'travaux' : 'vacant')}">${p.statut.replace('_', ' ')}</span></span>
       </div>
     `).join('');
+  }
+
+  function switchTabLocataire(tab) {
+    ['bail', 'paiements', 'documents'].forEach(t => {
+      document.getElementById('tabcontent-loc-' + t).style.display = t === tab ? 'block' : 'none';
+      document.getElementById('tabLoc' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
+    });
+  }
+
+  async function enregistrerInfosLocataire() {
+    const iban = document.getElementById('ibanLocataire').value;
+    const garantie = document.getElementById('garantieLocataire').value;
+    const { error } = await supabaseClient.from('locataires').update({ iban: iban || null, garantie: garantie || null }).eq('id', currentLocataireId);
+    if (error) return alert('Erreur : ' + error.message);
   }
 
   function retourDepuisLocataire() {
