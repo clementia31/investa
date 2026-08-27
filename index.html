@@ -99,6 +99,11 @@
   .row-click:hover { color: var(--accent); }
   .small { font-size: 0.83rem; color: var(--text-dim); }
   .breadcrumb { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 14px; cursor: pointer; }
+  .breadcrumb-bar { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 14px; }
+  .breadcrumb-bar a { color: var(--text-dim); cursor: pointer; text-decoration: none; }
+  .breadcrumb-bar a:hover { color: var(--accent); text-decoration: underline; }
+  .breadcrumb-bar .sep { margin: 0 6px; color: var(--border); }
+  .breadcrumb-bar .courant { color: var(--text); font-weight: 600; }
   .breadcrumb:hover { color: var(--accent); }
   .empty-state { color: var(--text-dim); font-size: 0.9rem; padding: 10px 0; }
   .placeholder-box { text-align: center; padding: 60px 20px; color: var(--text-dim); }
@@ -435,7 +440,7 @@
 
       <!-- ===== FICHE IMMEUBLE ===== -->
       <div id="page-fiche-immeuble" style="display:none;">
-        <div class="breadcrumb" id="breadcrumbImmeuble" onclick="retourPatrimoine()">← Retour au patrimoine</div>
+        <div class="breadcrumb-bar" id="breadcrumbImmeuble"></div>
         <div class="card">
           <div class="immeuble-image">🏢</div>
           <div style="display:flex; justify-content:space-between; align-items:flex-start;">
@@ -468,6 +473,8 @@
             <div class="stat-card green"><div class="lbl">Cash-flow annuel</div><div class="val" id="immCashflow">—</div></div>
             <div class="stat-card"><div class="lbl">Rendement brut</div><div class="val" id="immRendement">—</div></div>
           </div>
+
+          <a href="#" onclick="ouvrirLoyersPourImmeuble(currentImmeubleData.structure_id, currentImmeubleId); return false;" style="display:inline-block; margin-top:10px; color:var(--accent); font-size:0.88rem;">Voir les loyers de ce bien →</a>
 
           <div class="card" style="margin-top:16px;">
             <h3>À surveiller</h3>
@@ -531,7 +538,7 @@
 
       <!-- ===== FICHE LOT ===== -->
       <div id="page-fiche-lot" style="display:none;">
-        <div class="breadcrumb" onclick="retourFicheImmeuble()">← Retour à l'immeuble</div>
+        <div class="breadcrumb-bar" id="breadcrumbLot"></div>
         <div class="card">
           <div style="display:flex; justify-content:space-between; align-items:flex-start;">
             <div>
@@ -548,21 +555,33 @@
         </div>
 
         <div class="tabs">
-          <div class="tab active" id="tabLotColoc" onclick="switchTabLot('coloc')">Colocataires</div>
+          <div class="tab active" id="tabLotResume" onclick="switchTabLot('resume')">Résumé</div>
           <div class="tab" id="tabLotBail" onclick="switchTabLot('bail')">Bail</div>
+          <div class="tab" id="tabLotPaiements" onclick="switchTabLot('paiements')">Paiements</div>
           <div class="tab" id="tabLotDocuments" onclick="switchTabLot('documents')">Documents</div>
           <div class="tab" id="tabLotCharges" onclick="switchTabLot('charges')">Charges</div>
         </div>
 
-        <div id="tabcontent-lot-coloc">
+        <div id="tabcontent-lot-resume">
           <div class="card">
             <h3>Locataire(s)</h3>
             <div id="lotColocataires">Chargement...</div>
+          </div>
+          <div class="card">
+            <h3>Échéances</h3>
+            <div id="lotEcheances">Chargement...</div>
           </div>
         </div>
 
         <div id="tabcontent-lot-bail" style="display:none;">
           <div class="card" id="zoneBail"></div>
+        </div>
+
+        <div id="tabcontent-lot-paiements" style="display:none;">
+          <div class="card">
+            <h3>Historique des paiements</h3>
+            <div id="lotHistoriquePaiements">Chargement...</div>
+          </div>
         </div>
 
         <div id="tabcontent-lot-documents" style="display:none;">
@@ -587,7 +606,7 @@
 
       <!-- ===== FICHE LOCATAIRE ===== -->
       <div id="page-fiche-locataire" style="display:none;">
-        <div class="breadcrumb" id="breadcrumbLocataire" onclick="retourDepuisLocataire()">← Retour</div>
+        <div class="breadcrumb-bar" id="breadcrumbLocataire"></div>
         <div class="card">
           <div style="display:flex; gap:16px; align-items:center;">
             <div class="avatar" id="locAvatar"></div>
@@ -675,7 +694,8 @@
         <div class="page-header">
           <h2>Loyers & Paiements</h2>
           <div style="display:flex; align-items:center; gap:10px;">
-            <select id="structureLoyers" onchange="chargerCalendrierLoyers(); initFormulaireTravaux();" style="width:auto; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);"></select>
+            <select id="structureLoyers" onchange="onChangeStructureLoyers()" style="width:auto; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);"></select>
+            <select id="immeubleFiltreLoyers" onchange="chargerCalendrierLoyers()" style="width:auto; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);"><option value="">Tous les immeubles</option></select>
             <button class="btn-secondary" style="padding:8px 12px; border-radius:8px;" onclick="moisLoyersPrecedent()">←</button>
             <div id="moisLoyersLabel" style="min-width:130px; text-align:center; font-weight:600;"></div>
             <button class="btn-secondary" style="padding:8px 12px; border-radius:8px;" onclick="moisLoyersSuivant()">→</button>
@@ -1021,6 +1041,17 @@
       .replace(/"/g, '&quot;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
+  }
+
+  // Construit un fil d'Ariane cliquable à chaque étape (sauf la dernière, l'écran courant).
+  // segments = [{ label, onclick }, ...] — onclick absent ou null = segment non cliquable (courant).
+  function construireFilAriane(segments) {
+    return segments.map((s, i) => {
+      const label = echapper(s.label);
+      const dernier = i === segments.length - 1;
+      const html = (dernier || !s.onclick) ? `<span class="courant">${label}</span>` : `<a onclick="${s.onclick}">${label}</a>`;
+      return i === 0 ? html : `<span class="sep">›</span>${html}`;
+    }).join('');
   }
 
   // Applique le thème sauvegardé immédiatement pour éviter tout flash
@@ -1559,8 +1590,6 @@
     chargerPatrimoine();
   }
 
-  function retourPatrimoine() { allerPatrimoine(); }
-
   // ---------- FICHE IMMEUBLE ----------
   let currentImmeubleData = null;
 
@@ -1574,6 +1603,10 @@
 
     document.getElementById('immTitre').textContent = im.adresse;
     document.getElementById('immSousTitre').textContent = [im.ville, im.code_postal].filter(Boolean).join(' ') || 'Ville non renseignée';
+    document.getElementById('breadcrumbImmeuble').innerHTML = construireFilAriane([
+      { label: 'Patrimoine', onclick: 'allerPatrimoine()' },
+      { label: im.adresse }
+    ]);
     document.getElementById('immBadges').innerHTML = `
       <span class="badge-outline">Immeuble</span>
       ${im.annee_construction ? `<span class="badge-outline">Construit en ${im.annee_construction}</span>` : ''}
@@ -1774,13 +1807,6 @@
     chargerLots(currentImmeubleId);
   }
 
-  function retourFicheImmeuble() {
-    setActiveNav('nav-patrimoine'); hideAllPages();
-    document.getElementById('page-fiche-immeuble').style.display = 'block';
-    switchTabImmeuble('lots');
-    chargerLots(currentImmeubleId);
-  }
-
   // ---------- FICHE LOT ----------
   const LABELS_STATUT_LOT = { occupe: 'Loué', vacant: 'Vacant', travaux: 'Travaux' };
   let currentLotStatutAffiche = 'vacant';
@@ -1815,11 +1841,16 @@
     currentLotId = id;
     hideAllPages();
     document.getElementById('page-fiche-lot').style.display = 'block';
-    const { data: lot } = await supabaseClient.from('lots').select('*, immeubles(structure_id)').eq('id', id).single();
+    const { data: lot } = await supabaseClient.from('lots').select('*, immeubles(structure_id, adresse)').eq('id', id).single();
     currentLotStructureId = lot.immeubles.structure_id;
 
     document.getElementById('lotTitre').textContent = lot.nom || lot.type;
     document.getElementById('lotSousTitre').textContent = lot.type + (lot.surface ? ' — ' + lot.surface + ' m²' : '');
+    document.getElementById('breadcrumbLot').innerHTML = construireFilAriane([
+      { label: 'Patrimoine', onclick: 'allerPatrimoine()' },
+      { label: lot.immeubles.adresse, onclick: `ouvrirFicheImmeuble('${lot.immeuble_id}')` },
+      { label: lot.nom || lot.type }
+    ]);
     currentLotStatutAffiche = lot.statut;
     afficherBadgeStatutLot(lot.statut);
 
@@ -1829,16 +1860,17 @@
     document.getElementById('lotCharges').textContent = bail ? Number(bail.charges).toLocaleString('fr-FR') + ' €' : '—';
     document.getElementById('lotDepot').textContent = bail && bail.depot_garantie ? Number(bail.depot_garantie).toLocaleString('fr-FR') + ' €' : '—';
 
-    switchTabLot('coloc');
+    switchTabLot('resume');
   }
 
   function switchTabLot(tab) {
-    ['coloc', 'bail', 'documents', 'charges'].forEach(t => {
+    ['resume', 'bail', 'paiements', 'documents', 'charges'].forEach(t => {
       document.getElementById('tabcontent-lot-' + t).style.display = t === tab ? 'block' : 'none';
       document.getElementById('tabLot' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
     });
-    if (tab === 'coloc') chargerColocatairesLot(currentLotId);
+    if (tab === 'resume') { chargerColocatairesLot(currentLotId); chargerEcheancesLot(currentLotId); }
     if (tab === 'bail') chargerBail(currentLotId);
+    if (tab === 'paiements') chargerPaiementsLot(currentLotId);
     if (tab === 'documents') chargerDocuments('lot', currentLotId, 'listeDocumentsLot');
     if (tab === 'charges') chargerChargesLot(currentLotId);
   }
@@ -1881,6 +1913,55 @@
     }).eq('bail_id', bailId).eq('locataire_id', locataireId);
     if (error) return alert('Erreur : ' + error.message);
     chargerColocatairesLot(currentLotId);
+  }
+
+  // Onglet Résumé : prochain paiement, solde éventuel, bail qui approche de sa fin
+  async function chargerEcheancesLot(lotId) {
+    const div = document.getElementById('lotEcheances');
+    div.textContent = 'Chargement...';
+    const { data: bauxActifs } = await supabaseClient.from('baux').select('*').eq('lot_id', lotId).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
+    if (!bauxActifs || !bauxActifs.length) { div.innerHTML = '<div class="empty-state">Aucun bail actif.</div>'; return; }
+    const bail = bauxActifs[0];
+
+    const items = [];
+    const { data: prochain } = await supabaseClient.from('paiements').select('*').eq('bail_id', bail.id).in('statut', ['a_venir', 'en_retard']).order('mois').limit(1);
+    if (prochain && prochain.length) {
+      const p = prochain[0];
+      const montant = (Number(p.montant_loyer) + Number(p.montant_charges)).toLocaleString('fr-FR');
+      items.push(p.statut === 'en_retard'
+        ? `<div class="row"><span class="small">Loyer en retard</span><span style="color:var(--red); font-weight:600;">${montant} € — ${p.mois}</span></div>`
+        : `<div class="row"><span class="small">Prochain paiement</span><span>${montant} € — ${p.mois}</span></div>`);
+    }
+
+    const { data: retards } = await supabaseClient.from('paiements').select('montant_loyer, montant_charges').eq('bail_id', bail.id).eq('statut', 'en_retard');
+    if (retards && retards.length > 1) {
+      const solde = retards.reduce((a, p) => a + Number(p.montant_loyer) + Number(p.montant_charges), 0);
+      items.push(`<div class="row"><span class="small">Solde impayé</span><span style="color:var(--red); font-weight:600;">${solde.toLocaleString('fr-FR')} €</span></div>`);
+    }
+
+    if (bail.date_fin) {
+      const jours = Math.ceil((new Date(bail.date_fin) - new Date()) / (1000 * 60 * 60 * 24));
+      if (jours >= 0 && jours <= 60) items.push(`<div class="row"><span class="small">Bail expire</span><span style="color:var(--amber); font-weight:600;">dans ${jours} j (${bail.date_fin})</span></div>`);
+    }
+
+    div.innerHTML = items.length ? items.join('') : '<div class="empty-state">Rien à signaler. 👍</div>';
+  }
+
+  async function chargerPaiementsLot(lotId) {
+    const div = document.getElementById('lotHistoriquePaiements');
+    div.textContent = 'Chargement...';
+    const { data: baux } = await supabaseClient.from('baux').select('id').eq('lot_id', lotId);
+    const bailIds = (baux || []).map(b => b.id);
+    if (!bailIds.length) { div.innerHTML = '<div class="empty-state">Aucun bail pour ce lot.</div>'; return; }
+    const { data: paiements } = await supabaseClient.from('paiements').select('*').in('bail_id', bailIds).order('mois', { ascending: false });
+    if (!paiements || !paiements.length) { div.innerHTML = '<div class="empty-state">Aucun paiement enregistré.</div>'; return; }
+    div.innerHTML = paiements.map(p => `
+      <div class="row">
+        <span>${p.mois}</span>
+        <span>${(Number(p.montant_loyer) + Number(p.montant_charges)).toLocaleString('fr-FR')} €</span>
+        <span><span class="badge ${p.statut === 'paye' ? 'occupe' : (p.statut === 'en_retard' ? 'travaux' : 'vacant')}">${p.statut.replace('_', ' ')}</span></span>
+      </div>
+    `).join('');
   }
 
   async function chargerChargesLot(lotId) {
@@ -1956,7 +2037,6 @@
     currentLocataireId = locataireId;
     hideAllPages();
     document.getElementById('page-fiche-locataire').style.display = 'block';
-    document.getElementById('breadcrumbLocataire').textContent = currentLocataireOrigin === 'liste' ? '← Retour aux locataires' : '← Retour au lot';
 
     const { data: locataire } = await supabaseClient.from('locataires').select('*').eq('id', locataireId).single();
     currentLocataireStructureId = locataire.structure_id;
@@ -1987,7 +2067,7 @@
     let bailActuel = null;
     let monRattachement = null;
     if (bailIds.length) {
-      const { data: bauxDetails } = await supabaseClient.from('baux').select('*, lots(nom, type, immeubles(adresse))').in('id', bailIds).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
+      const { data: bauxDetails } = await supabaseClient.from('baux').select('*, lots(nom, type, immeuble_id, immeubles(adresse))').in('id', bailIds).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
       bailActuel = bauxDetails && bauxDetails[0];
       if (bailActuel) monRattachement = rattachements.find(r => r.bail_id === bailActuel.id);
 
@@ -2002,6 +2082,17 @@
     document.getElementById('locSousTitre').textContent = bailActuel
       ? `${echapper(bailActuel.lots.nom || bailActuel.lots.type)} · ${echapper(bailActuel.lots.immeubles.adresse)}`
       : 'Aucun bail actif';
+
+    const premierSegment = currentLocataireOrigin === 'liste'
+      ? { label: 'Locataires', onclick: 'allerLocataires()' }
+      : { label: 'Patrimoine', onclick: 'allerPatrimoine()' };
+    const segmentsFilAriane = [premierSegment];
+    if (bailActuel) {
+      segmentsFilAriane.push({ label: bailActuel.lots.immeubles.adresse, onclick: `ouvrirFicheImmeuble('${bailActuel.lots.immeuble_id}')` });
+      segmentsFilAriane.push({ label: bailActuel.lots.nom || bailActuel.lots.type, onclick: `ouvrirFicheLot('${bailActuel.lot_id}')` });
+    }
+    segmentsFilAriane.push({ label: locataire.nom });
+    document.getElementById('breadcrumbLocataire').innerHTML = construireFilAriane(segmentsFilAriane);
 
     document.getElementById('locBadges').innerHTML = bailActuel
       ? `${bailActuel.type === 'colocation' ? '<span class="badge-outline">Colocation</span>' : ''}${monRattachement && monRattachement.nom_chambre ? `<span class="badge-outline">Chambre ${echapper(monRattachement.nom_chambre)}</span>` : ''}`
@@ -2050,15 +2141,6 @@
       <div class="row"><span class="small">Garantie</span><span>${garantie ? echapper(garantie) : '—'}</span></div>
     `;
     toggleFormulaire('formInfosLocataire', 'btnModifierInfosLoc');
-  }
-
-  function retourDepuisLocataire() {
-    if (currentLocataireOrigin === 'liste') { allerLocataires(); }
-    else {
-      hideAllPages();
-      document.getElementById('page-fiche-lot').style.display = 'block';
-      switchTabLot('coloc');
-    }
   }
 
   // ---------- LOCATAIRES (liste globale) ----------
@@ -2157,6 +2239,37 @@
       const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
       sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${echapper(s.nom)}</option>`).join('');
     }
+    await chargerImmeublesFiltreLoyers();
+    chargerCalendrierLoyers();
+    initFormulaireTravaux();
+  }
+
+  // Arrivée depuis la Vue générale d'un immeuble : "Voir les loyers de ce bien"
+  async function ouvrirLoyersPourImmeuble(structureId, immeubleId) {
+    setActiveNav('nav-loyers'); hideAllPages();
+    document.getElementById('page-loyers').style.display = 'block';
+    const sel = document.getElementById('structureLoyers');
+    if (!sel.options.length) {
+      const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
+      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${echapper(s.nom)}</option>`).join('');
+    }
+    sel.value = structureId;
+    await chargerImmeublesFiltreLoyers();
+    document.getElementById('immeubleFiltreLoyers').value = immeubleId;
+    chargerCalendrierLoyers();
+    initFormulaireTravaux();
+  }
+
+  async function chargerImmeublesFiltreLoyers() {
+    const structureId = document.getElementById('structureLoyers').value;
+    const sel = document.getElementById('immeubleFiltreLoyers');
+    if (!structureId) { sel.innerHTML = '<option value="">Tous les immeubles</option>'; return; }
+    const { data: immeubles } = await supabaseClient.from('immeubles').select('id, adresse').eq('structure_id', structureId);
+    sel.innerHTML = '<option value="">Tous les immeubles</option>' + (immeubles || []).map(im => `<option value="${im.id}">${echapper(im.adresse)}</option>`).join('');
+  }
+
+  async function onChangeStructureLoyers() {
+    await chargerImmeublesFiltreLoyers();
     chargerCalendrierLoyers();
     initFormulaireTravaux();
   }
@@ -2173,6 +2286,7 @@
 
   async function chargerCalendrierLoyers() {
     const structureId = document.getElementById('structureLoyers').value;
+    const immeubleFiltre = document.getElementById('immeubleFiltreLoyers').value;
     document.getElementById('moisLoyersLabel').textContent = moisLoyersCourant.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
     if (!structureId) return;
 
@@ -2180,9 +2294,10 @@
     const moisIdx = moisLoyersCourant.getMonth();
     const moisDate = annee + '-' + String(moisIdx + 1).padStart(2, '0') + '-01';
 
-    const { data: baux, error } = await supabaseClient.from('baux').select('*, lots(nom, type, immeubles(adresse, structure_id))').eq('statut', 'actif');
+    const { data: baux, error } = await supabaseClient.from('baux').select('*, lots(nom, type, immeuble_id, immeubles(adresse, structure_id))').eq('statut', 'actif');
     if (error) return;
-    const bauxStructure = (baux || []).filter(b => b.lots && b.lots.immeubles && b.lots.immeubles.structure_id === structureId);
+    let bauxStructure = (baux || []).filter(b => b.lots && b.lots.immeubles && b.lots.immeubles.structure_id === structureId);
+    if (immeubleFiltre) bauxStructure = bauxStructure.filter(b => b.lots.immeuble_id === immeubleFiltre);
     const nbJoursMois = new Date(annee, moisIdx + 1, 0).getDate();
 
     if (!bauxStructure.length) { dessinerCalendrier(annee, moisIdx, []); remplirListesLaterales([]); return; }
