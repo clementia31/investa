@@ -146,6 +146,21 @@
   .arbre-row.immeuble:hover { color: var(--accent); }
   .arbre-row.immeuble .nom-col { padding-left: 18px; }
   .arbre-total { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; padding: 10px 4px 0 4px; margin-top: 6px; border-top: 1px solid var(--border); font-weight: 700; font-size: 0.88rem; }
+
+  .structure-header { display: flex; justify-content: space-between; align-items: baseline; padding: 4px 2px; font-weight: 700; font-size: 0.95rem; margin-top: 6px; }
+  .bien-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-bottom: 18px; }
+  .bien-card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; cursor: pointer; }
+  .bien-card:hover { border-color: var(--accent); }
+  .bien-card-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .bien-card-icon { font-size: 1.25rem; }
+  .bien-card-titre { font-weight: 600; font-size: 0.92rem; }
+  .bien-card-bottom { display: flex; justify-content: space-between; align-items: center; }
+  .bien-card-loyer { font-weight: 700; font-size: 0.92rem; }
+  .badge-pill { font-size: 0.72rem; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+  .badge-pill.badge-vert { background: rgba(34,197,94,0.15); color: #22c55e; }
+  .badge-pill.badge-orange { background: rgba(245,158,11,0.15); color: var(--amber); }
+  .badge-pill.badge-gris { background: rgba(139,150,179,0.15); color: var(--text-dim); }
+  .badge-pill.badge-rouge { background: rgba(239,68,68,0.15); color: var(--red); }
   .pagination-bar { display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
 
   .quick-add-tabs { display: flex; gap: 8px; margin: 4px 0 16px 0; }
@@ -345,9 +360,6 @@
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
             <h3 style="margin:0;">Arborescence</h3>
             <input id="rechercheArbre" placeholder="Rechercher..." style="width:200px; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);" oninput="filtrerArbrePatrimoine()">
-          </div>
-          <div class="arbre-header">
-            <span>Nom</span><span>Type</span><span>Loyers mensuels</span>
           </div>
           <div id="arbrePatrimoine">Chargement...</div>
           <div class="arbre-total" id="arbreTotal"></div>
@@ -1278,7 +1290,7 @@
 
     // 1 requête groupée pour TOUS les lots de tous les immeubles
     const { data: tousLots } = immeubleIds.length
-      ? await supabaseClient.from('lots').select('id, immeuble_id').in('immeuble_id', immeubleIds)
+      ? await supabaseClient.from('lots').select('id, immeuble_id, statut').in('immeuble_id', immeubleIds)
       : { data: [] };
     const lotIds = (tousLots || []).map(l => l.id);
 
@@ -1291,7 +1303,7 @@
     const lotsParImmeuble = {};
     (tousLots || []).forEach(l => {
       if (!lotsParImmeuble[l.immeuble_id]) lotsParImmeuble[l.immeuble_id] = [];
-      lotsParImmeuble[l.immeuble_id].push(l.id);
+      lotsParImmeuble[l.immeuble_id].push({ id: l.id, statut: l.statut });
     });
     const loyerParLot = {};
     (tousBauxActifs || []).forEach(b => {
@@ -1302,8 +1314,9 @@
       const immeublesDeStructure = (tousImmeubles || []).filter(im => im.structure_id === s.id);
       const immeublesData = immeublesDeStructure.map(im => {
         const lotsDeImmeuble = lotsParImmeuble[im.id] || [];
-        const loyersMensuels = lotsDeImmeuble.reduce((a, lotId) => a + (loyerParLot[lotId] || 0), 0);
-        return { id: im.id, adresse: im.adresse, nbLots: lotsDeImmeuble.length, loyersMensuels };
+        const loyersMensuels = lotsDeImmeuble.reduce((a, l) => a + (loyerParLot[l.id] || 0), 0);
+        const nbOccupes = lotsDeImmeuble.filter(l => l.statut === 'occupe').length;
+        return { id: im.id, adresse: im.adresse, nbLots: lotsDeImmeuble.length, nbOccupes, loyersMensuels };
       });
       return { id: s.id, nom: s.nom, type: s.type, immeubles: immeublesData };
     });
@@ -1328,23 +1341,51 @@
       const totalStructure = s.immeubles.reduce((a, im) => a + im.loyersMensuels, 0);
       totalGeneral += totalStructure;
 
-      html += `<div class="arbre-row structure"><span>${s.nom}</span><span class="small">${s.type}</span><span>${totalStructure.toLocaleString('fr-FR')} €</span></div>`;
-      html += `<div style="display:flex; gap:8px; margin:8px 0 8px 18px;">
+      html += `<div class="structure-header"><span>${s.nom}</span><span class="small">${s.type} · ${totalStructure.toLocaleString('fr-FR')} €</span></div>`;
+      html += `<div style="display:flex; gap:8px; margin:8px 0 14px;">
         <input id="adresseImmeuble_${s.id}" placeholder="Adresse du nouvel immeuble" style="flex:1; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-size:0.85rem;">
         <button class="btn-secondary" style="padding:8px 14px; border-radius:8px; font-size:0.85rem;" onclick="creerImmeuble('${s.id}')">Ajouter</button>
       </div>`;
 
-      (filtre ? immeublesFiltres : s.immeubles).forEach(im => {
-        html += `<div class="arbre-row immeuble" onclick="ouvrirFicheImmeuble('${im.id}')">
-          <span class="nom-col">🏢 ${im.adresse} <span class="small">(${im.nbLots} lot${im.nbLots > 1 ? 's' : ''})</span></span>
-          <span class="small">Immeuble</span>
-          <span>${im.loyersMensuels.toLocaleString('fr-FR')} €</span>
-        </div>`;
-      });
+      const immeublesAAfficher = filtre ? immeublesFiltres : s.immeubles;
+      if (immeublesAAfficher.length) {
+        html += `<div class="bien-grid">` + immeublesAAfficher.map(im => carteBien({
+          icone: '🏢', titre: im.adresse, sousTitre: `${im.nbLots} lot${im.nbLots > 1 ? 's' : ''}`,
+          nbLots: im.nbLots, nbOccupes: im.nbOccupes, loyer: im.loyersMensuels,
+          onclick: `ouvrirFicheImmeuble('${im.id}')`
+        })).join('') + `</div>`;
+      }
     });
 
     div.innerHTML = html || '<div class="empty-state">Aucun résultat.</div>';
     document.getElementById('arbreTotal').innerHTML = `<span>Total</span><span></span><span>${totalGeneral.toLocaleString('fr-FR')} €</span>`;
+  }
+
+  // Carte "bien" réutilisable (immeubles ET lots), inspirée de la maquette validée
+  function carteBien({ icone, titre, sousTitre, nbLots, nbOccupes, loyer, onclick, statutLot }) {
+    let badgeClasse = 'badge-gris', badgeTexte = 'Vacant';
+    if (statutLot) {
+      // Carte lot unique : on affiche le vrai statut (occupé/vacant/travaux), pas juste une logique d'occupation globale
+      const map = { occupe: ['badge-vert', 'Occupé'], vacant: ['badge-orange', 'Vacant'], travaux: ['badge-rouge', 'Travaux'] };
+      [badgeClasse, badgeTexte] = map[statutLot] || ['badge-gris', statutLot];
+    } else if (nbLots === 0) { badgeClasse = 'badge-gris'; badgeTexte = 'Aucun lot'; }
+    else if (nbOccupes === nbLots) { badgeClasse = 'badge-vert'; badgeTexte = nbLots > 1 ? `${nbOccupes}/${nbLots} occupés` : 'Occupé'; }
+    else if (nbOccupes === 0) { badgeClasse = 'badge-orange'; badgeTexte = 'Vacant'; }
+    else { badgeClasse = 'badge-orange'; badgeTexte = `${nbOccupes}/${nbLots} occupés`; }
+
+    return `
+      <div class="bien-card" onclick="${onclick}">
+        <div class="bien-card-top">
+          <span class="bien-card-icon">${icone}</span>
+          <span class="bien-card-titre">${titre}</span>
+        </div>
+        <p class="small" style="margin:0 0 10px;">${sousTitre}</p>
+        <div class="bien-card-bottom">
+          <span class="badge-pill ${badgeClasse}">${badgeTexte}</span>
+          <span class="bien-card-loyer">${loyer.toLocaleString('fr-FR')} €</span>
+        </div>
+      </div>
+    `;
   }
 
   async function creerImmeuble(structureId) {
@@ -1461,12 +1502,23 @@
     const { data: lots, error } = await supabaseClient.from('lots').select('*').eq('immeuble_id', immeubleId).order('created_at');
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
     if (!lots.length) { div.innerHTML = '<div class="empty-state">Aucun lot pour le moment.</div>'; return; }
-    div.innerHTML = lots.map(l => `
-      <div class="row row-click" onclick="ouvrirFicheLot('${l.id}')">
-        <span>${l.nom || l.type} <span class="small">(${l.type}${l.surface ? ', ' + l.surface + ' m²' : ''})</span></span>
-        <span class="badge ${l.statut}">${l.statut}</span>
-      </div>
-    `).join('');
+
+    const lotIds = lots.map(l => l.id);
+    const { data: bauxActifs } = await supabaseClient.from('baux').select('lot_id, loyer, charges').in('lot_id', lotIds).eq('statut', 'actif');
+    const loyerParLot = {};
+    (bauxActifs || []).forEach(b => { loyerParLot[b.lot_id] = (loyerParLot[b.lot_id] || 0) + Number(b.loyer) + Number(b.charges); });
+
+    const iconesParType = { appartement: '🏢', maison: '🏠', studio: '🛏️', chambre: '🛌', parking: '🅿️', garage: '🚗', local_commercial: '🏬', autre: '📁' };
+    const labelsParType = { appartement: 'Appartement', maison: 'Maison', studio: 'Studio', chambre: 'Chambre', parking: 'Parking', garage: 'Garage', local_commercial: 'Local', autre: 'Autre' };
+
+    div.innerHTML = `<div class="bien-grid">` + lots.map(l => carteBien({
+      icone: iconesParType[l.type] || '📁',
+      titre: l.nom || labelsParType[l.type] || l.type,
+      sousTitre: labelsParType[l.type] + (l.surface ? ` · ${l.surface} m²` : ''),
+      nbLots: 1, nbOccupes: l.statut === 'occupe' ? 1 : 0, statutLot: l.statut,
+      loyer: loyerParLot[l.id] || 0,
+      onclick: `ouvrirFicheLot('${l.id}')`
+    })).join('') + `</div>`;
   }
 
   async function creerLot() {
