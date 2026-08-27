@@ -296,18 +296,6 @@
       <!-- ===== PATRIMOINE ===== -->
       <div id="page-patrimoine" style="display:none;">
         <div class="page-header"><h2>Patrimoine</h2></div>
-        <div class="card">
-          <h3>Créer une structure</h3>
-          <input id="nomStructure" placeholder="Nom (ex: SCI ALPHA)">
-          <select id="typeStructure">
-            <option value="sci_ir">SCI à l'IR</option>
-            <option value="sci_is">SCI à l'IS</option>
-            <option value="nom_propre">Nom propre</option>
-            <option value="sarl_immo">SARL immobilière</option>
-            <option value="autre">Autre</option>
-          </select>
-          <button class="btn-primary" onclick="creerStructure()">Créer</button>
-        </div>
 
         <div class="quick-add-tabs">
           <div class="quick-tab active" id="qtBien" onclick="switchQuickAdd('bien')">+ Ajouter un bien</div>
@@ -316,21 +304,7 @@
 
         <!-- Ajout rapide d'un bien seul (maison, appartement isolé...) -->
         <div class="card" id="qa-bien">
-          <div style="display:flex; gap:8px;">
-            <select id="structureQuickBien" style="flex:1;"></select>
-            <button class="btn-secondary" style="width:auto; padding:0 14px; white-space:nowrap;" onclick="toggleStructurePanel('bien')">+ Structure</button>
-          </div>
-          <div class="struct-quick-panel" id="panelStructureBien" style="display:none;">
-            <input id="nomStructureBienQuick" placeholder="Nom de la structure (ex: SCI Alpha)">
-            <p class="small" style="margin:8px 0 6px;">Type (optionnel)</p>
-            <div class="type-picker type-picker-small">
-              <div class="type-card" data-type="sci_ir" onclick="selectionnerTypeStructureQuick('bien','sci_ir')"><span class="ic">🏛️</span><span>SCI</span></div>
-              <div class="type-card" data-type="sarl_immo" onclick="selectionnerTypeStructureQuick('bien','sarl_immo')"><span class="ic">💼</span><span>SARL</span></div>
-              <div class="type-card" data-type="autre" onclick="selectionnerTypeStructureQuick('bien','autre')"><span class="ic">📁</span><span>Autre</span></div>
-            </div>
-            <button class="btn-primary" onclick="creerStructureRapide('bien')">Créer la structure</button>
-          </div>
-          <p class="small" style="margin:12px 0 8px;">Type de bien</p>
+          <p class="small" style="margin:0 0 8px;">Type de bien</p>
           <div class="type-picker" id="typePickerBien">
             <div class="type-card" data-type="appartement" onclick="selectionnerTypeBien('appartement')"><span class="ic">🏢</span><span>Appartement</span></div>
             <div class="type-card" data-type="maison" onclick="selectionnerTypeBien('maison')"><span class="ic">🏠</span><span>Maison</span></div>
@@ -351,21 +325,7 @@
 
         <!-- Ajout rapide d'un immeuble avec plusieurs lots générés d'un coup -->
         <div class="card" id="qa-immeuble" style="display:none;">
-          <div style="display:flex; gap:8px;">
-            <select id="structureQuickImmeuble" style="flex:1;"></select>
-            <button class="btn-secondary" style="width:auto; padding:0 14px; white-space:nowrap;" onclick="toggleStructurePanel('immeuble')">+ Structure</button>
-          </div>
-          <div class="struct-quick-panel" id="panelStructureImmeuble" style="display:none;">
-            <input id="nomStructureImmeubleQuick" placeholder="Nom de la structure (ex: SCI Alpha)">
-            <p class="small" style="margin:8px 0 6px;">Type (optionnel)</p>
-            <div class="type-picker type-picker-small">
-              <div class="type-card" data-type="sci_ir" onclick="selectionnerTypeStructureQuick('immeuble','sci_ir')"><span class="ic">🏛️</span><span>SCI</span></div>
-              <div class="type-card" data-type="sarl_immo" onclick="selectionnerTypeStructureQuick('immeuble','sarl_immo')"><span class="ic">💼</span><span>SARL</span></div>
-              <div class="type-card" data-type="autre" onclick="selectionnerTypeStructureQuick('immeuble','autre')"><span class="ic">📁</span><span>Autre</span></div>
-            </div>
-            <button class="btn-primary" onclick="creerStructureRapide('immeuble')">Créer la structure</button>
-          </div>
-          <input id="adresseQuickImmeuble" placeholder="Adresse de l'immeuble" style="margin-top:8px;">
+          <input id="adresseQuickImmeuble" placeholder="Adresse de l'immeuble">
           <p class="small" style="margin:12px 0 8px;">Composition de l'immeuble</p>
           <div id="qtyListImmeuble"></div>
           <div class="qty-row qty-row-autre">
@@ -927,18 +887,6 @@
         </div>
       </div>
 
-      <!-- ===== PLACEHOLDER (écrans pas encore construits) ===== -->
-      <div id="page-placeholder" style="display:none;">
-        <div class="page-header"><h2 id="placeholderTitle"></h2></div>
-        <div class="card">
-          <div class="placeholder-box">
-            <div class="ic">🚧</div>
-            <div id="placeholderDesc"></div>
-            <div class="small" style="margin-top:8px;">Bientôt disponible</div>
-          </div>
-        </div>
-      </div>
-
     </div>
   </div>
 </div>
@@ -1001,7 +949,7 @@
   supabaseClient.auth.getSession().then(({ data: { session } }) => { if (session) afficherApp(); });
 
   // ---------- NAVIGATION ----------
-  const PAGES = ['dashboard', 'patrimoine', 'locataires', 'loyers', 'finances', 'prets', 'parametres', 'alertes', 'fiscalite', 'rapports', 'documents', 'fiche-immeuble', 'fiche-lot', 'fiche-locataire', 'placeholder'];
+  const PAGES = ['dashboard', 'patrimoine', 'locataires', 'loyers', 'finances', 'prets', 'parametres', 'alertes', 'fiscalite', 'rapports', 'documents', 'fiche-immeuble', 'fiche-lot', 'fiche-locataire'];
   const NAV_IDS = ['nav-dashboard', 'nav-patrimoine', 'nav-locataires', 'nav-loyers', 'nav-finances', 'nav-prets', 'nav-parametres', 'nav-alertes', 'nav-fiscalite', 'nav-rapports', 'nav-documents'];
 
   function hideAllPages() {
@@ -1017,13 +965,6 @@
     setActiveNav('nav-dashboard'); hideAllPages();
     document.getElementById('page-dashboard').style.display = 'block';
     chargerDashboard();
-  }
-
-  function allerPlaceholder(titre, desc) {
-    setActiveNav(null); hideAllPages();
-    document.getElementById('placeholderTitle').textContent = titre;
-    document.getElementById('placeholderDesc').textContent = desc;
-    document.getElementById('page-placeholder').style.display = 'block';
   }
 
   // ---------- DASHBOARD ----------
@@ -1164,63 +1105,22 @@
   }
 
   // ---------- STRUCTURES ----------
-  async function creerStructure() {
-    const nom = document.getElementById('nomStructure').value;
-    const type = document.getElementById('typeStructure').value;
-    if (!nom) return alert('Nom requis');
-    const { error } = await supabaseClient.rpc('creer_structure', { p_nom: nom, p_type: type });
-    if (error) return alert('Erreur : ' + error.message);
-    document.getElementById('nomStructure').value = '';
-    // Vide les sélecteurs des formulaires rapides pour qu'ils se rechargent avec la nouvelle structure
-    document.getElementById('structureQuickBien').innerHTML = '';
-    document.getElementById('structureQuickImmeuble').innerHTML = '';
-    switchQuickAdd(document.getElementById('qtBien').classList.contains('active') ? 'bien' : 'immeuble');
-    chargerPatrimoine();
-  }
-
   // ---------- AJOUT RAPIDE (bien seul + immeuble par quantités) ----------
   const LABELS_TYPE_LOT = {
     appartement: 'Appartement', maison: 'Maison', studio: 'Studio', chambre: 'Chambre',
     parking: 'Parking', garage: 'Garage', local_commercial: 'Local'
   };
   let selectedTypeBien = null;
-  const selectedTypeStructureQuick = { bien: null, immeuble: null };
   const quantitesImmeuble = { appartement: 0, maison: 0, studio: 0, chambre: 0, parking: 0, garage: 0, local_commercial: 0, autre: 0 };
 
-  function toggleStructurePanel(which) {
-    const panel = document.getElementById(which === 'bien' ? 'panelStructureBien' : 'panelStructureImmeuble');
-    panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-  }
-
-  function selectionnerTypeStructureQuick(which, type) {
-    selectedTypeStructureQuick[which] = type;
-    const panelId = which === 'bien' ? 'panelStructureBien' : 'panelStructureImmeuble';
-    document.querySelectorAll('#' + panelId + ' .type-card').forEach(el => el.classList.toggle('selected', el.dataset.type === type));
-  }
-
-  async function creerStructureRapide(which) {
-    const inputId = which === 'bien' ? 'nomStructureBienQuick' : 'nomStructureImmeubleQuick';
-    const nom = document.getElementById(inputId).value;
-    if (!nom) return alert('Nom requis');
-    const type = selectedTypeStructureQuick[which] || 'autre';
-
-    const { data: newId, error } = await supabaseClient.rpc('creer_structure', { p_nom: nom, p_type: type });
-    if (error) return alert('Erreur : ' + error.message);
-
-    // Rafraîchit les deux sélecteurs (bien + immeuble) avec la nouvelle structure, et la présélectionne
-    const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
-    const options = (structures || []).map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
-    document.getElementById('structureQuickBien').innerHTML = options;
-    document.getElementById('structureQuickImmeuble').innerHTML = options;
-    const selCourant = which === 'bien' ? 'structureQuickBien' : 'structureQuickImmeuble';
-    document.getElementById(selCourant).value = newId;
-
-    // Reset du panneau
-    document.getElementById(inputId).value = '';
-    selectedTypeStructureQuick[which] = null;
-    const panelId = which === 'bien' ? 'panelStructureBien' : 'panelStructureImmeuble';
-    document.querySelectorAll('#' + panelId + ' .type-card').forEach(el => el.classList.remove('selected'));
-    document.getElementById(panelId).style.display = 'none';
+  // Récupère la première structure existante, ou en crée une silencieusement s'il n'y en a aucune.
+  // Ça évite de bloquer l'utilisateur avec la notion de structure tant qu'il n'en a pas besoin.
+  async function obtenirStructureParDefaut() {
+    const { data: structures } = await supabaseClient.from('structures').select('id').order('created_at').limit(1);
+    if (structures && structures.length) return structures[0].id;
+    const { data: newId, error } = await supabaseClient.rpc('creer_structure', { p_nom: 'Mon patrimoine', p_type: 'autre' });
+    if (error) { alert('Erreur : ' + error.message); return null; }
+    return newId;
   }
 
   async function switchQuickAdd(section) {
@@ -1228,13 +1128,6 @@
     document.getElementById('qtImmeuble').classList.toggle('active', section === 'immeuble');
     document.getElementById('qa-bien').style.display = section === 'bien' ? 'block' : 'none';
     document.getElementById('qa-immeuble').style.display = section === 'immeuble' ? 'block' : 'none';
-
-    const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
-    const options = (structures || []).map(s => `<option value="${s.id}">${s.nom}</option>`).join('');
-    ['structureQuickBien', 'structureQuickImmeuble'].forEach(id => {
-      const sel = document.getElementById(id);
-      if (!sel.options.length) sel.innerHTML = options;
-    });
 
     if (section === 'immeuble' && !document.getElementById('qtyListImmeuble').children.length) {
       construireListeQuantites();
@@ -1247,9 +1140,9 @@
   }
 
   async function creerBienRapide() {
-    const structureId = document.getElementById('structureQuickBien').value;
-    if (!structureId) return alert('Crée d\u2019abord une structure ci-dessus');
     if (!selectedTypeBien) return alert('Choisis un type de bien');
+    const structureId = await obtenirStructureParDefaut();
+    if (!structureId) return;
 
     const adresse = document.getElementById('adresseQuickBien').value || 'Adresse à compléter';
     const surface = document.getElementById('surfaceQuickBien').value;
@@ -1322,11 +1215,10 @@
   }
 
   async function creerImmeubleRapide() {
-    const structureId = document.getElementById('structureQuickImmeuble').value;
-    if (!structureId) return alert('Crée d\u2019abord une structure ci-dessus');
-
     const totalLots = Object.values(quantitesImmeuble).reduce((a, n) => a + n, 0);
     if (totalLots === 0) return alert('Ajoute au moins un lot avec les boutons +');
+    const structureId = await obtenirStructureParDefaut();
+    if (!structureId) return;
 
     const adresse = document.getElementById('adresseQuickImmeuble').value || 'Adresse à compléter';
     const { data: immeuble, error: errImm } = await supabaseClient.from('immeubles').insert({ structure_id: structureId, adresse }).select().single();
