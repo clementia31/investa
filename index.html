@@ -435,7 +435,7 @@
 
       <!-- ===== FICHE IMMEUBLE ===== -->
       <div id="page-fiche-immeuble" style="display:none;">
-        <div class="breadcrumb" onclick="retourPatrimoine()">← Retour au patrimoine</div>
+        <div class="breadcrumb" id="breadcrumbImmeuble" onclick="retourPatrimoine()">← Retour au patrimoine</div>
         <div class="card">
           <div class="immeuble-image">🏢</div>
           <div style="display:flex; justify-content:space-between; align-items:flex-start;">
@@ -446,23 +446,41 @@
             </div>
             <button class="btn-secondary" style="padding:9px 16px; border-radius:8px; width:auto;" onclick="ouvrirEditionImmeuble()">Modifier</button>
           </div>
-          <div class="grid-4" style="margin-top:18px; margin-bottom:0;">
-            <div class="stat-card"><div class="lbl">Valeur estimée</div><div class="val" id="immValeur">—</div></div>
-            <div class="stat-card red"><div class="lbl">Dette</div><div class="val" id="immDette">—</div></div>
-            <div class="stat-card amber"><div class="lbl">Charges annuelles</div><div class="val" id="immCharges">—</div></div>
-            <div class="stat-card green"><div class="lbl">Cash-flow annuel</div><div class="val" id="immCashflow">—</div></div>
-          </div>
-          <div class="stat-card" style="margin-top:14px;"><div class="lbl">Rendement brut</div><div class="val" id="immRendement">—</div></div>
         </div>
 
         <div class="tabs">
-          <div class="tab active" id="tabImmLots" onclick="switchTabImmeuble('lots')">Lots</div>
+          <div class="tab active" id="tabImmVue" onclick="switchTabImmeuble('vue')">Vue générale</div>
+          <div class="tab" id="tabImmLots" onclick="switchTabImmeuble('lots')">Lots</div>
           <div class="tab" id="tabImmFinances" onclick="switchTabImmeuble('finances')">Finances</div>
           <div class="tab" id="tabImmDocuments" onclick="switchTabImmeuble('documents')">Documents</div>
           <div class="tab" id="tabImmInfos" onclick="switchTabImmeuble('infos')">Infos</div>
         </div>
 
-        <div id="tabcontent-lots">
+        <div id="tabcontent-vue">
+          <div class="grid-4" style="margin-bottom:0;">
+            <div class="stat-card"><div class="lbl">Valeur estimée</div><div class="val" id="immValeur">—</div></div>
+            <div class="stat-card red"><div class="lbl">Dette</div><div class="val" id="immDette">—</div></div>
+            <div class="stat-card green"><div class="lbl">Equity</div><div class="val" id="immEquity">—</div></div>
+            <div class="stat-card"><div class="lbl">Occupation</div><div class="val" id="immOccupation">—</div></div>
+          </div>
+          <div class="grid-4" style="margin-top:12px;">
+            <div class="stat-card amber"><div class="lbl">Charges annuelles</div><div class="val" id="immCharges">—</div></div>
+            <div class="stat-card green"><div class="lbl">Cash-flow annuel</div><div class="val" id="immCashflow">—</div></div>
+            <div class="stat-card"><div class="lbl">Rendement brut</div><div class="val" id="immRendement">—</div></div>
+          </div>
+
+          <div class="card" style="margin-top:16px;">
+            <h3>À surveiller</h3>
+            <div id="immASurveiller">Chargement...</div>
+          </div>
+
+          <div class="card">
+            <h3>Activité récente</h3>
+            <div id="immActiviteRecente">Chargement...</div>
+          </div>
+        </div>
+
+        <div id="tabcontent-lots" style="display:none;">
           <div class="section-header-ajout">
             <h3>Lots</h3>
             <button class="btn-secondary btn-ajout-inline" id="btnAjoutLot" onclick="toggleFormulaire('formAjoutLot','btnAjoutLot')">+ Ajouter un lot</button>
@@ -1562,6 +1580,8 @@
     `;
     document.getElementById('immValeur').textContent = im.valeur_estimee ? Number(im.valeur_estimee).toLocaleString('fr-FR') + ' €' : '—';
     document.getElementById('immDette').textContent = im.dette_restante ? Number(im.dette_restante).toLocaleString('fr-FR') + ' €' : '—';
+    const equity = (Number(im.valeur_estimee) || 0) - (Number(im.dette_restante) || 0);
+    document.getElementById('immEquity').textContent = (im.valeur_estimee || im.dette_restante) ? equity.toLocaleString('fr-FR') + ' €' : '—';
 
     // Charges annuelles = dépenses des 12 derniers mois pour cet immeuble
     const ilYA1An = new Date(); ilYA1An.setFullYear(ilYA1An.getFullYear() - 1);
@@ -1569,9 +1589,12 @@
     const chargesAnnuelles = (depenses || []).reduce((a, t) => a + Number(t.montant), 0);
     document.getElementById('immCharges').textContent = chargesAnnuelles.toLocaleString('fr-FR') + ' €';
 
-    // Loyers annuels = baux actifs des lots de cet immeuble, annualisés
-    const { data: lotsIm } = await supabaseClient.from('lots').select('id').eq('immeuble_id', id);
+    // Loyers annuels + occupation = lots et baux actifs de cet immeuble
+    const { data: lotsIm } = await supabaseClient.from('lots').select('id, statut').eq('immeuble_id', id);
     const lotIds = (lotsIm || []).map(l => l.id);
+    const nbOccupes = (lotsIm || []).filter(l => l.statut === 'occupe').length;
+    document.getElementById('immOccupation').textContent = lotsIm && lotsIm.length ? `${nbOccupes}/${lotsIm.length}` : '—';
+
     let loyersAnnuels = 0;
     if (lotIds.length) {
       const { data: bauxActifs } = await supabaseClient.from('baux').select('loyer, charges').in('lot_id', lotIds).eq('statut', 'actif');
@@ -1583,15 +1606,84 @@
     const rendement = im.valeur_estimee && Number(im.valeur_estimee) > 0 ? (loyersAnnuels / Number(im.valeur_estimee) * 100).toFixed(1) : null;
     document.getElementById('immRendement').textContent = rendement !== null ? rendement + ' %' : '—';
 
-    switchTabImmeuble('lots');
-    chargerLots(id);
+    switchTabImmeuble('vue');
+    chargerASurveillerImmeuble(id, lotIds);
+    chargerActiviteRecenteImmeuble(id, lotIds);
+  }
+
+  async function chargerASurveillerImmeuble(immeubleId, lotIds) {
+    const div = document.getElementById('immASurveiller');
+    const items = [];
+
+    const { data: lots } = await supabaseClient.from('lots').select('id, nom, type, statut').eq('immeuble_id', immeubleId);
+    (lots || []).filter(l => l.statut === 'vacant').forEach(l => {
+      items.push({ severite: 'moyenne', texte: `${echapper(l.nom || l.type)} vacant`, onclick: `ouvrirFicheLot('${l.id}')` });
+    });
+
+    if (currentImmeubleData.dpe_date_expiration) {
+      const jours = Math.ceil((new Date(currentImmeubleData.dpe_date_expiration) - new Date()) / (1000 * 60 * 60 * 24));
+      if (jours <= 60) items.push({ severite: jours <= 30 ? 'haute' : 'moyenne', texte: `DPE ${jours >= 0 ? 'expire dans ' + jours + ' j' : 'expiré'}`, onclick: `switchTabImmeuble('infos')` });
+    }
+
+    if (lotIds.length) {
+      const { data: baux } = await supabaseClient.from('baux').select('id, lot_id, date_fin, lots(nom, type)').in('lot_id', lotIds).eq('statut', 'actif').not('date_fin', 'is', null);
+      (baux || []).forEach(b => {
+        const jours = Math.ceil((new Date(b.date_fin) - new Date()) / (1000 * 60 * 60 * 24));
+        if (jours >= 0 && jours <= 60) items.push({ severite: jours <= 30 ? 'haute' : 'moyenne', texte: `Bail ${echapper(b.lots.nom || b.lots.type)} expire dans ${jours} j`, onclick: `ouvrirFicheLot('${b.lot_id}')` });
+      });
+
+      const bailIds = (baux || []).map(b => b.id);
+      const { data: bauxTousActifs } = await supabaseClient.from('baux').select('id, lot_id, lots(nom, type)').in('lot_id', lotIds).eq('statut', 'actif');
+      const tousLesBailIds = (bauxTousActifs || []).map(b => b.id);
+      if (tousLesBailIds.length) {
+        const { data: retards } = await supabaseClient.from('paiements').select('bail_id').in('bail_id', tousLesBailIds).eq('statut', 'en_retard');
+        const bailIdsEnRetard = new Set((retards || []).map(r => r.bail_id));
+        (bauxTousActifs || []).filter(b => bailIdsEnRetard.has(b.id)).forEach(b => {
+          items.push({ severite: 'haute', texte: `Loyer en retard — ${echapper(b.lots.nom || b.lots.type)}`, onclick: `ouvrirFicheLot('${b.lot_id}')` });
+        });
+      }
+    }
+
+    div.innerHTML = items.length
+      ? items.map(it => `<div class="alert-row row-click" onclick="${it.onclick}"><span class="alert-dot ${it.severite === 'haute' ? 'high' : 'med'}"></span> ${it.texte}</div>`).join('')
+      : '<div class="empty-state">Rien à signaler. 👍</div>';
+  }
+
+  async function chargerActiviteRecenteImmeuble(immeubleId, lotIds) {
+    const div = document.getElementById('immActiviteRecente');
+    const evenements = [];
+
+    const { data: transactions } = await supabaseClient.from('transactions').select('*').eq('immeuble_id', immeubleId).order('date', { ascending: false }).limit(8);
+    (transactions || []).forEach(t => {
+      evenements.push({ date: t.date, texte: echapper(t.description || t.categorie), montant: (t.type === 'recette' ? '+' : '-') + Number(t.montant).toLocaleString('fr-FR') + ' €' });
+    });
+
+    if (lotIds.length) {
+      const { data: baux } = await supabaseClient.from('baux').select('id, lots(nom, type)').in('lot_id', lotIds);
+      const bailParId = {};
+      (baux || []).forEach(b => bailParId[b.id] = b);
+      const bailIds = (baux || []).map(b => b.id);
+      if (bailIds.length) {
+        const { data: paiements } = await supabaseClient.from('paiements').select('*').in('bail_id', bailIds).eq('statut', 'paye').not('date_paiement', 'is', null).order('date_paiement', { ascending: false }).limit(8);
+        (paiements || []).forEach(p => {
+          const lot = bailParId[p.bail_id];
+          evenements.push({ date: p.date_paiement, texte: `Loyer ${lot ? echapper(lot.lots.nom || lot.lots.type) : ''} reçu`, montant: '+' + (Number(p.montant_loyer) + Number(p.montant_charges)).toLocaleString('fr-FR') + ' €' });
+        });
+      }
+    }
+
+    evenements.sort((a, b) => new Date(b.date) - new Date(a.date));
+    div.innerHTML = evenements.length
+      ? evenements.slice(0, 8).map(e => `<div class="row"><span class="small">${new Date(e.date).toLocaleDateString('fr-FR')}</span><span style="flex:1; margin-left:10px;">${e.texte}</span><span>${e.montant}</span></div>`).join('')
+      : '<div class="empty-state">Aucune activité récente.</div>';
   }
 
   function switchTabImmeuble(tab) {
-    ['lots', 'finances', 'documents', 'infos'].forEach(t => {
+    ['vue', 'lots', 'finances', 'documents', 'infos'].forEach(t => {
       document.getElementById('tabcontent-' + t).style.display = t === tab ? 'block' : 'none';
       document.getElementById('tabImm' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
     });
+    if (tab === 'lots') chargerLots(currentImmeubleId);
     if (tab === 'finances') chargerFinancesImmeuble();
     if (tab === 'documents') chargerDocuments('immeuble', currentImmeubleId, 'listeDocumentsImmeuble');
     if (tab === 'infos') chargerInformationsImmeuble();
