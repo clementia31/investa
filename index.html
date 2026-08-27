@@ -156,11 +156,24 @@
   .bien-card-titre { font-weight: 600; font-size: 0.92rem; }
   .bien-card-bottom { display: flex; justify-content: space-between; align-items: center; }
   .bien-card-loyer { font-weight: 700; font-size: 0.92rem; }
+  .bien-card-alerte { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); font-size: 0.76rem; color: var(--amber); }
   .badge-pill { font-size: 0.72rem; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
   .badge-pill.badge-vert { background: rgba(34,197,94,0.15); color: #22c55e; }
   .badge-pill.badge-orange { background: rgba(245,158,11,0.15); color: var(--amber); }
   .badge-pill.badge-gris { background: rgba(139,150,179,0.15); color: var(--text-dim); }
   .badge-pill.badge-rouge { background: rgba(239,68,68,0.15); color: var(--red); }
+
+  .bandeau-patrimoine { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 18px; background: var(--panel); }
+  .bandeau-patrimoine > div { padding: 14px 18px; border-right: 1px solid var(--border); }
+  .bandeau-patrimoine > div:last-child { border-right: none; }
+  .bandeau-patrimoine .lbl { display: block; font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 4px; }
+  .bandeau-patrimoine .val { display: block; font-size: 1.2rem; font-weight: 700; }
+  @media (max-width: 700px) { .bandeau-patrimoine { grid-template-columns: repeat(2, 1fr); } .bandeau-patrimoine > div:nth-child(2) { border-right: none; } }
+
+  .filtre-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+  .filtre-tab { font-size: 0.82rem; padding: 5px 14px; border-radius: 20px; cursor: pointer; color: var(--text-dim); }
+  .filtre-tab:hover { color: var(--text); }
+  .filtre-tab.active { background: var(--accent); color: white; font-weight: 600; }
 
   .statut-picker { display: flex; gap: 8px; margin-bottom: 12px; }
 
@@ -236,8 +249,13 @@
   .tache-check { width: 18px; height: 18px; cursor: pointer; flex-shrink: 0; }
 
   .rapport-item { display: flex; justify-content: space-between; align-items: center; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 12px; }
-  .rapport-btns { display: flex; gap: 8px; flex-shrink: 0; }
-  .rapport-btns button { width: auto; padding: 9px 16px; border-radius: 8px; margin: 0; }
+
+  .export-wrap { position: relative; flex-shrink: 0; }
+  .export-wrap > button { width: auto; padding: 9px 16px; border-radius: 8px; margin: 0; }
+  .export-menu { display: none; position: absolute; top: calc(100% + 6px); right: 0; background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; padding: 6px; z-index: 20; min-width: 140px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  .export-menu.ouvert { display: block; }
+  .export-menu button { display: block; width: 100%; text-align: left; padding: 8px 10px; border-radius: 6px; background: transparent; border: none; color: var(--text); font-size: 0.85rem; cursor: pointer; margin: 0; }
+  .export-menu button:hover { background: var(--panel); }
 
   .params-layout { display: grid; grid-template-columns: 220px 1fr; gap: 16px; align-items: start; }
   @media (max-width: 900px) { .params-layout { grid-template-columns: 1fr; } }
@@ -298,37 +316,37 @@
           <div><h2>Bonjour 👋</h2><div class="page-sub">Voici un aperçu de votre patrimoine — <span id="dashPeriode"></span></div></div>
           <div class="lang-badge" title="Anglais bientôt disponible">🇫🇷 FR</div>
         </div>
-        <div class="grid-4">
-          <div class="stat-card green"><div class="lbl">Loyers attendus</div><div class="val" id="dashAttendu">—</div></div>
-          <div class="stat-card green"><div class="lbl">Loyers encaissés</div><div class="val" id="dashEncaisse">—</div></div>
-          <div class="stat-card red"><div class="lbl">Loyers en retard</div><div class="val" id="dashRetard">—</div></div>
-          <div class="stat-card amber"><div class="lbl">Charges du mois</div><div class="val" id="dashCharges">—</div></div>
-        </div>
-        <div class="grid-4">
-          <div class="stat-card" id="dashCashflowCard"><div class="lbl">Cash-flow du mois</div><div class="val" id="dashCashflow">—</div></div>
-          <div class="stat-card"><div class="lbl">Taux d'occupation</div><div class="val" id="dashOccupation">—</div></div>
-          <div class="stat-card"><div class="lbl">Valeur du patrimoine</div><div class="val" id="dashValeur">—</div></div>
-          <div class="stat-card"><div class="lbl">Dette restante</div><div class="val" id="dashDette">—</div></div>
+        <div class="bandeau-patrimoine">
+          <div><span class="lbl">Valeur du patrimoine</span><span class="val" id="dashValeur">—</span></div>
+          <div><span class="lbl">Loyers attendus</span><span class="val" id="dashAttendu">—</span></div>
+          <div><span class="lbl">Taux d'occupation</span><span class="val" id="dashOccupation">—</span></div>
+          <div><span class="lbl">Dette restante</span><span class="val" id="dashDette">—</span></div>
         </div>
         <div class="grid-2">
           <div class="card">
-            <h3>Cash-flow mensuel</h3>
+            <div style="display:flex; justify-content:space-between; align-items:baseline;">
+              <h3 style="margin:0;">Cash-flow mensuel</h3>
+              <span class="small" id="dashCashflow">—</span>
+            </div>
             <div id="dashChartCashflow">Chargement...</div>
           </div>
           <div class="card">
-            <h3>Répartition par structure</h3>
-            <div id="dashDonut">Chargement...</div>
+            <h3>À faire</h3>
+            <div id="dashAlertes">Chargement...</div>
           </div>
-        </div>
-        <div class="card">
-          <h3>Alertes</h3>
-          <div id="dashAlertes">Chargement...</div>
         </div>
       </div>
 
       <!-- ===== PATRIMOINE ===== -->
       <div id="page-patrimoine" style="display:none;">
         <div class="page-header"><h2>Patrimoine</h2></div>
+
+        <div class="bandeau-patrimoine">
+          <div><span class="lbl">Valeur du patrimoine</span><span class="val" id="patValeur">—</span></div>
+          <div><span class="lbl">Loyers attendus</span><span class="val" id="patAttendu">—</span></div>
+          <div><span class="lbl">Taux d'occupation</span><span class="val" id="patOccupation">—</span></div>
+          <div><span class="lbl">Dette restante</span><span class="val" id="patDette">—</span></div>
+        </div>
 
         <div class="quick-add-tabs">
           <div class="quick-tab active" id="qtBien" onclick="switchQuickAdd('bien')">+ Ajouter un bien</div>
@@ -383,6 +401,11 @@
             <h3 style="margin:0;">Arborescence</h3>
             <input id="rechercheArbre" placeholder="Rechercher..." style="width:200px; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);" oninput="filtrerArbrePatrimoine()">
           </div>
+          <div class="filtre-tabs">
+            <span class="filtre-tab active" id="ftTous" onclick="filtrerParOccupation('tous')">Tous</span>
+            <span class="filtre-tab" id="ftLoues" onclick="filtrerParOccupation('loues')">Loués</span>
+            <span class="filtre-tab" id="ftVacants" onclick="filtrerParOccupation('vacants')">Vacants</span>
+          </div>
           <div id="arbrePatrimoine">Chargement...</div>
           <div class="arbre-total" id="arbreTotal"></div>
         </div>
@@ -414,8 +437,7 @@
           <div class="tab active" id="tabImmLots" onclick="switchTabImmeuble('lots')">Lots</div>
           <div class="tab" id="tabImmFinances" onclick="switchTabImmeuble('finances')">Finances</div>
           <div class="tab" id="tabImmDocuments" onclick="switchTabImmeuble('documents')">Documents</div>
-          <div class="tab" id="tabImmDiagnostics" onclick="switchTabImmeuble('diagnostics')">Diagnostics</div>
-          <div class="tab" id="tabImmInformations" onclick="switchTabImmeuble('informations')">Informations</div>
+          <div class="tab" id="tabImmInfos" onclick="switchTabImmeuble('infos')">Infos</div>
         </div>
 
         <div id="tabcontent-lots">
@@ -456,12 +478,9 @@
           <div class="card"><div id="listeDocumentsImmeuble">Chargement...</div></div>
         </div>
 
-        <div id="tabcontent-diagnostics" style="display:none;">
-          <div class="card"><div class="placeholder-box"><div class="ic">🚧</div>Suivi des diagnostics (DPE, amiante...) — bientôt disponible</div></div>
-        </div>
-
-        <div id="tabcontent-informations" style="display:none;">
+        <div id="tabcontent-infos" style="display:none;">
           <div class="card" id="immInformationsForm">Chargement...</div>
+          <div class="card"><div class="placeholder-box"><div class="ic">🚧</div>Suivi des diagnostics (DPE, amiante...) — bientôt disponible</div></div>
         </div>
       </div>
 
@@ -827,16 +846,22 @@
         <div id="tabcontent-rap-fiscaux">
           <div class="rapport-item">
             <div><strong>Synthèse revenus fonciers</strong><div class="small">Revenus, charges déductibles et résultat de la structure sélectionnée</div></div>
-            <div class="rapport-btns">
-              <button class="btn-secondary" onclick="exporterSyntheseFiscale('csv')">CSV</button>
-              <button class="btn-secondary" onclick="exporterSyntheseFiscale('xlsx')">Excel</button>
+            <div class="export-wrap">
+              <button class="btn-secondary" onclick="toggleExportMenu('menuExportFiscale')">Exporter ▾</button>
+              <div class="export-menu" id="menuExportFiscale">
+                <button onclick="exporterSyntheseFiscale('csv'); fermerExportMenus();">CSV</button>
+                <button onclick="exporterSyntheseFiscale('xlsx'); fermerExportMenus();">Excel (.xlsx)</button>
+              </div>
             </div>
           </div>
           <div class="rapport-item">
             <div><strong>Répartition associés</strong><div class="small">Quote-parts et part du résultat par associé (SCI à l'IR)</div></div>
-            <div class="rapport-btns">
-              <button class="btn-secondary" onclick="exporterRepartitionAssocies('csv')">CSV</button>
-              <button class="btn-secondary" onclick="exporterRepartitionAssocies('xlsx')">Excel</button>
+            <div class="export-wrap">
+              <button class="btn-secondary" onclick="toggleExportMenu('menuExportAssocies')">Exporter ▾</button>
+              <div class="export-menu" id="menuExportAssocies">
+                <button onclick="exporterRepartitionAssocies('csv'); fermerExportMenus();">CSV</button>
+                <button onclick="exporterRepartitionAssocies('xlsx'); fermerExportMenus();">Excel (.xlsx)</button>
+              </div>
             </div>
           </div>
         </div>
@@ -844,23 +869,32 @@
         <div id="tabcontent-rap-comptables" style="display:none;">
           <div class="rapport-item">
             <div><strong>Flux de trésorerie</strong><div class="small">Détail de toutes les transactions, avec catégories</div></div>
-            <div class="rapport-btns">
-              <button class="btn-secondary" onclick="exporterTransactions('csv')">CSV</button>
-              <button class="btn-secondary" onclick="exporterTransactions('xlsx')">Excel</button>
+            <div class="export-wrap">
+              <button class="btn-secondary" onclick="toggleExportMenu('menuExportTransactions')">Exporter ▾</button>
+              <div class="export-menu" id="menuExportTransactions">
+                <button onclick="exporterTransactions('csv'); fermerExportMenus();">CSV</button>
+                <button onclick="exporterTransactions('xlsx'); fermerExportMenus();">Excel (.xlsx)</button>
+              </div>
             </div>
           </div>
           <div class="rapport-item">
             <div><strong>Historique loyers & paiements</strong><div class="small">Tous les paiements par bail, avec statut</div></div>
-            <div class="rapport-btns">
-              <button class="btn-secondary" onclick="exporterPaiements('csv')">CSV</button>
-              <button class="btn-secondary" onclick="exporterPaiements('xlsx')">Excel</button>
+            <div class="export-wrap">
+              <button class="btn-secondary" onclick="toggleExportMenu('menuExportPaiements')">Exporter ▾</button>
+              <div class="export-menu" id="menuExportPaiements">
+                <button onclick="exporterPaiements('csv'); fermerExportMenus();">CSV</button>
+                <button onclick="exporterPaiements('xlsx'); fermerExportMenus();">Excel (.xlsx)</button>
+              </div>
             </div>
           </div>
           <div class="rapport-item">
             <div><strong>Synthèse par bien</strong><div class="small">Loyers annuels et charges par immeuble</div></div>
-            <div class="rapport-btns">
-              <button class="btn-secondary" onclick="exporterSyntheseParBien('csv')">CSV</button>
-              <button class="btn-secondary" onclick="exporterSyntheseParBien('xlsx')">Excel</button>
+            <div class="export-wrap">
+              <button class="btn-secondary" onclick="toggleExportMenu('menuExportSyntheseBien')">Exporter ▾</button>
+              <div class="export-menu" id="menuExportSyntheseBien">
+                <button onclick="exporterSyntheseParBien('csv'); fermerExportMenus();">CSV</button>
+                <button onclick="exporterSyntheseParBien('xlsx'); fermerExportMenus();">Excel (.xlsx)</button>
+              </div>
             </div>
           </div>
         </div>
@@ -1009,8 +1043,7 @@
 
     const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
     if (!structures || !structures.length) {
-      ['dashAttendu','dashEncaisse','dashRetard','dashCharges','dashCashflow','dashOccupation','dashValeur','dashDette'].forEach(id => document.getElementById(id).textContent = '—');
-      document.getElementById('dashDonut').innerHTML = '<div class="empty-state">Aucune structure pour le moment.</div>';
+      ['dashAttendu','dashCashflow','dashOccupation','dashValeur','dashDette'].forEach(id => document.getElementById(id).textContent = '—');
       document.getElementById('dashChartCashflow').innerHTML = '<div class="empty-state">—</div>';
       document.getElementById('dashAlertes').innerHTML = '<div class="empty-state">—</div>';
       return;
@@ -1020,15 +1053,9 @@
     // Loyers attendus : calculés directement depuis les BAUX ACTIFS, pas depuis la table paiements
     // (qui ne se remplit que quand on ouvre l'écran Loyers) — comme ça le Dashboard reflète
     // immédiatement tout bien créé depuis Patrimoine, sans étape intermédiaire.
-    const { data: bauxActifsMois } = await supabaseClient.from('baux').select('loyer, charges, lots(immeuble_id, immeubles(structure_id))').eq('statut', 'actif').lte('date_debut', moisDate);
+    const { data: bauxActifsMois } = await supabaseClient.from('baux').select('loyer, charges').eq('statut', 'actif').lte('date_debut', moisDate);
     let attendu = 0;
-    const parStructure = {};
-    (bauxActifsMois || []).forEach(b => {
-      const total = Number(b.loyer) + Number(b.charges);
-      attendu += total;
-      const sId = b.lots && b.lots.immeubles ? b.lots.immeubles.structure_id : null;
-      if (sId) parStructure[sId] = (parStructure[sId] || 0) + total;
-    });
+    (bauxActifsMois || []).forEach(b => { attendu += Number(b.loyer) + Number(b.charges); });
 
     // Encaissé / en retard : ça, ça reste basé sur les vrais paiements enregistrés
     // (le statut de paiement n'existe légitimement qu'une fois suivi dans Loyers)
@@ -1061,46 +1088,17 @@
     }
 
     document.getElementById('dashAttendu').textContent = attendu.toLocaleString('fr-FR') + ' €';
-    document.getElementById('dashEncaisse').textContent = encaisse.toLocaleString('fr-FR') + ' €';
-    document.getElementById('dashRetard').textContent = retardCount;
-    document.getElementById('dashCharges').textContent = totalCharges.toLocaleString('fr-FR') + ' €';
     const cashflow = encaisse - totalCharges;
-    document.getElementById('dashCashflow').textContent = (cashflow >= 0 ? '+' : '') + cashflow.toLocaleString('fr-FR') + ' €';
-    document.getElementById('dashCashflowCard').className = 'stat-card ' + (cashflow >= 0 ? 'green' : 'red');
+    document.getElementById('dashCashflow').textContent = (cashflow >= 0 ? '+' : '') + cashflow.toLocaleString('fr-FR') + ' € ce mois';
     document.getElementById('dashOccupation').textContent = tauxOccupation + ' %';
     document.getElementById('dashValeur').textContent = valeurPatrimoine.toLocaleString('fr-FR') + ' €';
     document.getElementById('dashDette').textContent = dette.toLocaleString('fr-FR') + ' €';
 
-    // Donut répartition par structure
-    dessinerDonut(structures, parStructure, attendu);
-
     // Graphique cash-flow 12 derniers mois
     await dessinerCashflow12Mois(structIds);
 
-    // Alertes (retards + échéances proches)
-    await chargerAlertesDashboard(structIds);
-  }
-
-  const COULEURS_DONUT = ['#3b82f6', '#8b5cf6', '#22c55e', '#f59e0b', '#ec4899'];
-
-  function dessinerDonut(structures, parStructure, total) {
-    const div = document.getElementById('dashDonut');
-    if (!total) { div.innerHTML = '<div class="empty-state">Aucun loyer ce mois-ci.</div>'; return; }
-    let offset = 0;
-    const rayon = 45, circonference = 2 * Math.PI * rayon;
-    let cercles = '';
-    let legende = '';
-    structures.forEach((s, i) => {
-      const val = parStructure[s.id] || 0;
-      const part = val / total;
-      if (part <= 0) return;
-      const couleur = COULEURS_DONUT[i % COULEURS_DONUT.length];
-      const longueur = part * circonference;
-      cercles += `<circle cx="60" cy="60" r="${rayon}" fill="none" stroke="${couleur}" stroke-width="16" stroke-dasharray="${longueur} ${circonference - longueur}" stroke-dashoffset="${-offset}" transform="rotate(-90 60 60)"/>`;
-      offset += longueur;
-      legende += `<div class="donut-legend-item"><span class="donut-dot" style="background:${couleur};"></span>${s.nom} <span class="small" style="margin-left:auto;">${Math.round(part * 100)}%</span></div>`;
-    });
-    div.innerHTML = `<div class="donut-wrap"><svg width="120" height="120" viewBox="0 0 120 120">${cercles}</svg><div class="donut-legend">${legende}</div></div>`;
+    // À faire : retards + échéances proches (retardCount réutilisé en tête de liste)
+    await chargerAlertesDashboard(structIds, retardCount);
   }
 
   async function dessinerCashflow12Mois(structIds) {
@@ -1129,7 +1127,7 @@
     `).join('')}</div>`;
   }
 
-  async function chargerAlertesDashboard(structIds) {
+  async function chargerAlertesDashboard(structIds, retardCount) {
     const div = document.getElementById('dashAlertes');
     const { data: retards } = await supabaseClient.from('paiements').select('*, baux(lots(nom, type, immeuble_id, immeubles(adresse, structure_id)))').eq('statut', 'en_retard');
     const retardsFiltres = (retards || []).filter(p => p.baux && p.baux.lots && p.baux.lots.immeubles && structIds.includes(p.baux.lots.immeubles.structure_id));
@@ -1138,14 +1136,18 @@
     const { data: baux } = await supabaseClient.from('baux').select('*, lots(nom, type, immeubles(adresse, structure_id))').eq('statut', 'actif').not('date_fin', 'is', null).lte('date_fin', dans30jours.toISOString().split('T')[0]).gte('date_fin', new Date().toISOString().split('T')[0]);
     const bauxFiltres = (baux || []).filter(b => b.lots && b.lots.immeubles && structIds.includes(b.lots.immeubles.structure_id));
 
+    const { data: tachesEnRetard } = await supabaseClient.from('taches').select('id').in('structure_id', structIds).eq('fait', false).not('date_echeance', 'is', null).lt('date_echeance', new Date().toISOString().split('T')[0]);
+
     let html = '';
-    retardsFiltres.slice(0, 3).forEach(p => {
-      html += `<div class="alert-row"><span class="alert-dot high"></span> Loyer en retard — ${p.baux.lots.nom || p.baux.lots.type}, ${p.baux.lots.immeubles.adresse}</div>`;
+    if (retardCount > 0) html += `<div class="alert-row row-click" onclick="allerLoyers()"><span class="alert-dot high"></span> ${retardCount} loyer${retardCount > 1 ? 's' : ''} en retard</div>`;
+    if (tachesEnRetard && tachesEnRetard.length) html += `<div class="alert-row row-click" onclick="allerAlertes()"><span class="alert-dot med"></span> ${tachesEnRetard.length} tâche${tachesEnRetard.length > 1 ? 's' : ''} en retard</div>`;
+    retardsFiltres.slice(0, 2).forEach(p => {
+      html += `<div class="alert-row"><span class="alert-dot high"></span> ${p.baux.lots.nom || p.baux.lots.type}, ${p.baux.lots.immeubles.adresse}</div>`;
     });
-    bauxFiltres.slice(0, 3).forEach(b => {
-      html += `<div class="alert-row"><span class="alert-dot med"></span> Bail arrivant à échéance le ${b.date_fin} — ${b.lots.nom || b.lots.type}, ${b.lots.immeubles.adresse}</div>`;
+    bauxFiltres.slice(0, 2).forEach(b => {
+      html += `<div class="alert-row"><span class="alert-dot med"></span> Bail expire le ${b.date_fin} — ${b.lots.nom || b.lots.type}</div>`;
     });
-    div.innerHTML = html || '<div class="empty-state">Aucune alerte pour le moment. 👍</div>';
+    div.innerHTML = html || '<div class="empty-state">Rien à signaler pour le moment. 👍</div>';
   }
 
   // ---------- STRUCTURES ----------
@@ -1360,7 +1362,27 @@
       return { id: s.id, nom: s.nom, type: s.type, immeubles: immeublesData };
     });
 
+    // Bandeau condensé (même logique que le Dashboard, réutilisée ici)
+    const valeurTotale = (tousImmeubles || []).reduce((a, im) => a + Number(im.valeur_estimee || 0), 0);
+    const detteTotale = (tousImmeubles || []).reduce((a, im) => a + Number(im.dette_restante || 0), 0);
+    const loyersAttendus = (tousLots || []).reduce((a, l) => a + (loyerParLot[l.id] || 0), 0);
+    const nbLotsTotal = (tousLots || []).length;
+    const nbOccupesTotal = (tousLots || []).filter(l => l.statut === 'occupe').length;
+    const tauxOccup = nbLotsTotal ? Math.round((nbOccupesTotal / nbLotsTotal) * 100) : 0;
+    document.getElementById('patValeur').textContent = valeurTotale.toLocaleString('fr-FR') + ' €';
+    document.getElementById('patAttendu').textContent = loyersAttendus.toLocaleString('fr-FR') + ' €';
+    document.getElementById('patOccupation').textContent = tauxOccup + ' %';
+    document.getElementById('patDette').textContent = detteTotale.toLocaleString('fr-FR') + ' €';
+
     rendreArbrePatrimoine('');
+  }
+
+  let filtreOccupationActif = 'tous';
+  function filtrerParOccupation(mode) {
+    filtreOccupationActif = mode;
+    ['ftTous', 'ftLoues', 'ftVacants'].forEach(id => document.getElementById(id).classList.remove('active'));
+    document.getElementById(mode === 'tous' ? 'ftTous' : mode === 'loues' ? 'ftLoues' : 'ftVacants').classList.add('active');
+    rendreArbrePatrimoine(document.getElementById('rechercheArbre').value.toLowerCase());
   }
 
   function filtrerArbrePatrimoine() {
@@ -1373,8 +1395,10 @@
     let totalGeneral = 0;
 
     donneesArbrePatrimoine.forEach(s => {
-      const immeublesFiltres = filtre ? s.immeubles.filter(im => im.adresse.toLowerCase().includes(filtre)) : s.immeubles;
-      const structureMatch = !filtre || s.nom.toLowerCase().includes(filtre) || immeublesFiltres.length > 0;
+      let immeublesFiltres = filtre ? s.immeubles.filter(im => im.adresse.toLowerCase().includes(filtre)) : s.immeubles;
+      if (filtreOccupationActif === 'loues') immeublesFiltres = immeublesFiltres.filter(im => im.nbLots > 0 && im.nbOccupes === im.nbLots);
+      if (filtreOccupationActif === 'vacants') immeublesFiltres = immeublesFiltres.filter(im => im.nbOccupes < im.nbLots);
+      const structureMatch = immeublesFiltres.length > 0 || (!filtre && filtreOccupationActif === 'tous');
       if (!structureMatch) return;
 
       const totalStructure = s.immeubles.reduce((a, im) => a + im.loyersMensuels, 0);
@@ -1386,13 +1410,16 @@
         <button class="btn-secondary" style="padding:8px 14px; border-radius:8px; font-size:0.85rem;" onclick="creerImmeuble('${s.id}')">Ajouter</button>
       </div>`;
 
-      const immeublesAAfficher = filtre ? immeublesFiltres : s.immeubles;
-      if (immeublesAAfficher.length) {
-        html += `<div class="bien-grid">` + immeublesAAfficher.map(im => carteBien({
-          icone: '🏢', titre: im.adresse, sousTitre: `${im.nbLots} lot${im.nbLots > 1 ? 's' : ''}`,
-          nbLots: im.nbLots, nbOccupes: im.nbOccupes, loyer: im.loyersMensuels,
-          onclick: `ouvrirFicheImmeuble('${im.id}')`
-        })).join('') + `</div>`;
+      if (immeublesFiltres.length) {
+        html += `<div class="bien-grid">` + immeublesFiltres.map(im => {
+          const nbVacants = im.nbLots - im.nbOccupes;
+          const alerte = nbVacants > 0 ? `${nbVacants} lot${nbVacants > 1 ? 's' : ''} vacant${nbVacants > 1 ? 's' : ''}` : null;
+          return carteBien({
+            icone: '🏢', titre: im.adresse, sousTitre: `${im.nbLots} lot${im.nbLots > 1 ? 's' : ''}`,
+            nbLots: im.nbLots, nbOccupes: im.nbOccupes, loyer: im.loyersMensuels,
+            onclick: `ouvrirFicheImmeuble('${im.id}')`, alerte
+          });
+        }).join('') + `</div>`;
       }
     });
 
@@ -1401,7 +1428,7 @@
   }
 
   // Carte "bien" réutilisable (immeubles ET lots), inspirée de la maquette validée
-  function carteBien({ icone, titre, sousTitre, nbLots, nbOccupes, loyer, onclick, statutLot }) {
+  function carteBien({ icone, titre, sousTitre, nbLots, nbOccupes, loyer, onclick, statutLot, alerte }) {
     let badgeClasse = 'badge-gris', badgeTexte = 'Vacant';
     if (statutLot) {
       // Carte lot unique : on affiche le vrai statut (occupé/vacant/travaux), pas juste une logique d'occupation globale
@@ -1423,6 +1450,7 @@
           <span class="badge-pill ${badgeClasse}">${badgeTexte}</span>
           <span class="bien-card-loyer">${loyer.toLocaleString('fr-FR')} €</span>
         </div>
+        ${alerte ? `<div class="bien-card-alerte">⚠ ${alerte}</div>` : ''}
       </div>
     `;
   }
@@ -1482,13 +1510,13 @@
   }
 
   function switchTabImmeuble(tab) {
-    ['lots', 'finances', 'documents', 'diagnostics', 'informations'].forEach(t => {
+    ['lots', 'finances', 'documents', 'infos'].forEach(t => {
       document.getElementById('tabcontent-' + t).style.display = t === tab ? 'block' : 'none';
       document.getElementById('tabImm' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
     });
     if (tab === 'finances') chargerFinancesImmeuble();
     if (tab === 'documents') chargerDocuments('immeuble', currentImmeubleId, 'listeDocumentsImmeuble');
-    if (tab === 'informations') chargerInformationsImmeuble();
+    if (tab === 'infos') chargerInformationsImmeuble();
   }
 
   async function chargerFinancesImmeuble() {
@@ -1533,7 +1561,7 @@
   }
 
   function ouvrirEditionImmeuble() {
-    switchTabImmeuble('informations');
+    switchTabImmeuble('infos');
   }
 
   async function chargerLots(immeubleId) {
@@ -2504,6 +2532,21 @@
     if (format === 'xlsx') telechargerXLSX(nomBase + '.xlsx', lignes);
     else telechargerCSV(nomBase + '.csv', lignes);
   }
+
+  function toggleExportMenu(id) {
+    const menu = document.getElementById(id);
+    const etaitOuvert = menu.classList.contains('ouvert');
+    fermerExportMenus();
+    if (!etaitOuvert) menu.classList.add('ouvert');
+  }
+
+  function fermerExportMenus() {
+    document.querySelectorAll('.export-menu').forEach(m => m.classList.remove('ouvert'));
+  }
+
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.export-wrap')) fermerExportMenus();
+  });
 
   async function exporterTransactions(format) {
     const structureId = document.getElementById('structureRapports').value;
