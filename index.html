@@ -260,6 +260,23 @@
   .icon-btn-round { width: 36px; height: 36px; padding: 0; border-radius: 50%; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); display: flex; align-items: center; justify-content: center; font-size: 1rem; text-decoration: none; cursor: pointer; }
   .icon-btn-round:hover { border-color: var(--accent); color: var(--accent); }
 
+  .locataire-row { display: flex; align-items: center; gap: 12px; padding: 12px 4px; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .locataire-row:last-child { border-bottom: none; }
+  .locataire-row:hover { background: var(--panel-2); }
+  .locataire-row .avatar { width: 38px; height: 38px; font-size: 0.82rem; flex-shrink: 0; }
+  .locataire-row-infos { flex: 1; min-width: 0; }
+  .locataire-row-nom { font-weight: 600; font-size: 0.92rem; }
+  .locataire-row-souttitre { font-size: 0.78rem; color: var(--text-dim); margin-top: 2px; }
+  .locataire-row-icons { display: flex; gap: 6px; flex-shrink: 0; }
+  .locataire-row-icons .icon-btn-round { width: 30px; height: 30px; font-size: 0.82rem; }
+
+  .btn-ajout-replie { width: 100%; padding: 13px; border: 1px dashed var(--border); border-radius: var(--radius); background: transparent; color: var(--text-dim); font-size: 0.88rem; cursor: pointer; margin-bottom: 16px; }
+  .btn-ajout-replie:hover { border-color: var(--accent); color: var(--accent); }
+
+  .section-header-ajout { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .section-header-ajout h3 { margin: 0; }
+  .btn-ajout-inline { width: auto; padding: 8px 14px; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; }
+
   .params-layout { display: grid; grid-template-columns: 220px 1fr; gap: 16px; align-items: start; }
   @media (max-width: 900px) { .params-layout { grid-template-columns: 1fr; } }
   .params-menu { padding: 12px; }
@@ -351,15 +368,19 @@
           <div><span class="lbl">Dette restante</span><span class="val" id="patDette">—</span></div>
         </div>
 
-        <div class="quick-add-tabs">
-          <div class="quick-tab active" id="qtBien" onclick="switchQuickAdd('bien')">+ Ajouter un bien</div>
-          <div class="quick-tab" id="qtImmeuble" onclick="switchQuickAdd('immeuble')">+ Ajouter un immeuble</div>
-        </div>
+        <button class="btn-ajout-replie" id="btnOuvrirAjoutBien" onclick="toggleAjoutPatrimoine()">+ Ajouter un bien ou un immeuble</button>
 
-        <!-- Ajout rapide d'un bien seul (maison, appartement isolé...) -->
-        <div class="card" id="qa-bien">
-          <p class="small" style="margin:0 0 8px;">Type de bien</p>
-          <div class="type-picker" id="typePickerBien">
+        <div id="panneauAjoutPatrimoine" style="display:none;">
+          <div class="quick-add-tabs">
+            <div class="quick-tab active" id="qtBien" onclick="switchQuickAdd('bien')">+ Ajouter un bien</div>
+            <div class="quick-tab" id="qtImmeuble" onclick="switchQuickAdd('immeuble')">+ Ajouter un immeuble</div>
+            <button class="icon-btn-round" style="margin-left:auto;" onclick="toggleAjoutPatrimoine()" aria-label="Fermer">✕</button>
+          </div>
+
+          <!-- Ajout rapide d'un bien seul (maison, appartement isolé...) -->
+          <div class="card" id="qa-bien">
+            <p class="small" style="margin:0 0 8px;">Type de bien</p>
+            <div class="type-picker" id="typePickerBien">
             <div class="type-card" data-type="appartement" onclick="selectionnerTypeBien('appartement')"><span class="ic">🏢</span><span>Appartement</span></div>
             <div class="type-card" data-type="maison" onclick="selectionnerTypeBien('maison')"><span class="ic">🏠</span><span>Maison</span></div>
             <div class="type-card" data-type="studio" onclick="selectionnerTypeBien('studio')"><span class="ic">🛏️</span><span>Studio</span></div>
@@ -397,6 +418,7 @@
           <div class="small" id="recapQuantites" style="margin:12px 0;">Aucun lot pour l'instant</div>
           <button class="btn-green" onclick="creerImmeubleRapide()">Créer l'immeuble</button>
           <p class="small" style="text-align:center; margin-top:6px;">Chaque lot sera nommé automatiquement (Appartement 1, 2, 3...)</p>
+          </div>
         </div>
 
         <div class="card">
@@ -444,8 +466,11 @@
         </div>
 
         <div id="tabcontent-lots">
-          <div class="card">
-            <h3>Ajouter un lot</h3>
+          <div class="section-header-ajout">
+            <h3>Lots</h3>
+            <button class="btn-secondary btn-ajout-inline" id="btnAjoutLot" onclick="toggleFormulaire('formAjoutLot','btnAjoutLot')">+ Ajouter un lot</button>
+          </div>
+          <div class="card" id="formAjoutLot" style="display:none;">
             <input id="nomLot" placeholder="Nom (ex: Appartement 3, Parking B12)">
             <select id="typeLot">
               <option value="appartement">Appartement</option>
@@ -460,7 +485,6 @@
             <button class="btn-primary" onclick="creerLot()">Ajouter le lot</button>
           </div>
           <div class="card">
-            <h3>Lots</h3>
             <div id="listeLots">Chargement...</div>
           </div>
         </div>
@@ -473,8 +497,11 @@
         </div>
 
         <div id="tabcontent-documents" style="display:none;">
-          <div class="card">
-            <h3>Ajouter un document</h3>
+          <div class="section-header-ajout">
+            <h3>Documents</h3>
+            <button class="btn-secondary btn-ajout-inline" id="btnAjoutDocImmeuble" onclick="toggleFormulaire('formAjoutDocImmeuble','btnAjoutDocImmeuble')">+ Ajouter un document</button>
+          </div>
+          <div class="card" id="formAjoutDocImmeuble" style="display:none;">
             <input type="file" id="fichierDocImmeuble">
             <button class="btn-primary" onclick="uploaderDocument('immeuble', currentImmeubleId, currentImmeubleData.structure_id, 'fichierDocImmeuble')">Envoyer</button>
           </div>
@@ -525,8 +552,11 @@
         </div>
 
         <div id="tabcontent-lot-documents" style="display:none;">
-          <div class="card">
-            <h3>Ajouter un document</h3>
+          <div class="section-header-ajout">
+            <h3>Documents</h3>
+            <button class="btn-secondary btn-ajout-inline" id="btnAjoutDocLot" onclick="toggleFormulaire('formAjoutDocLot','btnAjoutDocLot')">+ Ajouter un document</button>
+          </div>
+          <div class="card" id="formAjoutDocLot" style="display:none;">
             <input type="file" id="fichierDocLot">
             <button class="btn-primary" onclick="uploaderDocument('lot', currentLotId, currentLotStructureId, 'fichierDocLot')">Envoyer</button>
           </div>
@@ -564,10 +594,16 @@
 
         <div id="tabcontent-loc-bail">
           <div class="card">
-            <h3>Informations bancaires</h3>
-            <input id="ibanLocataire" placeholder="IBAN">
-            <input id="garantieLocataire" placeholder="Garantie / répondant (nom, coordonnées)">
-            <button class="btn-primary" onclick="enregistrerInfosLocataire()">Enregistrer</button>
+            <div class="section-header-ajout">
+              <h3>Informations bancaires</h3>
+              <button class="btn-secondary btn-ajout-inline" id="btnModifierInfosLoc" onclick="toggleFormulaire('formInfosLocataire','btnModifierInfosLoc')">Modifier</button>
+            </div>
+            <div id="lectureInfosLocataire" class="small">Chargement...</div>
+            <div id="formInfosLocataire" style="display:none; margin-top:10px;">
+              <input id="ibanLocataire" placeholder="IBAN">
+              <input id="garantieLocataire" placeholder="Garantie / répondant (nom, coordonnées)">
+              <button class="btn-primary" onclick="enregistrerInfosLocataire()">Enregistrer</button>
+            </div>
           </div>
           <div class="card">
             <h3>Résumé du bail</h3>
@@ -590,18 +626,31 @@
         </div>
 
         <div id="tabcontent-loc-documents" style="display:none;">
-          <div class="card">
+          <div class="section-header-ajout">
             <h3>Documents</h3>
-            <input type="file" id="fichierDocLocataire" style="margin-bottom:8px;">
-            <button class="btn-primary" onclick="uploaderDocument('locataire', currentLocataireId, currentLocataireStructureId, 'fichierDocLocataire')">Envoyer</button>
-            <div id="listeDocumentsLocataire" style="margin-top:12px;">Chargement...</div>
+            <button class="btn-secondary btn-ajout-inline" id="btnAjoutDocLoc" onclick="toggleFormulaire('formAjoutDocLoc','btnAjoutDocLoc')">+ Ajouter un document</button>
           </div>
+          <div class="card" id="formAjoutDocLoc" style="display:none;">
+            <input type="file" id="fichierDocLocataire">
+            <button class="btn-primary" onclick="uploaderDocument('locataire', currentLocataireId, currentLocataireStructureId, 'fichierDocLocataire')">Envoyer</button>
+          </div>
+          <div class="card"><div id="listeDocumentsLocataire">Chargement...</div></div>
         </div>
       </div>
 
       <!-- ===== LOCATAIRES (liste globale) ===== -->
       <div id="page-locataires" style="display:none;">
-        <div class="page-header"><h2>Locataires</h2></div>
+        <div class="page-header">
+          <h2>Locataires</h2>
+          <div style="display:flex; gap:8px;">
+            <input id="rechercheLocataires" placeholder="Rechercher un locataire..." style="width:220px; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);" oninput="filtrerListeLocataires()">
+            <select id="filtreStatutLocataires" onchange="filtrerListeLocataires()" style="width:auto; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);">
+              <option value="tous">Tous les statuts</option>
+              <option value="a_jour">À jour</option>
+              <option value="en_retard">En retard</option>
+            </select>
+          </div>
+        </div>
         <div class="card">
           <div id="listeLocatairesGlobale">Chargement...</div>
         </div>
@@ -660,8 +709,8 @@
           <div class="tab" id="tabFinVirements" onclick="switchTabFinances('virements')">Virements</div>
         </div>
 
-        <div class="card">
-          <h3>Ajouter une transaction</h3>
+        <button class="btn-ajout-replie" id="btnAjoutTx" onclick="toggleFormulaire('formAjoutTx','btnAjoutTx')">+ Ajouter une transaction</button>
+        <div class="card" id="formAjoutTx" style="display:none;">
           <select id="typeTx"><option value="recette">Recette</option><option value="depense">Dépense</option></select>
           <input id="categorieTx" placeholder="Catégorie (ex: loyer, travaux, assurance)">
           <input id="montantTx" type="number" placeholder="Montant (€)">
@@ -691,8 +740,8 @@
       <div id="page-prets" style="display:none;">
         <div class="page-header"><h2>Prêts & Financements</h2></div>
         <div class="card"><select id="immeublePrets" onchange="chargerPrets()"></select></div>
-        <div class="card">
-          <h3>Ajouter un prêt</h3>
+        <button class="btn-ajout-replie" id="btnAjoutPret" onclick="toggleFormulaire('formAjoutPret','btnAjoutPret')">+ Ajouter un prêt</button>
+        <div class="card" id="formAjoutPret" style="display:none;">
           <input id="banquePret" placeholder="Banque (ex: Crédit Agricole)">
           <input id="capitalInitialPret" type="number" placeholder="Capital initial (€)">
           <input id="tauxPret" type="number" step="0.01" placeholder="Taux (%)">
@@ -1361,6 +1410,24 @@
   }
 
   // ---------- PATRIMOINE ----------
+  // Fonction générique : replie/déplie un formulaire de création, avec son bouton "+ Ajouter" associé.
+  // Utilisée sur tous les écrans pour éviter d'afficher un formulaire vide en permanence.
+  function toggleFormulaire(idFormulaire, idBouton) {
+    const form = document.getElementById(idFormulaire);
+    const bouton = document.getElementById(idBouton);
+    const ouvert = form.style.display === 'block';
+    form.style.display = ouvert ? 'none' : 'block';
+    if (bouton) bouton.style.display = ouvert ? 'inline-flex' : 'none';
+  }
+
+  function toggleAjoutPatrimoine() {
+    const panneau = document.getElementById('panneauAjoutPatrimoine');
+    const bouton = document.getElementById('btnOuvrirAjoutBien');
+    const ouvert = panneau.style.display === 'block';
+    panneau.style.display = ouvert ? 'none' : 'block';
+    bouton.style.display = ouvert ? 'block' : 'none';
+  }
+
   async function allerPatrimoine() {
     setActiveNav('nav-patrimoine'); hideAllPages();
     document.getElementById('page-patrimoine').style.display = 'block';
@@ -1846,6 +1913,12 @@
     document.getElementById('locNom').textContent = locataire.nom;
     document.getElementById('ibanLocataire').value = locataire.iban || '';
     document.getElementById('garantieLocataire').value = locataire.garantie || '';
+    document.getElementById('lectureInfosLocataire').innerHTML = `
+      <div class="row"><span class="small">IBAN</span><span>${locataire.iban ? echapper(locataire.iban) : '—'}</span></div>
+      <div class="row"><span class="small">Garantie</span><span>${locataire.garantie ? echapper(locataire.garantie) : '—'}</span></div>
+    `;
+    document.getElementById('formInfosLocataire').style.display = 'none';
+    document.getElementById('btnModifierInfosLoc').style.display = 'inline-flex';
 
     document.getElementById('locContactIcons').innerHTML = `
       ${locataire.email ? `<a class="icon-btn-round" href="mailto:${echapper(locataire.email)}" title="${echapper(locataire.email)}">✉️</a>` : ''}
@@ -1920,6 +1993,11 @@
     const garantie = document.getElementById('garantieLocataire').value;
     const { error } = await supabaseClient.from('locataires').update({ iban: iban || null, garantie: garantie || null }).eq('id', currentLocataireId);
     if (error) return alert('Erreur : ' + error.message);
+    document.getElementById('lectureInfosLocataire').innerHTML = `
+      <div class="row"><span class="small">IBAN</span><span>${iban ? echapper(iban) : '—'}</span></div>
+      <div class="row"><span class="small">Garantie</span><span>${garantie ? echapper(garantie) : '—'}</span></div>
+    `;
+    toggleFormulaire('formInfosLocataire', 'btnModifierInfosLoc');
   }
 
   function retourDepuisLocataire() {
@@ -1932,19 +2010,87 @@
   }
 
   // ---------- LOCATAIRES (liste globale) ----------
+  let donneesLocatairesGlobal = [];
+
   async function allerLocataires() {
     setActiveNav('nav-locataires'); hideAllPages();
     document.getElementById('page-locataires').style.display = 'block';
     const div = document.getElementById('listeLocatairesGlobale');
     div.textContent = 'Chargement...';
+
     const { data: locataires, error } = await supabaseClient.from('locataires').select('*').order('nom');
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
     if (!locataires || !locataires.length) { div.innerHTML = '<div class="empty-state">Aucun locataire pour le moment.</div>'; return; }
-    div.innerHTML = locataires.map(l => `
-      <div class="row row-click" onclick="ouvrirFicheLocataire('${l.id}', 'liste')">
-        <span>${echapper(l.nom)}</span><span class="small">${echapper(l.email || '')}</span>
-      </div>
-    `).join('');
+
+    const locataireIds = locataires.map(l => l.id);
+    const { data: rattachements } = await supabaseClient.from('bail_locataires').select('locataire_id, bail_id').in('locataire_id', locataireIds);
+    const bailIdsParLocataire = {};
+    (rattachements || []).forEach(r => { (bailIdsParLocataire[r.locataire_id] = bailIdsParLocataire[r.locataire_id] || []).push(r.bail_id); });
+
+    const tousBailIds = [...new Set((rattachements || []).map(r => r.bail_id))];
+    const { data: bauxActifs } = tousBailIds.length
+      ? await supabaseClient.from('baux').select('id, lots(nom, type, immeubles(adresse))').in('id', tousBailIds).eq('statut', 'actif')
+      : { data: [] };
+    const bauxParId = {};
+    (bauxActifs || []).forEach(b => { bauxParId[b.id] = b; });
+
+    const { data: paiementsEnRetard } = tousBailIds.length
+      ? await supabaseClient.from('paiements').select('bail_id').in('bail_id', tousBailIds).eq('statut', 'en_retard')
+      : { data: [] };
+    const bailIdsEnRetard = new Set((paiementsEnRetard || []).map(p => p.bail_id));
+
+    donneesLocatairesGlobal = locataires.map(l => {
+      const mesBailIds = bailIdsParLocataire[l.id] || [];
+      const bailActifId = mesBailIds.find(id => bauxParId[id]);
+      const bailActif = bailActifId ? bauxParId[bailActifId] : null;
+      const enRetard = mesBailIds.some(id => bailIdsEnRetard.has(id));
+      return {
+        id: l.id, nom: l.nom, email: l.email, telephone: l.telephone,
+        sousTitre: bailActif ? `${bailActif.lots.nom || bailActif.lots.type} · ${bailActif.lots.immeubles.adresse}` : 'Aucun bail actif',
+        statut: bailActif ? (enRetard ? 'en_retard' : 'a_jour') : null
+      };
+    });
+
+    rendreListeLocataires();
+  }
+
+  function filtrerListeLocataires() {
+    rendreListeLocataires();
+  }
+
+  function rendreListeLocataires() {
+    const div = document.getElementById('listeLocatairesGlobale');
+    const filtre = document.getElementById('rechercheLocataires').value.toLowerCase();
+    const statutFiltre = document.getElementById('filtreStatutLocataires').value;
+
+    const items = donneesLocatairesGlobal.filter(l => {
+      if (filtre && !l.nom.toLowerCase().includes(filtre) && !(l.email || '').toLowerCase().includes(filtre)) return false;
+      if (statutFiltre !== 'tous' && l.statut !== statutFiltre) return false;
+      return true;
+    });
+
+    if (!items.length) { div.innerHTML = '<div class="empty-state">Aucun locataire ne correspond.</div>'; return; }
+
+    div.innerHTML = items.map(l => {
+      const initiales = l.nom.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+      const badge = l.statut === 'en_retard'
+        ? '<span class="badge-pill badge-rouge">En retard</span>'
+        : l.statut === 'a_jour' ? '<span class="badge-pill badge-vert">À jour</span>' : '';
+      return `
+        <div class="locataire-row" onclick="ouvrirFicheLocataire('${l.id}', 'liste')">
+          <div class="avatar">${initiales}</div>
+          <div class="locataire-row-infos">
+            <div class="locataire-row-nom">${echapper(l.nom)}</div>
+            <div class="locataire-row-souttitre">${echapper(l.sousTitre)}</div>
+          </div>
+          ${badge}
+          <div class="locataire-row-icons" onclick="event.stopPropagation()">
+            ${l.email ? `<a class="icon-btn-round" href="mailto:${echapper(l.email)}" title="${echapper(l.email)}">✉️</a>` : ''}
+            ${l.telephone ? `<a class="icon-btn-round" href="tel:${echapper(l.telephone)}" title="${echapper(l.telephone)}">📞</a>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
   }
 
   // ---------- LOYERS (calendrier) ----------
