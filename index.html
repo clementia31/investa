@@ -161,6 +161,12 @@
   .badge-pill.badge-orange { background: rgba(245,158,11,0.15); color: var(--amber); }
   .badge-pill.badge-gris { background: rgba(139,150,179,0.15); color: var(--text-dim); }
   .badge-pill.badge-rouge { background: rgba(239,68,68,0.15); color: var(--red); }
+
+  .statut-picker { display: flex; gap: 8px; margin-bottom: 12px; }
+  .statut-option { flex: 1; text-align: center; padding: 10px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--panel-2); cursor: pointer; font-size: 0.85rem; color: var(--text-dim); }
+  .statut-option:hover { color: var(--text); }
+  .statut-option.selected[data-statut="vacant"] { border-color: var(--amber); background: rgba(245,158,11,0.12); color: var(--amber); font-weight: 600; }
+  .statut-option.selected[data-statut="occupe"] { border-color: #22c55e; background: rgba(34,197,94,0.12); color: #22c55e; font-weight: 600; }
   .pagination-bar { display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
 
   .quick-add-tabs { display: flex; gap: 8px; margin: 4px 0 16px 0; }
@@ -334,8 +340,12 @@
             <input id="loyerQuickBien" type="number" placeholder="Loyer mensuel (€)">
           </div>
           <input id="chargesQuickBien" type="number" placeholder="Charges (€)">
+          <p class="small" style="margin:12px 0 8px;">Statut</p>
+          <div class="statut-picker" id="statutPickerBien">
+            <div class="statut-option selected" data-statut="vacant" onclick="selectionnerStatutBien('vacant')">Vacant</div>
+            <div class="statut-option" data-statut="occupe" onclick="selectionnerStatutBien('occupe')">Loué</div>
+          </div>
           <button class="btn-primary" onclick="creerBienRapide()">Créer le bien</button>
-          <p class="small" style="text-align:center; margin-top:6px;">Rien n'est obligatoire à part le type — complète le reste plus tard si tu veux</p>
         </div>
 
         <!-- Ajout rapide d'un immeuble avec plusieurs lots générés d'un coup -->
@@ -995,17 +1005,27 @@
     }
     const structIds = structures.map(s => s.id);
 
-    // Loyers du mois
-    const { data: paiements } = await supabaseClient.from('paiements').select('*, baux(lot_id, lots(immeuble_id, immeubles(structure_id)))').eq('mois', moisDate);
-    let attendu = 0, encaisse = 0, retardCount = 0;
+    // Loyers attendus : calculés directement depuis les BAUX ACTIFS, pas depuis la table paiements
+    // (qui ne se remplit que quand on ouvre l'écran Loyers) — comme ça le Dashboard reflète
+    // immédiatement tout bien créé depuis Patrimoine, sans étape intermédiaire.
+    const { data: bauxActifsMois } = await supabaseClient.from('baux').select('loyer, charges, lots(immeuble_id, immeubles(structure_id))').eq('statut', 'actif').lte('date_debut', moisDate);
+    let attendu = 0;
     const parStructure = {};
+    (bauxActifsMois || []).forEach(b => {
+      const total = Number(b.loyer) + Number(b.charges);
+      attendu += total;
+      const sId = b.lots && b.lots.immeubles ? b.lots.immeubles.structure_id : null;
+      if (sId) parStructure[sId] = (parStructure[sId] || 0) + total;
+    });
+
+    // Encaissé / en retard : ça, ça reste basé sur les vrais paiements enregistrés
+    // (le statut de paiement n'existe légitimement qu'une fois suivi dans Loyers)
+    const { data: paiements } = await supabaseClient.from('paiements').select('*').eq('mois', moisDate);
+    let encaisse = 0, retardCount = 0;
     (paiements || []).forEach(p => {
       const total = Number(p.montant_loyer) + Number(p.montant_charges);
-      attendu += total;
       if (p.statut === 'paye') encaisse += total;
       if (p.statut === 'en_retard') retardCount++;
-      const sId = p.baux && p.baux.lots && p.baux.lots.immeubles ? p.baux.lots.immeubles.structure_id : null;
-      if (sId) parStructure[sId] = (parStructure[sId] || 0) + total;
     });
 
     // Charges du mois
@@ -1123,6 +1143,7 @@
     parking: 'Parking', garage: 'Garage', local_commercial: 'Local'
   };
   let selectedTypeBien = null;
+  let selectedStatutBien = 'vacant';
   const quantitesImmeuble = { appartement: 0, maison: 0, studio: 0, chambre: 0, parking: 0, garage: 0, local_commercial: 0, autre: 0 };
 
   // Récupère la première structure existante, ou en crée une silencieusement s'il n'y en a aucune.
@@ -1151,6 +1172,11 @@
     document.querySelectorAll('#typePickerBien .type-card').forEach(el => el.classList.toggle('selected', el.dataset.type === type));
   }
 
+  function selectionnerStatutBien(statut) {
+    selectedStatutBien = statut;
+    document.querySelectorAll('#statutPickerBien .statut-option').forEach(el => el.classList.toggle('selected', el.dataset.statut === statut));
+  }
+
   async function creerBienRapide() {
     if (!selectedTypeBien) return alert('Choisis un type de bien');
     const structureId = await obtenirStructureParDefaut();
@@ -1165,7 +1191,7 @@
     if (errImm) return alert('Erreur : ' + errImm.message);
 
     const { data: lot, error: errLot } = await supabaseClient.from('lots').insert({
-      immeuble_id: immeuble.id, type: selectedTypeBien, surface: surface ? parseFloat(surface) : null
+      immeuble_id: immeuble.id, type: selectedTypeBien, surface: surface ? parseFloat(surface) : null, statut: selectedStatutBien
     }).select().single();
     if (errLot) return alert('Erreur : ' + errLot.message);
 
@@ -1183,6 +1209,7 @@
     document.getElementById('chargesQuickBien').value = '';
     selectedTypeBien = null;
     document.querySelectorAll('#typePickerBien .type-card').forEach(el => el.classList.remove('selected'));
+    selectionnerStatutBien('vacant');
 
     currentImmeubleId = immeuble.id;
     ouvrirFicheLot(lot.id);
