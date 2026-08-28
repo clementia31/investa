@@ -1293,12 +1293,18 @@
     const debut = new Date(now.getFullYear(), now.getMonth() - 11, 1);
     const { data: txs } = await supabaseClient.from('transactions').select('*').in('structure_id', structIds).gte('date', debut.toISOString().split('T')[0]);
 
-    // Loyers payés sur les 12 derniers mois — récupérés via les baux des structures concernées
-    const { data: bauxTousStruct } = await supabaseClient.from('baux').select('id, lots(immeubles(structure_id))');
-    const bailIdsStruct = (bauxTousStruct || []).filter(b => b.lots && b.lots.immeubles && structIds.includes(b.lots.immeubles.structure_id)).map(b => b.id);
-    const { data: paiementsPayes } = bailIdsStruct.length
-      ? await supabaseClient.from('paiements').select('mois, montant_loyer, montant_charges').in('bail_id', bailIdsStruct).eq('statut', 'paye').gte('mois', debut.toISOString().split('T')[0])
+    // Loyers : calculés depuis les DATES DU BAIL (récurrent chaque mois où le bail est actif),
+    // pas depuis la table paiements qui ne se remplit que si on a visité ce mois précis dans Loyers.
+    // Ça s'adapte automatiquement à la date d'entrée et à la date de sortie de chaque locataire.
+    const { data: bauxTousStruct } = await supabaseClient.from('baux').select('id, loyer, charges, date_debut, date_fin, lots(immeubles(structure_id))').eq('statut', 'actif');
+    const bauxStruct = (bauxTousStruct || []).filter(b => b.lots && b.lots.immeubles && structIds.includes(b.lots.immeubles.structure_id));
+    const bailIdsStruct = bauxStruct.map(b => b.id);
+
+    // On respecte quand même les corrections manuelles "en retard" faites via le calendrier
+    const { data: paiementsEnRetard } = bailIdsStruct.length
+      ? await supabaseClient.from('paiements').select('bail_id, mois').in('bail_id', bailIdsStruct).eq('statut', 'en_retard').gte('mois', debut.toISOString().split('T')[0])
       : { data: [] };
+    const enRetardParMoisBail = new Set((paiementsEnRetard || []).map(p => `${p.bail_id}_${p.mois}`));
 
     const mois = [];
     for (let i = 11; i >= 0; i--) {
@@ -1310,10 +1316,15 @@
       const m = mois.find(mm => mm.annee === d.getFullYear() && mm.moisIdx === d.getMonth());
       if (m) m.val += (t.type === 'recette' ? 1 : -1) * Number(t.montant);
     });
-    (paiementsPayes || []).forEach(p => {
-      const d = new Date(p.mois);
-      const m = mois.find(mm => mm.annee === d.getFullYear() && mm.moisIdx === d.getMonth());
-      if (m) m.val += Number(p.montant_loyer) + Number(p.montant_charges);
+    mois.forEach(m => {
+      const moisDateStr = m.annee + '-' + String(m.moisIdx + 1).padStart(2, '0') + '-01';
+      const dernierJour = new Date(m.annee, m.moisIdx + 1, 0).toISOString().split('T')[0];
+      bauxStruct.forEach(b => {
+        const actifCeMois = b.date_debut <= dernierJour && (!b.date_fin || b.date_fin >= moisDateStr);
+        if (actifCeMois && !enRetardParMoisBail.has(`${b.id}_${moisDateStr}`)) {
+          m.val += Number(b.loyer) + Number(b.charges);
+        }
+      });
     });
 
     const maxAbs = Math.max(1, ...mois.map(m => Math.abs(m.val)));
