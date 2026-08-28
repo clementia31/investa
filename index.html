@@ -727,6 +727,23 @@
             </select>
           </div>
         </div>
+
+        <button class="btn-ajout-replie" id="btnAjoutLocataireRapide" onclick="toggleFormulaire('formAjoutLocataireRapide','btnAjoutLocataireRapide')">+ Ajouter un locataire</button>
+        <div class="card" id="formAjoutLocataireRapide" style="display:none;">
+          <input id="nomLocataireRapide" placeholder="Nom du locataire">
+          <select id="bienLocataireRapide" onchange="verifierBailExistantLocataireRapide()"></select>
+          <div class="grid-2" style="margin-bottom:0;">
+            <input id="dateEntreeLocataireRapide" type="date">
+            <input id="dateSortieLocataireRapide" type="date">
+          </div>
+          <input id="loyerLocataireRapide" type="number" placeholder="Loyer (€) — nécessaire, ce bien n'a pas encore de bail" style="display:none;">
+          <div class="grid-2" style="margin-bottom:0;">
+            <input id="emailLocataireRapide" type="email" placeholder="Email (optionnel)">
+            <input id="telephoneLocataireRapide" placeholder="Téléphone (optionnel)">
+          </div>
+          <button class="btn-primary" onclick="creerLocataireRapide()">Ajouter le locataire</button>
+        </div>
+
         <div class="card">
           <div id="listeLocatairesGlobale">Chargement...</div>
         </div>
@@ -2232,15 +2249,92 @@
   // ---------- LOCATAIRES (liste globale) ----------
   let donneesLocatairesGlobal = [];
 
+  async function chargerBiensPourLocataireRapide() {
+    const sel = document.getElementById('bienLocataireRapide');
+    const { data: lots } = await supabaseClient.from('lots').select('id, nom, type, immeubles(adresse)').order('created_at');
+    sel.innerHTML = (lots || []).map(l => `<option value="${l.id}">${echapper(l.immeubles.adresse)} — ${echapper(l.nom || l.type)}</option>`).join('');
+    verifierBailExistantLocataireRapide();
+  }
+
+  async function verifierBailExistantLocataireRapide() {
+    const lotId = document.getElementById('bienLocataireRapide').value;
+    const champLoyer = document.getElementById('loyerLocataireRapide');
+    if (!lotId) { champLoyer.style.display = 'none'; return; }
+    const { data: baux } = await supabaseClient.from('baux').select('id').eq('lot_id', lotId).eq('statut', 'actif').limit(1);
+    champLoyer.style.display = (baux && baux.length) ? 'none' : 'block';
+  }
+
+  async function creerLocataireRapide() {
+    const nom = document.getElementById('nomLocataireRapide').value;
+    const lotId = document.getElementById('bienLocataireRapide').value;
+    const dateEntree = document.getElementById('dateEntreeLocataireRapide').value;
+    const dateSortie = document.getElementById('dateSortieLocataireRapide').value;
+    const loyer = document.getElementById('loyerLocataireRapide').value;
+    const email = document.getElementById('emailLocataireRapide').value;
+    const telephone = document.getElementById('telephoneLocataireRapide').value;
+
+    if (!nom) return alert('Nom requis');
+    if (!lotId) return alert('Sélectionne un bien');
+
+    const { data: lotInfo } = await supabaseClient.from('lots').select('immeuble_id, immeubles(structure_id)').eq('id', lotId).single();
+    const structureId = lotInfo.immeubles.structure_id;
+
+    const { data: bauxActifs } = await supabaseClient.from('baux').select('*').eq('lot_id', lotId).eq('statut', 'actif').limit(1);
+    let bail = bauxActifs && bauxActifs[0];
+
+    if (!bail) {
+      if (!loyer) return alert('Ce bien n\u2019a pas encore de bail — indique un loyer pour en créer un.');
+      const { data: nouveauBail, error: errBail } = await supabaseClient.from('baux').insert({
+        lot_id: lotId, type: 'nu', date_debut: dateEntree || new Date().toISOString().split('T')[0],
+        date_fin: dateSortie || null, loyer: parseFloat(loyer), charges: 0, statut: 'actif'
+      }).select().single();
+      if (errBail) return alert('Erreur : ' + errBail.message);
+      bail = nouveauBail;
+    } else if (dateEntree || dateSortie) {
+      // Le bail existe déjà (souvent créé sans locataire via l'ajout rapide de bien) :
+      // on en profite pour préciser ses vraies dates si elles sont renseignées ici.
+      await supabaseClient.from('baux').update({
+        date_debut: dateEntree || bail.date_debut, date_fin: dateSortie || bail.date_fin
+      }).eq('id', bail.id);
+    }
+
+    const { data: locataire, error: errLoc } = await supabaseClient.from('locataires').insert({
+      structure_id: structureId, nom, email: email || null, telephone: telephone || null
+    }).select().single();
+    if (errLoc) return alert('Erreur : ' + errLoc.message);
+    await supabaseClient.from('bail_locataires').insert({ bail_id: bail.id, locataire_id: locataire.id });
+    await supabaseClient.from('lots').update({ statut: 'occupe' }).eq('id', lotId);
+
+    // Reset du formulaire
+    document.getElementById('nomLocataireRapide').value = '';
+    document.getElementById('dateEntreeLocataireRapide').value = '';
+    document.getElementById('dateSortieLocataireRapide').value = '';
+    document.getElementById('loyerLocataireRapide').value = '';
+    document.getElementById('emailLocataireRapide').value = '';
+    document.getElementById('telephoneLocataireRapide').value = '';
+    toggleFormulaire('formAjoutLocataireRapide', 'btnAjoutLocataireRapide');
+    allerLocataires();
+  }
+
   async function allerLocataires() {
     setActiveNav('nav-locataires'); hideAllPages();
     document.getElementById('page-locataires').style.display = 'block';
+    chargerBiensPourLocataireRapide();
     const div = document.getElementById('listeLocatairesGlobale');
     div.textContent = 'Chargement...';
 
     const { data: locataires, error } = await supabaseClient.from('locataires').select('*').order('nom');
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
-    if (!locataires || !locataires.length) { div.innerHTML = '<div class="empty-state">Aucun locataire pour le moment.</div>'; return; }
+    if (!locataires || !locataires.length) {
+      div.innerHTML = `
+        <div class="empty-state">
+          Aucun locataire pour le moment.<br>
+          <span class="small">Un locataire se crée depuis le bail d'un bien : ouvre un bien dans Patrimoine → onglet "Bail".</span><br>
+          <button class="btn-primary" style="width:auto; padding:10px 20px; margin-top:12px;" onclick="allerPatrimoine()">Aller sur Patrimoine</button>
+        </div>
+      `;
+      return;
+    }
 
     const locataireIds = locataires.map(l => l.id);
     const { data: rattachements } = await supabaseClient.from('bail_locataires').select('locataire_id, bail_id').in('locataire_id', locataireIds);
