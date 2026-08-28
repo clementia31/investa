@@ -79,9 +79,13 @@
       <div class="stat-card"><div class="lbl">Lots</div><div class="val" id="mTotalLots">—</div></div>
     </div>
     <div class="grid-4">
+      <div class="stat-card"><div class="lbl">Valeur patrimoniale totale</div><div class="val" id="mValeurTotale">—</div></div>
+      <div class="stat-card red"><div class="lbl">Dette totale</div><div class="val" id="mDetteTotale">—</div></div>
       <div class="stat-card green"><div class="lbl">Taux d'occupation global</div><div class="val" id="mOccupation">—</div></div>
-      <div class="stat-card"><div class="lbl">Locataires</div><div class="val" id="mTotalLocataires">—</div></div>
       <div class="stat-card"><div class="lbl">Baux actifs</div><div class="val" id="mBauxActifs">—</div></div>
+    </div>
+    <div class="grid-4">
+      <div class="stat-card"><div class="lbl">Locataires</div><div class="val" id="mTotalLocataires">—</div></div>
       <div class="stat-card"><div class="lbl">Documents stockés</div><div class="val" id="mDocuments">—</div></div>
     </div>
 
@@ -160,6 +164,8 @@
     document.getElementById('mTotalLocataires').textContent = data.total_locataires;
     document.getElementById('mBauxActifs').textContent = data.total_baux_actifs;
     document.getElementById('mDocuments').textContent = data.total_documents;
+    document.getElementById('mValeurTotale').textContent = Number(data.valeur_patrimoniale_totale).toLocaleString('fr-FR') + ' €';
+    document.getElementById('mDetteTotale').textContent = Number(data.dette_totale).toLocaleString('fr-FR') + ' €';
 
     chargerUtilisateurs();
 
