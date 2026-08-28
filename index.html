@@ -170,6 +170,11 @@
   .bien-card-loyer { font-weight: 700; font-size: 0.92rem; }
   .bien-card-alerte { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); font-size: 0.76rem; color: var(--amber); }
   .badge-pill { font-size: 0.72rem; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+
+  .loyer-mois-bloc { display: flex; justify-content: space-between; align-items: center; background: var(--panel-2); border-radius: var(--radius); padding: 14px 18px; margin-top: 16px; }
+  .loyer-mois-montant { font-size: 1.3rem; font-weight: 700; margin: 2px 0 0; }
+  .badge-pill.badge-pastille { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; }
+  .badge-pill.badge-pastille::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
   .badge-pill.badge-vert { background: rgba(34,197,94,0.15); color: #22c55e; }
   .badge-pill.badge-orange { background: rgba(245,158,11,0.15); color: var(--amber); }
   .badge-pill.badge-gris { background: rgba(139,150,179,0.15); color: var(--text-dim); }
@@ -659,6 +664,13 @@
               <div style="margin-top:8px; display:flex; gap:6px;" id="locBadges"></div>
             </div>
             <div style="display:flex; gap:8px;" id="locContactIcons"></div>
+          </div>
+          <div class="loyer-mois-bloc" id="locLoyerMoisBloc" style="display:none;">
+            <div>
+              <p class="small" style="margin:0;" id="locLoyerMoisLabel"></p>
+              <p class="loyer-mois-montant" id="locLoyerMoisMontant"></p>
+            </div>
+            <span class="badge-pill" id="locLoyerMoisStatut"></span>
           </div>
         </div>
 
@@ -1281,6 +1293,13 @@
     const debut = new Date(now.getFullYear(), now.getMonth() - 11, 1);
     const { data: txs } = await supabaseClient.from('transactions').select('*').in('structure_id', structIds).gte('date', debut.toISOString().split('T')[0]);
 
+    // Loyers payés sur les 12 derniers mois — récupérés via les baux des structures concernées
+    const { data: bauxTousStruct } = await supabaseClient.from('baux').select('id, lots(immeubles(structure_id))');
+    const bailIdsStruct = (bauxTousStruct || []).filter(b => b.lots && b.lots.immeubles && structIds.includes(b.lots.immeubles.structure_id)).map(b => b.id);
+    const { data: paiementsPayes } = bailIdsStruct.length
+      ? await supabaseClient.from('paiements').select('mois, montant_loyer, montant_charges').in('bail_id', bailIdsStruct).eq('statut', 'paye').gte('mois', debut.toISOString().split('T')[0])
+      : { data: [] };
+
     const mois = [];
     for (let i = 11; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
@@ -1290,6 +1309,11 @@
       const d = new Date(t.date);
       const m = mois.find(mm => mm.annee === d.getFullYear() && mm.moisIdx === d.getMonth());
       if (m) m.val += (t.type === 'recette' ? 1 : -1) * Number(t.montant);
+    });
+    (paiementsPayes || []).forEach(p => {
+      const d = new Date(p.mois);
+      const m = mois.find(mm => mm.annee === d.getFullYear() && mm.moisIdx === d.getMonth());
+      if (m) m.val += Number(p.montant_loyer) + Number(p.montant_charges);
     });
 
     const maxAbs = Math.max(1, ...mois.map(m => Math.abs(m.val)));
@@ -2194,8 +2218,8 @@
       }
     }
 
-    document.getElementById('locSousTitre').textContent = bailActuel
-      ? `${echapper(bailActuel.lots.nom || bailActuel.lots.type)} · ${echapper(bailActuel.lots.immeubles.adresse)}`
+    document.getElementById('locSousTitre').innerHTML = bailActuel
+      ? `<a href="#" onclick="ouvrirFicheLot('${bailActuel.lot_id}'); return false;" style="color:inherit;">${echapper(bailActuel.lots.nom || bailActuel.lots.type)} · ${echapper(bailActuel.lots.immeubles.adresse)}</a>`
       : 'Aucun bail actif';
 
     const premierSegment = currentLocataireOrigin === 'liste'
@@ -2214,6 +2238,26 @@
       : '<span class="badge-outline">Aucun bail actif</span>';
 
     const loyerAffiche = monRattachement && monRattachement.loyer_part ? Number(monRattachement.loyer_part) : (bailActuel ? Number(bailActuel.loyer) : 0);
+
+    // Bloc "Loyer du mois" — statut suivi au niveau du bail (partagé entre colocataires si besoin)
+    const blocLoyerMois = document.getElementById('locLoyerMoisBloc');
+    if (bailActuel) {
+      const moisEnCours = new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0') + '-01';
+      const { data: paiementMois } = await supabaseClient.from('paiements').select('*').eq('bail_id', bailActuel.id).eq('mois', moisEnCours).maybeSingle();
+      if (paiementMois) {
+        const labelsStatut = { paye: ['Payé', 'badge-vert'], en_retard: ['En retard', 'badge-rouge'], a_venir: ['À venir', 'badge-orange'] };
+        const [texteStatut, classeStatut] = labelsStatut[paiementMois.statut] || ['—', 'badge-gris'];
+        document.getElementById('locLoyerMoisLabel').textContent = 'Loyer de ' + new Date().toLocaleDateString('fr-FR', { month: 'long' });
+        document.getElementById('locLoyerMoisMontant').textContent = loyerAffiche.toLocaleString('fr-FR') + ' €';
+        document.getElementById('locLoyerMoisStatut').className = 'badge-pill badge-pastille ' + classeStatut;
+        document.getElementById('locLoyerMoisStatut').textContent = texteStatut;
+        blocLoyerMois.style.display = 'flex';
+      } else {
+        blocLoyerMois.style.display = 'none';
+      }
+    } else {
+      blocLoyerMois.style.display = 'none';
+    }
 
     document.getElementById('locInformations').innerHTML = bailActuel ? `
       <div class="row"><span class="small">Lot</span><span>${echapper(bailActuel.lots.nom || bailActuel.lots.type)}</span></div>
@@ -2485,13 +2529,12 @@
     (paiementsExistants || []).forEach(p => paiementParBail[p.bail_id] = p);
 
     // Baux sans paiement pour ce mois : on les crée en UNE seule requête groupée (insert multiple lignes).
-    // Statut toujours "à venir" par défaut, même pour un mois passé — un mois ne devient "en retard"
-    // que si l'utilisateur le marque lui-même (sinon un locataire ajouté avec une ancienne date d'entrée
-    // se retrouverait avec des dizaines de mois faussement marqués en retard rétroactivement).
+    // Statut "payé" par défaut — on part du principe que le loyer est encaissé normalement chaque mois,
+    // et le client corrige manuellement (via le panneau) les cas où ça ne s'est pas passé comme prévu.
     const bauxSansPaiement = bauxStructure.filter(b => !paiementParBail[b.id]);
     if (bauxSansPaiement.length) {
       const nouvellesLignes = bauxSansPaiement.map(b => ({
-        bail_id: b.id, mois: moisDate, montant_loyer: b.loyer, montant_charges: b.charges, statut: 'a_venir'
+        bail_id: b.id, mois: moisDate, montant_loyer: b.loyer, montant_charges: b.charges, statut: 'paye', date_paiement: moisDate
       }));
       const { data: inseres } = await supabaseClient.from('paiements').insert(nouvellesLignes).select();
       (inseres || []).forEach(p => paiementParBail[p.bail_id] = p);
