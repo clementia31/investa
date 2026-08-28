@@ -39,6 +39,7 @@
   * { box-sizing: border-box; }
   body { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; margin: 0; background: var(--bg); color: var(--text); }
   input, select, button { font-family: inherit; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
 
   /* ---------- AUTH SCREEN ---------- */
   .auth-wrap { max-width: 400px; margin: 90px auto; padding: 0 24px; }
@@ -463,7 +464,6 @@
             <span class="filtre-tab" id="ftVacants" onclick="filtrerParOccupation('vacants')">Vacants</span>
           </div>
           <div id="arbrePatrimoine">Chargement...</div>
-          <div class="arbre-total" id="arbreTotal"></div>
         </div>
       </div>
 
@@ -1573,40 +1573,27 @@
 
   function rendreArbrePatrimoine(filtre) {
     const div = document.getElementById('arbrePatrimoine');
-    let html = '';
-    let totalGeneral = 0;
 
-    donneesArbrePatrimoine.forEach(s => {
-      let immeublesFiltres = filtre ? s.immeubles.filter(im => im.adresse.toLowerCase().includes(filtre)) : s.immeubles;
-      if (filtreOccupationActif === 'loues') immeublesFiltres = immeublesFiltres.filter(im => im.nbLots > 0 && im.nbOccupes === im.nbLots);
-      if (filtreOccupationActif === 'vacants') immeublesFiltres = immeublesFiltres.filter(im => im.nbOccupes < im.nbLots);
-      const structureMatch = immeublesFiltres.length > 0 || (!filtre && filtreOccupationActif === 'tous');
-      if (!structureMatch) return;
+    // On aplatit tous les immeubles (toutes structures confondues) en une seule liste —
+    // la notion de structure reste invisible pour l'utilisateur, comme partout ailleurs dans l'app.
+    let tousLesImmeubles = [];
+    donneesArbrePatrimoine.forEach(s => { tousLesImmeubles = tousLesImmeubles.concat(s.immeubles); });
 
-      const totalStructure = s.immeubles.reduce((a, im) => a + im.loyersMensuels, 0);
-      totalGeneral += totalStructure;
+    let immeublesFiltres = filtre ? tousLesImmeubles.filter(im => im.adresse.toLowerCase().includes(filtre)) : tousLesImmeubles;
+    if (filtreOccupationActif === 'loues') immeublesFiltres = immeublesFiltres.filter(im => im.nbLots > 0 && im.nbOccupes === im.nbLots);
+    if (filtreOccupationActif === 'vacants') immeublesFiltres = immeublesFiltres.filter(im => im.nbOccupes < im.nbLots);
 
-      html += `<div class="structure-header"><span>${echapper(s.nom)}</span><span class="small">${echapper(s.type)} · ${totalStructure.toLocaleString('fr-FR')} €</span></div>`;
-      html += `<div style="display:flex; gap:8px; margin:8px 0 14px;">
-        <input id="adresseImmeuble_${s.id}" placeholder="Adresse du nouvel immeuble" style="flex:1; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-size:0.85rem;">
-        <button class="btn-secondary" style="padding:8px 14px; border-radius:8px; font-size:0.85rem;" onclick="creerImmeuble('${s.id}')">Ajouter</button>
-      </div>`;
+    if (!immeublesFiltres.length) { div.innerHTML = '<div class="empty-state">Aucun résultat.</div>'; return; }
 
-      if (immeublesFiltres.length) {
-        html += `<div class="bien-grid">` + immeublesFiltres.map(im => {
-          const nbVacants = im.nbLots - im.nbOccupes;
-          const alerte = nbVacants > 0 ? `${nbVacants} lot${nbVacants > 1 ? 's' : ''} vacant${nbVacants > 1 ? 's' : ''}` : null;
-          return carteBien({
-            icone: '🏢', titre: im.adresse, sousTitre: `${im.nbLots} lot${im.nbLots > 1 ? 's' : ''}`,
-            nbLots: im.nbLots, nbOccupes: im.nbOccupes, loyer: im.loyersMensuels,
-            onclick: `ouvrirFicheImmeuble('${im.id}')`, alerte
-          });
-        }).join('') + `</div>`;
-      }
-    });
-
-    div.innerHTML = html || '<div class="empty-state">Aucun résultat.</div>';
-    document.getElementById('arbreTotal').innerHTML = `<span>Total</span><span></span><span>${totalGeneral.toLocaleString('fr-FR')} €</span>`;
+    div.innerHTML = `<div class="bien-grid">` + immeublesFiltres.map(im => {
+      const nbVacants = im.nbLots - im.nbOccupes;
+      const alerte = nbVacants > 0 ? `${nbVacants} lot${nbVacants > 1 ? 's' : ''} vacant${nbVacants > 1 ? 's' : ''}` : null;
+      return carteBien({
+        icone: '🏢', titre: im.adresse, sousTitre: `${im.nbLots} lot${im.nbLots > 1 ? 's' : ''}`,
+        nbLots: im.nbLots, nbOccupes: im.nbOccupes, loyer: im.loyersMensuels,
+        onclick: `ouvrirFicheImmeuble('${im.id}')`, alerte
+      });
+    }).join('') + `</div>`;
   }
 
   // Carte "bien" réutilisable (immeubles ET lots), inspirée de la maquette validée
@@ -1635,14 +1622,6 @@
         ${alerte ? `<div class="bien-card-alerte">⚠ ${echapper(alerte)}</div>` : ''}
       </div>
     `;
-  }
-
-  async function creerImmeuble(structureId) {
-    const adresse = document.getElementById('adresseImmeuble_' + structureId).value;
-    if (!adresse) return alert('Adresse requise');
-    const { error } = await supabaseClient.from('immeubles').insert({ structure_id: structureId, adresse });
-    if (error) return alert('Erreur : ' + error.message);
-    chargerPatrimoine();
   }
 
   // ---------- FICHE IMMEUBLE ----------
