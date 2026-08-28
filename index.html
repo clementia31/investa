@@ -421,6 +421,10 @@
             <input id="loyerQuickBien" type="number" placeholder="Loyer mensuel (€)">
           </div>
           <input id="chargesQuickBien" type="number" placeholder="Charges (€)">
+          <div class="grid-2" style="margin-bottom:0;">
+            <input id="valeurQuickBien" type="number" placeholder="Valeur estimée (€)">
+            <input id="detteQuickBien" type="number" placeholder="Dette restante (€)">
+          </div>
           <p class="small" style="margin:12px 0 8px;">Statut</p>
           <div class="statut-picker" id="statutPickerBien">
             <div class="statut-option selected" data-statut="vacant" onclick="selectionnerStatutBien('vacant')">Vacant</div>
@@ -588,6 +592,20 @@
         </div>
 
         <div id="tabcontent-lot-resume">
+          <div class="card">
+            <div class="section-header-ajout">
+              <h3>Valeur & dette</h3>
+              <button class="btn-secondary btn-ajout-inline" id="btnModifierValeurLot" onclick="toggleFormulaire('formValeurLot','btnModifierValeurLot')">Modifier</button>
+            </div>
+            <div id="lectureValeurLot" class="small">Chargement...</div>
+            <div id="formValeurLot" style="display:none; margin-top:10px;">
+              <div class="grid-2" style="margin-bottom:0;">
+                <input id="valeurLot" type="number" placeholder="Valeur estimée (€)">
+                <input id="detteLot" type="number" placeholder="Dette restante (€)">
+              </div>
+              <button class="btn-primary" onclick="enregistrerValeurLot()">Enregistrer</button>
+            </div>
+          </div>
           <div class="card">
             <h3>Locataire(s)</h3>
             <div id="lotColocataires">Chargement...</div>
@@ -1334,12 +1352,15 @@
     const surface = document.getElementById('surfaceQuickBien').value;
     const loyer = document.getElementById('loyerQuickBien').value;
     const charges = document.getElementById('chargesQuickBien').value;
+    const valeur = document.getElementById('valeurQuickBien').value;
+    const dette = document.getElementById('detteQuickBien').value;
 
     const { data: immeuble, error: errImm } = await supabaseClient.from('immeubles').insert({ structure_id: structureId, adresse }).select().single();
     if (errImm) return alert('Erreur : ' + errImm.message);
 
     const { data: lot, error: errLot } = await supabaseClient.from('lots').insert({
-      immeuble_id: immeuble.id, type: selectedTypeBien, surface: surface ? parseFloat(surface) : null, statut: selectedStatutBien
+      immeuble_id: immeuble.id, type: selectedTypeBien, surface: surface ? parseFloat(surface) : null, statut: selectedStatutBien,
+      valeur_estimee: valeur ? parseFloat(valeur) : null, dette_restante: dette ? parseFloat(dette) : null
     }).select().single();
     if (errLot) return alert('Erreur : ' + errLot.message);
 
@@ -1355,6 +1376,8 @@
     document.getElementById('surfaceQuickBien').value = '';
     document.getElementById('loyerQuickBien').value = '';
     document.getElementById('chargesQuickBien').value = '';
+    document.getElementById('valeurQuickBien').value = '';
+    document.getElementById('detteQuickBien').value = '';
     selectedTypeBien = null;
     document.querySelectorAll('#typePickerBien .type-card').forEach(el => el.classList.remove('selected'));
     selectionnerStatutBien('vacant');
@@ -1483,7 +1506,7 @@
 
     // 1 requête groupée pour TOUS les lots de tous les immeubles
     const { data: tousLots } = immeubleIds.length
-      ? await supabaseClient.from('lots').select('id, immeuble_id, statut').in('immeuble_id', immeubleIds)
+      ? await supabaseClient.from('lots').select('id, immeuble_id, statut, valeur_estimee, dette_restante').in('immeuble_id', immeubleIds)
       : { data: [] };
     const lotIds = (tousLots || []).map(l => l.id);
 
@@ -1514,9 +1537,16 @@
       return { id: s.id, nom: s.nom, type: s.type, immeubles: immeublesData };
     });
 
-    // Bandeau condensé (même logique que le Dashboard, réutilisée ici)
-    const valeurTotale = (tousImmeubles || []).reduce((a, im) => a + Number(im.valeur_estimee || 0), 0);
-    const detteTotale = (tousImmeubles || []).reduce((a, im) => a + Number(im.dette_restante || 0), 0);
+    // Bandeau condensé — pour chaque immeuble : si sa valeur/dette est renseignée, on la prend telle quelle ;
+    // sinon on additionne la valeur/dette de ses lots (jamais les deux, pour ne pas compter en double).
+    const lotsParImmeubleComplet = {};
+    (tousLots || []).forEach(l => { (lotsParImmeubleComplet[l.immeuble_id] = lotsParImmeubleComplet[l.immeuble_id] || []).push(l); });
+    let valeurTotale = 0, detteTotale = 0;
+    (tousImmeubles || []).forEach(im => {
+      const lotsDeImmeuble = lotsParImmeubleComplet[im.id] || [];
+      valeurTotale += im.valeur_estimee ? Number(im.valeur_estimee) : lotsDeImmeuble.reduce((a, l) => a + Number(l.valeur_estimee || 0), 0);
+      detteTotale += im.dette_restante ? Number(im.dette_restante) : lotsDeImmeuble.reduce((a, l) => a + Number(l.dette_restante || 0), 0);
+    });
     const loyersAttendus = (tousLots || []).reduce((a, l) => a + (loyerParLot[l.id] || 0), 0);
     const nbLotsTotal = (tousLots || []).length;
     const nbOccupesTotal = (tousLots || []).filter(l => l.statut === 'occupe').length;
@@ -1862,6 +1892,20 @@
     afficherBadgeStatutLot(statut);
   }
 
+  async function enregistrerValeurLot() {
+    const valeur = document.getElementById('valeurLot').value;
+    const dette = document.getElementById('detteLot').value;
+    const { error } = await supabaseClient.from('lots').update({
+      valeur_estimee: valeur ? parseFloat(valeur) : null, dette_restante: dette ? parseFloat(dette) : null
+    }).eq('id', currentLotId);
+    if (error) return alert('Erreur : ' + error.message);
+    document.getElementById('lectureValeurLot').innerHTML = `
+      <div class="row"><span class="small">Valeur estimée</span><span>${valeur ? Number(valeur).toLocaleString('fr-FR') + ' €' : '—'}</span></div>
+      <div class="row"><span class="small">Dette restante</span><span>${dette ? Number(dette).toLocaleString('fr-FR') + ' €' : '—'}</span></div>
+    `;
+    toggleFormulaire('formValeurLot', 'btnModifierValeurLot');
+  }
+
   async function ouvrirFicheLot(id) {
     currentLotId = id;
     hideAllPages();
@@ -1878,6 +1922,15 @@
     ]);
     currentLotStatutAffiche = lot.statut;
     afficherBadgeStatutLot(lot.statut);
+
+    document.getElementById('valeurLot').value = lot.valeur_estimee || '';
+    document.getElementById('detteLot').value = lot.dette_restante || '';
+    document.getElementById('lectureValeurLot').innerHTML = `
+      <div class="row"><span class="small">Valeur estimée</span><span>${lot.valeur_estimee ? Number(lot.valeur_estimee).toLocaleString('fr-FR') + ' €' : '—'}</span></div>
+      <div class="row"><span class="small">Dette restante</span><span>${lot.dette_restante ? Number(lot.dette_restante).toLocaleString('fr-FR') + ' €' : '—'}</span></div>
+    `;
+    document.getElementById('formValeurLot').style.display = 'none';
+    document.getElementById('btnModifierValeurLot').style.display = 'inline-flex';
 
     const { data: bauxActifs } = await supabaseClient.from('baux').select('*').eq('lot_id', id).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
     const bail = bauxActifs && bauxActifs[0];
