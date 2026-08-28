@@ -754,8 +754,7 @@
         <div class="page-header">
           <h2>Loyers & Paiements</h2>
           <div style="display:flex; align-items:center; gap:10px;">
-            <select id="structureLoyers" onchange="onChangeStructureLoyers()" style="width:auto; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);"></select>
-            <select id="immeubleFiltreLoyers" onchange="chargerCalendrierLoyers()" style="width:auto; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);"><option value="">Tous les immeubles</option></select>
+            <select id="immeubleFiltreLoyers" onchange="chargerCalendrierLoyers()" style="width:auto; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);"><option value="">Tous mes biens</option></select>
             <button class="btn-secondary" style="padding:8px 12px; border-radius:8px;" onclick="moisLoyersPrecedent()">←</button>
             <div id="moisLoyersLabel" style="min-width:130px; text-align:center; font-weight:600;"></div>
             <button class="btn-secondary" style="padding:8px 12px; border-radius:8px;" onclick="moisLoyersSuivant()">→</button>
@@ -2420,11 +2419,6 @@
   async function allerLoyers() {
     setActiveNav('nav-loyers'); hideAllPages();
     document.getElementById('page-loyers').style.display = 'block';
-    const sel = document.getElementById('structureLoyers');
-    if (!sel.options.length) {
-      const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
-      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${echapper(s.nom)}</option>`).join('');
-    }
     await chargerImmeublesFiltreLoyers();
     chargerCalendrierLoyers();
     initFormulaireTravaux();
@@ -2434,12 +2428,6 @@
   async function ouvrirLoyersPourImmeuble(structureId, immeubleId) {
     setActiveNav('nav-loyers'); hideAllPages();
     document.getElementById('page-loyers').style.display = 'block';
-    const sel = document.getElementById('structureLoyers');
-    if (!sel.options.length) {
-      const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
-      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${echapper(s.nom)}</option>`).join('');
-    }
-    sel.value = structureId;
     await chargerImmeublesFiltreLoyers();
     document.getElementById('immeubleFiltreLoyers').value = immeubleId;
     chargerCalendrierLoyers();
@@ -2447,17 +2435,9 @@
   }
 
   async function chargerImmeublesFiltreLoyers() {
-    const structureId = document.getElementById('structureLoyers').value;
     const sel = document.getElementById('immeubleFiltreLoyers');
-    if (!structureId) { sel.innerHTML = '<option value="">Tous les immeubles</option>'; return; }
-    const { data: immeubles } = await supabaseClient.from('immeubles').select('id, adresse').eq('structure_id', structureId);
-    sel.innerHTML = '<option value="">Tous les immeubles</option>' + (immeubles || []).map(im => `<option value="${im.id}">${echapper(im.adresse)}</option>`).join('');
-  }
-
-  async function onChangeStructureLoyers() {
-    await chargerImmeublesFiltreLoyers();
-    chargerCalendrierLoyers();
-    initFormulaireTravaux();
+    const { data: immeubles } = await supabaseClient.from('immeubles').select('id, adresse').order('created_at');
+    sel.innerHTML = '<option value="">Tous mes biens</option>' + (immeubles || []).map(im => `<option value="${im.id}">${echapper(im.adresse)}</option>`).join('');
   }
 
   function moisLoyersPrecedent() {
@@ -2471,18 +2451,16 @@
   }
 
   async function chargerCalendrierLoyers() {
-    const structureId = document.getElementById('structureLoyers').value;
     const immeubleFiltre = document.getElementById('immeubleFiltreLoyers').value;
     document.getElementById('moisLoyersLabel').textContent = moisLoyersCourant.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-    if (!structureId) return;
 
     const annee = moisLoyersCourant.getFullYear();
     const moisIdx = moisLoyersCourant.getMonth();
     const moisDate = annee + '-' + String(moisIdx + 1).padStart(2, '0') + '-01';
 
-    const { data: baux, error } = await supabaseClient.from('baux').select('*, lots(nom, type, immeuble_id, immeubles(adresse, structure_id))').eq('statut', 'actif');
+    const { data: baux, error } = await supabaseClient.from('baux').select('*, lots(nom, type, immeuble_id, immeubles(adresse))').eq('statut', 'actif');
     if (error) return;
-    let bauxStructure = (baux || []).filter(b => b.lots && b.lots.immeubles && b.lots.immeubles.structure_id === structureId);
+    let bauxStructure = (baux || []).filter(b => b.lots && b.lots.immeubles);
     if (immeubleFiltre) bauxStructure = bauxStructure.filter(b => b.lots.immeuble_id === immeubleFiltre);
     const nbJoursMois = new Date(annee, moisIdx + 1, 0).getDate();
     const dernierJourMois = annee + '-' + String(moisIdx + 1).padStart(2, '0') + '-' + String(nbJoursMois).padStart(2, '0');
@@ -2502,12 +2480,14 @@
     const paiementParBail = {};
     (paiementsExistants || []).forEach(p => paiementParBail[p.bail_id] = p);
 
-    // Baux sans paiement pour ce mois : on les crée en UNE seule requête groupée (insert multiple lignes)
+    // Baux sans paiement pour ce mois : on les crée en UNE seule requête groupée (insert multiple lignes).
+    // Statut toujours "à venir" par défaut, même pour un mois passé — un mois ne devient "en retard"
+    // que si l'utilisateur le marque lui-même (sinon un locataire ajouté avec une ancienne date d'entrée
+    // se retrouverait avec des dizaines de mois faussement marqués en retard rétroactivement).
     const bauxSansPaiement = bauxStructure.filter(b => !paiementParBail[b.id]);
     if (bauxSansPaiement.length) {
-      const statutParDefaut = (new Date(moisDate) < new Date(new Date().getFullYear(), new Date().getMonth(), 1)) ? 'en_retard' : 'a_venir';
       const nouvellesLignes = bauxSansPaiement.map(b => ({
-        bail_id: b.id, mois: moisDate, montant_loyer: b.loyer, montant_charges: b.charges, statut: statutParDefaut
+        bail_id: b.id, mois: moisDate, montant_loyer: b.loyer, montant_charges: b.charges, statut: 'a_venir'
       }));
       const { data: inseres } = await supabaseClient.from('paiements').insert(nouvellesLignes).select();
       (inseres || []).forEach(p => paiementParBail[p.bail_id] = p);
@@ -2597,23 +2577,23 @@
 
   // ---------- TRAVAUX (dépense + facture, depuis l'écran Loyers) ----------
   async function initFormulaireTravaux() {
-    const structureId = document.getElementById('structureLoyers').value;
     const sel = document.getElementById('immeubleTravaux');
-    if (!structureId) { sel.innerHTML = ''; return; }
-    const { data: immeubles } = await supabaseClient.from('immeubles').select('id, adresse').eq('structure_id', structureId);
+    const { data: immeubles } = await supabaseClient.from('immeubles').select('id, adresse').order('created_at');
     sel.innerHTML = (immeubles || []).map(im => `<option value="${im.id}">${echapper(im.adresse)}</option>`).join('');
   }
 
   async function enregistrerTravaux() {
-    const structureId = document.getElementById('structureLoyers').value;
     const immeubleId = document.getElementById('immeubleTravaux').value;
     const montant = document.getElementById('montantTravaux').value;
     const date = document.getElementById('dateTravaux').value;
     const description = document.getElementById('descriptionTravaux').value;
     const fichier = document.getElementById('fichierFactureTravaux').files[0];
 
-    if (!structureId || !immeubleId) return alert('Sélectionne un immeuble');
+    if (!immeubleId) return alert('Sélectionne un immeuble');
     if (!montant || !date) return alert('Montant et date requis');
+
+    const { data: immeubleInfo } = await supabaseClient.from('immeubles').select('structure_id').eq('id', immeubleId).single();
+    const structureId = immeubleInfo.structure_id;
 
     const { error: errTx } = await supabaseClient.from('transactions').insert({
       structure_id: structureId, immeuble_id: immeubleId, type: 'depense', categorie: 'travaux',
