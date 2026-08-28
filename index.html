@@ -365,8 +365,8 @@
           <div class="lang-badge" title="Anglais bientôt disponible">🇫🇷 FR</div>
         </div>
         <div class="bandeau-patrimoine">
-          <div><span class="lbl">Valeur du patrimoine</span><span class="val" id="dashValeur">—</span></div>
-          <div><span class="lbl">Loyers attendus</span><span class="val" id="dashAttendu">—</span></div>
+          <div class="row-click" onclick="allerPatrimoine()"><span class="lbl">Valeur du patrimoine</span><span class="val" id="dashValeur">—</span></div>
+          <div class="row-click" onclick="allerLoyers()"><span class="lbl">Loyers attendus</span><span class="val" id="dashAttendu">—</span></div>
           <div><span class="lbl">Taux d'occupation</span><span class="val" id="dashOccupation">—</span></div>
           <div><span class="lbl">Dette restante</span><span class="val" id="dashDette">—</span></div>
         </div>
@@ -883,13 +883,6 @@
             <button class="theme-btn" id="btnThemeLight" onclick="definirTheme('light')">☀️ Clair</button>
           </div>
         </div>
-        <div class="card">
-          <h3>Modèle de quittance</h3>
-          <p class="small" style="margin:0 0 10px;">Ce texte sera utilisé pour générer chaque quittance automatiquement. Variables disponibles : <code>{{locataire}}</code>, <code>{{bailleur}}</code>, <code>{{bien}}</code>, <code>{{periode}}</code>, <code>{{loyer}}</code>, <code>{{charges}}</code>, <code>{{total}}</code>, <code>{{date_emission}}</code>.</p>
-          <textarea id="modeleQuittanceTexte" rows="14" style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; font-size:0.88rem; resize:vertical;"></textarea>
-          <button class="btn-primary" style="width:auto; padding:10px 20px; margin-top:10px;" onclick="enregistrerModeleQuittance()">Enregistrer le modèle</button>
-          <button class="btn-secondary" style="width:auto; padding:10px 20px; margin-top:10px; margin-left:8px;" onclick="reinitialiserModeleQuittance()">Revenir au modèle par défaut</button>
-        </div>
       </div>
 
       <!-- ===== ALERTES ===== -->
@@ -1043,6 +1036,15 @@
           <div class="tab" id="tabDocQuittance" onclick="switchTabDocuments('quittance')">Quittances</div>
           <div class="tab" id="tabDocDiagnostic" onclick="switchTabDocuments('diagnostic')">Diagnostics</div>
           <div class="tab" id="tabDocAssurance" onclick="switchTabDocuments('assurance')">Assurances</div>
+        </div>
+
+        <button class="btn-ajout-replie" id="btnModeleQuittance" onclick="toggleModeleQuittance()">Modifier le modèle de quittance</button>
+        <div class="card" id="cardModeleQuittance" style="display:none;">
+          <h3>Modèle de quittance</h3>
+          <p class="small" style="margin:0 0 10px;">Ce texte sera utilisé pour générer chaque quittance automatiquement. Variables disponibles : <code>{{locataire}}</code>, <code>{{bailleur}}</code>, <code>{{bien}}</code>, <code>{{periode}}</code>, <code>{{loyer}}</code>, <code>{{charges}}</code>, <code>{{total}}</code>, <code>{{date_emission}}</code>.</p>
+          <textarea id="modeleQuittanceTexte" rows="14" style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; font-size:0.88rem; resize:vertical;"></textarea>
+          <button class="btn-primary" style="width:auto; padding:10px 20px; margin-top:10px;" onclick="enregistrerModeleQuittance()">Enregistrer le modèle</button>
+          <button class="btn-secondary" style="width:auto; padding:10px 20px; margin-top:10px; margin-left:8px;" onclick="reinitialiserModeleQuittance()">Revenir au modèle par défaut</button>
         </div>
 
         <div class="card" id="cardImportDocument" style="display:none;">
@@ -2350,7 +2352,7 @@
 
     const tousBailIds = [...new Set((rattachements || []).map(r => r.bail_id))];
     const { data: bauxActifs } = tousBailIds.length
-      ? await supabaseClient.from('baux').select('id, lots(nom, type, immeubles(adresse))').in('id', tousBailIds).eq('statut', 'actif')
+      ? await supabaseClient.from('baux').select('id, lot_id, lots(nom, type, immeubles(adresse))').in('id', tousBailIds).eq('statut', 'actif')
       : { data: [] };
     const bauxParId = {};
     (bauxActifs || []).forEach(b => { bauxParId[b.id] = b; });
@@ -2366,7 +2368,7 @@
       const bailActif = bailActifId ? bauxParId[bailActifId] : null;
       const enRetard = mesBailIds.some(id => bailIdsEnRetard.has(id));
       return {
-        id: l.id, nom: l.nom, email: l.email, telephone: l.telephone,
+        id: l.id, nom: l.nom, email: l.email, telephone: l.telephone, lotId: bailActif ? bailActif.lot_id : null,
         sousTitre: bailActif ? `${bailActif.lots.nom || bailActif.lots.type} · ${bailActif.lots.immeubles.adresse}` : 'Aucun bail actif',
         statut: bailActif ? (enRetard ? 'en_retard' : 'a_jour') : null
       };
@@ -2402,7 +2404,7 @@
           <div class="avatar">${initiales}</div>
           <div class="locataire-row-infos">
             <div class="locataire-row-nom">${echapper(l.nom)}</div>
-            <div class="locataire-row-souttitre">${echapper(l.sousTitre)}</div>
+            <div class="locataire-row-souttitre">${l.lotId ? `<a href="#" onclick="event.stopPropagation(); ouvrirFicheLot('${l.lotId}'); return false;" style="color:inherit;">${echapper(l.sousTitre)}</a>` : echapper(l.sousTitre)}</div>
           </div>
           ${badge}
           <div class="locataire-row-icons" onclick="event.stopPropagation()">
@@ -2914,6 +2916,12 @@ Le bailleur donne quittance au locataire pour le paiement ci-dessus et lui donne
     setActiveNav('nav-parametres'); hideAllPages();
     document.getElementById('page-parametres').style.display = 'block';
     mettreAJourBoutonsTheme(localStorage.getItem('investa-theme') || 'dark');
+  }
+
+  async function toggleModeleQuittance() {
+    const etaitOuvert = document.getElementById('cardModeleQuittance').style.display === 'block';
+    toggleFormulaire('cardModeleQuittance', 'btnModeleQuittance');
+    if (etaitOuvert) return;
 
     const structureId = await obtenirStructureParDefaut();
     if (structureId) {
@@ -3401,6 +3409,12 @@ Le bailleur donne quittance au locataire pour le paiement ci-dessus et lui donne
   let pageDocuments = 0;
   let totalDocuments = 0;
 
+  function ouvrirEntiteDocument(entityType, entityId) {
+    if (entityType === 'immeuble') ouvrirFicheImmeuble(entityId);
+    else if (entityType === 'lot') ouvrirFicheLot(entityId);
+    else if (entityType === 'locataire') ouvrirFicheLocataire(entityId, 'liste');
+  }
+
   async function chargerDocumentsGlobal() {
     const div = document.getElementById('listeDocumentsGlobal');
     div.textContent = 'Chargement...';
@@ -3461,7 +3475,7 @@ Le bailleur donne quittance au locataire pour le paiement ci-dessus et lui donne
     div.innerHTML = items.map(d => `
       <div class="row" style="display:grid; grid-template-columns: 2fr 1.5fr 1fr 1fr; align-items:center;">
         <span onclick="telechargerDocument('${d.storage_path}')" style="cursor:pointer; color:var(--accent);">📎 ${echapper(d.nom)}</span>
-        <span class="small">${echapper(d.nomEntite)}</span>
+        <span class="small ${d.nomEntite !== '—' ? 'row-click' : ''}" ${d.nomEntite !== '—' ? `onclick="ouvrirEntiteDocument('${d.entity_type}', '${d.entity_id}')"` : ''}>${echapper(d.nomEntite)}</span>
         <span class="badge-outline">${labelsCat[d.categorie] || 'Autre'}</span>
         <span class="small">${new Date(d.created_at).toLocaleDateString('fr-FR')}</span>
       </div>
