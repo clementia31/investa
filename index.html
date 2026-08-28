@@ -884,6 +884,13 @@
             <button class="theme-btn" id="btnThemeLight" onclick="definirTheme('light')">☀️ Clair</button>
           </div>
         </div>
+        <div class="card">
+          <h3>Modèle de quittance</h3>
+          <p class="small" style="margin:0 0 10px;">Ce texte sera utilisé pour générer chaque quittance automatiquement. Variables disponibles : <code>{{locataire}}</code>, <code>{{bailleur}}</code>, <code>{{bien}}</code>, <code>{{periode}}</code>, <code>{{loyer}}</code>, <code>{{charges}}</code>, <code>{{total}}</code>, <code>{{date_emission}}</code>.</p>
+          <textarea id="modeleQuittanceTexte" rows="14" style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; font-size:0.88rem; resize:vertical;"></textarea>
+          <button class="btn-primary" style="width:auto; padding:10px 20px; margin-top:10px;" onclick="enregistrerModeleQuittance()">Enregistrer le modèle</button>
+          <button class="btn-secondary" style="width:auto; padding:10px 20px; margin-top:10px; margin-left:8px;" onclick="reinitialiserModeleQuittance()">Revenir au modèle par défaut</button>
+        </div>
       </div>
 
       <!-- ===== ALERTES ===== -->
@@ -2643,25 +2650,25 @@
     const moisLabel = new Date(paiement.mois).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
     const dateEmission = new Date().toLocaleDateString('fr-FR');
 
+    // Récupère le modèle personnalisé de cette structure, sinon celui par défaut
+    const { data: modeleEnreg } = await supabaseClient.from('modeles_documents').select('contenu').eq('structure_id', structureId).eq('type', 'quittance').maybeSingle();
+    const modele = modeleEnreg ? modeleEnreg.contenu : MODELE_QUITTANCE_DEFAUT;
+
+    const texteRempli = modele
+      .replaceAll('{{bailleur}}', nomStructure || 'Propriétaire')
+      .replaceAll('{{locataire}}', nomsLocataires)
+      .replaceAll('{{bien}}', `${lot.nom || lot.type} — ${immeuble.adresse}${immeuble.ville ? ', ' + immeuble.ville : ''}`)
+      .replaceAll('{{periode}}', moisLabel)
+      .replaceAll('{{loyer}}', montantLoyer.toLocaleString('fr-FR'))
+      .replaceAll('{{charges}}', montantCharges.toLocaleString('fr-FR'))
+      .replaceAll('{{total}}', total.toLocaleString('fr-FR'))
+      .replaceAll('{{date_emission}}', dateEmission);
+
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text('QUITTANCE DE LOYER', 20, 20);
     doc.setFontSize(11);
-    doc.text(`Émise le ${dateEmission}`, 20, 28);
-    doc.setFontSize(12);
-    doc.text(`Bailleur : ${nomStructure || 'Propriétaire'}`, 20, 42);
-    doc.text(`Locataire : ${nomsLocataires}`, 20, 50);
-    doc.text(`Bien : ${lot.nom || lot.type} — ${immeuble.adresse}${immeuble.ville ? ', ' + immeuble.ville : ''}`, 20, 58);
-    doc.text(`Période : ${moisLabel}`, 20, 66);
-    doc.line(20, 72, 190, 72);
-    doc.text(`Loyer hors charges : ${montantLoyer.toLocaleString('fr-FR')} €`, 20, 82);
-    doc.text(`Charges : ${montantCharges.toLocaleString('fr-FR')} €`, 20, 90);
-    doc.setFontSize(13);
-    doc.text(`Total payé : ${total.toLocaleString('fr-FR')} €`, 20, 100);
-    doc.setFontSize(10);
-    doc.text("Le bailleur donne quittance au locataire pour le paiement ci-dessus et lui donne", 20, 116);
-    doc.text("quittance de son loyer et de ses charges pour la période indiquée.", 20, 122);
+    const lignes = doc.splitTextToSize(texteRempli, 170);
+    doc.text(lignes, 20, 20);
 
     const pdfBlob = doc.output('blob');
 
@@ -2893,10 +2900,47 @@
   // ---------- PARAMÈTRES ----------
   let currentStructureParamsId = null;
 
+  const MODELE_QUITTANCE_DEFAUT = `QUITTANCE DE LOYER
+
+Émise le {{date_emission}}
+
+Bailleur : {{bailleur}}
+Locataire : {{locataire}}
+Bien : {{bien}}
+Période : {{periode}}
+
+Loyer hors charges : {{loyer}} €
+Charges : {{charges}} €
+Total payé : {{total}} €
+
+Le bailleur donne quittance au locataire pour le paiement ci-dessus et lui donne quittance de son loyer et de ses charges pour la période indiquée. Cette quittance annule tout reçu qui aurait pu être établi précédemment en cas de paiement partiel.`;
+
   async function allerParametres() {
     setActiveNav('nav-parametres'); hideAllPages();
     document.getElementById('page-parametres').style.display = 'block';
     mettreAJourBoutonsTheme(localStorage.getItem('investa-theme') || 'dark');
+
+    const structureId = await obtenirStructureParDefaut();
+    if (structureId) {
+      const { data: modele } = await supabaseClient.from('modeles_documents').select('contenu').eq('structure_id', structureId).eq('type', 'quittance').maybeSingle();
+      document.getElementById('modeleQuittanceTexte').value = modele ? modele.contenu : MODELE_QUITTANCE_DEFAUT;
+    }
+  }
+
+  async function enregistrerModeleQuittance() {
+    const structureId = await obtenirStructureParDefaut();
+    if (!structureId) return;
+    const contenu = document.getElementById('modeleQuittanceTexte').value;
+    const { error } = await supabaseClient.from('modeles_documents').upsert(
+      { structure_id: structureId, type: 'quittance', contenu },
+      { onConflict: 'structure_id,type' }
+    );
+    if (error) return alert('Erreur : ' + error.message);
+    alert('Modèle enregistré.');
+  }
+
+  function reinitialiserModeleQuittance() {
+    document.getElementById('modeleQuittanceTexte').value = MODELE_QUITTANCE_DEFAUT;
   }
 
   function definirTheme(mode) {
