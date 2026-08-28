@@ -1778,7 +1778,7 @@
     div.textContent = 'Chargement...';
     const { data: txs, error } = await supabaseClient.from('transactions').select('*').eq('immeuble_id', currentImmeubleId).order('date', { ascending: false });
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
-    if (!txs || !txs.length) { div.innerHTML = '<div class="empty-state">Aucune transaction rattachée à cet immeuble. (Rattache-les depuis Finances en précisant l\u2019immeuble.)</div>'; return; }
+    if (!txs || !txs.length) { div.innerHTML = '<div class="empty-state">Aucune transaction pour ce bien. (Ajoute une dépense travaux depuis l\u2019écran Loyers.)</div>'; return; }
     div.innerHTML = txs.map(t => `
       <div class="row">
         <span>${t.date} — ${echapper(t.categorie)}${t.description ? ' (' + echapper(t.description) + ')' : ''}</span>
@@ -2043,10 +2043,10 @@
     div.textContent = 'Chargement...';
     const { data: txs, error } = await supabaseClient.from('transactions').select('*').eq('lot_id', lotId).order('date', { ascending: false });
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
-    if (!txs || !txs.length) { div.innerHTML = '<div class="empty-state">Aucune transaction rattachée à ce lot.</div>'; return; }
+    if (!txs || !txs.length) { div.innerHTML = '<div class="empty-state">Aucune transaction pour ce lot. (Ajoute une dépense travaux depuis l\u2019écran Loyers.)</div>'; return; }
     div.innerHTML = txs.map(t => `
       <div class="row">
-        <span>${t.date} — ${t.categorie}${t.description ? ' (' + t.description + ')' : ''}</span>
+        <span>${t.date} — ${echapper(t.categorie)}${t.description ? ' (' + echapper(t.description) + ')' : ''}</span>
         <span style="color:${t.type === 'depense' ? 'var(--red)' : 'var(--green)'}; font-weight:600;">${t.type === 'depense' ? '-' : '+'}${Number(t.montant).toLocaleString('fr-FR')} €</span>
       </div>
     `).join('');
@@ -2329,8 +2329,7 @@
       div.innerHTML = `
         <div class="empty-state">
           Aucun locataire pour le moment.<br>
-          <span class="small">Un locataire se crée depuis le bail d'un bien : ouvre un bien dans Patrimoine → onglet "Bail".</span><br>
-          <button class="btn-primary" style="width:auto; padding:10px 20px; margin-top:12px;" onclick="allerPatrimoine()">Aller sur Patrimoine</button>
+          <span class="small">Utilise le bouton "+ Ajouter un locataire" ci-dessus pour en créer un.</span>
         </div>
       `;
       return;
@@ -2745,7 +2744,7 @@
       const el = document.getElementById(id);
       el.innerHTML = liste.length ? liste.map(t => `
         <div class="row">
-          <span>${t.date} — ${t.categorie}${t.description ? ' (' + t.description + ')' : ''}</span>
+          <span>${t.date} — ${echapper(t.categorie)}${t.description ? ' (' + echapper(t.description) + ')' : ''}</span>
           <span style="color:${t.type === 'depense' ? 'var(--red)' : 'var(--green)'}; font-weight:600;">${t.type === 'depense' ? '-' : '+'}${Number(t.montant).toLocaleString('fr-FR')} €</span>
         </div>
       `).join('') : '<div class="empty-state">Aucune transaction.</div>';
