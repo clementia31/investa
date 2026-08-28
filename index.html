@@ -671,12 +671,11 @@
         <div id="tabcontent-loc-bail">
           <div class="card">
             <div class="section-header-ajout">
-              <h3>Informations bancaires</h3>
+              <h3>Garantie</h3>
               <button class="btn-secondary btn-ajout-inline" id="btnModifierInfosLoc" onclick="toggleFormulaire('formInfosLocataire','btnModifierInfosLoc')">Modifier</button>
             </div>
             <div id="lectureInfosLocataire" class="small">Chargement...</div>
             <div id="formInfosLocataire" style="display:none; margin-top:10px;">
-              <input id="ibanLocataire" placeholder="IBAN">
               <input id="garantieLocataire" placeholder="Garantie / répondant (nom, coordonnées)">
               <button class="btn-primary" onclick="enregistrerInfosLocataire()">Enregistrer</button>
             </div>
@@ -2159,10 +2158,8 @@
     const initiales = locataire.nom.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
     document.getElementById('locAvatar').textContent = initiales;
     document.getElementById('locNom').textContent = locataire.nom;
-    document.getElementById('ibanLocataire').value = locataire.iban || '';
     document.getElementById('garantieLocataire').value = locataire.garantie || '';
     document.getElementById('lectureInfosLocataire').innerHTML = `
-      <div class="row"><span class="small">IBAN</span><span>${locataire.iban ? echapper(locataire.iban) : '—'}</span></div>
       <div class="row"><span class="small">Garantie</span><span>${locataire.garantie ? echapper(locataire.garantie) : '—'}</span></div>
     `;
     document.getElementById('formInfosLocataire').style.display = 'none';
@@ -2248,12 +2245,10 @@
   }
 
   async function enregistrerInfosLocataire() {
-    const iban = document.getElementById('ibanLocataire').value;
     const garantie = document.getElementById('garantieLocataire').value;
-    const { error } = await supabaseClient.from('locataires').update({ iban: iban || null, garantie: garantie || null }).eq('id', currentLocataireId);
+    const { error } = await supabaseClient.from('locataires').update({ garantie: garantie || null }).eq('id', currentLocataireId);
     if (error) return alert('Erreur : ' + error.message);
     document.getElementById('lectureInfosLocataire').innerHTML = `
-      <div class="row"><span class="small">IBAN</span><span>${iban ? echapper(iban) : '—'}</span></div>
       <div class="row"><span class="small">Garantie</span><span>${garantie ? echapper(garantie) : '—'}</span></div>
     `;
     toggleFormulaire('formInfosLocataire', 'btnModifierInfosLoc');
