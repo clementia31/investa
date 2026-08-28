@@ -1216,7 +1216,11 @@
     // Loyers attendus : calculés directement depuis les BAUX ACTIFS, pas depuis la table paiements
     // (qui ne se remplit que quand on ouvre l'écran Loyers) — comme ça le Dashboard reflète
     // immédiatement tout bien créé depuis Patrimoine, sans étape intermédiaire.
-    const { data: bauxActifsMois } = await supabaseClient.from('baux').select('loyer, charges').eq('statut', 'actif').lte('date_debut', moisDate);
+    // On compare au DERNIER jour du mois (pas le premier) pour bien compter un bail qui démarre
+    // en milieu de mois, et on exclut les baux déjà terminés (date de sortie passée).
+    const dernierJourMoisDash = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()).padStart(2, '0');
+    const { data: bauxActifsBruts } = await supabaseClient.from('baux').select('loyer, charges, date_debut, date_fin').eq('statut', 'actif').lte('date_debut', dernierJourMoisDash);
+    const bauxActifsMois = (bauxActifsBruts || []).filter(b => !b.date_fin || b.date_fin >= moisDate);
     let attendu = 0;
     (bauxActifsMois || []).forEach(b => { attendu += Number(b.loyer) + Number(b.charges); });
 
@@ -1528,9 +1532,12 @@
     const lotIds = (tousLots || []).map(l => l.id);
 
     // 1 requête groupée pour TOUS les baux actifs de tous les lots
-    const { data: tousBauxActifs } = lotIds.length
-      ? await supabaseClient.from('baux').select('lot_id, loyer, charges').in('lot_id', lotIds).eq('statut', 'actif')
+    // (on exclut ceux qui n'ont pas encore démarré ou déjà terminés, par rapport à aujourd'hui)
+    const aujourdhuiStr = new Date().toISOString().split('T')[0];
+    const { data: tousBauxActifsBruts } = lotIds.length
+      ? await supabaseClient.from('baux').select('lot_id, loyer, charges, date_debut, date_fin').in('lot_id', lotIds).eq('statut', 'actif')
       : { data: [] };
+    const tousBauxActifs = (tousBauxActifsBruts || []).filter(b => b.date_debut <= aujourdhuiStr && (!b.date_fin || b.date_fin >= aujourdhuiStr));
 
     // Regroupement en mémoire (JS), plus aucune requête réseau supplémentaire
     const lotsParImmeuble = {};
@@ -2478,6 +2485,13 @@
     let bauxStructure = (baux || []).filter(b => b.lots && b.lots.immeubles && b.lots.immeubles.structure_id === structureId);
     if (immeubleFiltre) bauxStructure = bauxStructure.filter(b => b.lots.immeuble_id === immeubleFiltre);
     const nbJoursMois = new Date(annee, moisIdx + 1, 0).getDate();
+    const dernierJourMois = annee + '-' + String(moisIdx + 1).padStart(2, '0') + '-' + String(nbJoursMois).padStart(2, '0');
+
+    // On n'affiche un loyer que si le bail a déjà commencé (date d'entrée ≤ fin du mois consulté)
+    // et n'est pas encore terminé (date de sortie ≥ début du mois consulté, ou pas de date de sortie).
+    bauxStructure = bauxStructure.filter(b =>
+      b.date_debut <= dernierJourMois && (!b.date_fin || b.date_fin >= moisDate)
+    );
 
     if (!bauxStructure.length) { dessinerCalendrier(annee, moisIdx, []); remplirListesLaterales([]); return; }
 
@@ -3264,9 +3278,11 @@
     // Requêtes groupées : tous les lots, tous les baux actifs, toutes les dépenses d'un coup
     const { data: tousLots } = await supabaseClient.from('lots').select('id, immeuble_id').in('immeuble_id', immeubleIds);
     const lotIds = (tousLots || []).map(l => l.id);
-    const { data: tousBauxActifs } = lotIds.length
-      ? await supabaseClient.from('baux').select('lot_id, loyer, charges').in('lot_id', lotIds).eq('statut', 'actif')
+    const { data: tousBauxActifsBruts } = lotIds.length
+      ? await supabaseClient.from('baux').select('lot_id, loyer, charges, date_debut, date_fin').in('lot_id', lotIds).eq('statut', 'actif')
       : { data: [] };
+    const aujourdhuiStrSynthese = new Date().toISOString().split('T')[0];
+    const tousBauxActifs = (tousBauxActifsBruts || []).filter(b => b.date_debut <= aujourdhuiStrSynthese && (!b.date_fin || b.date_fin >= aujourdhuiStrSynthese));
     const ilYA1An = new Date(); ilYA1An.setFullYear(ilYA1An.getFullYear() - 1);
     const { data: toutesDepenses } = await supabaseClient.from('transactions').select('immeuble_id, montant').in('immeuble_id', immeubleIds).eq('type', 'depense').gte('date', ilYA1An.toISOString().split('T')[0]);
 
