@@ -1939,7 +1939,7 @@
     if (!bauxActifs || !bauxActifs.length) { div.innerHTML = '<div class="empty-state">Aucun bail actif — crée un bail dans l\u2019onglet "Bail".</div>'; return; }
     const bail = bauxActifs[0];
     const { data: rattachements } = await supabaseClient.from('bail_locataires').select('*').eq('bail_id', bail.id);
-    if (!rattachements || !rattachements.length) { div.innerHTML = '<div class="empty-state">Aucun locataire.</div>'; return; }
+    if (!rattachements || !rattachements.length) { div.innerHTML = '<div class="empty-state">Aucun locataire — ajoutes-en un dans l\u2019onglet "Bail".</div>'; return; }
     const ids = rattachements.map(r => r.locataire_id);
     const { data: locataires } = await supabaseClient.from('locataires').select('*').in('id', ids);
 
@@ -2041,11 +2041,23 @@
 
     if (baux && baux.length) {
       const bail = baux[0];
+      const { data: rattachements } = await supabaseClient.from('bail_locataires').select('locataire_id').eq('bail_id', bail.id);
+
       zone.innerHTML = `
         <h3>Bail en cours</h3>
         <div class="small">Type : ${bail.type} · Loyer : ${bail.loyer} € · Charges : ${bail.charges} €${bail.depot_garantie ? ' · Dépôt : ' + bail.depot_garantie + ' €' : ''}</div>
         <div class="small">Du ${bail.date_debut} ${bail.date_fin ? 'au ' + bail.date_fin : '(sans fin)'}</div>
       `;
+
+      if (!rattachements || !rattachements.length) {
+        zone.innerHTML += `
+          <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
+            <p class="small" style="margin:0 0 8px; color:var(--amber);">Ce bail n'a aucun locataire — ajoute-en un ci-dessous.</p>
+            <input id="nomsLocatairesAjout" placeholder="Nom(s) locataire(s), séparés par une virgule si colocation">
+            <button class="btn-primary" onclick="ajouterLocataireABail('${bail.id}', '${lotId}')">Ajouter le(s) locataire(s)</button>
+          </div>
+        `;
+      }
     } else {
       zone.innerHTML = `
         <h3>Créer un bail</h3>
@@ -2060,6 +2072,23 @@
         <button class="btn-primary" onclick="creerBail()">Créer le bail</button>
       `;
     }
+  }
+
+  async function ajouterLocataireABail(bailId, lotId) {
+    const nomsRaw = document.getElementById('nomsLocatairesAjout').value;
+    if (!nomsRaw.trim()) return alert('Au moins un nom requis');
+    const noms = nomsRaw.split(',').map(n => n.trim()).filter(Boolean);
+
+    const { data: structureLot } = await supabaseClient.from('lots').select('immeuble_id, immeubles(structure_id)').eq('id', lotId).single();
+    const structureId = structureLot.immeubles.structure_id;
+
+    for (const nom of noms) {
+      const { data: locataire, error: errLoc } = await supabaseClient.from('locataires').insert({ structure_id: structureId, nom }).select().single();
+      if (errLoc) { alert('Erreur locataire : ' + errLoc.message); continue; }
+      await supabaseClient.from('bail_locataires').insert({ bail_id: bailId, locataire_id: locataire.id });
+    }
+    await supabaseClient.from('lots').update({ statut: 'occupe' }).eq('id', lotId);
+    ouvrirFicheLot(lotId);
   }
 
   async function creerBail() {
