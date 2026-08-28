@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Investa</title>
+<title>Investa — Gestion immobilière</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 500'%3E%3Cg fill='none' stroke='%234CAF50' stroke-width='18' stroke-linecap='square' stroke-linejoin='miter'%3E%3Cpath d='M33 476 V33 H167 V476'/%3E%3Cpath d='M33 476 H67 V354 L100 324 L133 354 V476 H167'/%3E%3Cpath d='M100 324 V476'/%3E%3C/g%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
@@ -41,9 +42,13 @@
 
   /* ---------- AUTH SCREEN ---------- */
   .auth-wrap { max-width: 400px; margin: 90px auto; padding: 0 24px; }
-  .auth-wrap h1 { font-size: 1.6rem; margin-bottom: 28px; display: flex; align-items: center; gap: 10px; }
-  .logo-mark { width: 28px; height: 28px; border-radius: 6px; background: #22c55e; flex-shrink: 0; position: relative; display: inline-block; vertical-align: middle; }
-  .logo-mark::after { content: ""; position: absolute; left: 6px; top: 12px; width: 16px; height: 4px; background: white; border-radius: 2px; }
+  .logo-symbol-sidebar { width: 14.4px; height: 36px; flex-shrink: 0; display: block; }
+  .logo-sidebar-texte { font-weight: 800; font-size: 1.05rem; letter-spacing: 0.03em; color: var(--text); }
+  .logo-login { display: flex; flex-direction: column; align-items: center; margin-bottom: 24px; }
+  .logo-symbol-lg { width: 36px; height: 90px; }
+  .logo-login-texte { text-align: center; margin-top: 10px; }
+  .logo-login-nom { font-size: 1.6rem; font-weight: 800; letter-spacing: 0.04em; color: var(--text); }
+  .logo-login-baseline { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); margin-top: 2px; }
   .auth-wrap input { width: 100%; padding: 12px 14px; margin: 6px 0; border-radius: 10px; border: 1px solid var(--border); background: var(--panel); color: var(--text); }
   .auth-wrap button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; }
   .btn-primary { background: var(--accent); color: white; }
@@ -297,9 +302,26 @@
 </head>
 <body>
 
+<!-- Symbole officiel Investa — chemins exacts fournis, ne pas modifier -->
+<svg width="0" height="0" style="position:absolute;">
+  <symbol id="investa-symbol" viewBox="0 0 200 500">
+    <g fill="none" stroke="#4CAF50" stroke-width="18" stroke-linecap="square" stroke-linejoin="miter">
+      <path d="M33 476 V33 H167 V476"/>
+      <path d="M33 476 H67 V354 L100 324 L133 354 V476 H167"/>
+      <path d="M100 324 V476"/>
+    </g>
+  </symbol>
+</svg>
+
 <!-- ============ AUTH ============ -->
 <div class="auth-wrap" id="auth">
-  <h1><span class="logo-mark"></span> Investa</h1>
+  <div class="logo-login">
+    <svg class="logo-symbol-lg" viewBox="0 0 200 500"><use href="#investa-symbol"></use></svg>
+    <div class="logo-login-texte">
+      <div class="logo-login-nom">INVESTA</div>
+      <div class="logo-login-baseline">Gestion immobilière</div>
+    </div>
+  </div>
   <input id="email" type="email" placeholder="Email">
   <input id="password" type="password" placeholder="Mot de passe">
   <button class="btn-primary" onclick="seConnecter()">Se connecter</button>
@@ -313,7 +335,10 @@
 
     <!-- SIDEBAR -->
     <div class="sidebar">
-      <div class="brand"><span class="logo-mark"></span> Investa</div>
+      <div class="brand">
+        <svg class="logo-symbol-sidebar" viewBox="0 0 200 500"><use href="#investa-symbol"></use></svg>
+        <span class="logo-sidebar-texte">INVESTA</span>
+      </div>
 
       <div class="nav-item active" id="nav-dashboard" onclick="allerDashboard()"><span class="ic">◈</span> Dashboard</div>
       <div class="nav-item" id="nav-patrimoine" onclick="allerPatrimoine()"><span class="ic">🏢</span> Patrimoine</div>
