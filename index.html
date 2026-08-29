@@ -520,6 +520,32 @@
             <h3>Activité récente</h3>
             <div id="immActiviteRecente">Chargement...</div>
           </div>
+
+          <div class="card">
+            <div class="section-header-ajout">
+              <h3>Charges & taxes récurrentes</h3>
+              <button class="btn-secondary btn-ajout-inline" id="btnAjoutChargeImm" onclick="toggleFormulaire('formAjoutChargeImm','btnAjoutChargeImm')">+ Ajouter</button>
+            </div>
+            <div class="card" id="formAjoutChargeImm" style="display:none; margin-bottom:12px;">
+              <select id="typeChargeImm">
+                <option value="copropriete">Charges de copropriété</option>
+                <option value="taxe_fonciere">Taxe foncière</option>
+                <option value="assurance">Assurance</option>
+                <option value="autre">Autre</option>
+              </select>
+              <div class="grid-2" style="margin-bottom:0;">
+                <input id="montantChargeImm" type="number" placeholder="Montant (€)">
+                <select id="frequenceChargeImm">
+                  <option value="trimestriel">Trimestriel</option>
+                  <option value="annuel">Annuel</option>
+                  <option value="mensuel">Mensuel</option>
+                </select>
+              </div>
+              <input id="echeanceChargeImm" type="date" placeholder="Prochaine échéance">
+              <button class="btn-primary" onclick="creerChargeRecurrente('Imm', 'immeuble', currentImmeubleId, currentImmeubleData.structure_id)">Ajouter</button>
+            </div>
+            <div id="listeChargesImm">Chargement...</div>
+          </div>
         </div>
 
         <div id="tabcontent-lots" style="display:none;">
@@ -620,6 +646,31 @@
           <div class="card">
             <h3>Échéances</h3>
             <div id="lotEcheances">Chargement...</div>
+          </div>
+          <div class="card">
+            <div class="section-header-ajout">
+              <h3>Charges & taxes récurrentes</h3>
+              <button class="btn-secondary btn-ajout-inline" id="btnAjoutChargeLot" onclick="toggleFormulaire('formAjoutChargeLot','btnAjoutChargeLot')">+ Ajouter</button>
+            </div>
+            <div class="card" id="formAjoutChargeLot" style="display:none; margin-bottom:12px;">
+              <select id="typeChargeLot">
+                <option value="copropriete">Charges de copropriété</option>
+                <option value="taxe_fonciere">Taxe foncière</option>
+                <option value="assurance">Assurance</option>
+                <option value="autre">Autre</option>
+              </select>
+              <div class="grid-2" style="margin-bottom:0;">
+                <input id="montantChargeLot" type="number" placeholder="Montant (€)">
+                <select id="frequenceChargeLot">
+                  <option value="trimestriel">Trimestriel</option>
+                  <option value="annuel">Annuel</option>
+                  <option value="mensuel">Mensuel</option>
+                </select>
+              </div>
+              <input id="echeanceChargeLot" type="date" placeholder="Prochaine échéance">
+              <button class="btn-primary" onclick="creerChargeRecurrente('Lot', 'lot', currentLotId, currentLotStructureId)">Ajouter</button>
+            </div>
+            <div id="listeChargesLot">Chargement...</div>
           </div>
         </div>
 
@@ -1745,6 +1796,7 @@
     switchTabImmeuble('vue');
     chargerASurveillerImmeuble(id, lotIds);
     chargerActiviteRecenteImmeuble(id, lotIds);
+    chargerChargesRecurrentes('immeuble', id, 'listeChargesImm');
   }
 
   async function chargerASurveillerImmeuble(immeubleId, lotIds) {
@@ -2030,7 +2082,7 @@
       document.getElementById('tabcontent-lot-' + t).style.display = t === tab ? 'block' : 'none';
       document.getElementById('tabLot' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
     });
-    if (tab === 'resume') { chargerColocatairesLot(currentLotId); chargerEcheancesLot(currentLotId); }
+    if (tab === 'resume') { chargerColocatairesLot(currentLotId); chargerEcheancesLot(currentLotId); chargerChargesRecurrentes('lot', currentLotId, 'listeChargesLot'); }
     if (tab === 'bail') chargerBail(currentLotId);
     if (tab === 'paiements') chargerPaiementsLot(currentLotId);
     if (tab === 'documents') chargerDocuments('lot', currentLotId, 'listeDocumentsLot');
@@ -2078,6 +2130,56 @@
   }
 
   // Onglet Résumé : prochain paiement, solde éventuel, bail qui approche de sa fin
+  const LABELS_TYPE_CHARGE = { copropriete: 'Charges de copropriété', taxe_fonciere: 'Taxe foncière', assurance: 'Assurance', autre: 'Autre' };
+  const LABELS_FREQUENCE_CHARGE = { mensuel: 'Mensuel', trimestriel: 'Trimestriel', annuel: 'Annuel' };
+
+  async function chargerChargesRecurrentes(entityType, entityId, targetDivId) {
+    const div = document.getElementById(targetDivId);
+    const { data: charges } = await supabaseClient.from('charges_recurrentes').select('*').eq('entity_type', entityType).eq('entity_id', entityId).order('prochaine_echeance');
+    if (!charges || !charges.length) { div.innerHTML = '<div class="empty-state">Aucune charge récurrente enregistrée.</div>'; return; }
+    div.innerHTML = charges.map(c => `
+      <div class="row">
+        <div>
+          <div style="font-weight:600;">${echapper(LABELS_TYPE_CHARGE[c.type_charge] || c.type_charge)}</div>
+          <div class="small">Prochaine échéance : ${new Date(c.prochaine_echeance).toLocaleDateString('fr-FR')}</div>
+        </div>
+        <div style="text-align:right; display:flex; align-items:center; gap:10px;">
+          <div>
+            <div style="font-weight:600;">${Number(c.montant).toLocaleString('fr-FR')} €</div>
+            <span class="badge-pill" style="background:${c.frequence === 'annuel' ? 'rgba(245,158,11,0.15)' : (c.frequence === 'mensuel' ? 'rgba(139,150,179,0.15)' : 'rgba(59,130,246,0.15)')}; color:${c.frequence === 'annuel' ? 'var(--amber)' : (c.frequence === 'mensuel' ? 'var(--text-dim)' : 'var(--accent)')};">${LABELS_FREQUENCE_CHARGE[c.frequence]}</span>
+          </div>
+          <a href="#" onclick="supprimerChargeRecurrente('${c.id}', '${entityType}', '${entityId}', '${targetDivId}'); return false;" style="color:var(--red); font-size:0.85rem;">✕</a>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function creerChargeRecurrente(prefixe, entityType, entityId, structureId) {
+    const typeCharge = document.getElementById('typeCharge' + prefixe).value;
+    const montant = document.getElementById('montantCharge' + prefixe).value;
+    const frequence = document.getElementById('frequenceCharge' + prefixe).value;
+    const echeance = document.getElementById('echeanceCharge' + prefixe).value;
+    if (!montant || !echeance) return alert('Montant et prochaine échéance requis');
+
+    const { error } = await supabaseClient.from('charges_recurrentes').insert({
+      structure_id: structureId, entity_type: entityType, entity_id: entityId,
+      type_charge: typeCharge, montant: parseFloat(montant), frequence, prochaine_echeance: echeance
+    });
+    if (error) return alert('Erreur : ' + error.message);
+
+    document.getElementById('montantCharge' + prefixe).value = '';
+    document.getElementById('echeanceCharge' + prefixe).value = '';
+    toggleFormulaire('formAjoutCharge' + prefixe, 'btnAjoutCharge' + prefixe);
+    chargerChargesRecurrentes(entityType, entityId, 'listeCharges' + prefixe);
+  }
+
+  async function supprimerChargeRecurrente(id, entityType, entityId, targetDivId) {
+    if (!confirm('Supprimer cette charge récurrente ?')) return;
+    const { error } = await supabaseClient.from('charges_recurrentes').delete().eq('id', id);
+    if (error) return alert('Erreur : ' + error.message);
+    chargerChargesRecurrentes(entityType, entityId, targetDivId);
+  }
+
   async function chargerEcheancesLot(lotId) {
     const div = document.getElementById('lotEcheances');
     div.textContent = 'Chargement...';
@@ -2190,9 +2292,11 @@
     for (const nom of noms) {
       const { data: locataire, error: errLoc } = await supabaseClient.from('locataires').insert({ structure_id: structureId, nom }).select().single();
       if (errLoc) { alert('Erreur locataire : ' + errLoc.message); continue; }
-      await supabaseClient.from('bail_locataires').insert({ bail_id: bailId, locataire_id: locataire.id });
+      const { error: errRattach } = await supabaseClient.from('bail_locataires').insert({ bail_id: bailId, locataire_id: locataire.id });
+      if (errRattach) { alert('Erreur de rattachement au bail : ' + errRattach.message); continue; }
     }
-    await supabaseClient.from('lots').update({ statut: 'occupe' }).eq('id', lotId);
+    const { error: errStatut } = await supabaseClient.from('lots').update({ statut: 'occupe' }).eq('id', lotId);
+    if (errStatut) console.error('Erreur mise à jour statut du lot :', errStatut.message);
     ouvrirFicheLot(lotId);
   }
 
@@ -2216,9 +2320,11 @@
     for (const nom of noms) {
       const { data: locataire, error: errLoc } = await supabaseClient.from('locataires').insert({ structure_id: structureId, nom }).select().single();
       if (errLoc) { alert('Erreur locataire : ' + errLoc.message); continue; }
-      await supabaseClient.from('bail_locataires').insert({ bail_id: bail.id, locataire_id: locataire.id });
+      const { error: errRattach } = await supabaseClient.from('bail_locataires').insert({ bail_id: bail.id, locataire_id: locataire.id });
+      if (errRattach) { alert('Erreur de rattachement au bail : ' + errRattach.message); continue; }
     }
-    await supabaseClient.from('lots').update({ statut: 'occupe' }).eq('id', currentLotId);
+    const { error: errStatut } = await supabaseClient.from('lots').update({ statut: 'occupe' }).eq('id', currentLotId);
+    if (errStatut) console.error('Erreur mise à jour statut du lot :', errStatut.message);
     ouvrirFicheLot(currentLotId);
   }
 
@@ -2420,8 +2526,10 @@
       structure_id: structureId, nom, email: email || null, telephone: telephone || null
     }).select().single();
     if (errLoc) return alert('Erreur : ' + errLoc.message);
-    await supabaseClient.from('bail_locataires').insert({ bail_id: bail.id, locataire_id: locataire.id });
-    await supabaseClient.from('lots').update({ statut: 'occupe' }).eq('id', lotId);
+    const { error: errRattach } = await supabaseClient.from('bail_locataires').insert({ bail_id: bail.id, locataire_id: locataire.id });
+    if (errRattach) return alert('Erreur de rattachement au bail : ' + errRattach.message);
+    const { error: errStatut } = await supabaseClient.from('lots').update({ statut: 'occupe' }).eq('id', lotId);
+    if (errStatut) console.error('Erreur mise à jour statut du lot :', errStatut.message);
 
     // Reset du formulaire
     document.getElementById('nomLocataireRapide').value = '';
