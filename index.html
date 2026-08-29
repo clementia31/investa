@@ -2315,6 +2315,59 @@
     if (tab === 'charges') chargerChargesLot(currentLotId);
   }
 
+  let donneesIrlIndices = [];
+  let nouveauLoyerCalcule = null;
+
+  async function initialiserSelecteurIrl() {
+    const { data } = await supabaseClient.from('irl_indices').select('*').order('trimestre');
+    donneesIrlIndices = data || [];
+    const sel = document.getElementById('irlNouveauTrimestre');
+    sel.innerHTML = '<option value="">Choisir le nouveau trimestre de référence</option>' +
+      donneesIrlIndices.map(i => `<option value="${i.trimestre}">${i.trimestre} — ${i.valeur}</option>`).join('');
+  }
+
+  function calculerRevisionIrl(loyerActuel) {
+    const trimestreChoisi = document.getElementById('irlNouveauTrimestre').value;
+    const resultatDiv = document.getElementById('irlResultatCalcul');
+    const btnAppliquer = document.getElementById('btnAppliquerRevisionIrl');
+    nouveauLoyerCalcule = null;
+    btnAppliquer.style.display = 'none';
+    if (!trimestreChoisi) { resultatDiv.innerHTML = ''; return; }
+
+    const indiceNouveau = donneesIrlIndices.find(i => i.trimestre === trimestreChoisi);
+    const [annee, trimNum] = trimestreChoisi.split('-T');
+    const trimestreAnPasse = (parseInt(annee) - 1) + '-T' + trimNum;
+    const indiceAncien = donneesIrlIndices.find(i => i.trimestre === trimestreAnPasse);
+
+    if (!indiceAncien) {
+      resultatDiv.innerHTML = `<span style="color:var(--red);">Indice de ${trimestreAnPasse} manquant dans la table — impossible de calculer sans lui.</span>`;
+      return;
+    }
+
+    // Formule légale : nouveau loyer = loyer actuel × (IRL du trimestre N / IRL du même trimestre N-1), arrondi au centime inférieur
+    const brut = loyerActuel * (indiceNouveau.valeur / indiceAncien.valeur);
+    nouveauLoyerCalcule = Math.floor(brut * 100) / 100;
+    const ecart = (nouveauLoyerCalcule - loyerActuel).toFixed(2);
+
+    resultatDiv.innerHTML = `
+      <div class="row"><span>Loyer actuel</span><span>${loyerActuel} €</span></div>
+      <div class="row"><span>IRL ${trimestreAnPasse} → ${trimestreChoisi}</span><span>${indiceAncien.valeur} → ${indiceNouveau.valeur}</span></div>
+      <div class="row"><span style="font-weight:600;">Nouveau loyer</span><span style="font-weight:600; color:var(--green);">${nouveauLoyerCalcule} € (${ecart >= 0 ? '+' : ''}${ecart} €)</span></div>
+    `;
+    btnAppliquer.style.display = 'inline-flex';
+  }
+
+  async function appliquerRevisionIrl(bailId, lotId) {
+    const trimestreChoisi = document.getElementById('irlNouveauTrimestre').value;
+    if (nouveauLoyerCalcule === null || !trimestreChoisi) return;
+    if (!confirm(`Passer le loyer à ${nouveauLoyerCalcule} € (référence ${trimestreChoisi}) ?`)) return;
+    const { error } = await supabaseClient.from('baux').update({
+      loyer: nouveauLoyerCalcule, irl_trimestre_reference: trimestreChoisi
+    }).eq('id', bailId);
+    if (error) return alert('Erreur : ' + error.message);
+    chargerBail(lotId);
+  }
+
   async function terminerBail(bailId, lotId) {
     const dateSortie = document.getElementById('dateSortieBail').value || new Date().toISOString().split('T')[0];
     if (!confirm('Terminer ce bail au ' + dateSortie + ' ? Le locataire restera consultable dans l\u2019historique du lot.')) return;
@@ -2516,13 +2569,23 @@
       zone.innerHTML = `
         <h3>Bail en cours</h3>
         <div class="small">Type : ${bail.type} · Loyer : ${bail.loyer} € · Charges : ${bail.charges} €${bail.depot_garantie ? ' · Dépôt : ' + bail.depot_garantie + ' €' : ''}</div>
-        <div class="small">Du ${bail.date_debut} ${bail.date_fin ? 'au ' + bail.date_fin : '(sans fin)'}</div>
+        <div class="small">Du ${bail.date_debut} ${bail.date_fin ? 'au ' + bail.date_fin : '(sans fin)'}${bail.irl_trimestre_reference ? ' · Dernière révision : ' + bail.irl_trimestre_reference : ''}</div>
+
+        <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
+          <p class="small" style="margin:0 0 8px;">Réviser le loyer selon l'IRL</p>
+          <p class="small" style="margin:0 0 8px; color:var(--amber);">⚠️ Non applicable si le logement est classé DPE F ou G (interdiction légale de révision, qu'on ne peut pas vérifier automatiquement ici).</p>
+          <select id="irlNouveauTrimestre" onchange="calculerRevisionIrl(${bail.loyer})"></select>
+          <div id="irlResultatCalcul" class="small" style="margin:10px 0;"></div>
+          <button class="btn-secondary" id="btnAppliquerRevisionIrl" style="display:none;" onclick="appliquerRevisionIrl('${bail.id}', '${lotId}')">Appliquer la révision</button>
+        </div>
+
         <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
           <p class="small" style="margin:0 0 8px;">Le locataire s'en va ?</p>
           <input id="dateSortieBail" type="date">
           <button class="btn-secondary" style="color:var(--red); border-color:var(--red);" onclick="terminerBail('${bail.id}', '${lotId}')">Terminer le bail</button>
         </div>
       `;
+      initialiserSelecteurIrl();
 
       if (!rattachements || !rattachements.length) {
         zone.innerHTML += `
