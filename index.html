@@ -733,6 +733,7 @@
         <div class="tabs">
           <div class="tab active" id="tabLocBail" onclick="switchTabLocataire('bail')">Bail</div>
           <div class="tab" id="tabLocPaiements" onclick="switchTabLocataire('paiements')">Paiements</div>
+          <div class="tab" id="tabLocQuittances" onclick="switchTabLocataire('quittances')">Quittances</div>
           <div class="tab" id="tabLocDocuments" onclick="switchTabLocataire('documents')">Documents</div>
         </div>
 
@@ -765,6 +766,14 @@
               <span>Mois</span><span>Type</span><span>Montant</span><span>Statut</span>
             </div>
             <div id="historiquePaiementsLocataire">Chargement...</div>
+          </div>
+        </div>
+
+        <div id="tabcontent-loc-quittances" style="display:none;">
+          <div class="card">
+            <h3>Historique des quittances</h3>
+            <p class="small" style="margin:0 0 10px;">Chaque quittance générée automatiquement (loyer marqué payé) ou envoyée depuis Documents apparaît ici.</p>
+            <div id="listeQuittancesLocataire">Chargement...</div>
           </div>
         </div>
 
@@ -1113,6 +1122,15 @@
           <textarea id="modeleQuittanceTexte" rows="14" style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; font-size:0.88rem; resize:vertical;"></textarea>
           <button class="btn-primary" style="width:auto; padding:10px 20px; margin-top:10px;" onclick="enregistrerModeleQuittance()">Enregistrer le modèle</button>
           <button class="btn-secondary" style="width:auto; padding:10px 20px; margin-top:10px; margin-left:8px;" onclick="reinitialiserModeleQuittance()">Revenir au modèle par défaut</button>
+        </div>
+
+        <button class="btn-ajout-replie" id="btnGenererQuittance" onclick="toggleFormulaire('cardGenererQuittance','btnGenererQuittance')">Générer une quittance</button>
+        <div class="card" id="cardGenererQuittance" style="display:none;">
+          <h3>Générer une quittance</h3>
+          <p class="small" style="margin:0 0 10px;">Générée avec le modèle ci-dessus, classée automatiquement dans l'historique "Quittances" du locataire. <strong>L'envoi par email n'est pas encore actif</strong> — il deviendra automatique une fois configuré.</p>
+          <select id="locataireGenererQuittance"></select>
+          <input id="moisGenererQuittance" type="month">
+          <button class="btn-primary" onclick="genererQuittanceManuelle()">Générer la quittance</button>
         </div>
 
         <div class="card" id="cardImportDocument" style="display:none;">
@@ -2370,6 +2388,7 @@
 
     switchTabLocataire('bail');
     chargerDocuments('locataire', locataireId, 'listeDocumentsLocataire');
+    chargerDocuments('locataire', locataireId, 'listeQuittancesLocataire', 'quittance');
 
     const { data: rattachements } = await supabaseClient.from('bail_locataires').select('*').eq('locataire_id', locataireId);
     const bailIds = (rattachements || []).map(r => r.bail_id);
@@ -2456,7 +2475,7 @@
   }
 
   function switchTabLocataire(tab) {
-    ['bail', 'paiements', 'documents'].forEach(t => {
+    ['bail', 'paiements', 'quittances', 'documents'].forEach(t => {
       document.getElementById('tabcontent-loc-' + t).style.display = t === tab ? 'block' : 'none';
       document.getElementById('tabLoc' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
     });
@@ -3575,11 +3594,13 @@ Le bailleur donne quittance au locataire pour le paiement ci-dessus et lui donne
     chargerDocuments(entityType, entityId, targetDiv);
   }
 
-  async function chargerDocuments(entityType, entityId, targetDivId) {
+  async function chargerDocuments(entityType, entityId, targetDivId, categorieFiltre) {
     const div = document.getElementById(targetDivId);
     if (!div) return;
     div.textContent = 'Chargement...';
-    const { data: docs, error } = await supabaseClient.from('documents').select('*').eq('entity_type', entityType).eq('entity_id', entityId).order('created_at', { ascending: false });
+    let requete = supabaseClient.from('documents').select('*').eq('entity_type', entityType).eq('entity_id', entityId).order('created_at', { ascending: false });
+    if (categorieFiltre) requete = requete.eq('categorie', categorieFiltre);
+    const { data: docs, error } = await requete;
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
     if (!docs || !docs.length) { div.innerHTML = '<div class="empty-state">Aucun document.</div>'; return; }
 
@@ -3618,6 +3639,48 @@ Le bailleur donne quittance au locataire pour le paiement ci-dessus et lui donne
     document.getElementById('cardImportDocument').style.display = 'none';
     categorieDocumentsActive = 'tous';
     switchTabDocuments('tous');
+    chargerLocatairesPourQuittance();
+    const now = new Date();
+    document.getElementById('moisGenererQuittance').value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  }
+
+  async function chargerLocatairesPourQuittance() {
+    const sel = document.getElementById('locataireGenererQuittance');
+    const { data: locataires } = await supabaseClient.from('locataires').select('id, nom').order('nom');
+    sel.innerHTML = (locataires || []).map(l => `<option value="${l.id}">${echapper(l.nom)}</option>`).join('');
+  }
+
+  async function genererQuittanceManuelle() {
+    const locataireId = document.getElementById('locataireGenererQuittance').value;
+    const moisChoisi = document.getElementById('moisGenererQuittance').value;
+    if (!locataireId) return alert('Sélectionne un locataire');
+    if (!moisChoisi) return alert('Sélectionne un mois');
+    const moisDate = moisChoisi + '-01';
+
+    const { data: rattachement } = await supabaseClient.from('bail_locataires').select('bail_id').eq('locataire_id', locataireId);
+    const bailIds = (rattachement || []).map(r => r.bail_id);
+    if (!bailIds.length) return alert('Ce locataire n\u2019a aucun bail.');
+    const { data: bauxActifs } = await supabaseClient.from('baux').select('*').in('id', bailIds).eq('statut', 'actif').limit(1);
+    if (!bauxActifs || !bauxActifs.length) return alert('Aucun bail actif pour ce locataire.');
+    const bail = bauxActifs[0];
+
+    const { data: paiementExistant } = await supabaseClient.from('paiements').select('*').eq('bail_id', bail.id).eq('mois', moisDate).maybeSingle();
+    let paiementId;
+    if (paiementExistant) {
+      await supabaseClient.from('paiements').update({ statut: 'paye', date_paiement: moisDate }).eq('id', paiementExistant.id);
+      paiementId = paiementExistant.id;
+    } else {
+      const { data: nouveauPaiement, error } = await supabaseClient.from('paiements').insert({
+        bail_id: bail.id, mois: moisDate, montant_loyer: bail.loyer, montant_charges: bail.charges, statut: 'paye', date_paiement: moisDate
+      }).select().single();
+      if (error) return alert('Erreur : ' + error.message);
+      paiementId = nouveauPaiement.id;
+    }
+
+    await genererQuittanceAuto(paiementId);
+    alert('Quittance générée et classée dans l\u2019historique du locataire.');
+    toggleFormulaire('cardGenererQuittance', 'btnGenererQuittance');
+    chargerDocumentsGlobal();
   }
 
   function switchTabDocuments(cat) {
