@@ -340,6 +340,24 @@
   </symbol>
 </svg>
 
+<!-- Modal partagé pour modifier une transaction, réutilisé depuis Fiche Lot (Charges) et Fiche Immeuble (Finances) -->
+<div id="modalEditTransaction" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
+  <div class="card" style="max-width:420px; width:90%;">
+    <h3 style="margin-top:0;">Modifier la transaction</h3>
+    <input id="editTxMontant" type="number" placeholder="Montant (€)">
+    <input id="editTxDate" type="date">
+    <input id="editTxDescription" placeholder="Description">
+    <label class="small" style="display:flex; align-items:center; gap:8px; margin:10px 0;">
+      <input type="checkbox" id="editTxRecuperable" style="width:auto;">
+      Charge récupérable auprès du locataire
+    </label>
+    <div style="display:flex; gap:8px;">
+      <button class="btn-primary" style="flex:1;" onclick="enregistrerModifTransaction()">Enregistrer</button>
+      <button class="btn-secondary" style="flex:1;" onclick="fermerModalEditTransaction()">Annuler</button>
+    </div>
+  </div>
+</div>
+
 <!-- ============ AUTH ============ -->
 <div class="auth-wrap" id="auth">
   <div class="logo-login">
@@ -725,6 +743,14 @@
           </div>
           <div class="card">
             <div class="section-header-ajout">
+              <h3>Régularisation des charges</h3>
+              <select id="anneeRegularisation" onchange="calculerRegularisationCharges(currentLotId)" style="width:auto; padding:6px 10px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-size:0.82rem;"></select>
+            </div>
+            <p class="small" style="margin:0 0 10px;">Dépenses récupérables réparties à parts égales entre les lots de l'immeuble — pas au prorata des tantièmes.</p>
+            <div id="resultatRegularisationCharges">Chargement...</div>
+          </div>
+          <div class="card">
+            <div class="section-header-ajout">
               <h3>Charges & taxes récurrentes</h3>
               <button class="btn-secondary btn-ajout-inline" id="btnAjoutChargeLot" onclick="toggleFormulaire('formAjoutChargeLot','btnAjoutChargeLot')">+ Ajouter</button>
             </div>
@@ -944,6 +970,10 @@
           <input id="montantTravaux" type="number" placeholder="Montant (€)">
           <input id="dateTravaux" type="date">
           <input id="descriptionTravaux" placeholder="Description (ex: réparation chauffe-eau)">
+          <label class="small" style="display:flex; align-items:center; gap:8px; margin:10px 0;">
+            <input type="checkbox" id="recuperableTravaux" style="width:auto;">
+            Charge récupérable auprès du locataire (eau, entretien courant... — pas les gros travaux)
+          </label>
           <p class="small" style="margin:8px 0 4px;">Facture — optionnel</p>
           <input type="file" id="fichierFactureTravaux">
           <button class="btn-primary" onclick="enregistrerTravaux()">Enregistrer</button>
@@ -1299,7 +1329,6 @@
 
         <div class="card" id="cardImportDocument" style="display:none;">
           <h3>Importer un document</h3>
-          <select id="structureImport" onchange="chargerCiblesImport()"></select>
           <select id="typeImport" onchange="chargerCiblesImport()">
             <option value="immeuble">Immeuble</option>
             <option value="lot">Lot</option>
@@ -1311,6 +1340,8 @@
             <option value="quittance">Quittance</option>
             <option value="diagnostic">Diagnostic</option>
             <option value="assurance">Assurance</option>
+            <option value="travaux">Travaux</option>
+            <option value="revision_loyer">Révision de loyer</option>
             <option value="autre">Autre</option>
           </select>
           <input type="file" id="fichierImportGlobal">
@@ -2128,8 +2159,12 @@
     if (!txs || !txs.length) { div.innerHTML = '<div class="empty-state">Aucune transaction pour ce bien. (Ajoute une dépense travaux depuis l\u2019écran Loyers.)</div>'; return; }
     div.innerHTML = txs.map(t => `
       <div class="row">
-        <span>${t.date} — ${echapper(t.categorie)}${t.description ? ' (' + echapper(t.description) + ')' : ''}</span>
-        <span style="color:${t.type === 'depense' ? 'var(--red)' : 'var(--green)'}; font-weight:600;">${t.type === 'depense' ? '-' : '+'}${Number(t.montant).toLocaleString('fr-FR')} €</span>
+        <span>${t.date} — ${echapper(t.categorie)}${t.description ? ' (' + echapper(t.description) + ')' : ''}${t.recuperable ? ' <span class="badge-pill badge-vert" style="margin-left:6px;">Récupérable</span>' : ''}</span>
+        <span>
+          <span style="color:${t.type === 'depense' ? 'var(--red)' : 'var(--green)'}; font-weight:600; margin-right:10px;">${t.type === 'depense' ? '-' : '+'}${Number(t.montant).toLocaleString('fr-FR')} €</span>
+          <a href="#" onclick="ouvrirEditTransaction('${t.id}', 'immeuble', '${currentImmeubleId}'); return false;" style="margin-right:8px;">✏️</a>
+          <a href="#" onclick="supprimerTransaction('${t.id}', 'immeuble', '${currentImmeubleId}'); return false;" style="color:var(--red);">✕</a>
+        </span>
       </div>
     `).join('');
   }
@@ -2332,7 +2367,7 @@
       document.getElementById('tabcontent-lot-' + t).style.display = t === tab ? 'block' : 'none';
       document.getElementById('tabLot' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
     });
-    if (tab === 'resume') { chargerColocatairesLot(currentLotId); chargerEcheancesLot(currentLotId); chargerChargesRecurrentes('lot', currentLotId, 'listeChargesLot'); chargerHistoriqueLot(currentLotId); }
+    if (tab === 'resume') { chargerColocatairesLot(currentLotId); chargerEcheancesLot(currentLotId); chargerChargesRecurrentes('lot', currentLotId, 'listeChargesLot'); chargerHistoriqueLot(currentLotId); initialiserRegularisationCharges(currentLotId); }
     if (tab === 'bail') chargerBail(currentLotId);
     if (tab === 'paiements') chargerPaiementsLot(currentLotId);
     if (tab === 'documents') chargerDocuments('lot', currentLotId, 'listeDocumentsLot');
@@ -2484,6 +2519,43 @@
       await supabaseClient.from('lots').update({ statut: 'vacant' }).eq('id', lotId);
     }
     ouvrirFicheLot(lotId);
+  }
+
+  function initialiserRegularisationCharges(lotId) {
+    const sel = document.getElementById('anneeRegularisation');
+    const anneeActuelle = new Date().getFullYear();
+    sel.innerHTML = [anneeActuelle, anneeActuelle - 1, anneeActuelle - 2].map(a => `<option value="${a}">${a}</option>`).join('');
+    calculerRegularisationCharges(lotId);
+  }
+
+  async function calculerRegularisationCharges(lotId) {
+    const div = document.getElementById('resultatRegularisationCharges');
+    const annee = document.getElementById('anneeRegularisation').value;
+    const debutAnnee = annee + '-01-01';
+    const finAnnee = annee + '-12-31';
+
+    const { data: lotInfo } = await supabaseClient.from('lots').select('immeuble_id').eq('id', lotId).single();
+    const immeubleId = lotInfo.immeuble_id;
+
+    const { count: nbLotsImmeuble } = await supabaseClient.from('lots').select('id', { count: 'exact', head: true }).eq('immeuble_id', immeubleId);
+    const { data: depensesRecuperables } = await supabaseClient.from('transactions').select('montant').eq('immeuble_id', immeubleId).eq('type', 'depense').eq('recuperable', true).gte('date', debutAnnee).lte('date', finAnnee);
+    const totalDepensesRecuperables = (depensesRecuperables || []).reduce((a, t) => a + Number(t.montant), 0);
+    const partParLot = nbLotsImmeuble > 0 ? totalDepensesRecuperables / nbLotsImmeuble : 0;
+
+    const { data: baux } = await supabaseClient.from('baux').select('id').eq('lot_id', lotId);
+    const bailIds = (baux || []).map(b => b.id);
+    let provisionsEncaissees = 0;
+    if (bailIds.length) {
+      const { data: paiements } = await supabaseClient.from('paiements').select('montant_charges').in('bail_id', bailIds).eq('statut', 'paye').gte('mois', debutAnnee).lte('mois', finAnnee);
+      provisionsEncaissees = (paiements || []).reduce((a, p) => a + Number(p.montant_charges), 0);
+    }
+
+    const ecart = provisionsEncaissees - partParLot;
+    div.innerHTML = `
+      <div class="row"><span class="small">Provisions sur charges encaissées</span><span>${provisionsEncaissees.toLocaleString('fr-FR')} €</span></div>
+      <div class="row"><span class="small">Part de dépenses récupérables (${nbLotsImmeuble || 0} lot${nbLotsImmeuble > 1 ? 's' : ''})</span><span>${partParLot.toLocaleString('fr-FR')} €</span></div>
+      <div class="row"><span style="font-weight:600;">${ecart >= 0 ? 'À rembourser au locataire' : 'À réclamer au locataire'}</span><span style="font-weight:600; color:${ecart >= 0 ? 'var(--green)' : 'var(--red)'};">${Math.abs(ecart).toLocaleString('fr-FR')} €</span></div>
+    `;
   }
 
   async function chargerHistoriqueLot(lotId) {
@@ -2652,13 +2724,21 @@
   async function chargerChargesLot(lotId) {
     const div = document.getElementById('lotCharges2');
     div.textContent = 'Chargement...';
-    const { data: txs, error } = await supabaseClient.from('transactions').select('*').eq('lot_id', lotId).order('date', { ascending: false });
+    // Les travaux sont enregistrés au niveau immeuble (jamais lot_id, aucun formulaire ne le renseigne) —
+    // on interroge donc par immeuble plutôt que par lot, sinon cette liste reste vide en permanence.
+    const { data: lotInfo } = await supabaseClient.from('lots').select('immeuble_id').eq('id', lotId).single();
+    if (!lotInfo) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
+    const { data: txs, error } = await supabaseClient.from('transactions').select('*').eq('immeuble_id', lotInfo.immeuble_id).order('date', { ascending: false });
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
-    if (!txs || !txs.length) { div.innerHTML = '<div class="empty-state">Aucune transaction pour ce lot. (Ajoute une dépense travaux depuis l\u2019écran Loyers.)</div>'; return; }
+    if (!txs || !txs.length) { div.innerHTML = '<div class="empty-state">Aucune transaction pour cet immeuble. (Ajoute une dépense travaux depuis l\u2019écran Loyers.)</div>'; return; }
     div.innerHTML = txs.map(t => `
       <div class="row">
-        <span>${t.date} — ${echapper(t.categorie)}${t.description ? ' (' + echapper(t.description) + ')' : ''}</span>
-        <span style="color:${t.type === 'depense' ? 'var(--red)' : 'var(--green)'}; font-weight:600;">${t.type === 'depense' ? '-' : '+'}${Number(t.montant).toLocaleString('fr-FR')} €</span>
+        <span>${t.date} — ${echapper(t.categorie)}${t.description ? ' (' + echapper(t.description) + ')' : ''}${t.recuperable ? ' <span class="badge-pill badge-vert" style="margin-left:6px;">Récupérable</span>' : ''}</span>
+        <span>
+          <span style="color:${t.type === 'depense' ? 'var(--red)' : 'var(--green)'}; font-weight:600; margin-right:10px;">${t.type === 'depense' ? '-' : '+'}${Number(t.montant).toLocaleString('fr-FR')} €</span>
+          <a href="#" onclick="ouvrirEditTransaction('${t.id}', 'lot', '${lotId}'); return false;" style="margin-right:8px;">✏️</a>
+          <a href="#" onclick="supprimerTransaction('${t.id}', 'lot', '${lotId}'); return false;" style="color:var(--red);">✕</a>
+        </span>
       </div>
     `).join('');
   }
@@ -3367,11 +3447,64 @@
     sel.innerHTML = (immeubles || []).map(im => `<option value="${im.id}">${echapper(im.adresse)}</option>`).join('');
   }
 
+  let transactionEnEdition = null;
+  let contexteRafraichissementTx = null;
+
+  async function ouvrirEditTransaction(txId, contexteType, contexteId) {
+    const { data: tx, error } = await supabaseClient.from('transactions').select('*').eq('id', txId).single();
+    if (error || !tx) return alert('Erreur : impossible de charger cette transaction.');
+    transactionEnEdition = txId;
+    contexteRafraichissementTx = { type: contexteType, id: contexteId };
+    document.getElementById('editTxMontant').value = tx.montant;
+    document.getElementById('editTxDate').value = tx.date;
+    document.getElementById('editTxDescription').value = tx.description || '';
+    document.getElementById('editTxRecuperable').checked = !!tx.recuperable;
+    document.getElementById('modalEditTransaction').style.display = 'flex';
+  }
+
+  function fermerModalEditTransaction() {
+    document.getElementById('modalEditTransaction').style.display = 'none';
+    transactionEnEdition = null;
+    contexteRafraichissementTx = null;
+  }
+
+  async function enregistrerModifTransaction() {
+    if (!transactionEnEdition) return;
+    const montant = document.getElementById('editTxMontant').value;
+    const date = document.getElementById('editTxDate').value;
+    const description = document.getElementById('editTxDescription').value;
+    const recuperable = document.getElementById('editTxRecuperable').checked;
+    if (!montant || !date) return alert('Montant et date requis');
+
+    const { error } = await supabaseClient.from('transactions').update({
+      montant: parseFloat(montant), date, description: description || null, recuperable
+    }).eq('id', transactionEnEdition);
+    if (error) return alert('Erreur : ' + error.message);
+
+    const contexte = contexteRafraichissementTx;
+    fermerModalEditTransaction();
+    rafraichirListeTransactions(contexte);
+  }
+
+  async function supprimerTransaction(txId, contexteType, contexteId) {
+    if (!confirm('Supprimer cette transaction définitivement ?')) return;
+    const { error } = await supabaseClient.from('transactions').delete().eq('id', txId);
+    if (error) return alert('Erreur : ' + error.message);
+    rafraichirListeTransactions({ type: contexteType, id: contexteId });
+  }
+
+  function rafraichirListeTransactions(contexte) {
+    if (!contexte) return;
+    if (contexte.type === 'lot') chargerChargesLot(contexte.id);
+    else if (contexte.type === 'immeuble') chargerFinancesImmeuble();
+  }
+
   async function enregistrerTravaux() {
     const immeubleId = document.getElementById('immeubleTravaux').value;
     const montant = document.getElementById('montantTravaux').value;
     const date = document.getElementById('dateTravaux').value;
     const description = document.getElementById('descriptionTravaux').value;
+    const recuperable = document.getElementById('recuperableTravaux').checked;
     const fichier = document.getElementById('fichierFactureTravaux').files[0];
 
     if (!immeubleId) return alert('Sélectionne un immeuble');
@@ -3382,7 +3515,7 @@
 
     const { error: errTx } = await supabaseClient.from('transactions').insert({
       structure_id: structureId, immeuble_id: immeubleId, type: 'depense', categorie: 'travaux',
-      montant: parseFloat(montant), date, description: description || null
+      montant: parseFloat(montant), date, description: description || null, recuperable
     });
     if (errTx) return alert('Erreur : ' + errTx.message);
 
@@ -3400,6 +3533,7 @@
     document.getElementById('montantTravaux').value = '';
     document.getElementById('dateTravaux').value = '';
     document.getElementById('descriptionTravaux').value = '';
+    document.getElementById('recuperableTravaux').checked = false;
     document.getElementById('fichierFactureTravaux').value = '';
     toggleFormulaire('formAjoutTravaux', 'btnAjoutTravaux');
   }
@@ -4436,41 +4570,44 @@ Cette révision est appliquée conformément à la loi n°89-462 du 6 juillet 19
     const card = document.getElementById('cardImportDocument');
     card.style.display = card.style.display === 'block' ? 'none' : 'block';
     if (card.style.display !== 'block') return;
-
-    const selS = document.getElementById('structureImport');
-    if (!selS.options.length) {
-      const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
-      selS.innerHTML = (structures || []).map(s => `<option value="${s.id}">${echapper(s.nom)}</option>`).join('');
-    }
     chargerCiblesImport();
   }
 
   async function chargerCiblesImport() {
-    const structureId = document.getElementById('structureImport').value;
     const type = document.getElementById('typeImport').value;
     const selCible = document.getElementById('cibleImport');
-    if (!structureId) { selCible.innerHTML = ''; return; }
 
     if (type === 'immeuble') {
-      const { data } = await supabaseClient.from('immeubles').select('id, adresse').eq('structure_id', structureId);
+      const { data } = await supabaseClient.from('immeubles').select('id, adresse');
       selCible.innerHTML = (data || []).map(i => `<option value="${i.id}">${echapper(i.adresse)}</option>`).join('');
     } else if (type === 'lot') {
-      const { data: immeubles } = await supabaseClient.from('immeubles').select('id').eq('structure_id', structureId);
-      const immeubleIds = (immeubles || []).map(i => i.id);
-      const { data: lots } = immeubleIds.length ? await supabaseClient.from('lots').select('id, nom, type').in('immeuble_id', immeubleIds) : { data: [] };
+      const { data: lots } = await supabaseClient.from('lots').select('id, nom, type');
       selCible.innerHTML = (lots || []).map(l => `<option value="${l.id}">${echapper(l.nom || l.type)}</option>`).join('');
     } else {
-      const { data } = await supabaseClient.from('locataires').select('id, nom').eq('structure_id', structureId);
+      const { data } = await supabaseClient.from('locataires').select('id, nom');
       selCible.innerHTML = (data || []).map(l => `<option value="${l.id}">${echapper(l.nom)}</option>`).join('');
     }
   }
 
   async function importerDocumentGlobal() {
-    const structureId = document.getElementById('structureImport').value;
     const type = document.getElementById('typeImport').value;
     const cibleId = document.getElementById('cibleImport').value;
     const categorie = document.getElementById('categorieImport').value;
-    if (!structureId || !cibleId) return alert('Sélectionne une structure et une cible');
+    if (!cibleId) return alert('Sélectionne une cible');
+
+    // La structure n'est plus choisie manuellement — on la retrouve à partir de la cible sélectionnée.
+    let structureId = null;
+    if (type === 'immeuble') {
+      const { data } = await supabaseClient.from('immeubles').select('structure_id').eq('id', cibleId).single();
+      structureId = data ? data.structure_id : null;
+    } else if (type === 'lot') {
+      const { data } = await supabaseClient.from('lots').select('immeubles(structure_id)').eq('id', cibleId).single();
+      structureId = data && data.immeubles ? data.immeubles.structure_id : null;
+    } else {
+      const { data } = await supabaseClient.from('locataires').select('structure_id').eq('id', cibleId).single();
+      structureId = data ? data.structure_id : null;
+    }
+    if (!structureId) return alert('Erreur : impossible de déterminer la structure de cette cible.');
 
     await uploaderDocument(type, cibleId, structureId, 'fichierImportGlobal', categorie);
     document.getElementById('cardImportDocument').style.display = 'none';
