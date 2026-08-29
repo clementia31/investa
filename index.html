@@ -484,6 +484,7 @@
               <div style="margin-top:8px; display:flex; gap:6px;" id="immBadges"></div>
             </div>
             <button class="btn-secondary" style="padding:9px 16px; border-radius:8px; width:auto;" onclick="ouvrirEditionImmeuble()">Modifier</button>
+            <button class="btn-secondary" style="padding:9px 16px; border-radius:8px; width:auto; color:var(--red); border-color:var(--red);" onclick="supprimerImmeuble()">Supprimer</button>
           </div>
         </div>
 
@@ -580,6 +581,7 @@
               <div class="small" id="lotSousTitre"></div>
               <div style="margin-top:8px;" id="lotBadgeStatut"></div>
             </div>
+            <button class="btn-secondary" style="padding:9px 16px; border-radius:8px; width:auto; color:var(--red); border-color:var(--red);" onclick="supprimerLot()">Supprimer</button>
           </div>
           <div class="grid-2" style="margin-top:18px; margin-bottom:0; grid-template-columns:repeat(3,1fr);">
             <div class="stat-card"><div class="lbl">Loyer mensuel</div><div class="val" id="lotLoyer">—</div></div>
@@ -664,6 +666,7 @@
               <div style="margin-top:8px; display:flex; gap:6px;" id="locBadges"></div>
             </div>
             <div style="display:flex; gap:8px;" id="locContactIcons"></div>
+            <button class="btn-secondary" style="padding:9px 16px; border-radius:8px; width:auto; color:var(--red); border-color:var(--red);" onclick="supprimerLocataire()">Supprimer</button>
           </div>
           <div class="loyer-mois-bloc" id="locLoyerMoisBloc" style="display:none;">
             <div>
@@ -1870,6 +1873,27 @@
     switchTabImmeuble('infos');
   }
 
+  async function supprimerImmeuble() {
+    if (!confirm('Supprimer définitivement cet immeuble ? Tous ses lots, baux, paiements et documents seront supprimés. Cette action est irréversible.')) return;
+
+    // Les documents ne sont pas nettoyés automatiquement (pas de cascade sur cette table) —
+    // on doit les retirer nous-mêmes, pour l'immeuble ET pour chacun de ses lots.
+    const { data: lotsAssocies } = await supabaseClient.from('lots').select('id').eq('immeuble_id', currentImmeubleId);
+    const entitesADocuments = [{ type: 'immeuble', id: currentImmeubleId }, ...(lotsAssocies || []).map(l => ({ type: 'lot', id: l.id }))];
+
+    for (const ent of entitesADocuments) {
+      const { data: docs } = await supabaseClient.from('documents').select('id, storage_path').eq('entity_type', ent.type).eq('entity_id', ent.id);
+      if (docs && docs.length) {
+        await supabaseClient.storage.from('documents').remove(docs.map(d => d.storage_path));
+        await supabaseClient.from('documents').delete().eq('entity_type', ent.type).eq('entity_id', ent.id);
+      }
+    }
+
+    const { error } = await supabaseClient.from('immeubles').delete().eq('id', currentImmeubleId);
+    if (error) return alert('Erreur : ' + error.message);
+    allerPatrimoine();
+  }
+
   async function chargerLots(immeubleId) {
     const div = document.getElementById('listeLots');
     const { data: lots, error } = await supabaseClient.from('lots').select('*').eq('immeuble_id', immeubleId).order('created_at');
@@ -1949,6 +1973,21 @@
       <div class="row"><span class="small">Dette restante</span><span>${dette ? Number(dette).toLocaleString('fr-FR') + ' €' : '—'}</span></div>
     `;
     toggleFormulaire('formValeurLot', 'btnModifierValeurLot');
+  }
+
+  async function supprimerLot() {
+    if (!confirm('Supprimer définitivement ce lot ? Son bail, ses paiements et ses documents seront supprimés. Cette action est irréversible.')) return;
+
+    const { data: docs } = await supabaseClient.from('documents').select('id, storage_path').eq('entity_type', 'lot').eq('entity_id', currentLotId);
+    if (docs && docs.length) {
+      await supabaseClient.storage.from('documents').remove(docs.map(d => d.storage_path));
+      await supabaseClient.from('documents').delete().eq('entity_type', 'lot').eq('entity_id', currentLotId);
+    }
+
+    const { data: lotInfo } = await supabaseClient.from('lots').select('immeuble_id').eq('id', currentLotId).single();
+    const { error } = await supabaseClient.from('lots').delete().eq('id', currentLotId);
+    if (error) return alert('Erreur : ' + error.message);
+    ouvrirFicheImmeuble(lotInfo.immeuble_id);
   }
 
   async function ouvrirFicheLot(id) {
@@ -2184,6 +2223,20 @@
   }
 
   // ---------- FICHE LOCATAIRE ----------
+  async function supprimerLocataire() {
+    if (!confirm('Supprimer définitivement ce locataire ? Ses documents seront supprimés et il sera retiré de son bail. Cette action est irréversible.')) return;
+
+    const { data: docs } = await supabaseClient.from('documents').select('id, storage_path').eq('entity_type', 'locataire').eq('entity_id', currentLocataireId);
+    if (docs && docs.length) {
+      await supabaseClient.storage.from('documents').remove(docs.map(d => d.storage_path));
+      await supabaseClient.from('documents').delete().eq('entity_type', 'locataire').eq('entity_id', currentLocataireId);
+    }
+
+    const { error } = await supabaseClient.from('locataires').delete().eq('id', currentLocataireId);
+    if (error) return alert('Erreur : ' + error.message);
+    allerLocataires();
+  }
+
   async function ouvrirFicheLocataire(locataireId, origine) {
     currentLocataireOrigin = origine || 'lot';
     currentLocataireId = locataireId;
