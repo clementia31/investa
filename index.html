@@ -1279,6 +1279,15 @@
           <button class="btn-secondary" style="width:auto; padding:10px 20px; margin-top:10px; margin-left:8px;" onclick="reinitialiserModeleQuittance()">Revenir au modèle par défaut</button>
         </div>
 
+        <button class="btn-ajout-replie" id="btnModeleNotifIrl" onclick="toggleModeleNotifIrl()">Modifier le modèle de notification de révision</button>
+        <div class="card" id="cardModeleNotifIrl" style="display:none;">
+          <h3>Modèle de notification de révision de loyer</h3>
+          <p class="small" style="margin:0 0 10px;">Généré automatiquement à chaque révision IRL appliquée. Variables disponibles : <code>{{locataire}}</code>, <code>{{bailleur}}</code>, <code>{{bien}}</code>, <code>{{trimestre}}</code>, <code>{{ancien_loyer}}</code>, <code>{{nouveau_loyer}}</code>, <code>{{date_emission}}</code>.</p>
+          <textarea id="modeleNotifIrlTexte" rows="14" style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; font-size:0.88rem; resize:vertical;"></textarea>
+          <button class="btn-primary" style="width:auto; padding:10px 20px; margin-top:10px;" onclick="enregistrerModeleNotifIrl()">Enregistrer le modèle</button>
+          <button class="btn-secondary" style="width:auto; padding:10px 20px; margin-top:10px; margin-left:8px;" onclick="reinitialiserModeleNotifIrl()">Revenir au modèle par défaut</button>
+        </div>
+
         <button class="btn-ajout-replie" id="btnGenererQuittance" onclick="toggleFormulaire('cardGenererQuittance','btnGenererQuittance')">Générer une quittance</button>
         <div class="card" id="cardGenererQuittance" style="display:none;">
           <h3>Générer une quittance</h3>
@@ -1622,6 +1631,18 @@
     const dans60jours = new Date(); dans60jours.setDate(dans60jours.getDate() + 60);
     const { data: immeublesDpe } = await supabaseClient.from('immeubles').select('adresse, dpe_date_expiration').in('structure_id', structIds).not('dpe_date_expiration', 'is', null).lte('dpe_date_expiration', dans60jours.toISOString().split('T')[0]);
 
+    // Bail révisable : date anniversaire de signature dans les 60 prochains jours
+    const { data: tousBauxActifsDash } = await supabaseClient.from('baux').select('*, lots(nom, type, immeuble_id, immeubles(adresse, structure_id))').eq('statut', 'actif');
+    const bauxRevisables = (tousBauxActifsDash || []).filter(b => {
+      if (!b.lots || !b.lots.immeubles || !structIds.includes(b.lots.immeubles.structure_id)) return false;
+      const debut = new Date(b.date_debut);
+      const maintenant = new Date();
+      let anniversaire = new Date(maintenant.getFullYear(), debut.getMonth(), debut.getDate());
+      if (anniversaire < maintenant) anniversaire.setFullYear(anniversaire.getFullYear() + 1);
+      const joursAvant = Math.ceil((anniversaire - maintenant) / (1000 * 60 * 60 * 24));
+      return joursAvant >= 0 && joursAvant <= 60;
+    });
+
     let html = '';
     if (retardCount > 0) html += `<div class="alert-row row-click" onclick="allerLoyers()"><span class="alert-dot high"></span><span style="flex:1;">${retardCount} loyer${retardCount > 1 ? 's' : ''} en retard</span><span class="small">→</span></div>`;
     if (tachesEnRetard && tachesEnRetard.length) html += `<div class="alert-row row-click" onclick="allerAlertes()"><span class="alert-dot med"></span><span style="flex:1;">${tachesEnRetard.length} tâche${tachesEnRetard.length > 1 ? 's' : ''} en retard</span><span class="small">→</span></div>`;
@@ -1634,6 +1655,9 @@
     });
     bauxFiltres.slice(0, 2).forEach(b => {
       html += `<div class="alert-row"><span class="alert-dot med"></span><span style="flex:1;">Bail expire le ${b.date_fin} — ${echapper(b.lots.nom || b.lots.type)}</span></div>`;
+    });
+    bauxRevisables.slice(0, 2).forEach(b => {
+      html += `<div class="alert-row row-click" onclick="ouvrirFicheLot('${b.lot_id}')"><span class="alert-dot med"></span><span style="flex:1;">Bail révisable (IRL) — ${echapper(b.lots.nom || b.lots.type)}</span></div>`;
     });
     div.innerHTML = html || '<div class="empty-state">Rien à signaler pour le moment. 👍</div>';
   }
@@ -2361,17 +2385,98 @@
     const trimestreChoisi = document.getElementById('irlNouveauTrimestre').value;
     if (nouveauLoyerCalcule === null || !trimestreChoisi) return;
     if (!confirm(`Passer le loyer à ${nouveauLoyerCalcule} € (référence ${trimestreChoisi}) ?`)) return;
+
+    const { data: bailAvant } = await supabaseClient.from('baux').select('loyer').eq('id', bailId).single();
+    const ancienLoyer = bailAvant ? Number(bailAvant.loyer) : null;
+
     const { error } = await supabaseClient.from('baux').update({
       loyer: nouveauLoyerCalcule, irl_trimestre_reference: trimestreChoisi
     }).eq('id', bailId);
     if (error) return alert('Erreur : ' + error.message);
+
+    if (ancienLoyer !== null) {
+      await supabaseClient.from('revisions_loyer').insert({
+        bail_id: bailId, ancien_loyer: ancienLoyer, nouveau_loyer: nouveauLoyerCalcule, trimestre_reference: trimestreChoisi
+      });
+      genererNotificationRevisionIrl(bailId, ancienLoyer, nouveauLoyerCalcule, trimestreChoisi).catch(e => console.error('Notification révision échouée :', e));
+    }
+
     chargerBail(lotId);
+    chargerHistoriqueRevisionsLot(lotId);
+  }
+
+  // Génère un courrier PDF pour chaque locataire du bail, classé dans ses documents (catégorie "revision_loyer")
+  async function genererNotificationRevisionIrl(bailId, ancienLoyer, nouveauLoyer, trimestre) {
+    const { data: bail } = await supabaseClient.from('baux').select('*, lots(nom, type, immeubles(adresse, ville, structure_id, structures(nom)))').eq('id', bailId).single();
+    if (!bail) return;
+    const lot = bail.lots;
+    const immeuble = lot.immeubles;
+    const structureId = immeuble.structure_id;
+    const nomStructure = immeuble.structures ? immeuble.structures.nom : '';
+
+    const { data: rattachements } = await supabaseClient.from('bail_locataires').select('locataire_id').eq('bail_id', bailId);
+    const locataireIds = (rattachements || []).map(r => r.locataire_id);
+    if (!locataireIds.length) return;
+    const { data: locataires } = await supabaseClient.from('locataires').select('*').in('id', locataireIds);
+    const nomsLocataires = (locataires || []).map(l => l.nom).join(' et ');
+
+    const { data: modeleEnreg } = await supabaseClient.from('modeles_documents').select('contenu').eq('structure_id', structureId).eq('type', 'notification_revision_irl').maybeSingle();
+    const modele = modeleEnreg ? modeleEnreg.contenu : MODELE_NOTIF_IRL_DEFAUT;
+
+    const texteRempli = modele
+      .replaceAll('{{bailleur}}', nomStructure || 'Propriétaire')
+      .replaceAll('{{locataire}}', nomsLocataires)
+      .replaceAll('{{bien}}', `${lot.nom || lot.type} — ${immeuble.adresse}${immeuble.ville ? ', ' + immeuble.ville : ''}`)
+      .replaceAll('{{trimestre}}', trimestre)
+      .replaceAll('{{ancien_loyer}}', ancienLoyer.toLocaleString('fr-FR'))
+      .replaceAll('{{nouveau_loyer}}', nouveauLoyer.toLocaleString('fr-FR'))
+      .replaceAll('{{date_emission}}', new Date().toLocaleDateString('fr-FR'));
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(11);
+    doc.text(doc.splitTextToSize(texteRempli, 170), 20, 20);
+    const pdfBlob = doc.output('blob');
+
+    for (const locataireId of locataireIds) {
+      const nomFichier = `Notification_revision_${trimestre}.pdf`;
+      const cheminFichier = `${structureId}/locataire/${locataireId}/${Date.now()}_${nomFichier}`;
+      const { error: errUpload } = await supabaseClient.storage.from('documents').upload(cheminFichier, pdfBlob, { contentType: 'application/pdf' });
+      if (errUpload) { console.error('Upload notification échoué :', errUpload.message); continue; }
+      await supabaseClient.from('documents').insert({
+        structure_id: structureId, entity_type: 'locataire', entity_id: locataireId,
+        nom: nomFichier, storage_path: cheminFichier, taille_octets: pdfBlob.size, categorie: 'revision_loyer'
+      });
+    }
+  }
+
+  async function chargerHistoriqueRevisionsLot(lotId) {
+    const div = document.getElementById('historiqueRevisionsIrl');
+    if (!div) return;
+    const { data: baux } = await supabaseClient.from('baux').select('id').eq('lot_id', lotId);
+    const bailIds = (baux || []).map(b => b.id);
+    if (!bailIds.length) { div.innerHTML = ''; return; }
+    const { data: revisions } = await supabaseClient.from('revisions_loyer').select('*').in('bail_id', bailIds).order('date_application', { ascending: false });
+    if (!revisions || !revisions.length) { div.innerHTML = '<div class="empty-state">Aucune révision appliquée pour l\u2019instant.</div>'; return; }
+    div.innerHTML = revisions.map(r => `
+      <div class="row">
+        <span class="small">${new Date(r.date_application).toLocaleDateString('fr-FR')} · ${r.trimestre_reference}</span>
+        <span>${Number(r.ancien_loyer).toLocaleString('fr-FR')} € → ${Number(r.nouveau_loyer).toLocaleString('fr-FR')} €</span>
+      </div>
+    `).join('');
   }
 
   async function terminerBail(bailId, lotId) {
     const dateSortie = document.getElementById('dateSortieBail').value || new Date().toISOString().split('T')[0];
     if (!confirm('Terminer ce bail au ' + dateSortie + ' ? Le locataire restera consultable dans l\u2019historique du lot.')) return;
-    const { error } = await supabaseClient.from('baux').update({ statut: 'termine', date_fin: dateSortie }).eq('id', bailId);
+
+    const champDepot = document.getElementById('depotRestitueBail');
+    const champMotif = document.getElementById('motifRetenueBail');
+    const misAJour = { statut: 'termine', date_fin: dateSortie };
+    if (champDepot) misAJour.depot_restitue = champDepot.value ? parseFloat(champDepot.value) : null;
+    if (champMotif) misAJour.motif_retenue_depot = champMotif.value || null;
+
+    const { error } = await supabaseClient.from('baux').update(misAJour).eq('id', bailId);
     if (error) return alert('Erreur : ' + error.message);
     // Le lot redevient vacant, sauf s'il existe un autre bail actif dessus (rare, mais possible)
     const { data: autresBauxActifs } = await supabaseClient.from('baux').select('id').eq('lot_id', lotId).eq('statut', 'actif');
@@ -2400,7 +2505,7 @@
     div.innerHTML = bauxTermines.map(b => `
       <div class="row">
         <span>${echapper((nomsParBail[b.id] || ['Locataire inconnu']).join(' et '))}</span>
-        <span class="small">Du ${b.date_debut} au ${b.date_fin || '?'}</span>
+        <span class="small">Du ${b.date_debut} au ${b.date_fin || '?'}${b.depot_restitue !== null && b.depot_restitue !== undefined ? ' · Dépôt restitué : ' + Number(b.depot_restitue).toLocaleString('fr-FR') + ' €' : ''}${b.motif_retenue_depot ? ' (' + echapper(b.motif_retenue_depot) + ')' : ''}</span>
       </div>
     `).join('');
   }
@@ -2577,15 +2682,22 @@
           <select id="irlNouveauTrimestre" onchange="calculerRevisionIrl(${bail.loyer})"></select>
           <div id="irlResultatCalcul" class="small" style="margin:10px 0;"></div>
           <button class="btn-secondary" id="btnAppliquerRevisionIrl" style="display:none;" onclick="appliquerRevisionIrl('${bail.id}', '${lotId}')">Appliquer la révision</button>
+          <div id="historiqueRevisionsIrl" style="margin-top:10px;"></div>
         </div>
 
         <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
           <p class="small" style="margin:0 0 8px;">Le locataire s'en va ?</p>
           <input id="dateSortieBail" type="date">
-          <button class="btn-secondary" style="color:var(--red); border-color:var(--red);" onclick="terminerBail('${bail.id}', '${lotId}')">Terminer le bail</button>
+          ${bail.depot_garantie ? `
+          <div class="grid-2" style="margin-bottom:0; margin-top:8px;">
+            <input id="depotRestitueBail" type="number" placeholder="Dépôt restitué (€)">
+            <input id="motifRetenueBail" placeholder="Motif de retenue (optionnel)">
+          </div>` : ''}
+          <button class="btn-secondary" style="margin-top:8px; color:var(--red); border-color:var(--red);" onclick="terminerBail('${bail.id}', '${lotId}')">Terminer le bail</button>
         </div>
       `;
       initialiserSelecteurIrl();
+      chargerHistoriqueRevisionsLot(lotId);
 
       if (!rattachements || !rattachements.length) {
         zone.innerHTML += `
@@ -3677,6 +3789,50 @@ Le bailleur donne quittance au locataire pour le paiement ci-dessus et lui donne
     document.getElementById('modeleQuittanceTexte').value = MODELE_QUITTANCE_DEFAUT;
   }
 
+  const MODELE_NOTIF_IRL_DEFAUT = `NOTIFICATION DE RÉVISION DE LOYER
+
+{{date_emission}}
+
+Bailleur : {{bailleur}}
+Locataire : {{locataire}}
+Bien : {{bien}}
+
+Conformément à l'indice de référence des loyers (IRL) publié par l'INSEE et à la clause de révision prévue au bail, le loyer de votre logement est révisé selon les modalités suivantes :
+
+Trimestre de référence : {{trimestre}}
+Ancien loyer mensuel hors charges : {{ancien_loyer}} €
+Nouveau loyer mensuel hors charges : {{nouveau_loyer}} €
+
+Cette révision est appliquée conformément à la loi n°89-462 du 6 juillet 1989.`;
+
+  async function toggleModeleNotifIrl() {
+    const etaitOuvert = document.getElementById('cardModeleNotifIrl').style.display === 'block';
+    toggleFormulaire('cardModeleNotifIrl', 'btnModeleNotifIrl');
+    if (etaitOuvert) return;
+
+    const structureId = await obtenirStructureParDefaut();
+    if (structureId) {
+      const { data: modele } = await supabaseClient.from('modeles_documents').select('contenu').eq('structure_id', structureId).eq('type', 'notification_revision_irl').maybeSingle();
+      document.getElementById('modeleNotifIrlTexte').value = modele ? modele.contenu : MODELE_NOTIF_IRL_DEFAUT;
+    }
+  }
+
+  async function enregistrerModeleNotifIrl() {
+    const structureId = await obtenirStructureParDefaut();
+    if (!structureId) return;
+    const contenu = document.getElementById('modeleNotifIrlTexte').value;
+    const { error } = await supabaseClient.from('modeles_documents').upsert(
+      { structure_id: structureId, type: 'notification_revision_irl', contenu },
+      { onConflict: 'structure_id,type' }
+    );
+    if (error) return alert('Erreur : ' + error.message);
+    alert('Modèle enregistré.');
+  }
+
+  function reinitialiserModeleNotifIrl() {
+    document.getElementById('modeleNotifIrlTexte').value = MODELE_NOTIF_IRL_DEFAUT;
+  }
+
   function definirTheme(mode) {
     document.body.classList.toggle('theme-light', mode === 'light');
     localStorage.setItem('investa-theme', mode);
@@ -3728,6 +3884,21 @@ Le bailleur donne quittance au locataire pour le paiement ci-dessus et lui donne
     (immeublesDpe || []).forEach(im => {
       const joursRestants = Math.ceil((new Date(im.dpe_date_expiration) - new Date()) / (1000 * 60 * 60 * 24));
       items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'DPE arrivant à expiration', detail: `${im.adresse} (dans ${joursRestants} j)` });
+    });
+
+    // Bail révisable : date anniversaire de signature dans les 60 prochains jours (moment légal de révision IRL)
+    const { data: bauxPourRevision } = await supabaseClient.from('baux').select('*, lots(nom, type, immeubles(adresse))').eq('statut', 'actif');
+    (bauxPourRevision || []).forEach(b => {
+      const debut = new Date(b.date_debut);
+      const maintenant = new Date();
+      let anniversaire = new Date(maintenant.getFullYear(), debut.getMonth(), debut.getDate());
+      if (anniversaire < maintenant) anniversaire.setFullYear(anniversaire.getFullYear() + 1);
+      const joursAvant = Math.ceil((anniversaire - maintenant) / (1000 * 60 * 60 * 24));
+      if (joursAvant >= 0 && joursAvant <= 60) {
+        const lot = b.lots;
+        const immeuble = lot && lot.immeubles ? lot.immeubles.adresse : '';
+        items.push({ severite: joursAvant <= 15 ? 'haute' : 'moyenne', titre: 'Bail révisable (IRL)', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (dans ${joursAvant} j)` });
+      }
     });
 
     return items;
