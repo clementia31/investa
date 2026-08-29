@@ -92,6 +92,8 @@
     <h1><svg class="logo-symbol-admin" viewBox="0 0 200 500"><use href="#investa-symbol"></use></svg> Investa Admin</h1>
     <p class="small" style="margin-top:-10px;">Vue d'ensemble de la plateforme</p>
 
+    <div class="card" id="cardAlerteIrl" style="display:none;"></div>
+
     <div class="section-title">1 — Traction</div>
     <div class="grid-4">
       <div class="stat-card">
@@ -210,6 +212,7 @@
       document.getElementById('app').innerHTML = '<div class="wrap"><p style="color:var(--red);">Erreur : ' + error.message + '</p></div>';
       return;
     }
+    verifierIrlAJour();
 
     // ===== 1. TRACTION =====
     const t = data.traction;
@@ -300,6 +303,35 @@
         <td class="small">${new Date(s.created_at).toLocaleDateString('fr-FR')}</td>
       </tr>
     `).join('') || '<tr><td colspan="5">Aucune structure.</td></tr>';
+  }
+
+  async function verifierIrlAJour() {
+    const { data: indices } = await supabaseClient.from('irl_indices').select('trimestre').order('trimestre', { ascending: false }).limit(1);
+    const dernierEnBase = indices && indices.length ? indices[0].trimestre : null;
+
+    // L'INSEE publie environ le 15 du mois suivant la fin de chaque trimestre calendaire
+    // (T4 → 15 janvier, T1 → 15 avril, T2 → 15 juillet, T3 → 15 octobre).
+    const now = new Date();
+    const evenements = [];
+    for (let y = now.getFullYear() - 1; y <= now.getFullYear(); y++) {
+      evenements.push({ date: new Date(y, 0, 15), trimestre: (y - 1) + '-T4' });
+      evenements.push({ date: new Date(y, 3, 15), trimestre: y + '-T1' });
+      evenements.push({ date: new Date(y, 6, 15), trimestre: y + '-T2' });
+      evenements.push({ date: new Date(y, 9, 15), trimestre: y + '-T3' });
+    }
+    const dejaPublies = evenements.filter(e => e.date <= now).sort((a, b) => b.date - a.date);
+    const trimestreAttendu = dejaPublies.length ? dejaPublies[0].trimestre : null;
+
+    const div = document.getElementById('cardAlerteIrl');
+    if (!trimestreAttendu) return;
+
+    if (dernierEnBase === trimestreAttendu) {
+      div.style.display = 'block';
+      div.innerHTML = `<p class="small" style="color:var(--green); margin:0;">✅ Indices IRL à jour (dernier enregistré : ${dernierEnBase}).</p>`;
+    } else {
+      div.style.display = 'block';
+      div.innerHTML = `<p class="small" style="color:var(--red); margin:0;">⚠️ Nouvel indice IRL probablement disponible : <strong>${trimestreAttendu}</strong> — dernier enregistré en base : ${dernierEnBase || 'aucun'}. Vérifier sur insee.fr et l'ajouter.</p>`;
+    }
   }
 
   async function chargerUtilisateurs() {
