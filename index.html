@@ -84,8 +84,27 @@
   .card button { padding: 10px 16px; margin-top: 6px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; }
 
   .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 16px; }
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  @media (max-width: 900px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } .sidebar { display: none; } }
+  @media (max-width: 900px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } .grid-3 { grid-template-columns: repeat(2, 1fr); } .sidebar { display: none; } }
+
+  .progress-bar-track { height: 7px; background: var(--panel-2); border-radius: 10px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: var(--green); border-radius: 10px; transition: width 0.3s; }
+
+  .filtre-pill { background: var(--panel); border: 1px solid var(--border); color: var(--text-dim); font-size: 0.8rem; padding: 6px 14px; border-radius: 20px; cursor: pointer; }
+  .filtre-pill.active { background: var(--accent); border-color: var(--accent); color: white; font-weight: 600; }
+  .toggle-vue { background: var(--panel-2); border: 1px solid var(--border); border-radius: 20px; display: flex; overflow: hidden; font-size: 0.8rem; }
+  .toggle-vue-option { padding: 6px 14px; color: var(--text-dim); cursor: pointer; }
+  .toggle-vue-option.active { background: var(--accent); color: white; font-weight: 600; }
+
+  .loyer-item-row { display: flex; align-items: center; padding: 13px 8px; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .loyer-item-row:last-child { border-bottom: none; }
+  .loyer-item-row:hover { background: var(--panel-2); }
+  .loyer-item-row .avatar { width: 36px; height: 36px; font-size: 0.8rem; margin-right: 12px; flex-shrink: 0; }
+  .loyer-item-infos { flex: 1; min-width: 0; }
+  .loyer-item-nom { font-weight: 600; font-size: 0.92rem; }
+  .loyer-item-souttitre { font-size: 0.78rem; color: var(--text-dim); margin-top: 1px; }
+  .loyer-item-montant { font-weight: 600; margin-right: 14px; white-space: nowrap; }
 
   .stat-card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; }
   .stat-card .lbl { color: var(--text-dim); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; }
@@ -837,6 +856,28 @@
           </div>
         </div>
 
+        <div class="grid-3" style="margin-bottom:12px;">
+          <div class="stat-card"><div class="lbl">Attendus</div><div class="val" id="loyersKpiAttendus">—</div></div>
+          <div class="stat-card green"><div class="lbl">Encaissés</div><div class="val" id="loyersKpiEncaisses">—</div></div>
+          <div class="stat-card red"><div class="lbl">En retard</div><div class="val" id="loyersKpiRetard">—</div></div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <div class="small" style="margin-bottom:5px;" id="loyersProgressionLabel">— % encaissé</div>
+          <div class="progress-bar-track"><div class="progress-bar-fill" id="loyersProgressionBarre" style="width:0%;"></div></div>
+        </div>
+
+        <div style="display:flex; gap:6px; align-items:center; margin-bottom:14px; flex-wrap:wrap;">
+          <span class="filtre-pill active" id="fpTous" onclick="filtrerStatutLoyers('tous')">Tous</span>
+          <span class="filtre-pill" id="fpPayes" onclick="filtrerStatutLoyers('paye')">Payés</span>
+          <span class="filtre-pill" id="fpRetard" onclick="filtrerStatutLoyers('en_retard')">En retard</span>
+          <span class="filtre-pill" id="fpAVenir" onclick="filtrerStatutLoyers('a_venir')">À venir</span>
+          <div class="toggle-vue" style="margin-left:auto;">
+            <span class="toggle-vue-option active" id="tvListe" onclick="basculerVueLoyers('liste')">Liste</span>
+            <span class="toggle-vue-option" id="tvCalendrier" onclick="basculerVueLoyers('calendrier')">Calendrier</span>
+          </div>
+        </div>
+
         <button class="btn-ajout-replie" id="btnAjoutTravaux" onclick="toggleFormulaire('formAjoutTravaux','btnAjoutTravaux')">+ Ajouter des travaux (avec facture)</button>
         <div class="card" id="formAjoutTravaux" style="display:none;">
           <select id="immeubleTravaux"></select>
@@ -864,21 +905,27 @@
           </div>
         </div>
 
-        <div class="grid-cal">
-          <div class="card">
-            <div class="cal-weekdays">
-              <div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div>
-            </div>
-            <div class="cal-grid" id="calGrid">Chargement...</div>
-          </div>
-          <div>
+        <div id="vueListeLoyers" class="card">
+          <div id="listeLoyersMois">Chargement...</div>
+        </div>
+
+        <div id="vueCalendrierLoyers" style="display:none;">
+          <div class="grid-cal">
             <div class="card">
-              <h3>À venir</h3>
-              <div id="listeAVenir">—</div>
+              <div class="cal-weekdays">
+                <div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div>
+              </div>
+              <div class="cal-grid" id="calGrid">Chargement...</div>
             </div>
-            <div class="card">
-              <h3>En retard</h3>
-              <div id="listeEnRetard">—</div>
+            <div>
+              <div class="card">
+                <h3>À venir</h3>
+                <div id="listeAVenir">—</div>
+              </div>
+              <div class="card">
+                <h3>En retard</h3>
+                <div id="listeEnRetard">—</div>
+              </div>
             </div>
           </div>
         </div>
@@ -2719,7 +2766,14 @@
       b.date_debut <= dernierJourMois && (!b.date_fin || b.date_fin >= moisDate)
     );
 
-    if (!bauxStructure.length) { dessinerCalendrier(annee, moisIdx, []); remplirListesLaterales([]); return; }
+    if (!bauxStructure.length) {
+      donneesItemsCalendrier = [];
+      calculerKpiLoyers([]);
+      dessinerCalendrier(annee, moisIdx, []);
+      remplirListesLaterales([]);
+      rendreListeLoyers();
+      return;
+    }
 
     const bailIds = bauxStructure.map(b => b.id);
 
@@ -2740,23 +2794,100 @@
       (inseres || []).forEach(p => paiementParBail[p.bail_id] = p);
     }
 
+    // Noms des locataires par bail (absent des données du calendrier jusqu'ici, nécessaire pour la liste)
+    const { data: rattachementsMois } = await supabaseClient.from('bail_locataires').select('bail_id, locataire_id').in('bail_id', bailIds);
+    const locataireIdsUniques = [...new Set((rattachementsMois || []).map(r => r.locataire_id))];
+    const { data: locatairesMois } = locataireIdsUniques.length
+      ? await supabaseClient.from('locataires').select('id, nom').in('id', locataireIdsUniques)
+      : { data: [] };
+    const nomLocataireParId = {};
+    (locatairesMois || []).forEach(l => { nomLocataireParId[l.id] = l.nom; });
+    const nomsParBail = {};
+    (rattachementsMois || []).forEach(r => {
+      const nom = nomLocataireParId[r.locataire_id];
+      if (nom) (nomsParBail[r.bail_id] = nomsParBail[r.bail_id] || []).push(nom);
+    });
+
     const items = bauxStructure.map(bail => {
       const paiement = paiementParBail[bail.id];
       const jourEcheance = Math.min(new Date(bail.date_debut).getDate(), nbJoursMois);
       return {
         paiement, jour: jourEcheance, lotNom: bail.lots.nom || bail.lots.type, lotId: bail.lot_id,
-        adresse: bail.lots.immeubles.adresse, montant: Number(paiement.montant_loyer) + Number(paiement.montant_charges)
+        adresse: bail.lots.immeubles.adresse, montant: Number(paiement.montant_loyer) + Number(paiement.montant_charges),
+        nomLocataire: (nomsParBail[bail.id] || []).join(' et ') || 'Locataire inconnu'
       };
     });
 
+    donneesItemsCalendrier = items;
+    calculerKpiLoyers(items);
     dessinerCalendrier(annee, moisIdx, items);
     remplirListesLaterales(items);
+    rendreListeLoyers();
+  }
+
+  function calculerKpiLoyers(items) {
+    const attendus = items.reduce((a, it) => a + it.montant, 0);
+    const encaisses = items.filter(it => it.paiement.statut === 'paye').reduce((a, it) => a + it.montant, 0);
+    const enRetard = items.filter(it => it.paiement.statut === 'en_retard').reduce((a, it) => a + it.montant, 0);
+    const pourcentage = attendus > 0 ? Math.round(encaisses / attendus * 100) : 0;
+
+    document.getElementById('loyersKpiAttendus').textContent = attendus.toLocaleString('fr-FR') + ' €';
+    document.getElementById('loyersKpiEncaisses').textContent = encaisses.toLocaleString('fr-FR') + ' €';
+    document.getElementById('loyersKpiRetard').textContent = enRetard.toLocaleString('fr-FR') + ' €';
+    document.getElementById('loyersProgressionLabel').textContent = pourcentage + ' % encaissé';
+    document.getElementById('loyersProgressionBarre').style.width = pourcentage + '%';
+  }
+
+  let filtreStatutLoyersActif = 'tous';
+  let vueLoyersActive = 'liste';
+
+  function filtrerStatutLoyers(statut) {
+    filtreStatutLoyersActif = statut;
+    ['fpTous', 'fpPayes', 'fpRetard', 'fpAVenir'].forEach(id => document.getElementById(id).classList.remove('active'));
+    const map = { tous: 'fpTous', paye: 'fpPayes', en_retard: 'fpRetard', a_venir: 'fpAVenir' };
+    document.getElementById(map[statut]).classList.add('active');
+    rendreListeLoyers();
+    dessinerCalendrier(moisLoyersCourant.getFullYear(), moisLoyersCourant.getMonth(), donneesItemsCalendrier);
+  }
+
+  function basculerVueLoyers(vue) {
+    vueLoyersActive = vue;
+    document.getElementById('vueListeLoyers').style.display = vue === 'liste' ? 'block' : 'none';
+    document.getElementById('vueCalendrierLoyers').style.display = vue === 'calendrier' ? 'block' : 'none';
+    document.getElementById('tvListe').classList.toggle('active', vue === 'liste');
+    document.getElementById('tvCalendrier').classList.toggle('active', vue === 'calendrier');
+  }
+
+  function rendreListeLoyers() {
+    const div = document.getElementById('listeLoyersMois');
+    const items = filtreStatutLoyersActif === 'tous'
+      ? donneesItemsCalendrier
+      : donneesItemsCalendrier.filter(it => it.paiement.statut === filtreStatutLoyersActif);
+
+    if (!items.length) { div.innerHTML = '<div class="empty-state">Aucun loyer pour ce filtre.</div>'; return; }
+
+    const labelsStatut = { paye: ['Payé', 'badge-vert'], en_retard: ['En retard', 'badge-rouge'], a_venir: ['À venir', 'badge-orange'] };
+    div.innerHTML = items.map(it => {
+      const initiales = it.nomLocataire.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+      const [texteStatut, classeStatut] = labelsStatut[it.paiement.statut] || ['—', ''];
+      return `
+        <div class="loyer-item-row" onclick="ouvrirDetailPaiement('${it.paiement.id}')">
+          <div class="avatar">${initiales}</div>
+          <div class="loyer-item-infos">
+            <div class="loyer-item-nom">${echapper(it.nomLocataire)}</div>
+            <div class="loyer-item-souttitre">${echapper(it.lotNom)} · ${echapper(it.adresse)}</div>
+          </div>
+          <div class="loyer-item-montant">${it.montant.toLocaleString('fr-FR')} €</div>
+          <span class="badge-pill ${classeStatut}">${texteStatut}</span>
+        </div>
+      `;
+    }).join('');
   }
 
   let donneesItemsCalendrier = [];
 
   function dessinerCalendrier(annee, moisIdx, items) {
-    donneesItemsCalendrier = items;
+    const itemsAffiches = filtreStatutLoyersActif === 'tous' ? items : items.filter(it => it.paiement.statut === filtreStatutLoyersActif);
     const grid = document.getElementById('calGrid');
     const premierJourSemaine = (new Date(annee, moisIdx, 1).getDay() + 6) % 7; // 0 = lundi
     const nbJours = new Date(annee, moisIdx + 1, 0).getDate();
@@ -2765,7 +2896,7 @@
     let html = '';
     for (let i = 0; i < premierJourSemaine; i++) html += '<div class="cal-day empty"></div>';
     for (let jour = 1; jour <= nbJours; jour++) {
-      const itemsJour = items.filter(it => it.jour === jour);
+      const itemsJour = itemsAffiches.filter(it => it.jour === jour);
       const estAujourdhui = aujourdhui.getDate() === jour && aujourdhui.getMonth() === moisIdx && aujourdhui.getFullYear() === annee;
       html += `<div class="cal-day" style="${estAujourdhui ? 'outline:1.5px solid var(--accent);' : ''}">
         <div class="num">${jour}</div>
