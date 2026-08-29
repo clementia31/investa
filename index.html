@@ -389,7 +389,8 @@
 
       <div class="nav-footer">
         <span id="userEmail"></span><br>
-        <a href="#" onclick="seDeconnecter()">Déconnexion</a>
+        <a href="#" onclick="seDeconnecter()">Déconnexion</a><br>
+        <a href="#" onclick="allerMentionsLegales()" style="font-size:0.72rem; opacity:0.7;">Mentions légales & Confidentialité</a>
       </div>
     </div>
 
@@ -664,7 +665,7 @@
         <div id="tabcontent-lot-resume">
           <div class="card">
             <div class="section-header-ajout">
-              <h3>Valeur & dette</h3>
+              <h3>Valeur, dette & taxe foncière</h3>
               <button class="btn-secondary btn-ajout-inline" id="btnModifierValeurLot" onclick="toggleFormulaire('formValeurLot','btnModifierValeurLot')">Modifier</button>
             </div>
             <div id="lectureValeurLot" class="small">Chargement...</div>
@@ -673,6 +674,7 @@
                 <input id="valeurLot" type="number" placeholder="Valeur estimée (€)">
                 <input id="detteLot" type="number" placeholder="Dette restante (€)">
               </div>
+              <input id="taxeFonciereLot" type="number" placeholder="Taxe foncière annuelle (€)">
               <button class="btn-primary" onclick="enregistrerValeurLot()">Enregistrer</button>
             </div>
           </div>
@@ -1032,6 +1034,54 @@
             <button class="theme-btn" id="btnThemeLight" onclick="definirTheme('light')">☀️ Clair</button>
           </div>
         </div>
+        <div class="card">
+          <h3>Mes données</h3>
+          <p class="small" style="margin:0 0 12px;">Conformément au RGPD, tu peux exporter l'ensemble de tes données ou les supprimer définitivement.</p>
+          <button class="btn-secondary" style="width:auto; padding:10px 18px;" onclick="exporterMesDonnees()">Exporter mes données (JSON)</button>
+          <button class="btn-secondary" style="width:auto; padding:10px 18px; margin-left:8px; color:var(--red); border-color:var(--red);" onclick="ouvrirSuppressionDonnees()">Supprimer toutes mes données</button>
+          <div id="panneauSuppressionDonnees" style="display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
+            <p class="small" style="color:var(--red); margin:0 0 8px;">Action définitive et irréversible : tous tes biens, locataires, baux, paiements et documents seront supprimés. Tape SUPPRIMER pour confirmer.</p>
+            <input id="confirmationSuppressionDonnees" placeholder="SUPPRIMER">
+            <button class="btn-secondary" style="color:var(--red); border-color:var(--red);" onclick="supprimerToutesMesDonnees()">Confirmer la suppression définitive</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== MENTIONS LÉGALES & CONFIDENTIALITÉ ===== -->
+      <div id="page-mentions-legales" style="display:none;">
+        <div class="breadcrumb" onclick="allerParametres()">← Retour aux Paramètres</div>
+        <div class="page-header"><h2>Mentions légales & Confidentialité</h2></div>
+        <div class="card" style="border-color:var(--amber);">
+          <p class="small" style="color:var(--amber); margin:0;">⚠️ Ce texte est un brouillon de structure, pas un document juridique validé. À faire relire et compléter par un professionnel du droit avant toute publication réelle.</p>
+        </div>
+        <div class="card">
+          <h3>Éditeur du site</h3>
+          <p class="small">[À COMPLÉTER — nom/raison sociale, adresse, SIRET, email de contact]</p>
+        </div>
+        <div class="card">
+          <h3>Hébergement</h3>
+          <p class="small">Hébergement applicatif : Vercel Inc.<br>Base de données et stockage : Supabase Inc.<br>[À vérifier : localisation des serveurs, DPA en place]</p>
+        </div>
+        <div class="card">
+          <h3>Données collectées</h3>
+          <p class="small">Sur les utilisateurs du service : email.<br>Sur les locataires renseignés par les utilisateurs : nom, email, téléphone, informations de garantie, historique de paiement.</p>
+        </div>
+        <div class="card">
+          <h3>Finalité et base légale du traitement</h3>
+          <p class="small">Gestion locative pour le compte de l'utilisateur (bailleur). Base légale : exécution du contrat / intérêt légitime du bailleur. [À confirmer avec un juriste]</p>
+        </div>
+        <div class="card">
+          <h3>Durée de conservation</h3>
+          <p class="small">[À DÉFINIR — ex : durée du bail + délai légal de prescription applicable]</p>
+        </div>
+        <div class="card">
+          <h3>Droits des personnes concernées</h3>
+          <p class="small">Droit d'accès, de rectification, d'effacement et de portabilité. Pour exercer ces droits : [email de contact à compléter].</p>
+        </div>
+        <div class="card">
+          <h3>Sécurité</h3>
+          <p class="small">Accès aux données protégé par authentification et cloisonnement strict entre comptes (chaque utilisateur ne peut accéder qu'à ses propres données).</p>
+        </div>
       </div>
 
       <!-- ===== ALERTES ===== -->
@@ -1374,7 +1424,7 @@
   supabaseClient.auth.getSession().then(({ data: { session } }) => { if (session && !enFluxRecuperationMdp) afficherApp(); });
 
   // ---------- NAVIGATION ----------
-  const PAGES = ['dashboard', 'patrimoine', 'locataires', 'loyers', 'finances', 'prets', 'parametres', 'alertes', 'fiscalite', 'rapports', 'documents', 'fiche-immeuble', 'fiche-lot', 'fiche-locataire'];
+  const PAGES = ['dashboard', 'patrimoine', 'locataires', 'loyers', 'finances', 'prets', 'parametres', 'alertes', 'fiscalite', 'rapports', 'documents', 'fiche-immeuble', 'fiche-lot', 'fiche-locataire', 'mentions-legales'];
   const NAV_IDS = ['nav-dashboard', 'nav-patrimoine', 'nav-locataires', 'nav-loyers', 'nav-parametres', 'nav-alertes', 'nav-documents'];
 
   function hideAllPages() {
@@ -2025,6 +2075,7 @@
       <input id="editAnnee" type="number" placeholder="Année de construction" value="${im.annee_construction || ''}">
       <input id="editValeur" type="number" placeholder="Valeur estimée (€)" value="${im.valeur_estimee || ''}">
       <input id="editDette" type="number" placeholder="Dette restante (€)" value="${im.dette_restante || ''}">
+      <input id="editTaxeFonciere" type="number" placeholder="Taxe foncière annuelle (€)" value="${im.taxe_fonciere_annuelle || ''}">
       <p class="small" style="margin:12px 0 4px;">DPE — date d'expiration</p>
       <input id="editDpe" type="date" value="${im.dpe_date_expiration || ''}">
       <button class="btn-primary" onclick="sauvegarderInformationsImmeuble()">Enregistrer</button>
@@ -2039,6 +2090,7 @@
       annee_construction: document.getElementById('editAnnee').value ? parseInt(document.getElementById('editAnnee').value) : null,
       valeur_estimee: document.getElementById('editValeur').value ? parseFloat(document.getElementById('editValeur').value) : null,
       dette_restante: document.getElementById('editDette').value ? parseFloat(document.getElementById('editDette').value) : null,
+      taxe_fonciere_annuelle: document.getElementById('editTaxeFonciere').value ? parseFloat(document.getElementById('editTaxeFonciere').value) : null,
       dpe_date_expiration: document.getElementById('editDpe').value || null
     }).eq('id', currentImmeubleId);
     if (error) return alert('Erreur : ' + error.message);
@@ -2140,13 +2192,16 @@
   async function enregistrerValeurLot() {
     const valeur = document.getElementById('valeurLot').value;
     const dette = document.getElementById('detteLot').value;
+    const taxeFonciere = document.getElementById('taxeFonciereLot').value;
     const { error } = await supabaseClient.from('lots').update({
-      valeur_estimee: valeur ? parseFloat(valeur) : null, dette_restante: dette ? parseFloat(dette) : null
+      valeur_estimee: valeur ? parseFloat(valeur) : null, dette_restante: dette ? parseFloat(dette) : null,
+      taxe_fonciere_annuelle: taxeFonciere ? parseFloat(taxeFonciere) : null
     }).eq('id', currentLotId);
     if (error) return alert('Erreur : ' + error.message);
     document.getElementById('lectureValeurLot').innerHTML = `
       <div class="row"><span class="small">Valeur estimée</span><span>${valeur ? Number(valeur).toLocaleString('fr-FR') + ' €' : '—'}</span></div>
       <div class="row"><span class="small">Dette restante</span><span>${dette ? Number(dette).toLocaleString('fr-FR') + ' €' : '—'}</span></div>
+      <div class="row"><span class="small">Taxe foncière annuelle</span><span>${taxeFonciere ? Number(taxeFonciere).toLocaleString('fr-FR') + ' €' : '—'}</span></div>
     `;
     toggleFormulaire('formValeurLot', 'btnModifierValeurLot');
   }
@@ -2185,9 +2240,11 @@
 
     document.getElementById('valeurLot').value = lot.valeur_estimee || '';
     document.getElementById('detteLot').value = lot.dette_restante || '';
+    document.getElementById('taxeFonciereLot').value = lot.taxe_fonciere_annuelle || '';
     document.getElementById('lectureValeurLot').innerHTML = `
       <div class="row"><span class="small">Valeur estimée</span><span>${lot.valeur_estimee ? Number(lot.valeur_estimee).toLocaleString('fr-FR') + ' €' : '—'}</span></div>
       <div class="row"><span class="small">Dette restante</span><span>${lot.dette_restante ? Number(lot.dette_restante).toLocaleString('fr-FR') + ' €' : '—'}</span></div>
+      <div class="row"><span class="small">Taxe foncière annuelle</span><span>${lot.taxe_fonciere_annuelle ? Number(lot.taxe_fonciere_annuelle).toLocaleString('fr-FR') + ' €' : '—'}</span></div>
     `;
     document.getElementById('formValeurLot').style.display = 'none';
     document.getElementById('btnModifierValeurLot').style.display = 'inline-flex';
@@ -3420,6 +3477,68 @@ Le bailleur donne quittance au locataire pour le paiement ci-dessus et lui donne
     setActiveNav('nav-parametres'); hideAllPages();
     document.getElementById('page-parametres').style.display = 'block';
     mettreAJourBoutonsTheme(localStorage.getItem('investa-theme') || 'dark');
+  }
+
+  function allerMentionsLegales() {
+    hideAllPages();
+    document.getElementById('page-mentions-legales').style.display = 'block';
+  }
+
+  async function exporterMesDonnees() {
+    const { data: structures } = await supabaseClient.from('structures').select('*');
+    const structureIds = (structures || []).map(s => s.id);
+    if (!structureIds.length) return alert('Aucune donnée à exporter.');
+
+    const { data: immeubles } = await supabaseClient.from('immeubles').select('*').in('structure_id', structureIds);
+    const immeubleIds = (immeubles || []).map(i => i.id);
+    const { data: lots } = immeubleIds.length ? await supabaseClient.from('lots').select('*').in('immeuble_id', immeubleIds) : { data: [] };
+    const lotIds = (lots || []).map(l => l.id);
+    const { data: baux } = lotIds.length ? await supabaseClient.from('baux').select('*').in('lot_id', lotIds) : { data: [] };
+    const bailIds = (baux || []).map(b => b.id);
+    const { data: paiements } = bailIds.length ? await supabaseClient.from('paiements').select('*').in('bail_id', bailIds) : { data: [] };
+    const { data: locataires } = await supabaseClient.from('locataires').select('*').in('structure_id', structureIds);
+    const { data: bailLocataires } = bailIds.length ? await supabaseClient.from('bail_locataires').select('*').in('bail_id', bailIds) : { data: [] };
+    const { data: documents } = await supabaseClient.from('documents').select('id, nom, categorie, entity_type, entity_id, created_at').in('structure_id', structureIds);
+    const { data: chargesRecurrentes } = await supabaseClient.from('charges_recurrentes').select('*').in('structure_id', structureIds);
+
+    const export_complet = {
+      genere_le: new Date().toISOString(),
+      structures, immeubles, lots, baux, paiements, locataires,
+      bail_locataires: bailLocataires, documents_metadata: documents, charges_recurrentes: chargesRecurrentes
+    };
+
+    const blob = new Blob([JSON.stringify(export_complet, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `investa_export_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function ouvrirSuppressionDonnees() {
+    const panneau = document.getElementById('panneauSuppressionDonnees');
+    panneau.style.display = panneau.style.display === 'block' ? 'none' : 'block';
+  }
+
+  async function supprimerToutesMesDonnees() {
+    if (document.getElementById('confirmationSuppressionDonnees').value !== 'SUPPRIMER') return alert('Tape exactement SUPPRIMER pour confirmer.');
+    if (!confirm('Dernière confirmation : toutes tes données seront supprimées définitivement. Continuer ?')) return;
+
+    const { data: structures } = await supabaseClient.from('structures').select('id');
+    const structureIds = (structures || []).map(s => s.id);
+    if (!structureIds.length) return alert('Aucune donnée à supprimer.');
+
+    // Les documents ne sont pas nettoyés par cascade (entité polymorphe) : on les retire nous-mêmes.
+    const { data: docs } = await supabaseClient.from('documents').select('storage_path').in('structure_id', structureIds);
+    if (docs && docs.length) {
+      await supabaseClient.storage.from('documents').remove(docs.map(d => d.storage_path));
+    }
+
+    const { error } = await supabaseClient.from('structures').delete().in('id', structureIds);
+    if (error) return alert('Erreur : ' + error.message);
+
+    alert('Toutes tes données ont été supprimées. Tu vas être déconnecté.');
+    seDeconnecter();
   }
 
   async function toggleModeleQuittance() {
