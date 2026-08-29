@@ -353,7 +353,19 @@
   <input id="password" type="password" placeholder="Mot de passe">
   <button class="btn-primary" onclick="seConnecter()">Se connecter</button>
   <button class="btn-secondary" onclick="sInscrire()">Créer un compte</button>
+  <p style="text-align:center; margin-top:10px;"><a href="#" onclick="demanderReinitialisationMdp(); return false;" class="small">Mot de passe oublié ?</a></p>
   <p id="msg"></p>
+</div>
+
+<div class="auth-wrap" id="reinitMdp" style="display:none;">
+  <div class="logo-login">
+    <svg class="logo-symbol-lg" viewBox="0 0 200 500"><use href="#investa-symbol"></use></svg>
+    <div class="logo-login-texte"><div class="logo-login-nom">INVESTA</div></div>
+  </div>
+  <h3 style="text-align:center; margin-top:0;">Nouveau mot de passe</h3>
+  <input id="nouveauMdp" type="password" placeholder="Nouveau mot de passe">
+  <button class="btn-primary" onclick="validerNouveauMdp()">Enregistrer</button>
+  <p id="msgReinit"></p>
 </div>
 
 <!-- ============ APP ============ -->
@@ -673,6 +685,10 @@
             <div id="lotEcheances">Chargement...</div>
           </div>
           <div class="card">
+            <h3>Historique des locataires</h3>
+            <div id="historiqueLocatairesLot">Chargement...</div>
+          </div>
+          <div class="card">
             <div class="section-header-ajout">
               <h3>Charges & taxes récurrentes</h3>
               <button class="btn-secondary btn-ajout-inline" id="btnAjoutChargeLot" onclick="toggleFormulaire('formAjoutChargeLot','btnAjoutChargeLot')">+ Ajouter</button>
@@ -763,11 +779,16 @@
         <div id="tabcontent-loc-bail">
           <div class="card">
             <div class="section-header-ajout">
-              <h3>Garantie</h3>
+              <h3>Informations</h3>
               <button class="btn-secondary btn-ajout-inline" id="btnModifierInfosLoc" onclick="toggleFormulaire('formInfosLocataire','btnModifierInfosLoc')">Modifier</button>
             </div>
             <div id="lectureInfosLocataire" class="small">Chargement...</div>
             <div id="formInfosLocataire" style="display:none; margin-top:10px;">
+              <input id="nomLocataireEdit" placeholder="Nom">
+              <div class="grid-2" style="margin-bottom:0;">
+                <input id="emailLocataireEdit" type="email" placeholder="Email">
+                <input id="telephoneLocataireEdit" placeholder="Téléphone">
+              </div>
               <input id="garantieLocataire" placeholder="Garantie / répondant (nom, coordonnées)">
               <button class="btn-primary" onclick="enregistrerInfosLocataire()">Enregistrer</button>
             </div>
@@ -1321,7 +1342,36 @@
     allerDashboard();
   }
 
-  supabaseClient.auth.getSession().then(({ data: { session } }) => { if (session) afficherApp(); });
+  // Si l'utilisateur arrive depuis le lien reçu par email, ne pas ouvrir l'app directement —
+  // le laisser sur l'écran de réinitialisation même si Supabase a déjà créé une session temporaire.
+  const enFluxRecuperationMdp = window.location.hash.includes('type=recovery');
+
+  async function demanderReinitialisationMdp() {
+    const email = document.getElementById('email').value;
+    if (!email) return alert('Renseigne d\u2019abord ton email dans le champ ci-dessus.');
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
+    if (error) return alert('Erreur : ' + error.message);
+    document.getElementById('msg').textContent = 'Email envoyé — vérifie ta boîte de réception pour réinitialiser ton mot de passe.';
+  }
+
+  async function validerNouveauMdp() {
+    const nouveauMdp = document.getElementById('nouveauMdp').value;
+    if (!nouveauMdp || nouveauMdp.length < 6) return document.getElementById('msgReinit').textContent = 'Le mot de passe doit faire au moins 6 caractères.';
+    const { error } = await supabaseClient.auth.updateUser({ password: nouveauMdp });
+    if (error) { document.getElementById('msgReinit').textContent = 'Erreur : ' + error.message; return; }
+    document.getElementById('reinitMdp').style.display = 'none';
+    afficherApp();
+  }
+
+  // Supabase déclenche cet événement quand l'utilisateur clique le lien reçu par email
+  supabaseClient.auth.onAuthStateChange((event) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      document.getElementById('auth').style.display = 'none';
+      document.getElementById('reinitMdp').style.display = 'block';
+    }
+  });
+
+  supabaseClient.auth.getSession().then(({ data: { session } }) => { if (session && !enFluxRecuperationMdp) afficherApp(); });
 
   // ---------- NAVIGATION ----------
   const PAGES = ['dashboard', 'patrimoine', 'locataires', 'loyers', 'finances', 'prets', 'parametres', 'alertes', 'fiscalite', 'rapports', 'documents', 'fiche-immeuble', 'fiche-lot', 'fiche-locataire'];
@@ -2156,11 +2206,48 @@
       document.getElementById('tabcontent-lot-' + t).style.display = t === tab ? 'block' : 'none';
       document.getElementById('tabLot' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
     });
-    if (tab === 'resume') { chargerColocatairesLot(currentLotId); chargerEcheancesLot(currentLotId); chargerChargesRecurrentes('lot', currentLotId, 'listeChargesLot'); }
+    if (tab === 'resume') { chargerColocatairesLot(currentLotId); chargerEcheancesLot(currentLotId); chargerChargesRecurrentes('lot', currentLotId, 'listeChargesLot'); chargerHistoriqueLot(currentLotId); }
     if (tab === 'bail') chargerBail(currentLotId);
     if (tab === 'paiements') chargerPaiementsLot(currentLotId);
     if (tab === 'documents') chargerDocuments('lot', currentLotId, 'listeDocumentsLot');
     if (tab === 'charges') chargerChargesLot(currentLotId);
+  }
+
+  async function terminerBail(bailId, lotId) {
+    const dateSortie = document.getElementById('dateSortieBail').value || new Date().toISOString().split('T')[0];
+    if (!confirm('Terminer ce bail au ' + dateSortie + ' ? Le locataire restera consultable dans l\u2019historique du lot.')) return;
+    const { error } = await supabaseClient.from('baux').update({ statut: 'termine', date_fin: dateSortie }).eq('id', bailId);
+    if (error) return alert('Erreur : ' + error.message);
+    // Le lot redevient vacant, sauf s'il existe un autre bail actif dessus (rare, mais possible)
+    const { data: autresBauxActifs } = await supabaseClient.from('baux').select('id').eq('lot_id', lotId).eq('statut', 'actif');
+    if (!autresBauxActifs || !autresBauxActifs.length) {
+      await supabaseClient.from('lots').update({ statut: 'vacant' }).eq('id', lotId);
+    }
+    ouvrirFicheLot(lotId);
+  }
+
+  async function chargerHistoriqueLot(lotId) {
+    const div = document.getElementById('historiqueLocatairesLot');
+    const { data: bauxTermines } = await supabaseClient.from('baux').select('*').eq('lot_id', lotId).eq('statut', 'termine').order('date_fin', { ascending: false });
+    if (!bauxTermines || !bauxTermines.length) { div.innerHTML = '<div class="empty-state">Aucun ancien locataire.</div>'; return; }
+
+    const bailIds = bauxTermines.map(b => b.id);
+    const { data: rattachements } = await supabaseClient.from('bail_locataires').select('bail_id, locataire_id').in('bail_id', bailIds);
+    const locataireIds = [...new Set((rattachements || []).map(r => r.locataire_id))];
+    const { data: locataires } = locataireIds.length
+      ? await supabaseClient.from('locataires').select('id, nom').in('id', locataireIds)
+      : { data: [] };
+    const nomParId = {};
+    (locataires || []).forEach(l => { nomParId[l.id] = l.nom; });
+    const nomsParBail = {};
+    (rattachements || []).forEach(r => { (nomsParBail[r.bail_id] = nomsParBail[r.bail_id] || []).push(nomParId[r.locataire_id]); });
+
+    div.innerHTML = bauxTermines.map(b => `
+      <div class="row">
+        <span>${echapper((nomsParBail[b.id] || ['Locataire inconnu']).join(' et '))}</span>
+        <span class="small">Du ${b.date_debut} au ${b.date_fin || '?'}</span>
+      </div>
+    `).join('');
   }
 
   async function chargerColocatairesLot(lotId) {
@@ -2328,6 +2415,11 @@
         <h3>Bail en cours</h3>
         <div class="small">Type : ${bail.type} · Loyer : ${bail.loyer} € · Charges : ${bail.charges} €${bail.depot_garantie ? ' · Dépôt : ' + bail.depot_garantie + ' €' : ''}</div>
         <div class="small">Du ${bail.date_debut} ${bail.date_fin ? 'au ' + bail.date_fin : '(sans fin)'}</div>
+        <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
+          <p class="small" style="margin:0 0 8px;">Le locataire s'en va ?</p>
+          <input id="dateSortieBail" type="date">
+          <button class="btn-secondary" style="color:var(--red); border-color:var(--red);" onclick="terminerBail('${bail.id}', '${lotId}')">Terminer le bail</button>
+        </div>
       `;
 
       if (!rattachements || !rattachements.length) {
@@ -2428,8 +2520,14 @@
     const initiales = locataire.nom.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
     document.getElementById('locAvatar').textContent = initiales;
     document.getElementById('locNom').textContent = locataire.nom;
+    document.getElementById('nomLocataireEdit').value = locataire.nom || '';
+    document.getElementById('emailLocataireEdit').value = locataire.email || '';
+    document.getElementById('telephoneLocataireEdit').value = locataire.telephone || '';
     document.getElementById('garantieLocataire').value = locataire.garantie || '';
     document.getElementById('lectureInfosLocataire').innerHTML = `
+      <div class="row"><span class="small">Nom</span><span>${echapper(locataire.nom)}</span></div>
+      <div class="row"><span class="small">Email</span><span>${locataire.email ? echapper(locataire.email) : '—'}</span></div>
+      <div class="row"><span class="small">Téléphone</span><span>${locataire.telephone ? echapper(locataire.telephone) : '—'}</span></div>
       <div class="row"><span class="small">Garantie</span><span>${locataire.garantie ? echapper(locataire.garantie) : '—'}</span></div>
     `;
     document.getElementById('formInfosLocataire').style.display = 'none';
@@ -2450,10 +2548,19 @@
     let colocataires = [];
     let bailActuel = null;
     let monRattachement = null;
+    let bailEstAncien = false;
     if (bailIds.length) {
       const { data: bauxDetails } = await supabaseClient.from('baux').select('*, lots(nom, type, immeuble_id, immeubles(adresse))').in('id', bailIds).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
       bailActuel = bauxDetails && bauxDetails[0];
       if (bailActuel) monRattachement = rattachements.find(r => r.bail_id === bailActuel.id);
+
+      if (!bailActuel) {
+        // Aucun bail actif : on retombe sur le dernier bail terminé pour garder une trace/contexte,
+        // plutôt que d'afficher une fiche vide sans aucune indication d'où vivait ce locataire.
+        const { data: bauxTermines } = await supabaseClient.from('baux').select('*, lots(nom, type, immeuble_id, immeubles(adresse))').in('id', bailIds).eq('statut', 'termine').order('date_fin', { ascending: false }).limit(1);
+        bailActuel = bauxTermines && bauxTermines[0];
+        if (bailActuel) { bailEstAncien = true; monRattachement = rattachements.find(r => r.bail_id === bailActuel.id); }
+      }
 
       const { data: autresRattachements } = await supabaseClient.from('bail_locataires').select('locataire_id').in('bail_id', bailIds).neq('locataire_id', locataireId);
       const autresIds = [...new Set((autresRattachements || []).map(r => r.locataire_id))];
@@ -2464,8 +2571,8 @@
     }
 
     document.getElementById('locSousTitre').innerHTML = bailActuel
-      ? `<a href="#" onclick="ouvrirFicheLot('${bailActuel.lot_id}'); return false;" style="color:inherit;">${echapper(bailActuel.lots.nom || bailActuel.lots.type)} · ${echapper(bailActuel.lots.immeubles.adresse)}</a>`
-      : 'Aucun bail actif';
+      ? `<a href="#" onclick="ouvrirFicheLot('${bailActuel.lot_id}'); return false;" style="color:inherit;">${echapper(bailActuel.lots.nom || bailActuel.lots.type)} · ${echapper(bailActuel.lots.immeubles.adresse)}</a>${bailEstAncien ? ` <span class="small">(ancien locataire — bail terminé le ${bailActuel.date_fin})</span>` : ''}`
+      : 'Aucun bail';
 
     const premierSegment = currentLocataireOrigin === 'liste'
       ? { label: 'Locataires', onclick: 'allerLocataires()' }
@@ -2486,7 +2593,7 @@
 
     // Bloc "Loyer du mois" — statut suivi au niveau du bail (partagé entre colocataires si besoin)
     const blocLoyerMois = document.getElementById('locLoyerMoisBloc');
-    if (bailActuel) {
+    if (bailActuel && !bailEstAncien) {
       const moisEnCours = new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0') + '-01';
       const { data: paiementMois } = await supabaseClient.from('paiements').select('*').eq('bail_id', bailActuel.id).eq('mois', moisEnCours).maybeSingle();
       if (paiementMois) {
@@ -2536,10 +2643,26 @@
   }
 
   async function enregistrerInfosLocataire() {
+    const nom = document.getElementById('nomLocataireEdit').value;
+    const email = document.getElementById('emailLocataireEdit').value;
+    const telephone = document.getElementById('telephoneLocataireEdit').value;
     const garantie = document.getElementById('garantieLocataire').value;
-    const { error } = await supabaseClient.from('locataires').update({ garantie: garantie || null }).eq('id', currentLocataireId);
+    if (!nom) return alert('Le nom est requis');
+    const { error } = await supabaseClient.from('locataires').update({
+      nom, email: email || null, telephone: telephone || null, garantie: garantie || null
+    }).eq('id', currentLocataireId);
     if (error) return alert('Erreur : ' + error.message);
+    document.getElementById('locNom').textContent = nom;
+    const initiales = nom.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+    document.getElementById('locAvatar').textContent = initiales;
+    document.getElementById('locContactIcons').innerHTML = `
+      ${email ? `<a class="icon-btn-round" href="mailto:${echapper(email)}" title="${echapper(email)}">✉️</a>` : ''}
+      ${telephone ? `<a class="icon-btn-round" href="tel:${echapper(telephone)}" title="${echapper(telephone)}">📞</a>` : ''}
+    `;
     document.getElementById('lectureInfosLocataire').innerHTML = `
+      <div class="row"><span class="small">Nom</span><span>${echapper(nom)}</span></div>
+      <div class="row"><span class="small">Email</span><span>${email ? echapper(email) : '—'}</span></div>
+      <div class="row"><span class="small">Téléphone</span><span>${telephone ? echapper(telephone) : '—'}</span></div>
       <div class="row"><span class="small">Garantie</span><span>${garantie ? echapper(garantie) : '—'}</span></div>
     `;
     toggleFormulaire('formInfosLocataire', 'btnModifierInfosLoc');
