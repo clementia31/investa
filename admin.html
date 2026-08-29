@@ -50,7 +50,14 @@
   .plan-badge { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; }
   .plan-badge.gratuit { background: rgba(139,150,179,0.15); color: var(--text-dim); }
   .plan-badge.pro { background: rgba(59,130,246,0.15); color: var(--accent); }
-  .plan-badge.business { background: rgba(34,197,94,0.15); color: var(--green); }
+  .section-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); margin: 32px 0 12px; font-weight: 700; }
+  .section-title:first-child { margin-top: 0; }
+  .stat-card .variation { font-size: 0.75rem; margin-top: 4px; }
+  .stat-card .variation.up { color: var(--green); }
+  .stat-card .variation.down { color: var(--red); }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 16px; }
+  @media (max-width: 800px) { .grid-3 { grid-template-columns: repeat(2, 1fr); } }
+  details.secondaire summary { cursor: pointer; color: var(--text-dim); font-size: 0.85rem; padding: 10px 0; }
 </style>
 </head>
 <body>
@@ -71,38 +78,73 @@
 <div id="app" style="display:none;">
   <div class="wrap">
     <h1>Investa Admin</h1>
+    <p class="small" style="margin-top:-10px;">Vue d'ensemble de la plateforme</p>
 
+    <div class="section-title">1 — Traction</div>
     <div class="grid-4">
-      <div class="stat-card"><div class="lbl">Utilisateurs</div><div class="val" id="mTotalUsers">—</div></div>
-      <div class="stat-card"><div class="lbl">Structures</div><div class="val" id="mTotalStructures">—</div></div>
-      <div class="stat-card"><div class="lbl">Immeubles</div><div class="val" id="mTotalImmeubles">—</div></div>
-      <div class="stat-card"><div class="lbl">Lots</div><div class="val" id="mTotalLots">—</div></div>
-    </div>
-    <div class="grid-4">
-      <div class="stat-card"><div class="lbl">Valeur patrimoniale totale</div><div class="val" id="mValeurTotale">—</div></div>
-      <div class="stat-card red"><div class="lbl">Dette totale</div><div class="val" id="mDetteTotale">—</div></div>
-      <div class="stat-card green"><div class="lbl">Taux d'occupation global</div><div class="val" id="mOccupation">—</div></div>
-      <div class="stat-card"><div class="lbl">Baux actifs</div><div class="val" id="mBauxActifs">—</div></div>
-    </div>
-    <div class="grid-4">
-      <div class="stat-card"><div class="lbl">Locataires</div><div class="val" id="mTotalLocataires">—</div></div>
-      <div class="stat-card"><div class="lbl">Documents stockés</div><div class="val" id="mDocuments">—</div></div>
-    </div>
-
-    <div class="card">
-      <h3>Paiements du mois en cours</h3>
-      <div class="grid-4" style="margin-bottom:0;">
-        <div class="stat-card green"><div class="lbl">Payés</div><div class="val" id="mPayes">—</div></div>
-        <div class="stat-card amber"><div class="lbl">À venir</div><div class="val" id="mAVenir">—</div></div>
-        <div class="stat-card red"><div class="lbl">En retard</div><div class="val" id="mEnRetard">—</div></div>
-        <div class="stat-card"><div class="lbl">Volume stockage</div><div class="val" id="mTailleStockage">—</div></div>
+      <div class="stat-card">
+        <div class="lbl">Utilisateurs</div><div class="val" id="tUsersTotal">—</div>
+        <div class="variation" id="tUsersVariation"></div>
+      </div>
+      <div class="stat-card">
+        <div class="lbl">Actifs 30 jours</div><div class="val" id="tActifs30j">—</div>
+        <div class="small" id="tActifsPct"></div>
+      </div>
+      <div class="stat-card">
+        <div class="lbl">Nouveaux 30 jours</div><div class="val" id="tNouveaux30j">—</div>
+        <div class="variation" id="tNouveauxVariation"></div>
+      </div>
+      <div class="stat-card">
+        <div class="lbl">Taux d'activation</div><div class="val" id="tActivation">—</div>
+        <div class="small">ont créé ≥1 bien</div>
       </div>
     </div>
 
+    <div class="section-title">2 — Croissance</div>
     <div class="card">
       <h3>Inscriptions (12 derniers mois)</h3>
       <div id="chartInscriptions">Chargement...</div>
     </div>
+    <div class="card">
+      <h3>Lots gérés sur Investa (cumulé, 12 derniers mois)</h3>
+      <div id="chartLotsGeres">Chargement...</div>
+    </div>
+
+    <div class="section-title">3 — Utilisation du produit</div>
+    <div class="grid-4">
+      <div class="stat-card"><div class="lbl">Biens gérés</div><div class="val" id="uBiens">—</div></div>
+      <div class="stat-card"><div class="lbl">Lots gérés</div><div class="val" id="uLots">—</div></div>
+      <div class="stat-card"><div class="lbl">Lots / utilisateur actif</div><div class="val" id="uLotsParUser">—</div><div class="small" id="uLotsMediane"></div></div>
+      <div class="stat-card"><div class="lbl">Loyer moyen / lot</div><div class="val" id="uLoyerMoyen">—</div><div class="small" id="uLoyerMedian"></div></div>
+    </div>
+    <div class="grid-3">
+      <div class="stat-card green"><div class="lbl">Loyers gérés / mois</div><div class="val" id="uLoyersMensuels">—</div></div>
+      <div class="stat-card green"><div class="lbl">Volume annualisé</div><div class="val" id="uLoyersAnnuels">—</div></div>
+      <div class="stat-card"><div class="lbl">Baux actifs</div><div class="val" id="mBauxActifs">—</div></div>
+    </div>
+
+    <details class="secondaire">
+      <summary>Voir les données patrimoine détaillées (secondaire)</summary>
+      <div class="grid-4" style="margin-top:12px;">
+        <div class="stat-card"><div class="lbl">Structures</div><div class="val" id="mTotalStructures">—</div></div>
+        <div class="stat-card"><div class="lbl">Valeur patrimoniale totale</div><div class="val" id="mValeurTotale">—</div></div>
+        <div class="stat-card red"><div class="lbl">Dette totale</div><div class="val" id="mDetteTotale">—</div></div>
+        <div class="stat-card green"><div class="lbl">Taux d'occupation global</div><div class="val" id="mOccupation">—</div></div>
+      </div>
+      <div class="grid-4">
+        <div class="stat-card"><div class="lbl">Locataires</div><div class="val" id="mTotalLocataires">—</div></div>
+        <div class="stat-card"><div class="lbl">Documents stockés</div><div class="val" id="mDocuments">—</div></div>
+        <div class="stat-card"><div class="lbl">Volume stockage</div><div class="val" id="mTailleStockage">—</div></div>
+      </div>
+      <div class="card">
+        <h3>Paiements du mois en cours</h3>
+        <div class="grid-3" style="margin-bottom:0;">
+          <div class="stat-card green"><div class="lbl">Payés</div><div class="val" id="mPayes">—</div></div>
+          <div class="stat-card amber"><div class="lbl">À venir</div><div class="val" id="mAVenir">—</div></div>
+          <div class="stat-card red"><div class="lbl">En retard</div><div class="val" id="mEnRetard">—</div></div>
+        </div>
+      </div>
+    </details>
 
     <div class="card">
       <h3>Utilisateurs</h3>
@@ -157,10 +199,34 @@
       return;
     }
 
-    document.getElementById('mTotalUsers').textContent = data.total_users;
+    // ===== 1. TRACTION =====
+    const t = data.traction;
+    document.getElementById('tUsersTotal').textContent = t.utilisateurs_total;
+    document.getElementById('tActifs30j').textContent = t.actifs_30j;
+    document.getElementById('tActifsPct').textContent = t.utilisateurs_total > 0 ? Math.round(t.actifs_30j / t.utilisateurs_total * 100) + ' % du total' : '';
+    document.getElementById('tNouveaux30j').textContent = '+' + t.nouveaux_30j;
+    document.getElementById('tActivation').textContent = t.taux_activation + ' %';
+
+    const variationNouveaux = t.nouveaux_periode_precedente > 0
+      ? Math.round((t.nouveaux_30j - t.nouveaux_periode_precedente) / t.nouveaux_periode_precedente * 100)
+      : null;
+    const elVarNouveaux = document.getElementById('tNouveauxVariation');
+    if (variationNouveaux === null) { elVarNouveaux.textContent = 'vs période précédente : n/a'; }
+    else { elVarNouveaux.textContent = (variationNouveaux >= 0 ? '↑ +' : '↓ ') + variationNouveaux + ' % vs période précédente'; elVarNouveaux.className = 'variation ' + (variationNouveaux >= 0 ? 'up' : 'down'); }
+
+    // ===== 3. UTILISATION =====
+    const u = data.utilisation;
+    document.getElementById('uBiens').textContent = u.biens_geres;
+    document.getElementById('uLots').textContent = u.lots_geres;
+    document.getElementById('uLotsParUser').textContent = u.lots_par_user_moyenne;
+    document.getElementById('uLotsMediane').textContent = 'médiane : ' + u.lots_par_user_mediane;
+    document.getElementById('uLoyerMoyen').textContent = Number(u.loyer_moyen).toLocaleString('fr-FR') + ' €';
+    document.getElementById('uLoyerMedian').textContent = 'médian : ' + Number(u.loyer_median).toLocaleString('fr-FR') + ' €';
+    document.getElementById('uLoyersMensuels').textContent = Number(u.loyers_mensuels_geres).toLocaleString('fr-FR') + ' €';
+    document.getElementById('uLoyersAnnuels').textContent = Number(u.loyers_annualises_geres).toLocaleString('fr-FR') + ' €';
+
+    // ===== Secondaire (ancien contenu, conservé) =====
     document.getElementById('mTotalStructures').textContent = data.total_structures;
-    document.getElementById('mTotalImmeubles').textContent = data.total_immeubles;
-    document.getElementById('mTotalLots').textContent = data.total_lots;
     document.getElementById('mTotalLocataires').textContent = data.total_locataires;
     document.getElementById('mBauxActifs').textContent = data.total_baux_actifs;
     document.getElementById('mDocuments').textContent = data.total_documents;
@@ -194,6 +260,19 @@
     document.getElementById('chartInscriptions').innerHTML = `<div class="bar-chart">${mois12.map(m => `
       <div class="bar-col">
         <div class="bar" style="height:${Math.max(2, m.val / max * 100)}px;" title="${m.label} : ${m.val}"></div>
+        <div class="bar-label">${m.label}</div>
+      </div>
+    `).join('')}</div>`;
+
+    // Graphique lots gérés (cumulé)
+    const lotsData = (data.lots_geres_par_mois || []).map(m => {
+      const [annee, moisNum] = m.mois.split('-');
+      return { label: new Date(annee, moisNum - 1, 1).toLocaleDateString('fr-FR', { month: 'short' }), val: m.cumul };
+    });
+    const maxLots = Math.max(1, ...lotsData.map(m => m.val));
+    document.getElementById('chartLotsGeres').innerHTML = `<div class="bar-chart">${lotsData.map(m => `
+      <div class="bar-col">
+        <div class="bar" style="height:${Math.max(2, m.val / maxLots * 100)}px; background:var(--green);" title="${m.label} : ${m.val} lots"></div>
         <div class="bar-label">${m.label}</div>
       </div>
     `).join('')}</div>`;
