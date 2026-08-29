@@ -403,27 +403,60 @@
           <div><h2>Bonjour 👋</h2><div class="page-sub">Voici un aperçu de votre patrimoine — <span id="dashPeriode"></span></div></div>
           <div class="lang-badge" title="Anglais bientôt disponible">🇫🇷 FR</div>
         </div>
-        <div class="bandeau-patrimoine">
-          <div class="row-click" onclick="allerPatrimoine()"><span class="lbl">Valeur du patrimoine</span><span class="val" id="dashValeur">—</span></div>
-          <div class="row-click" onclick="allerLoyers()"><span class="lbl">Loyers attendus</span><span class="val" id="dashAttendu">—</span></div>
-          <div><span class="lbl">Taux d'occupation</span><span class="val" id="dashOccupation">—</span></div>
-          <div><span class="lbl">Dette restante</span><span class="val" id="dashDette">—</span></div>
-        </div>
-        <div style="margin-bottom:16px;">
-          <div class="small" style="margin-bottom:5px;" id="dashOccupationLabel">— % occupé</div>
-          <div class="progress-bar-track"><div class="progress-bar-fill" id="dashOccupationBarre" style="width:0%;"></div></div>
-        </div>
-        <div class="grid-2">
-          <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:baseline;">
-              <h3 style="margin:0;">Cash-flow mensuel</h3>
-              <span class="small" id="dashCashflow">—</span>
+
+        <div class="card" id="cardOnboarding" style="display:none; background:var(--panel);">
+          <h2 style="margin:0 0 4px; font-size:1.15rem; color:var(--text);">Bienvenue sur Investa 👋</h2>
+          <p class="small" style="margin:0 0 20px;">3 étapes pour prendre en main ton patrimoine.</p>
+
+          <div style="display:flex; align-items:center; gap:14px; padding:14px; background:var(--panel-2); border:1px solid var(--accent); border-radius:10px; margin-bottom:10px;">
+            <div style="width:26px; height:26px; border-radius:50%; background:var(--accent); color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; flex-shrink:0;">1</div>
+            <div style="flex:1;">
+              <div style="font-weight:600; font-size:0.9rem;">Ajoute ton premier bien</div>
+              <div class="small" style="margin-top:1px;">Un appartement, une maison, un immeuble entier</div>
             </div>
-            <div id="dashChartCashflow">Chargement...</div>
+            <button class="btn-primary" style="width:auto; padding:8px 16px; font-size:0.82rem;" onclick="allerPatrimoine()">Ajouter →</button>
           </div>
-          <div class="card">
-            <h3>À faire</h3>
-            <div id="dashAlertes">Chargement...</div>
+
+          <div style="display:flex; align-items:center; gap:14px; padding:14px; background:var(--panel); border:1px solid var(--border); border-radius:10px; margin-bottom:10px; opacity:0.5;">
+            <div style="width:26px; height:26px; border-radius:50%; background:var(--border); color:var(--text-dim); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; flex-shrink:0;">2</div>
+            <div style="flex:1;">
+              <div style="font-weight:600; font-size:0.9rem;">Ajoute un locataire</div>
+              <div class="small" style="margin-top:1px;">Rattache-le à ton bien avec son loyer</div>
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:14px; padding:14px; background:var(--panel); border:1px solid var(--border); border-radius:10px; opacity:0.5;">
+            <div style="width:26px; height:26px; border-radius:50%; background:var(--border); color:var(--text-dim); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; flex-shrink:0;">3</div>
+            <div style="flex:1;">
+              <div style="font-weight:600; font-size:0.9rem;">Marque un loyer comme payé</div>
+              <div class="small" style="margin-top:1px;">Ta première quittance sera générée automatiquement</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="dashboardContenuNormal">
+          <div class="bandeau-patrimoine">
+            <div class="row-click" onclick="allerPatrimoine()"><span class="lbl">Valeur du patrimoine</span><span class="val" id="dashValeur">—</span></div>
+            <div class="row-click" onclick="allerLoyers()"><span class="lbl">Loyers attendus</span><span class="val" id="dashAttendu">—</span></div>
+            <div><span class="lbl">Taux d'occupation</span><span class="val" id="dashOccupation">—</span></div>
+            <div><span class="lbl">Dette restante</span><span class="val" id="dashDette">—</span></div>
+          </div>
+          <div style="margin-bottom:16px;">
+            <div class="small" style="margin-bottom:5px;" id="dashOccupationLabel">— % occupé</div>
+            <div class="progress-bar-track"><div class="progress-bar-fill" id="dashOccupationBarre" style="width:0%;"></div></div>
+          </div>
+          <div class="grid-2">
+            <div class="card">
+              <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                <h3 style="margin:0;">Cash-flow mensuel</h3>
+                <span class="small" id="dashCashflow">—</span>
+              </div>
+              <div id="dashChartCashflow">Chargement...</div>
+            </div>
+            <div class="card">
+              <h3>À faire</h3>
+              <div id="dashAlertes">Chargement...</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1449,13 +1482,25 @@
     document.getElementById('dashPeriode').textContent = now.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
 
     const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
+    const structIds = (structures || []).map(s => s.id);
+    const { data: immeublesExistants } = structIds.length
+      ? await supabaseClient.from('immeubles').select('id').in('structure_id', structIds).limit(1)
+      : { data: [] };
+
+    if (!immeublesExistants || !immeublesExistants.length) {
+      document.getElementById('cardOnboarding').style.display = 'block';
+      document.getElementById('dashboardContenuNormal').style.display = 'none';
+      return;
+    }
+    document.getElementById('cardOnboarding').style.display = 'none';
+    document.getElementById('dashboardContenuNormal').style.display = 'block';
+
     if (!structures || !structures.length) {
       ['dashAttendu','dashCashflow','dashOccupation','dashValeur','dashDette'].forEach(id => document.getElementById(id).textContent = '—');
       document.getElementById('dashChartCashflow').innerHTML = '<div class="empty-state">—</div>';
       document.getElementById('dashAlertes').innerHTML = '<div class="empty-state">—</div>';
       return;
     }
-    const structIds = structures.map(s => s.id);
 
     // Loyers attendus : calculés directement depuis les BAUX ACTIFS, pas depuis la table paiements
     // (qui ne se remplit que quand on ouvre l'écran Loyers) — comme ça le Dashboard reflète
