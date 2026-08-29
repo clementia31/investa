@@ -207,9 +207,9 @@
   @media (max-width: 700px) { .bandeau-patrimoine { grid-template-columns: repeat(2, 1fr); } .bandeau-patrimoine > div:nth-child(2) { border-right: none; } }
 
   .filtre-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
-  .filtre-tab { font-size: 0.82rem; padding: 5px 14px; border-radius: 20px; cursor: pointer; color: var(--text-dim); }
+  .filtre-tab { font-size: 0.82rem; padding: 5px 14px; border-radius: 20px; cursor: pointer; color: var(--text-dim); background: var(--panel); border: 1px solid var(--border); }
   .filtre-tab:hover { color: var(--text); }
-  .filtre-tab.active { background: var(--accent); color: white; font-weight: 600; }
+  .filtre-tab.active { background: var(--accent); border-color: var(--accent); color: white; font-weight: 600; }
 
   .statut-picker { display: flex; gap: 8px; margin-bottom: 12px; }
 
@@ -395,6 +395,10 @@
           <div class="row-click" onclick="allerLoyers()"><span class="lbl">Loyers attendus</span><span class="val" id="dashAttendu">—</span></div>
           <div><span class="lbl">Taux d'occupation</span><span class="val" id="dashOccupation">—</span></div>
           <div><span class="lbl">Dette restante</span><span class="val" id="dashDette">—</span></div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <div class="small" style="margin-bottom:5px;" id="dashOccupationLabel">— % occupé</div>
+          <div class="progress-bar-track"><div class="progress-bar-fill" id="dashOccupationBarre" style="width:0%;"></div></div>
         </div>
         <div class="grid-2">
           <div class="card">
@@ -1398,6 +1402,8 @@
     const cashflow = encaisse - totalCharges;
     document.getElementById('dashCashflow').textContent = (cashflow >= 0 ? '+' : '') + cashflow.toLocaleString('fr-FR') + ' € ce mois';
     document.getElementById('dashOccupation').textContent = tauxOccupation + ' %';
+    document.getElementById('dashOccupationLabel').textContent = tauxOccupation + ' % occupé';
+    document.getElementById('dashOccupationBarre').style.width = tauxOccupation + '%';
     document.getElementById('dashValeur').textContent = valeurPatrimoine.toLocaleString('fr-FR') + ' €';
     document.getElementById('dashDette').textContent = dette.toLocaleString('fr-FR') + ' €';
 
@@ -1472,16 +1478,17 @@
     const { data: immeublesDpe } = await supabaseClient.from('immeubles').select('adresse, dpe_date_expiration').in('structure_id', structIds).not('dpe_date_expiration', 'is', null).lte('dpe_date_expiration', dans60jours.toISOString().split('T')[0]);
 
     let html = '';
-    if (retardCount > 0) html += `<div class="alert-row row-click" onclick="allerLoyers()"><span class="alert-dot high"></span> ${retardCount} loyer${retardCount > 1 ? 's' : ''} en retard</div>`;
-    if (tachesEnRetard && tachesEnRetard.length) html += `<div class="alert-row row-click" onclick="allerAlertes()"><span class="alert-dot med"></span> ${tachesEnRetard.length} tâche${tachesEnRetard.length > 1 ? 's' : ''} en retard</div>`;
+    if (retardCount > 0) html += `<div class="alert-row row-click" onclick="allerLoyers()"><span class="alert-dot high"></span><span style="flex:1;">${retardCount} loyer${retardCount > 1 ? 's' : ''} en retard</span><span class="small">→</span></div>`;
+    if (tachesEnRetard && tachesEnRetard.length) html += `<div class="alert-row row-click" onclick="allerAlertes()"><span class="alert-dot med"></span><span style="flex:1;">${tachesEnRetard.length} tâche${tachesEnRetard.length > 1 ? 's' : ''} en retard</span><span class="small">→</span></div>`;
     (immeublesDpe || []).slice(0, 2).forEach(im => {
-      html += `<div class="alert-row"><span class="alert-dot med"></span> DPE expire le ${im.dpe_date_expiration} — ${echapper(im.adresse)}</div>`;
+      html += `<div class="alert-row"><span class="alert-dot med"></span><span style="flex:1;">DPE expire le ${im.dpe_date_expiration} — ${echapper(im.adresse)}</span></div>`;
     });
     retardsFiltres.slice(0, 2).forEach(p => {
-      html += `<div class="alert-row"><span class="alert-dot high"></span> ${echapper(p.baux.lots.nom || p.baux.lots.type)}, ${echapper(p.baux.lots.immeubles.adresse)}</div>`;
+      const montant = Number(p.montant_loyer) + Number(p.montant_charges);
+      html += `<div class="alert-row row-click" onclick="allerLoyers()"><span class="alert-dot high"></span><span style="flex:1;">${echapper(p.baux.lots.nom || p.baux.lots.type)}, ${echapper(p.baux.lots.immeubles.adresse)}</span><span class="badge-pill badge-rouge">${montant.toLocaleString('fr-FR')} €</span></div>`;
     });
     bauxFiltres.slice(0, 2).forEach(b => {
-      html += `<div class="alert-row"><span class="alert-dot med"></span> Bail expire le ${b.date_fin} — ${echapper(b.lots.nom || b.lots.type)}</div>`;
+      html += `<div class="alert-row"><span class="alert-dot med"></span><span style="flex:1;">Bail expire le ${b.date_fin} — ${echapper(b.lots.nom || b.lots.type)}</span></div>`;
     });
     div.innerHTML = html || '<div class="empty-state">Rien à signaler pour le moment. 👍</div>';
   }
