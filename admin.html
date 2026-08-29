@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Investa — Admin</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 500'%3E%3Cg fill='none' stroke='%234CAF50' stroke-width='18' stroke-linecap='square' stroke-linejoin='miter'%3E%3Cpath d='M33 476 V33 H167 V476'/%3E%3Cpath d='M33 476 H67 V354 L100 324 L133 354 V476 H167'/%3E%3Cpath d='M100 324 V476'/%3E%3C/g%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
 <style>
   :root {
@@ -15,7 +16,7 @@
   body { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; margin: 0; background: var(--bg); color: var(--text); }
   .wrap { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
   h1 { font-size: 1.4rem; display: flex; align-items: center; gap: 10px; }
-  h1::before { content: ""; width: 24px; height: 24px; border-radius: 6px; background: #22c55e; }
+  .logo-symbol-admin { width: 14.4px; height: 36px; flex-shrink: 0; }
 
   .auth-box { max-width: 380px; margin: 100px auto; }
   .auth-box input { width: 100%; padding: 12px; margin: 6px 0; border-radius: 8px; border: 1px solid var(--border); background: var(--panel); color: var(--text); }
@@ -62,8 +63,19 @@
 </head>
 <body>
 
+<!-- Symbole officiel Investa — mêmes chemins exacts que index.html -->
+<svg width="0" height="0" style="position:absolute;">
+  <symbol id="investa-symbol" viewBox="0 0 200 500">
+    <g fill="none" stroke="#4CAF50" stroke-width="18" stroke-linecap="square" stroke-linejoin="miter">
+      <path d="M33 476 V33 H167 V476"/>
+      <path d="M33 476 H67 V354 L100 324 L133 354 V476 H167"/>
+      <path d="M100 324 V476"/>
+    </g>
+  </symbol>
+</svg>
+
 <div class="auth-box" id="auth">
-  <h1>Investa Admin</h1>
+  <h1><svg class="logo-symbol-admin" viewBox="0 0 200 500"><use href="#investa-symbol"></use></svg> Investa Admin</h1>
   <input id="email" type="email" placeholder="Email">
   <input id="password" type="password" placeholder="Mot de passe">
   <button onclick="seConnecter()">Se connecter</button>
@@ -77,7 +89,7 @@
 
 <div id="app" style="display:none;">
   <div class="wrap">
-    <h1>Investa Admin</h1>
+    <h1><svg class="logo-symbol-admin" viewBox="0 0 200 500"><use href="#investa-symbol"></use></svg> Investa Admin</h1>
     <p class="small" style="margin-top:-10px;">Vue d'ensemble de la plateforme</p>
 
     <div class="section-title">1 — Traction</div>
