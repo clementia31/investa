@@ -1286,10 +1286,7 @@
       <div id="page-documents" style="display:none;">
         <div class="page-header">
           <h2>Documents</h2>
-          <div style="display:flex; gap:10px;">
-            <input id="rechercheDocuments" placeholder="Rechercher un document..." style="width:220px; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);" oninput="filtrerDocumentsGlobal()">
-            <button class="btn-primary" style="width:auto; padding:9px 16px;" onclick="ouvrirImportDocument()">Importer</button>
-          </div>
+          <input id="rechercheDocuments" placeholder="Rechercher un document..." style="width:220px; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);" oninput="filtrerDocumentsGlobal()">
         </div>
 
         <div class="tabs">
@@ -1299,6 +1296,8 @@
           <div class="tab" id="tabDocDiagnostic" onclick="switchTabDocuments('diagnostic')">Diagnostics</div>
           <div class="tab" id="tabDocAssurance" onclick="switchTabDocuments('assurance')">Assurances</div>
         </div>
+
+        <button class="btn-primary" style="width:100%; padding:13px; margin-bottom:16px;" onclick="ouvrirImportDocument()">Importer un document</button>
 
         <!-- Zone d'actions Baux -->
         <div id="zoneActionsBail" style="display:none;">
