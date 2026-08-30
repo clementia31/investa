@@ -86,7 +86,16 @@
   .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 16px; }
   .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 16px; }
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  @media (max-width: 900px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } .grid-3 { grid-template-columns: repeat(2, 1fr); } .sidebar { display: none; } }
+  @media (max-width: 900px) {
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .sidebar { position: fixed; top: 0; left: 0; height: 100vh; z-index: 210; transform: translateX(-100%); transition: transform 0.2s; }
+    .sidebar.ouverte { transform: translateX(0); }
+    .btn-menu-mobile { display: flex; }
+  }
+  .btn-menu-mobile { display: none; position: fixed; top: 14px; left: 14px; z-index: 220; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; width: 42px; height: 42px; align-items: center; justify-content: center; font-size: 1.3rem; color: var(--text); cursor: pointer; }
+  .overlay-menu-mobile { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; }
+  .overlay-menu-mobile.ouverte { display: block; }
 
   .progress-bar-track { height: 7px; background: var(--panel-2); border-radius: 10px; overflow: hidden; }
   .progress-bar-fill { height: 100%; background: var(--green); border-radius: 10px; transition: width 0.3s; }
@@ -394,6 +403,9 @@
 <!-- ============ APP ============ -->
 <div id="app">
   <div class="shell">
+
+    <button class="btn-menu-mobile" onclick="toggleMenuMobile()" aria-label="Ouvrir le menu">☰</button>
+    <div class="overlay-menu-mobile" onclick="toggleMenuMobile()"></div>
 
     <!-- SIDEBAR -->
     <div class="sidebar">
@@ -1439,6 +1451,22 @@
     return crypto.randomUUID() + ext;
   }
 
+  // Formatage centralisé — locale/devise en dur pour l'instant (France uniquement),
+  // mais le jour où Investa gère plusieurs pays, un seul endroit à changer plutôt que
+  // des dizaines de .toLocaleString('fr-FR') dispersés dans tout le fichier.
+  const LOCALE_ACTUELLE = 'fr-FR';
+  const DEVISE_ACTUELLE = 'EUR';
+
+  function formatMoney(valeur) {
+    if (valeur === null || valeur === undefined || isNaN(valeur)) return '—';
+    return new Intl.NumberFormat(LOCALE_ACTUELLE, { style: 'currency', currency: DEVISE_ACTUELLE, maximumFractionDigits: 0 }).format(Number(valeur));
+  }
+
+  function formatDate(dateIso) {
+    if (!dateIso) return '—';
+    return new Date(dateIso).toLocaleDateString(LOCALE_ACTUELLE);
+  }
+
   // Échappement spécifique pour une valeur injectée À L'INTÉRIEUR d'un attribut onclick="...'${valeur}'..."
   // (contexte différent : il faut protéger à la fois la chaîne JS et l'attribut HTML qui l'entoure)
   function echapperPourOnclick(texte) {
@@ -1563,9 +1591,16 @@
     PAGES.forEach(p => { const el = document.getElementById('page-' + p); if (el) el.style.display = 'none'; });
   }
 
+  function toggleMenuMobile() {
+    document.querySelector('.sidebar').classList.toggle('ouverte');
+    document.querySelector('.overlay-menu-mobile').classList.toggle('ouverte');
+  }
+
   function setActiveNav(id) {
     NAV_IDS.forEach(n => document.getElementById(n).classList.remove('active'));
     if (id) document.getElementById(id).classList.add('active');
+    document.querySelector('.sidebar').classList.remove('ouverte');
+    document.querySelector('.overlay-menu-mobile').classList.remove('ouverte');
   }
 
   async function allerDashboard() {
@@ -1642,14 +1677,14 @@
       }
     }
 
-    document.getElementById('dashAttendu').textContent = attendu.toLocaleString('fr-FR') + ' €';
+    document.getElementById('dashAttendu').textContent = formatMoney(attendu);
     const cashflow = encaisse - totalCharges;
-    document.getElementById('dashCashflow').textContent = (cashflow >= 0 ? '+' : '') + cashflow.toLocaleString('fr-FR') + ' € ce mois';
+    document.getElementById('dashCashflow').textContent = (cashflow >= 0 ? '+' : '') + formatMoney(cashflow) + ' ce mois';
     document.getElementById('dashOccupation').textContent = tauxOccupation + ' %';
     document.getElementById('dashOccupationLabel').textContent = tauxOccupation + ' % occupé';
     document.getElementById('dashOccupationBarre').style.width = tauxOccupation + '%';
-    document.getElementById('dashValeur').textContent = valeurPatrimoine.toLocaleString('fr-FR') + ' €';
-    document.getElementById('dashDette').textContent = dette.toLocaleString('fr-FR') + ' €';
+    document.getElementById('dashValeur').textContent = formatMoney(valeurPatrimoine);
+    document.getElementById('dashDette').textContent = formatMoney(dette);
 
     // Graphique cash-flow 12 derniers mois
     await dessinerCashflow12Mois(structIds);
@@ -2010,10 +2045,10 @@
     const nbLotsTotal = (tousLots || []).length;
     const nbOccupesTotal = (tousLots || []).filter(l => l.statut === 'occupe').length;
     const tauxOccup = nbLotsTotal ? Math.round((nbOccupesTotal / nbLotsTotal) * 100) : 0;
-    document.getElementById('patValeur').textContent = valeurTotale.toLocaleString('fr-FR') + ' €';
-    document.getElementById('patAttendu').textContent = loyersAttendus.toLocaleString('fr-FR') + ' €';
+    document.getElementById('patValeur').textContent = formatMoney(valeurTotale);
+    document.getElementById('patAttendu').textContent = formatMoney(loyersAttendus);
     document.getElementById('patOccupation').textContent = tauxOccup + ' %';
-    document.getElementById('patDette').textContent = detteTotale.toLocaleString('fr-FR') + ' €';
+    document.getElementById('patDette').textContent = formatMoney(detteTotale);
 
     rendreArbrePatrimoine('');
   }
@@ -2201,7 +2236,7 @@
 
     evenements.sort((a, b) => new Date(b.date) - new Date(a.date));
     div.innerHTML = evenements.length
-      ? evenements.slice(0, 8).map(e => `<div class="row"><span class="small">${new Date(e.date).toLocaleDateString('fr-FR')}</span><span style="flex:1; margin-left:10px;">${e.texte}</span><span>${e.montant}</span></div>`).join('')
+      ? evenements.slice(0, 8).map(e => `<div class="row"><span class="small">${formatDate(e.date)}</span><span style="flex:1; margin-left:10px;">${e.texte}</span><span>${e.montant}</span></div>`).join('')
       : '<div class="empty-state">Aucune activité récente.</div>';
   }
 
@@ -2227,8 +2262,8 @@
         <span>${t.date} — ${echapper(t.categorie)}${t.description ? ' (' + echapper(t.description) + ')' : ''}${t.recuperable ? ' <span class="badge-pill badge-vert" style="margin-left:6px;">Récupérable</span>' : ''}</span>
         <span>
           <span style="color:${t.type === 'depense' ? 'var(--red)' : 'var(--green)'}; font-weight:600; margin-right:10px;">${t.type === 'depense' ? '-' : '+'}${Number(t.montant).toLocaleString('fr-FR')} €</span>
-          <a href="#" onclick="ouvrirEditTransaction('${t.id}', 'immeuble', '${currentImmeubleId}'); return false;" style="margin-right:8px;">✏️</a>
-          <a href="#" onclick="supprimerTransaction('${t.id}', 'immeuble', '${currentImmeubleId}'); return false;" style="color:var(--red);">✕</a>
+          <a href="#" onclick="ouvrirEditTransaction('${t.id}', 'immeuble', '${currentImmeubleId}'); return false;" style="margin-right:8px;" aria-label="Modifier">✏️</a>
+          <a href="#" onclick="supprimerTransaction('${t.id}', 'immeuble', '${currentImmeubleId}'); return false;" style="color:var(--red);" aria-label="Supprimer">✕</a>
         </span>
       </div>
     `).join('');
@@ -2706,7 +2741,7 @@
             <div style="font-weight:600;">${Number(c.montant).toLocaleString('fr-FR')} €</div>
             <span class="badge-pill" style="background:${c.frequence === 'annuel' ? 'rgba(245,158,11,0.15)' : (c.frequence === 'mensuel' ? 'rgba(139,150,179,0.15)' : 'rgba(59,130,246,0.15)')}; color:${c.frequence === 'annuel' ? 'var(--amber)' : (c.frequence === 'mensuel' ? 'var(--text-dim)' : 'var(--accent)')};">${LABELS_FREQUENCE_CHARGE[c.frequence]}</span>
           </div>
-          <a href="#" onclick="supprimerChargeRecurrente('${c.id}', '${entityType}', '${entityId}', '${targetDivId}'); return false;" style="color:var(--red); font-size:0.85rem;">✕</a>
+          <a href="#" onclick="supprimerChargeRecurrente('${c.id}', '${entityType}', '${entityId}', '${targetDivId}'); return false;" style="color:var(--red); font-size:0.85rem;" aria-label="Supprimer">✕</a>
         </div>
       </div>
     `).join('');
@@ -2801,8 +2836,8 @@
         <span>${t.date} — ${echapper(t.categorie)}${t.description ? ' (' + echapper(t.description) + ')' : ''}${t.recuperable ? ' <span class="badge-pill badge-vert" style="margin-left:6px;">Récupérable</span>' : ''}</span>
         <span>
           <span style="color:${t.type === 'depense' ? 'var(--red)' : 'var(--green)'}; font-weight:600; margin-right:10px;">${t.type === 'depense' ? '-' : '+'}${Number(t.montant).toLocaleString('fr-FR')} €</span>
-          <a href="#" onclick="ouvrirEditTransaction('${t.id}', 'lot', '${lotId}'); return false;" style="margin-right:8px;">✏️</a>
-          <a href="#" onclick="supprimerTransaction('${t.id}', 'lot', '${lotId}'); return false;" style="color:var(--red);">✕</a>
+          <a href="#" onclick="ouvrirEditTransaction('${t.id}', 'lot', '${lotId}'); return false;" style="margin-right:8px;" aria-label="Modifier">✏️</a>
+          <a href="#" onclick="supprimerTransaction('${t.id}', 'lot', '${lotId}'); return false;" style="color:var(--red);" aria-label="Supprimer">✕</a>
         </span>
       </div>
     `).join('');
@@ -2939,8 +2974,8 @@
     document.getElementById('btnModifierInfosLoc').style.display = 'inline-flex';
 
     document.getElementById('locContactIcons').innerHTML = `
-      ${locataire.email ? `<a class="icon-btn-round" href="mailto:${echapper(locataire.email)}" title="${echapper(locataire.email)}">✉️</a>` : ''}
-      ${locataire.telephone ? `<a class="icon-btn-round" href="tel:${echapper(locataire.telephone)}" title="${echapper(locataire.telephone)}">📞</a>` : ''}
+      ${locataire.email ? `<a class="icon-btn-round" href="mailto:${echapper(locataire.email)}" title="${echapper(locataire.email)}" aria-label="Envoyer un email">✉️</a>` : ''}
+      ${locataire.telephone ? `<a class="icon-btn-round" href="tel:${echapper(locataire.telephone)}" title="${echapper(locataire.telephone)}" aria-label="Appeler">📞</a>` : ''}
     `;
 
     switchTabLocataire('bail');
@@ -3061,8 +3096,8 @@
     const initiales = nom.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
     document.getElementById('locAvatar').textContent = initiales;
     document.getElementById('locContactIcons').innerHTML = `
-      ${email ? `<a class="icon-btn-round" href="mailto:${echapper(email)}" title="${echapper(email)}">✉️</a>` : ''}
-      ${telephone ? `<a class="icon-btn-round" href="tel:${echapper(telephone)}" title="${echapper(telephone)}">📞</a>` : ''}
+      ${email ? `<a class="icon-btn-round" href="mailto:${echapper(email)}" title="${echapper(email)}" aria-label="Envoyer un email">✉️</a>` : ''}
+      ${telephone ? `<a class="icon-btn-round" href="tel:${echapper(telephone)}" title="${echapper(telephone)}" aria-label="Appeler">📞</a>` : ''}
     `;
     document.getElementById('lectureInfosLocataire').innerHTML = `
       <div class="row"><span class="small">Nom</span><span>${echapper(nom)}</span></div>
@@ -3208,8 +3243,8 @@
             ${texteStatut}
           </div>
           ${(l.email || l.telephone) ? `<div class="locataire-carte-icons" onclick="event.stopPropagation()">
-            ${l.email ? `<a class="icon-btn-round" href="mailto:${echapper(l.email)}" title="${echapper(l.email)}">✉️</a>` : ''}
-            ${l.telephone ? `<a class="icon-btn-round" href="tel:${echapper(l.telephone)}" title="${echapper(l.telephone)}">📞</a>` : ''}
+            ${l.email ? `<a class="icon-btn-round" href="mailto:${echapper(l.email)}" title="${echapper(l.email)}" aria-label="Envoyer un email">✉️</a>` : ''}
+            ${l.telephone ? `<a class="icon-btn-round" href="tel:${echapper(l.telephone)}" title="${echapper(l.telephone)}" aria-label="Appeler">📞</a>` : ''}
           </div>` : ''}
         </div>
       `;
@@ -3340,9 +3375,9 @@
     const enRetard = items.filter(it => it.paiement.statut === 'en_retard').reduce((a, it) => a + it.montant, 0);
     const pourcentage = attendus > 0 ? Math.round(encaisses / attendus * 100) : 0;
 
-    document.getElementById('loyersKpiAttendus').textContent = attendus.toLocaleString('fr-FR') + ' €';
-    document.getElementById('loyersKpiEncaisses').textContent = encaisses.toLocaleString('fr-FR') + ' €';
-    document.getElementById('loyersKpiRetard').textContent = enRetard.toLocaleString('fr-FR') + ' €';
+    document.getElementById('loyersKpiAttendus').textContent = formatMoney(attendus);
+    document.getElementById('loyersKpiEncaisses').textContent = formatMoney(encaisses);
+    document.getElementById('loyersKpiRetard').textContent = formatMoney(enRetard);
     document.getElementById('loyersProgressionLabel').textContent = pourcentage + ' % encaissé';
     document.getElementById('loyersProgressionBarre').style.width = pourcentage + '%';
   }
@@ -4765,7 +4800,7 @@ Durée : du {{date_debut}} au {{date_fin}}
         <span onclick="telechargerDocument('${d.storage_path}')" style="cursor:pointer; color:var(--accent);">📎 ${echapper(d.nom)}</span>
         <span class="small ${d.nomEntite !== '—' ? 'row-click' : ''}" ${d.nomEntite !== '—' ? `onclick="ouvrirEntiteDocument('${d.entity_type}', '${d.entity_id}')"` : ''}>${echapper(d.nomEntite)}</span>
         <span class="badge-outline">${labelsCat[d.categorie] || 'Autre'}</span>
-        <span class="small">${new Date(d.created_at).toLocaleDateString('fr-FR')}</span>
+        <span class="small">${formatDate(d.created_at)}</span>
         <span>${d.categorie === 'diagnostic' ? `<a href="#" onclick="envoyerDocumentAUnLocataire('${d.id}'); return false;" style="color:var(--accent);">✉️ Envoyer</a>` : ''}</span>
       </div>
     `).join('');
