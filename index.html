@@ -1856,10 +1856,11 @@
     if (errLot) return alert('Erreur : ' + errLot.message);
 
     if (loyer) {
-      await supabaseClient.from('baux').insert({
+      const { error: errBail } = await supabaseClient.from('baux').insert({
         lot_id: lot.id, type: 'nu', date_debut: new Date().toISOString().split('T')[0],
         loyer: parseFloat(loyer), charges: charges ? parseFloat(charges) : 0, statut: 'actif'
       });
+      if (errBail) alert('Le bien a été créé, mais le loyer n\u2019a pas pu être enregistré : ' + errBail.message);
     }
 
     // Reset du formulaire
@@ -3896,8 +3897,13 @@ Le bailleur donne quittance au locataire pour le paiement ci-dessus et lui donne
   }
 
   async function chargerQuotaStockage() {
-    const structureId = await obtenirStructureParDefaut();
-    if (!structureId) return;
+    const { data: structures } = await supabaseClient.from('structures').select('id').order('created_at').limit(1);
+    if (!structures || !structures.length) {
+      document.getElementById('stockageLabel').textContent = `0 Mo utilisés sur ${QUOTA_STOCKAGE_OCTETS / 1024 / 1024} Mo`;
+      document.getElementById('stockageBarre').style.width = '0%';
+      return;
+    }
+    const structureId = structures[0].id;
     const { data: utilise } = await supabaseClient.rpc('stockage_utilise_structure', { p_structure_id: structureId });
     const octetsUtilises = utilise || 0;
     const pourcentage = Math.min(100, Math.round(octetsUtilises / QUOTA_STOCKAGE_OCTETS * 100));
