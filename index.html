@@ -2875,17 +2875,10 @@
     if (!nomsRaw.trim()) return alert('Au moins un nom requis');
     const noms = nomsRaw.split(',').map(n => n.trim()).filter(Boolean);
 
-    const { data: structureLot } = await supabaseClient.from('lots').select('immeuble_id, immeubles(structure_id)').eq('id', lotId).single();
-    const structureId = structureLot.immeubles.structure_id;
-
-    for (const nom of noms) {
-      const { data: locataire, error: errLoc } = await supabaseClient.from('locataires').insert({ structure_id: structureId, nom }).select().single();
-      if (errLoc) { alert('Erreur locataire : ' + errLoc.message); continue; }
-      const { error: errRattach } = await supabaseClient.from('bail_locataires').insert({ bail_id: bailId, locataire_id: locataire.id });
-      if (errRattach) { alert('Erreur de rattachement au bail : ' + errRattach.message); continue; }
-    }
-    const { error: errStatut } = await supabaseClient.from('lots').update({ statut: 'occupe' }).eq('id', lotId);
-    if (errStatut) console.error('Erreur mise à jour statut du lot :', errStatut.message);
+    const { error } = await supabaseClient.rpc('ajouter_locataires_a_bail_existant', {
+      p_bail_id: bailId, p_lot_id: lotId, p_noms_locataires: noms
+    });
+    if (error) return alert('Erreur : ' + error.message);
     ouvrirFicheLot(lotId);
   }
 
@@ -2898,22 +2891,11 @@
     if (!date_debut || !loyer || !nomsRaw) return alert('Date de début, loyer et au moins un locataire sont requis');
     const noms = nomsRaw.split(',').map(n => n.trim()).filter(Boolean);
 
-    const { data: structureLot } = await supabaseClient.from('lots').select('immeuble_id, immeubles(structure_id)').eq('id', currentLotId).single();
-    const structureId = structureLot.immeubles.structure_id;
-
-    const { data: bail, error: errBail } = await supabaseClient.from('baux').insert({
-      lot_id: currentLotId, type, date_debut, loyer: parseFloat(loyer), charges: parseFloat(charges || 0)
-    }).select().single();
-    if (errBail) return alert('Erreur bail : ' + errBail.message);
-
-    for (const nom of noms) {
-      const { data: locataire, error: errLoc } = await supabaseClient.from('locataires').insert({ structure_id: structureId, nom }).select().single();
-      if (errLoc) { alert('Erreur locataire : ' + errLoc.message); continue; }
-      const { error: errRattach } = await supabaseClient.from('bail_locataires').insert({ bail_id: bail.id, locataire_id: locataire.id });
-      if (errRattach) { alert('Erreur de rattachement au bail : ' + errRattach.message); continue; }
-    }
-    const { error: errStatut } = await supabaseClient.from('lots').update({ statut: 'occupe' }).eq('id', currentLotId);
-    if (errStatut) console.error('Erreur mise à jour statut du lot :', errStatut.message);
+    const { error } = await supabaseClient.rpc('creer_bail_avec_locataires', {
+      p_lot_id: currentLotId, p_type: type, p_date_debut: date_debut,
+      p_loyer: parseFloat(loyer), p_charges: parseFloat(charges || 0), p_noms_locataires: noms
+    });
+    if (error) return alert('Erreur : ' + error.message);
     ouvrirFicheLot(currentLotId);
   }
 
@@ -3121,36 +3103,11 @@
     if (!nom) return alert('Nom requis');
     if (!lotId) return alert('Sélectionne un bien');
 
-    const { data: lotInfo } = await supabaseClient.from('lots').select('immeuble_id, immeubles(structure_id)').eq('id', lotId).single();
-    const structureId = lotInfo.immeubles.structure_id;
-
-    const { data: bauxActifs } = await supabaseClient.from('baux').select('*').eq('lot_id', lotId).eq('statut', 'actif').limit(1);
-    let bail = bauxActifs && bauxActifs[0];
-
-    if (!bail) {
-      if (!loyer) return alert('Ce bien n\u2019a pas encore de bail — indique un loyer pour en créer un.');
-      const { data: nouveauBail, error: errBail } = await supabaseClient.from('baux').insert({
-        lot_id: lotId, type: 'nu', date_debut: dateEntree || new Date().toISOString().split('T')[0],
-        date_fin: dateSortie || null, loyer: parseFloat(loyer), charges: 0, statut: 'actif'
-      }).select().single();
-      if (errBail) return alert('Erreur : ' + errBail.message);
-      bail = nouveauBail;
-    } else if (dateEntree || dateSortie) {
-      // Le bail existe déjà (souvent créé sans locataire via l'ajout rapide de bien) :
-      // on en profite pour préciser ses vraies dates si elles sont renseignées ici.
-      await supabaseClient.from('baux').update({
-        date_debut: dateEntree || bail.date_debut, date_fin: dateSortie || bail.date_fin
-      }).eq('id', bail.id);
-    }
-
-    const { data: locataire, error: errLoc } = await supabaseClient.from('locataires').insert({
-      structure_id: structureId, nom, email: email || null, telephone: telephone || null
-    }).select().single();
-    if (errLoc) return alert('Erreur : ' + errLoc.message);
-    const { error: errRattach } = await supabaseClient.from('bail_locataires').insert({ bail_id: bail.id, locataire_id: locataire.id });
-    if (errRattach) return alert('Erreur de rattachement au bail : ' + errRattach.message);
-    const { error: errStatut } = await supabaseClient.from('lots').update({ statut: 'occupe' }).eq('id', lotId);
-    if (errStatut) console.error('Erreur mise à jour statut du lot :', errStatut.message);
+    const { error } = await supabaseClient.rpc('creer_locataire_rapide', {
+      p_lot_id: lotId, p_nom: nom, p_date_entree: dateEntree || null, p_date_sortie: dateSortie || null,
+      p_loyer: loyer ? parseFloat(loyer) : null, p_email: email || null, p_telephone: telephone || null
+    });
+    if (error) return alert('Erreur : ' + error.message);
 
     // Reset du formulaire
     document.getElementById('nomLocataireRapide').value = '';
