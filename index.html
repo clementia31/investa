@@ -296,16 +296,19 @@
   .icon-btn-round { width: 36px; height: 36px; padding: 0; border-radius: 50%; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); display: flex; align-items: center; justify-content: center; font-size: 1rem; text-decoration: none; cursor: pointer; }
   .icon-btn-round:hover { border-color: var(--accent); color: var(--accent); }
 
-  .locataires-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .locataires-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
   @media (max-width: 700px) { .locataires-grid { grid-template-columns: 1fr; } }
-  .locataire-carte { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px; cursor: pointer; transition: border-color 0.15s; }
-  .locataire-carte:hover { border-color: var(--accent); }
-  .locataire-carte-haut { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-  .locataire-carte-haut .avatar { width: 38px; height: 38px; font-size: 0.82rem; }
-  .locataire-carte-nom { font-weight: 700; font-size: 0.95rem; }
-  .locataire-carte-souttitre { font-size: 0.8rem; color: var(--text-dim); margin: 2px 0 8px; }
-  .locataire-carte-loyer { font-size: 0.9rem; font-weight: 600; padding-top: 8px; border-top: 1px solid var(--border); }
-  .locataire-carte-icons { display: flex; gap: 6px; margin-top: 10px; }
+  .locataire-carte { background: var(--panel); border-radius: 16px; padding: 20px 20px 20px 17px; cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.25); border-left: 3px solid var(--border); transition: transform 0.15s; }
+  .locataire-carte:hover { transform: translateY(-1px); }
+  .locataire-carte.statut-retard { border-left-color: var(--red); }
+  .locataire-carte.statut-ajour { border-left-color: var(--green); }
+  .locataire-carte-nom { font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; }
+  .locataire-carte-souttitre { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 14px; }
+  .locataire-carte-bas { display: flex; justify-content: space-between; align-items: baseline; }
+  .locataire-carte-loyer { font-size: 1.1rem; font-weight: 600; }
+  .locataire-carte-loyer .unite { font-size: 0.72rem; color: var(--text-dim); font-weight: 400; }
+  .locataire-carte-statut-texte { font-size: 0.72rem; font-weight: 600; }
+  .locataire-carte-icons { display: flex; gap: 6px; margin-top: 12px; }
   .locataire-carte-icons .icon-btn-round { width: 30px; height: 30px; font-size: 0.82rem; }
 
   .btn-ajout-replie { width: 100%; padding: 13px; border: 1px dashed var(--border); border-radius: var(--radius); background: transparent; color: var(--text-dim); font-size: 0.88rem; cursor: pointer; margin-bottom: 16px; }
@@ -3221,19 +3224,18 @@
     if (!items.length) { div.innerHTML = '<div class="empty-state">Aucun locataire ne correspond.</div>'; return; }
 
     div.innerHTML = `<div class="locataires-grid">` + items.map(l => {
-      const initiales = l.nom.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
-      const badge = l.statut === 'en_retard'
-        ? '<span class="badge-pill badge-rouge">En retard</span>'
-        : l.statut === 'a_jour' ? '<span class="badge-pill badge-vert">À jour</span>' : '';
+      const classeStatut = l.statut === 'en_retard' ? 'statut-retard' : l.statut === 'a_jour' ? 'statut-ajour' : '';
+      const texteStatut = l.statut === 'en_retard'
+        ? '<span class="locataire-carte-statut-texte" style="color:var(--red);">En retard</span>'
+        : l.statut === 'a_jour' ? '<span class="locataire-carte-statut-texte" style="color:var(--green);">À jour</span>' : '';
       return `
-        <div class="locataire-carte" onclick="ouvrirFicheLocataire('${l.id}', 'liste')">
-          <div class="locataire-carte-haut">
-            <div class="avatar">${initiales}</div>
-            ${badge}
-          </div>
+        <div class="locataire-carte ${classeStatut}" onclick="ouvrirFicheLocataire('${l.id}', 'liste')">
           <div class="locataire-carte-nom">${echapper(l.nom)}</div>
           <div class="locataire-carte-souttitre">${l.lotId ? `<a href="#" onclick="event.stopPropagation(); ouvrirFicheLot('${l.lotId}'); return false;" style="color:inherit;">${echapper(l.sousTitre)}</a>` : echapper(l.sousTitre)}</div>
-          ${l.loyer !== null ? `<div class="locataire-carte-loyer">${l.loyer.toLocaleString('fr-FR')} € / mois</div>` : ''}
+          <div class="locataire-carte-bas">
+            ${l.loyer !== null ? `<div class="locataire-carte-loyer">${l.loyer.toLocaleString('fr-FR')} € <span class="unite">/ mois</span></div>` : '<div></div>'}
+            ${texteStatut}
+          </div>
           ${(l.email || l.telephone) ? `<div class="locataire-carte-icons" onclick="event.stopPropagation()">
             ${l.email ? `<a class="icon-btn-round" href="mailto:${echapper(l.email)}" title="${echapper(l.email)}">✉️</a>` : ''}
             ${l.telephone ? `<a class="icon-btn-round" href="tel:${echapper(l.telephone)}" title="${echapper(l.telephone)}">📞</a>` : ''}
