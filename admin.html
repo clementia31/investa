@@ -160,10 +160,19 @@
       </div>
     </details>
 
+    <div class="section-title">4 — Infrastructure</div>
+    <div class="grid-4">
+      <div class="stat-card"><div class="lbl">Taille base de données</div><div class="val" id="iTailleDb">—</div></div>
+      <div class="stat-card"><div class="lbl">Stockage utilisé</div><div class="val" id="iStockage">—</div></div>
+      <div class="stat-card"><div class="lbl">Documents / utilisateur actif</div><div class="val" id="iDocsParUser">—</div></div>
+      <div class="stat-card"><div class="lbl">Stockage / utilisateur actif</div><div class="val" id="iStockageParUser">—</div></div>
+    </div>
+    <p class="small" style="color:var(--text-dim); margin-top:-6px;">Volume API, erreurs 24h et uploads échoués nécessitent un vrai outil de monitoring externe (non instrumenté ici) — à mettre en place avant une vraie montée en charge.</p>
+
     <div class="card">
       <h3>Utilisateurs</h3>
       <table>
-        <thead><tr><th>Email</th><th>Forfait</th><th>Structures</th><th>Inscrit le</th><th></th></tr></thead>
+        <thead><tr><th>Email</th><th>Forfait</th><th>Structures</th><th>Confirmé</th><th>Inscrit le</th><th></th></tr></thead>
         <tbody id="tableUtilisateurs"><tr><td colspan="5">Chargement...</td></tr></tbody>
       </table>
     </div>
@@ -231,6 +240,14 @@
     document.getElementById('uLoyerMedian').textContent = 'médian : ' + Number(u.loyer_median).toLocaleString('fr-FR') + ' €';
     document.getElementById('uLoyersMensuels').textContent = Number(u.loyers_mensuels_geres).toLocaleString('fr-FR') + ' €';
     document.getElementById('uLoyersAnnuels').textContent = Number(u.loyers_annualises_geres).toLocaleString('fr-FR') + ' €';
+
+    // ===== 4. INFRASTRUCTURE =====
+    const infra = data.infrastructure;
+    const actifs30j = t.actifs_30j || 0;
+    document.getElementById('iTailleDb').textContent = (infra.taille_db_octets / 1024 / 1024).toFixed(1) + ' Mo';
+    document.getElementById('iStockage').textContent = (data.taille_documents_octets / 1024 / 1024).toFixed(1) + ' Mo';
+    document.getElementById('iDocsParUser').textContent = actifs30j > 0 ? (data.total_documents / actifs30j).toFixed(1) : '—';
+    document.getElementById('iStockageParUser').textContent = actifs30j > 0 ? (data.taille_documents_octets / actifs30j / 1024 / 1024).toFixed(2) + ' Mo' : '—';
 
     // ===== Secondaire (ancien contenu, conservé) =====
     document.getElementById('mTotalStructures').textContent = data.total_structures;
@@ -331,10 +348,21 @@
           </select>
         </td>
         <td>${u.nb_structures}</td>
+        <td>${u.email_confirme
+          ? '<span style="color:var(--green); font-size:0.85rem;">✓ Confirmé</span>'
+          : `<span style="color:var(--red); font-size:0.85rem;">✕ En attente</span> <a href="#" onclick="confirmerEmailManuel('${u.id}'); return false;" style="margin-left:6px; font-size:0.8rem;">Confirmer</a>`}
+        </td>
         <td class="small">${new Date(u.created_at).toLocaleDateString('fr-FR')}</td>
         <td><span class="plan-badge ${u.plan}">${u.plan}</span></td>
       </tr>
     `).join('');
+  }
+
+  async function confirmerEmailManuel(userId) {
+    if (!confirm('Confirmer manuellement cet email ? À utiliser seulement si le lien de confirmation n\u2019a jamais fonctionné pour cet utilisateur.')) return;
+    const { error } = await supabaseClient.rpc('admin_confirmer_email', { p_user_id: userId });
+    if (error) return alert('Erreur : ' + error.message);
+    chargerUtilisateurs();
   }
 
   async function changerForfait(userId, plan) {
