@@ -402,7 +402,7 @@
       <div class="nav-item" id="nav-locataires" onclick="allerLocataires()"><span class="ic">👤</span> Locataires</div>
       <div class="nav-item" id="nav-loyers" onclick="allerLoyers()"><span class="ic">📅</span> Loyers</div>
       <div class="nav-item" id="nav-documents" onclick="allerDocuments()"><span class="ic">📄</span> Documents</div>
-      <div class="nav-item" id="nav-alertes" onclick="allerAlertes()"><span class="ic">🔔</span> Tâches & Alertes</div>
+      <div class="nav-item" id="nav-alertes" onclick="allerAlertes()"><span class="ic">🔔</span> À faire</div>
       <div class="nav-item" id="nav-parametres" onclick="allerParametres()"><span class="ic">⚙️</span> Paramètres</div>
 
       <div class="nav-footer">
@@ -1149,7 +1149,7 @@
 
       <!-- ===== ALERTES ===== -->
       <div id="page-alertes" style="display:none;">
-        <div class="page-header"><h2>Tâches & Alertes</h2></div>
+        <div class="page-header"><h2>À faire</h2></div>
 
         <div class="tabs">
           <div class="tab active" id="tabAlToutes" onclick="switchTabAlertes('toutes')">Toutes</div>
@@ -1323,7 +1323,7 @@
           <button class="btn-ajout-replie" id="btnModeleNotifIrl" onclick="toggleModeleNotifIrl()">Modifier le modèle de notification de révision</button>
           <div class="card" id="cardModeleNotifIrl" style="display:none;">
             <h3>Modèle de notification de révision de loyer</h3>
-            <p class="small" style="margin:0 0 10px;">Généré automatiquement à chaque révision IRL appliquée depuis la fiche d'un lot. Variables disponibles : <code>{{locataire}}</code>, <code>{{bailleur}}</code>, <code>{{bien}}</code>, <code>{{trimestre}}</code>, <code>{{ancien_loyer}}</code>, <code>{{nouveau_loyer}}</code>, <code>{{date_emission}}</code>.</p>
+            <p class="small" style="margin:0 0 10px;">Généré automatiquement à chaque révision annuelle de loyer appliquée depuis la fiche d'un lot. Variables disponibles : <code>{{locataire}}</code>, <code>{{bailleur}}</code>, <code>{{bien}}</code>, <code>{{trimestre}}</code>, <code>{{ancien_loyer}}</code>, <code>{{nouveau_loyer}}</code>, <code>{{date_emission}}</code>.</p>
             <textarea id="modeleNotifIrlTexte" rows="14" style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; font-size:0.88rem; resize:vertical;"></textarea>
             <button class="btn-primary" style="width:auto; padding:10px 20px; margin-top:10px;" onclick="enregistrerModeleNotifIrl()">Enregistrer le modèle</button>
             <button class="btn-secondary" style="width:auto; padding:10px 20px; margin-top:10px; margin-left:8px;" onclick="reinitialiserModeleNotifIrl()">Revenir au modèle par défaut</button>
@@ -1352,7 +1352,7 @@
         <!-- Zone d'actions Diagnostics -->
         <div id="zoneActionsDiagnostic" style="display:none;">
           <div class="card" style="border-color:var(--accent);">
-            <p class="small" style="margin:0;">Stocke ici le DPE (et autres diagnostics) de chaque bien. Utilise "✉️ Envoyer" sur un document ci-dessous pour le classer aussi chez un locataire.</p>
+            <p class="small" style="margin:0;">Retrouve ici tous les diagnostics de tes biens (DPE, amiante...). Pour transmettre un document à un locataire, utilise le bouton ✉️ Envoyer.</p>
           </div>
         </div>
 
@@ -1734,7 +1734,7 @@
       html += `<div class="alert-row"><span class="alert-dot med"></span><span style="flex:1;">Bail expire le ${b.date_fin} — ${echapper(b.lots.nom || b.lots.type)}</span></div>`;
     });
     bauxRevisables.slice(0, 2).forEach(b => {
-      html += `<div class="alert-row row-click" onclick="ouvrirFicheLot('${b.lot_id}')"><span class="alert-dot med"></span><span style="flex:1;">Bail révisable (IRL) — ${echapper(b.lots.nom || b.lots.type)}</span></div>`;
+      html += `<div class="alert-row row-click" onclick="ouvrirFicheLot('${b.lot_id}')"><span class="alert-dot med"></span><span style="flex:1;">Révision annuelle du loyer possible — ${echapper(b.lots.nom || b.lots.type)}</span></div>`;
     });
     (locatairesAssurance || []).slice(0, 2).forEach(l => {
       html += `<div class="alert-row"><span class="alert-dot med"></span><span style="flex:1;">Assurance à renouveler — ${echapper(l.nom)} (${l.assurance_expiration})</span></div>`;
@@ -2806,7 +2806,8 @@
         <div class="small">Du ${bail.date_debut} ${bail.date_fin ? 'au ' + bail.date_fin : '(sans fin)'}${bail.irl_trimestre_reference ? ' · Dernière révision : ' + bail.irl_trimestre_reference : ''}</div>
 
         <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
-          <p class="small" style="margin:0 0 8px;">Réviser le loyer selon l'IRL</p>
+          <p class="small" style="margin:0 0 4px; font-weight:600; color:var(--text);">Révision annuelle du loyer</p>
+          <p class="small" style="margin:0 0 8px;">Basée sur l'indice IRL publié chaque trimestre par l'INSEE.</p>
           <p class="small" style="margin:0 0 8px; color:var(--amber);">⚠️ Non applicable si le logement est classé DPE F ou G (interdiction légale de révision, qu'on ne peut pas vérifier automatiquement ici).</p>
           <select id="irlNouveauTrimestre" onchange="calculerRevisionIrl(${bail.loyer})"></select>
           <div id="irlResultatCalcul" class="small" style="margin:10px 0;"></div>
@@ -4212,7 +4213,7 @@ Durée : du {{date_debut}} au {{date_fin}}
       if (joursAvant >= 0 && joursAvant <= 60) {
         const lot = b.lots;
         const immeuble = lot && lot.immeubles ? lot.immeubles.adresse : '';
-        items.push({ severite: joursAvant <= 15 ? 'haute' : 'moyenne', titre: 'Bail révisable (IRL)', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (dans ${joursAvant} j)` });
+        items.push({ severite: joursAvant <= 15 ? 'haute' : 'moyenne', titre: 'Révision annuelle du loyer possible', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (dans ${joursAvant} j)` });
       }
     });
 
@@ -4719,7 +4720,7 @@ Durée : du {{date_debut}} au {{date_fin}}
 
     // Résoudre les noms des entités (immeuble/lot/locataire) pour affichage
     const idsParType = { immeuble: [], lot: [], locataire: [] };
-    docs.forEach(d => idsParType[d.entity_type].push(d.entity_id));
+    docs.forEach(d => { if (idsParType[d.entity_type]) idsParType[d.entity_type].push(d.entity_id); });
     const noms = {};
     if (idsParType.immeuble.length) {
       const { data } = await supabaseClient.from('immeubles').select('id, adresse').in('id', idsParType.immeuble);
