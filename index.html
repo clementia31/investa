@@ -97,14 +97,16 @@
   .toggle-vue-option { padding: 6px 14px; color: var(--text-dim); cursor: pointer; }
   .toggle-vue-option.active { background: var(--accent); color: white; font-weight: 600; }
 
-  .loyer-item-row { display: flex; align-items: center; padding: 13px 8px; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .loyer-item-row { display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); cursor: pointer; border-left: 3px solid var(--border); }
   .loyer-item-row:last-child { border-bottom: none; }
   .loyer-item-row:hover { background: var(--panel-2); }
-  .loyer-item-row .avatar { width: 36px; height: 36px; font-size: 0.8rem; margin-right: 12px; flex-shrink: 0; }
+  .loyer-item-row.statut-paye { border-left-color: var(--green); }
+  .loyer-item-row.statut-a_venir { border-left-color: var(--amber); }
+  .loyer-item-row.statut-en_retard { border-left-color: var(--red); }
   .loyer-item-infos { flex: 1; min-width: 0; }
-  .loyer-item-nom { font-weight: 600; font-size: 0.92rem; }
+  .loyer-item-nom { font-weight: 700; font-size: 1rem; }
   .loyer-item-souttitre { font-size: 0.78rem; color: var(--text-dim); margin-top: 1px; }
-  .loyer-item-montant { font-weight: 600; margin-right: 14px; white-space: nowrap; }
+  .loyer-item-montant { font-weight: 600; font-size: 1rem; margin-right: 14px; white-space: nowrap; }
 
   .stat-card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; }
   .stat-card .lbl { color: var(--text-dim); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; }
@@ -3406,14 +3408,12 @@
 
     const labelsStatut = { paye: ['Payé', 'badge-vert'], en_retard: ['En retard', 'badge-rouge'], a_venir: ['À venir', 'badge-orange'] };
     div.innerHTML = items.map(it => {
-      const initiales = it.nomLocataire.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
       const [texteStatut, classeStatut] = labelsStatut[it.paiement.statut] || ['—', ''];
       return `
-        <div class="loyer-item-row" onclick="ouvrirDetailPaiement('${it.paiement.id}')">
-          <div class="avatar">${initiales}</div>
+        <div class="loyer-item-row statut-${it.paiement.statut}" onclick="ouvrirDetailPaiement('${it.paiement.id}')">
           <div class="loyer-item-infos">
             <div class="loyer-item-nom">${echapper(it.nomLocataire)}</div>
-            <div class="loyer-item-souttitre">${echapper(it.lotNom)} · ${echapper(it.adresse)}</div>
+            <div class="loyer-item-souttitre"><a href="#" onclick="event.stopPropagation(); ouvrirFicheLot('${it.lotId}'); return false;" style="color:inherit;">${echapper(it.lotNom)} · ${echapper(it.adresse)}</a></div>
           </div>
           <div class="loyer-item-montant">${it.montant.toLocaleString('fr-FR')} €</div>
           <span class="badge-pill ${classeStatut}">${texteStatut}</span>
