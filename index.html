@@ -52,11 +52,11 @@
   .logo-login-baseline { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); margin-top: 2px; }
   .auth-wrap input { width: 100%; padding: 12px 14px; margin: 6px 0; border-radius: 10px; border: 1px solid var(--border); background: var(--panel); color: var(--text); }
   .auth-wrap button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; }
-  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary { background: var(--accent); color: white; border-radius: 8px; cursor: pointer; }
   .btn-green { background: #22c55e; color: white; }
   .btn-green:hover { background: #16a34a; }
   .btn-primary:hover { background: var(--accent-hover); }
-  .btn-secondary { background: var(--panel-2); color: var(--text); border: 1px solid var(--border) !important; }
+  .btn-secondary { background: var(--panel-2); color: var(--text); border: 1px solid var(--border) !important; border-radius: 8px; cursor: pointer; }
   #msg { color: var(--red); font-size: 0.9rem; margin-top: 8px; }
 
   /* ---------- APP SHELL ---------- */
@@ -4707,12 +4707,15 @@ Durée : du {{date_debut}} au {{date_fin}}
     const div = document.getElementById('listeDocumentsGlobal');
     div.textContent = 'Chargement...';
 
-    let query = supabaseClient.from('documents').select('*', { count: 'exact' }).order('created_at', { ascending: false });
-    if (categorieDocumentsActive !== 'tous') query = query.eq('categorie', categorieDocumentsActive);
     const debut = pageDocuments * PAGE_SIZE_DOCUMENTS;
-    query = query.range(debut, debut + PAGE_SIZE_DOCUMENTS - 1);
+    let queryDonnees = supabaseClient.from('documents').select('*').order('created_at', { ascending: false }).range(debut, debut + PAGE_SIZE_DOCUMENTS - 1);
+    let queryCompte = supabaseClient.from('documents').select('id', { count: 'exact', head: true });
+    if (categorieDocumentsActive !== 'tous') {
+      queryDonnees = queryDonnees.eq('categorie', categorieDocumentsActive);
+      queryCompte = queryCompte.eq('categorie', categorieDocumentsActive);
+    }
 
-    const { data: docs, error, count } = await query;
+    const [{ data: docs, error }, { count }] = await Promise.all([queryDonnees, queryCompte]);
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
     totalDocuments = count || 0;
     mettreAJourPaginationDocuments();
