@@ -1300,31 +1300,74 @@
           <div class="tab" id="tabDocAssurance" onclick="switchTabDocuments('assurance')">Assurances</div>
         </div>
 
-        <button class="btn-ajout-replie" id="btnModeleQuittance" onclick="toggleModeleQuittance()">Modifier le modèle de quittance</button>
-        <div class="card" id="cardModeleQuittance" style="display:none;">
-          <h3>Modèle de quittance</h3>
-          <p class="small" style="margin:0 0 10px;">Ce texte sera utilisé pour générer chaque quittance automatiquement. Variables disponibles : <code>{{locataire}}</code>, <code>{{bailleur}}</code>, <code>{{bien}}</code>, <code>{{periode}}</code>, <code>{{loyer}}</code>, <code>{{charges}}</code>, <code>{{total}}</code>, <code>{{date_emission}}</code>.</p>
-          <textarea id="modeleQuittanceTexte" rows="14" style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; font-size:0.88rem; resize:vertical;"></textarea>
-          <button class="btn-primary" style="width:auto; padding:10px 20px; margin-top:10px;" onclick="enregistrerModeleQuittance()">Enregistrer le modèle</button>
-          <button class="btn-secondary" style="width:auto; padding:10px 20px; margin-top:10px; margin-left:8px;" onclick="reinitialiserModeleQuittance()">Revenir au modèle par défaut</button>
+        <!-- Zone d'actions Baux -->
+        <div id="zoneActionsBail" style="display:none;">
+          <div class="card" style="border-color:var(--accent);">
+            <p class="small" style="margin:0;">Pour modifier un bail existant (loyer, dates), ouvre la fiche du lot concerné — pas besoin de le refaire ici.</p>
+          </div>
+          <button class="btn-ajout-replie" id="btnModeleBail" onclick="toggleModeleBail()">Modifier le modèle de bail</button>
+          <div class="card" id="cardModeleBail" style="display:none;">
+            <h3>Modèle de bail</h3>
+            <p class="small" style="margin:0 0 10px; color:var(--amber);">⚠️ Modèle provisoire — à remplacer par un texte validé par un avocat avant tout usage réel.</p>
+            <p class="small" style="margin:0 0 10px;">Variables disponibles : <code>{{locataire}}</code>, <code>{{bailleur}}</code>, <code>{{bien}}</code>, <code>{{loyer}}</code>, <code>{{charges}}</code>, <code>{{depot_garantie}}</code>, <code>{{date_debut}}</code>, <code>{{date_fin}}</code>, <code>{{date_emission}}</code>.</p>
+            <textarea id="modeleBailTexte" rows="14" style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; font-size:0.88rem; resize:vertical;"></textarea>
+            <button class="btn-primary" style="width:auto; padding:10px 20px; margin-top:10px;" onclick="enregistrerModeleBail()">Enregistrer le modèle</button>
+            <button class="btn-secondary" style="width:auto; padding:10px 20px; margin-top:10px; margin-left:8px;" onclick="reinitialiserModeleBail()">Revenir au modèle par défaut</button>
+          </div>
+          <button class="btn-ajout-replie" id="btnGenererBail" onclick="toggleFormulaire('cardGenererBail','btnGenererBail')">Générer un bail</button>
+          <div class="card" id="cardGenererBail" style="display:none;">
+            <p class="small" style="margin:0 0 10px;">Généré avec le modèle ci-dessus, classé automatiquement dans les documents du locataire. <strong>L'envoi par email n'est pas encore actif.</strong></p>
+            <select id="locataireGenererBail"></select>
+            <button class="btn-primary" onclick="genererBailManuel()">Générer le bail</button>
+          </div>
+          <button class="btn-ajout-replie" id="btnModeleNotifIrl" onclick="toggleModeleNotifIrl()">Modifier le modèle de notification de révision</button>
+          <div class="card" id="cardModeleNotifIrl" style="display:none;">
+            <h3>Modèle de notification de révision de loyer</h3>
+            <p class="small" style="margin:0 0 10px;">Généré automatiquement à chaque révision IRL appliquée depuis la fiche d'un lot. Variables disponibles : <code>{{locataire}}</code>, <code>{{bailleur}}</code>, <code>{{bien}}</code>, <code>{{trimestre}}</code>, <code>{{ancien_loyer}}</code>, <code>{{nouveau_loyer}}</code>, <code>{{date_emission}}</code>.</p>
+            <textarea id="modeleNotifIrlTexte" rows="14" style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; font-size:0.88rem; resize:vertical;"></textarea>
+            <button class="btn-primary" style="width:auto; padding:10px 20px; margin-top:10px;" onclick="enregistrerModeleNotifIrl()">Enregistrer le modèle</button>
+            <button class="btn-secondary" style="width:auto; padding:10px 20px; margin-top:10px; margin-left:8px;" onclick="reinitialiserModeleNotifIrl()">Revenir au modèle par défaut</button>
+          </div>
         </div>
 
-        <button class="btn-ajout-replie" id="btnModeleNotifIrl" onclick="toggleModeleNotifIrl()">Modifier le modèle de notification de révision</button>
-        <div class="card" id="cardModeleNotifIrl" style="display:none;">
-          <h3>Modèle de notification de révision de loyer</h3>
-          <p class="small" style="margin:0 0 10px;">Généré automatiquement à chaque révision IRL appliquée. Variables disponibles : <code>{{locataire}}</code>, <code>{{bailleur}}</code>, <code>{{bien}}</code>, <code>{{trimestre}}</code>, <code>{{ancien_loyer}}</code>, <code>{{nouveau_loyer}}</code>, <code>{{date_emission}}</code>.</p>
-          <textarea id="modeleNotifIrlTexte" rows="14" style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; font-size:0.88rem; resize:vertical;"></textarea>
-          <button class="btn-primary" style="width:auto; padding:10px 20px; margin-top:10px;" onclick="enregistrerModeleNotifIrl()">Enregistrer le modèle</button>
-          <button class="btn-secondary" style="width:auto; padding:10px 20px; margin-top:10px; margin-left:8px;" onclick="reinitialiserModeleNotifIrl()">Revenir au modèle par défaut</button>
+        <!-- Zone d'actions Quittances -->
+        <div id="zoneActionsQuittance" style="display:none;">
+          <button class="btn-ajout-replie" id="btnModeleQuittance" onclick="toggleModeleQuittance()">Modifier le modèle de quittance</button>
+          <div class="card" id="cardModeleQuittance" style="display:none;">
+            <h3>Modèle de quittance</h3>
+            <p class="small" style="margin:0 0 10px;">Ce texte sera utilisé pour générer chaque quittance automatiquement. Variables disponibles : <code>{{locataire}}</code>, <code>{{bailleur}}</code>, <code>{{bien}}</code>, <code>{{periode}}</code>, <code>{{loyer}}</code>, <code>{{charges}}</code>, <code>{{total}}</code>, <code>{{date_emission}}</code>.</p>
+            <textarea id="modeleQuittanceTexte" rows="14" style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; font-size:0.88rem; resize:vertical;"></textarea>
+            <button class="btn-primary" style="width:auto; padding:10px 20px; margin-top:10px;" onclick="enregistrerModeleQuittance()">Enregistrer le modèle</button>
+            <button class="btn-secondary" style="width:auto; padding:10px 20px; margin-top:10px; margin-left:8px;" onclick="reinitialiserModeleQuittance()">Revenir au modèle par défaut</button>
+          </div>
+          <button class="btn-ajout-replie" id="btnGenererQuittance" onclick="toggleFormulaire('cardGenererQuittance','btnGenererQuittance')">Générer une quittance</button>
+          <div class="card" id="cardGenererQuittance" style="display:none;">
+            <p class="small" style="margin:0 0 10px;">Générée avec le modèle ci-dessus, classée automatiquement dans l'historique "Quittances" du locataire. <strong>L'envoi par email n'est pas encore actif</strong> — il deviendra automatique une fois configuré.</p>
+            <select id="locataireGenererQuittance"></select>
+            <input id="moisGenererQuittance" type="month">
+            <button class="btn-primary" onclick="genererQuittanceManuelle()">Générer la quittance</button>
+          </div>
         </div>
 
-        <button class="btn-ajout-replie" id="btnGenererQuittance" onclick="toggleFormulaire('cardGenererQuittance','btnGenererQuittance')">Générer une quittance</button>
-        <div class="card" id="cardGenererQuittance" style="display:none;">
-          <h3>Générer une quittance</h3>
-          <p class="small" style="margin:0 0 10px;">Générée avec le modèle ci-dessus, classée automatiquement dans l'historique "Quittances" du locataire. <strong>L'envoi par email n'est pas encore actif</strong> — il deviendra automatique une fois configuré.</p>
-          <select id="locataireGenererQuittance"></select>
-          <input id="moisGenererQuittance" type="month">
-          <button class="btn-primary" onclick="genererQuittanceManuelle()">Générer la quittance</button>
+        <!-- Zone d'actions Diagnostics -->
+        <div id="zoneActionsDiagnostic" style="display:none;">
+          <div class="card" style="border-color:var(--accent);">
+            <p class="small" style="margin:0;">Stocke ici le DPE (et autres diagnostics) de chaque bien. Utilise "✉️ Envoyer" sur un document ci-dessous pour le classer aussi chez un locataire.</p>
+          </div>
+        </div>
+
+        <!-- Zone d'actions Assurances -->
+        <div id="zoneActionsAssurance" style="display:none;">
+          <div class="card" style="border-color:var(--accent);">
+            <p class="small" style="margin:0;">Assurance propriétaire (montant, échéance) : utilise "Charges & taxes récurrentes" sur la fiche du bien concerné.</p>
+          </div>
+          <div class="card">
+            <h3>Assurance du locataire</h3>
+            <p class="small" style="margin:0 0 10px;">Obligation annuelle du locataire — une alerte apparaît automatiquement 60 jours avant l'expiration.</p>
+            <select id="locataireAssurance" onchange="chargerAssuranceLocataire()"></select>
+            <input id="dateExpirationAssurance" type="date">
+            <button class="btn-primary" onclick="enregistrerAssuranceLocataire()">Enregistrer la date</button>
+          </div>
         </div>
 
         <div class="card" id="cardImportDocument" style="display:none;">
@@ -1674,6 +1717,9 @@
       return joursAvant >= 0 && joursAvant <= 60;
     });
 
+    // Assurance locataire arrivant à expiration
+    const { data: locatairesAssurance } = await supabaseClient.from('locataires').select('nom, assurance_expiration').in('structure_id', structIds).not('assurance_expiration', 'is', null).lte('assurance_expiration', dans60jours.toISOString().split('T')[0]);
+
     let html = '';
     if (retardCount > 0) html += `<div class="alert-row row-click" onclick="allerLoyers()"><span class="alert-dot high"></span><span style="flex:1;">${retardCount} loyer${retardCount > 1 ? 's' : ''} en retard</span><span class="small">→</span></div>`;
     if (tachesEnRetard && tachesEnRetard.length) html += `<div class="alert-row row-click" onclick="allerAlertes()"><span class="alert-dot med"></span><span style="flex:1;">${tachesEnRetard.length} tâche${tachesEnRetard.length > 1 ? 's' : ''} en retard</span><span class="small">→</span></div>`;
@@ -1689,6 +1735,9 @@
     });
     bauxRevisables.slice(0, 2).forEach(b => {
       html += `<div class="alert-row row-click" onclick="ouvrirFicheLot('${b.lot_id}')"><span class="alert-dot med"></span><span style="flex:1;">Bail révisable (IRL) — ${echapper(b.lots.nom || b.lots.type)}</span></div>`;
+    });
+    (locatairesAssurance || []).slice(0, 2).forEach(l => {
+      html += `<div class="alert-row"><span class="alert-dot med"></span><span style="flex:1;">Assurance à renouveler — ${echapper(l.nom)} (${l.assurance_expiration})</span></div>`;
     });
     div.innerHTML = html || '<div class="empty-state">Rien à signaler pour le moment. 👍</div>';
   }
@@ -3967,6 +4016,138 @@ Cette révision est appliquée conformément à la loi n°89-462 du 6 juillet 19
     document.getElementById('modeleNotifIrlTexte').value = MODELE_NOTIF_IRL_DEFAUT;
   }
 
+  const MODELE_BAIL_DEFAUT = `⚠️ CECI EST UN MODÈLE PROVISOIRE — À REMPLACER PAR UN TEXTE VALIDÉ PAR UN AVOCAT AVANT TOUT USAGE RÉEL.
+
+CONTRAT DE LOCATION
+
+{{date_emission}}
+
+Bailleur : {{bailleur}}
+Locataire : {{locataire}}
+Bien loué : {{bien}}
+
+Loyer mensuel hors charges : {{loyer}} €
+Charges mensuelles : {{charges}} €
+Dépôt de garantie : {{depot_garantie}} €
+
+Durée : du {{date_debut}} au {{date_fin}}
+
+[Le contenu juridique complet — clauses obligatoires, annexes, mentions légales — doit être ajouté ici par un professionnel du droit avant toute utilisation.]`;
+
+  async function toggleModeleBail() {
+    const etaitOuvert = document.getElementById('cardModeleBail').style.display === 'block';
+    toggleFormulaire('cardModeleBail', 'btnModeleBail');
+    if (etaitOuvert) return;
+
+    const structureId = await obtenirStructureParDefaut();
+    if (structureId) {
+      const { data: modele } = await supabaseClient.from('modeles_documents').select('contenu').eq('structure_id', structureId).eq('type', 'bail').maybeSingle();
+      document.getElementById('modeleBailTexte').value = modele ? modele.contenu : MODELE_BAIL_DEFAUT;
+    }
+  }
+
+  async function enregistrerModeleBail() {
+    const structureId = await obtenirStructureParDefaut();
+    if (!structureId) return;
+    const contenu = document.getElementById('modeleBailTexte').value;
+    const { error } = await supabaseClient.from('modeles_documents').upsert(
+      { structure_id: structureId, type: 'bail', contenu },
+      { onConflict: 'structure_id,type' }
+    );
+    if (error) return alert('Erreur : ' + error.message);
+    alert('Modèle enregistré.');
+  }
+
+  function reinitialiserModeleBail() {
+    document.getElementById('modeleBailTexte').value = MODELE_BAIL_DEFAUT;
+  }
+
+  async function genererBailManuel() {
+    const locataireId = document.getElementById('locataireGenererBail').value;
+    if (!locataireId) return alert('Sélectionne un locataire');
+
+    const { data: rattachement } = await supabaseClient.from('bail_locataires').select('bail_id').eq('locataire_id', locataireId);
+    const bailIds = (rattachement || []).map(r => r.bail_id);
+    if (!bailIds.length) return alert('Ce locataire n\u2019a aucun bail.');
+    const { data: bauxActifs } = await supabaseClient.from('baux').select('*, lots(nom, type, immeubles(adresse, ville, structure_id, structures(nom)))').in('id', bailIds).eq('statut', 'actif').limit(1);
+    if (!bauxActifs || !bauxActifs.length) return alert('Aucun bail actif pour ce locataire.');
+    const bail = bauxActifs[0];
+    const lot = bail.lots;
+    const immeuble = lot.immeubles;
+    const structureId = immeuble.structure_id;
+    const nomStructure = immeuble.structures ? immeuble.structures.nom : '';
+
+    const { data: locataire } = await supabaseClient.from('locataires').select('nom').eq('id', locataireId).single();
+
+    const { data: modeleEnreg } = await supabaseClient.from('modeles_documents').select('contenu').eq('structure_id', structureId).eq('type', 'bail').maybeSingle();
+    const modele = modeleEnreg ? modeleEnreg.contenu : MODELE_BAIL_DEFAUT;
+
+    const texteRempli = modele
+      .replaceAll('{{bailleur}}', nomStructure || 'Propriétaire')
+      .replaceAll('{{locataire}}', locataire ? locataire.nom : '')
+      .replaceAll('{{bien}}', `${lot.nom || lot.type} — ${immeuble.adresse}${immeuble.ville ? ', ' + immeuble.ville : ''}`)
+      .replaceAll('{{loyer}}', Number(bail.loyer).toLocaleString('fr-FR'))
+      .replaceAll('{{charges}}', Number(bail.charges).toLocaleString('fr-FR'))
+      .replaceAll('{{depot_garantie}}', bail.depot_garantie ? Number(bail.depot_garantie).toLocaleString('fr-FR') : '0')
+      .replaceAll('{{date_debut}}', bail.date_debut)
+      .replaceAll('{{date_fin}}', bail.date_fin || 'sans fin')
+      .replaceAll('{{date_emission}}', new Date().toLocaleDateString('fr-FR'));
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(11);
+    doc.text(doc.splitTextToSize(texteRempli, 170), 20, 20);
+    const pdfBlob = doc.output('blob');
+
+    const nomFichier = `Bail_${locataire ? locataire.nom.replace(/\s/g, '_') : 'document'}.pdf`;
+    const cheminFichier = `${structureId}/locataire/${locataireId}/${Date.now()}_${nomFichier}`;
+    const { error: errUpload } = await supabaseClient.storage.from('documents').upload(cheminFichier, pdfBlob, { contentType: 'application/pdf' });
+    if (errUpload) return alert('Erreur : ' + errUpload.message);
+    await supabaseClient.from('documents').insert({
+      structure_id: structureId, entity_type: 'locataire', entity_id: locataireId,
+      nom: nomFichier, storage_path: cheminFichier, taille_octets: pdfBlob.size, categorie: 'bail'
+    });
+
+    alert('Bail généré et classé dans les documents du locataire. N\u2019oublie pas : le contenu doit être validé par un avocat avant tout usage réel.');
+    chargerDocumentsGlobal();
+  }
+
+  async function chargerAssuranceLocataire() {
+    const locataireId = document.getElementById('locataireAssurance').value;
+    if (!locataireId) { document.getElementById('dateExpirationAssurance').value = ''; return; }
+    const { data } = await supabaseClient.from('locataires').select('assurance_expiration').eq('id', locataireId).single();
+    document.getElementById('dateExpirationAssurance').value = data ? (data.assurance_expiration || '') : '';
+  }
+
+  async function enregistrerAssuranceLocataire() {
+    const locataireId = document.getElementById('locataireAssurance').value;
+    const date = document.getElementById('dateExpirationAssurance').value;
+    if (!locataireId) return alert('Sélectionne un locataire');
+    const { error } = await supabaseClient.from('locataires').update({ assurance_expiration: date || null }).eq('id', locataireId);
+    if (error) return alert('Erreur : ' + error.message);
+    alert('Date enregistrée.');
+  }
+
+  async function envoyerDocumentAUnLocataire(docId) {
+    const { data: doc } = await supabaseClient.from('documents').select('*').eq('id', docId).single();
+    if (!doc) return;
+    const { data: locataires } = await supabaseClient.from('locataires').select('id, nom').eq('structure_id', doc.structure_id).order('nom');
+    if (!locataires || !locataires.length) return alert('Aucun locataire disponible.');
+    const nomsListe = locataires.map((l, i) => `${i + 1}. ${l.nom}`).join('\n');
+    const choix = prompt('À qui envoyer ce document ?\n\n' + nomsListe + '\n\nTape le numéro :');
+    const index = parseInt(choix) - 1;
+    if (isNaN(index) || !locataires[index]) return;
+    const locataireChoisi = locataires[index];
+
+    // Le fichier n'est pas dupliqué en stockage — on ajoute juste une référence dans les documents du locataire.
+    const { error } = await supabaseClient.from('documents').insert({
+      structure_id: doc.structure_id, entity_type: 'locataire', entity_id: locataireChoisi.id,
+      nom: doc.nom, storage_path: doc.storage_path, taille_octets: doc.taille_octets, categorie: doc.categorie
+    });
+    if (error) return alert('Erreur : ' + error.message);
+    alert(`Document classé chez ${locataireChoisi.nom}. L\u2019envoi par email n\u2019est pas encore actif.`);
+  }
+
   function definirTheme(mode) {
     document.body.classList.toggle('theme-light', mode === 'light');
     localStorage.setItem('investa-theme', mode);
@@ -4033,6 +4214,13 @@ Cette révision est appliquée conformément à la loi n°89-462 du 6 juillet 19
         const immeuble = lot && lot.immeubles ? lot.immeubles.adresse : '';
         items.push({ severite: joursAvant <= 15 ? 'haute' : 'moyenne', titre: 'Bail révisable (IRL)', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (dans ${joursAvant} j)` });
       }
+    });
+
+    // Assurance locataire arrivant à expiration
+    const { data: locatairesAssurancePourAlerte } = await supabaseClient.from('locataires').select('nom, assurance_expiration').not('assurance_expiration', 'is', null).lte('assurance_expiration', dansSoixanteJours.toISOString().split('T')[0]);
+    (locatairesAssurancePourAlerte || []).forEach(l => {
+      const joursRestants = Math.ceil((new Date(l.assurance_expiration) - new Date()) / (1000 * 60 * 60 * 24));
+      items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'Assurance locataire à renouveler', detail: `${l.nom} (dans ${joursRestants} j)` });
     });
 
     return items;
@@ -4432,15 +4620,27 @@ Cette révision est appliquée conformément à la loi n°89-462 du 6 juillet 19
     document.getElementById('cardImportDocument').style.display = 'none';
     categorieDocumentsActive = 'tous';
     switchTabDocuments('tous');
-    chargerLocatairesPourQuittance();
     const now = new Date();
     document.getElementById('moisGenererQuittance').value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
   }
 
-  async function chargerLocatairesPourQuittance() {
-    const sel = document.getElementById('locataireGenererQuittance');
+  async function chargerListeLocatairesDans(idSelect) {
+    const sel = document.getElementById(idSelect);
     const { data: locataires } = await supabaseClient.from('locataires').select('id, nom').order('nom');
     sel.innerHTML = (locataires || []).map(l => `<option value="${l.id}">${echapper(l.nom)}</option>`).join('');
+  }
+
+  async function chargerLocatairesPourQuittance() {
+    await chargerListeLocatairesDans('locataireGenererQuittance');
+  }
+
+  async function chargerLocatairesPourBail() {
+    await chargerListeLocatairesDans('locataireGenererBail');
+  }
+
+  async function chargerLocatairesPourAssurance() {
+    await chargerListeLocatairesDans('locataireAssurance');
+    chargerAssuranceLocataire();
   }
 
   async function genererQuittanceManuelle() {
@@ -4482,6 +4682,13 @@ Cette révision est appliquée conformément à la loi n°89-462 du 6 juillet 19
     ['Tous', 'Bail', 'Quittance', 'Diagnostic', 'Assurance'].forEach(c => {
       document.getElementById('tabDoc' + c).classList.toggle('active', c.toLowerCase() === cat);
     });
+    ['zoneActionsBail', 'zoneActionsQuittance', 'zoneActionsDiagnostic', 'zoneActionsAssurance'].forEach(id => {
+      document.getElementById(id).style.display = 'none';
+    });
+    if (cat === 'bail') { document.getElementById('zoneActionsBail').style.display = 'block'; chargerLocatairesPourBail(); }
+    if (cat === 'quittance') { document.getElementById('zoneActionsQuittance').style.display = 'block'; chargerLocatairesPourQuittance(); }
+    if (cat === 'diagnostic') document.getElementById('zoneActionsDiagnostic').style.display = 'block';
+    if (cat === 'assurance') { document.getElementById('zoneActionsAssurance').style.display = 'block'; chargerLocatairesPourAssurance(); }
     chargerDocumentsGlobal();
   }
 
@@ -4551,13 +4758,14 @@ Cette révision est appliquée conformément à la loi n°89-462 du 6 juillet 19
     const items = donneesDocumentsGlobal.filter(d => !filtre || d.nom.toLowerCase().includes(filtre) || d.nomEntite.toLowerCase().includes(filtre));
     if (!items.length) { div.innerHTML = '<div class="empty-state">Aucun document trouvé sur cette page (essaie une autre page ou une autre recherche).</div>'; return; }
 
-    const labelsCat = { bail: 'Bail', quittance: 'Quittance', diagnostic: 'Diagnostic', assurance: 'Assurance', autre: 'Autre' };
+    const labelsCat = { bail: 'Bail', quittance: 'Quittance', diagnostic: 'Diagnostic', assurance: 'Assurance', travaux: 'Travaux', revision_loyer: 'Révision loyer', autre: 'Autre' };
     div.innerHTML = items.map(d => `
-      <div class="row" style="display:grid; grid-template-columns: 2fr 1.5fr 1fr 1fr; align-items:center;">
+      <div class="row" style="display:grid; grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr; align-items:center;">
         <span onclick="telechargerDocument('${d.storage_path}')" style="cursor:pointer; color:var(--accent);">📎 ${echapper(d.nom)}</span>
         <span class="small ${d.nomEntite !== '—' ? 'row-click' : ''}" ${d.nomEntite !== '—' ? `onclick="ouvrirEntiteDocument('${d.entity_type}', '${d.entity_id}')"` : ''}>${echapper(d.nomEntite)}</span>
         <span class="badge-outline">${labelsCat[d.categorie] || 'Autre'}</span>
         <span class="small">${new Date(d.created_at).toLocaleDateString('fr-FR')}</span>
+        <span>${d.categorie === 'diagnostic' ? `<a href="#" onclick="envoyerDocumentAUnLocataire('${d.id}'); return false;" style="color:var(--accent);">✉️ Envoyer</a>` : ''}</span>
       </div>
     `).join('');
   }
