@@ -4708,16 +4708,13 @@ Durée : du {{date_debut}} au {{date_fin}}
     div.textContent = 'Chargement...';
 
     const debut = pageDocuments * PAGE_SIZE_DOCUMENTS;
-    let queryDonnees = supabaseClient.from('documents').select('*').order('created_at', { ascending: false }).range(debut, debut + PAGE_SIZE_DOCUMENTS - 1);
-    let queryCompte = supabaseClient.from('documents').select('id', { count: 'exact', head: true });
-    if (categorieDocumentsActive !== 'tous') {
-      queryDonnees = queryDonnees.eq('categorie', categorieDocumentsActive);
-      queryCompte = queryCompte.eq('categorie', categorieDocumentsActive);
-    }
-
-    const [{ data: docs, error }, { count }] = await Promise.all([queryDonnees, queryCompte]);
+    const { data: docs, error } = await supabaseClient.rpc('lister_documents_utilisateur', {
+      p_categorie: categorieDocumentsActive === 'tous' ? null : categorieDocumentsActive,
+      p_limite: PAGE_SIZE_DOCUMENTS,
+      p_offset: debut
+    });
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
-    totalDocuments = count || 0;
+    totalDocuments = (docs && docs.length) ? docs[0].total_count : 0;
     mettreAJourPaginationDocuments();
     if (!docs || !docs.length) { div.innerHTML = '<div class="empty-state">Aucun document.</div>'; return; }
 
