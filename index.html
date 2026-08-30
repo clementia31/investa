@@ -1542,7 +1542,7 @@
     // bloqué sur l'écran de connexion.
     if (data.session) { afficherApp(); return; }
 
-    document.getElementById('msg').textContent = 'Compte créé ! Vérifie tes emails pour confirmer avant de te connecter.';
+    document.getElementById('msg').textContent = 'Compte créé ! Vérifie tes emails (et le dossier spam) pour confirmer avant de te connecter.';
   }
 
   async function seConnecter() {
@@ -2361,7 +2361,8 @@
       const { data: docs } = await supabaseClient.from('documents').select('id, storage_path').eq('entity_type', ent.type).eq('entity_id', ent.id);
       if (docs && docs.length) {
         await supabaseClient.storage.from('documents').remove(docs.map(d => d.storage_path));
-        await supabaseClient.from('documents').delete().eq('entity_type', ent.type).eq('entity_id', ent.id);
+        const { error: errDoc } = await supabaseClient.from('documents').delete().eq('entity_type', ent.type).eq('entity_id', ent.id);
+        if (errDoc) logErreur('cleanup_documents_immeuble', errDoc);
       }
     }
 
@@ -2460,7 +2461,8 @@
     const { data: docs } = await supabaseClient.from('documents').select('id, storage_path').eq('entity_type', 'lot').eq('entity_id', currentLotId);
     if (docs && docs.length) {
       await supabaseClient.storage.from('documents').remove(docs.map(d => d.storage_path));
-      await supabaseClient.from('documents').delete().eq('entity_type', 'lot').eq('entity_id', currentLotId);
+      const { error: errDoc } = await supabaseClient.from('documents').delete().eq('entity_type', 'lot').eq('entity_id', currentLotId);
+      if (errDoc) logErreur('cleanup_documents_lot', errDoc);
     }
 
     const { data: lotInfo } = await supabaseClient.from('lots').select('immeuble_id').eq('id', currentLotId).single();
@@ -2574,9 +2576,10 @@
     if (error) return alert('Erreur : ' + error.message);
 
     if (ancienLoyer !== null) {
-      await supabaseClient.from('revisions_loyer').insert({
+      const { error: errHistorique } = await supabaseClient.from('revisions_loyer').insert({
         bail_id: bailId, ancien_loyer: ancienLoyer, nouveau_loyer: nouveauLoyerCalcule, trimestre_reference: trimestreChoisi
       });
+      if (errHistorique) logErreur('insert_revisions_loyer', errHistorique);
       genererNotificationRevisionIrl(bailId, ancienLoyer, nouveauLoyerCalcule, trimestreChoisi).catch(e => console.error('Notification révision échouée :', e));
     }
 
@@ -2661,7 +2664,8 @@
     // Le lot redevient vacant, sauf s'il existe un autre bail actif dessus (rare, mais possible)
     const { data: autresBauxActifs } = await supabaseClient.from('baux').select('id').eq('lot_id', lotId).eq('statut', 'actif');
     if (!autresBauxActifs || !autresBauxActifs.length) {
-      await supabaseClient.from('lots').update({ statut: 'vacant' }).eq('id', lotId);
+      const { error: errVacant } = await supabaseClient.from('lots').update({ statut: 'vacant' }).eq('id', lotId);
+      if (errVacant) logErreur('maj_statut_vacant', errVacant);
     }
     ouvrirFicheLot(lotId);
   }
@@ -3026,7 +3030,8 @@
     const { data: docs } = await supabaseClient.from('documents').select('id, storage_path').eq('entity_type', 'locataire').eq('entity_id', currentLocataireId);
     if (docs && docs.length) {
       await supabaseClient.storage.from('documents').remove(docs.map(d => d.storage_path));
-      await supabaseClient.from('documents').delete().eq('entity_type', 'locataire').eq('entity_id', currentLocataireId);
+      const { error: errDoc } = await supabaseClient.from('documents').delete().eq('entity_type', 'locataire').eq('entity_id', currentLocataireId);
+      if (errDoc) logErreur('cleanup_documents_locataire', errDoc);
     }
 
     const { error } = await supabaseClient.from('locataires').delete().eq('id', currentLocataireId);
@@ -3443,7 +3448,8 @@
       const nouvellesLignes = bauxSansPaiement.map(b => ({
         bail_id: b.id, mois: moisDate, montant_loyer: b.loyer, montant_charges: b.charges, statut: 'paye', date_paiement: moisDate
       }));
-      const { data: inseres } = await supabaseClient.from('paiements').insert(nouvellesLignes).select();
+      const { data: inseres, error: errInsertPaiements } = await supabaseClient.from('paiements').insert(nouvellesLignes).select();
+      if (errInsertPaiements) logErreur('creation_auto_paiements_mois', errInsertPaiements);
       (inseres || []).forEach(p => paiementParBail[p.bail_id] = p);
     }
 
@@ -4808,7 +4814,8 @@ Durée : du {{date_debut}} au {{date_fin}}
     const { data: paiementExistant } = await supabaseClient.from('paiements').select('*').eq('bail_id', bail.id).eq('mois', moisDate).maybeSingle();
     let paiementId;
     if (paiementExistant) {
-      await supabaseClient.from('paiements').update({ statut: 'paye', date_paiement: moisDate }).eq('id', paiementExistant.id);
+      const { error: errMaj } = await supabaseClient.from('paiements').update({ statut: 'paye', date_paiement: moisDate }).eq('id', paiementExistant.id);
+      if (errMaj) { logErreur('maj_statut_paiement_quittance', errMaj); return alert('Erreur : le paiement n\u2019a pas pu être marqué payé — ' + errMaj.message); }
       paiementId = paiementExistant.id;
     } else {
       const { data: nouveauPaiement, error } = await supabaseClient.from('paiements').insert({
