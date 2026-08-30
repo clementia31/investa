@@ -167,14 +167,6 @@
         <tbody id="tableUtilisateurs"><tr><td colspan="5">Chargement...</td></tr></tbody>
       </table>
     </div>
-
-    <div class="card">
-      <h3>Structures</h3>
-      <table>
-        <thead><tr><th>Nom</th><th>Type</th><th>Membres</th><th>Immeubles</th><th>Créée le</th></tr></thead>
-        <tbody id="tableStructures"><tr><td colspan="5">Chargement...</td></tr></tbody>
-      </table>
-    </div>
   </div>
 </div>
 
@@ -291,18 +283,6 @@
         <div class="bar-label">${m.label}</div>
       </div>
     `).join('')}</div>`;
-
-    // Table structures
-    const labelsType = { sci_ir: "SCI IR", sci_is: "SCI IS", nom_propre: "Nom propre", sarl_immo: "SARL", autre: "Autre" };
-    document.getElementById('tableStructures').innerHTML = (data.structures_liste || []).map(s => `
-      <tr>
-        <td>${s.nom}</td>
-        <td>${labelsType[s.type] || s.type}</td>
-        <td>${s.nb_membres}</td>
-        <td>${s.nb_immeubles}</td>
-        <td class="small">${new Date(s.created_at).toLocaleDateString('fr-FR')}</td>
-      </tr>
-    `).join('') || '<tr><td colspan="5">Aucune structure.</td></tr>';
   }
 
   async function verifierIrlAJour() {
