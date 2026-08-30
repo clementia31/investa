@@ -1113,6 +1113,11 @@
             <button class="btn-secondary" style="color:var(--red); border-color:var(--red);" onclick="supprimerToutesMesDonnees()">Confirmer la suppression définitive</button>
           </div>
         </div>
+        <div class="card">
+          <h3>Stockage</h3>
+          <div class="small" style="margin-bottom:5px;" id="stockageLabel">Calcul en cours...</div>
+          <div class="progress-bar-track"><div class="progress-bar-fill" id="stockageBarre" style="width:0%;"></div></div>
+        </div>
       </div>
 
       <!-- ===== MENTIONS LÉGALES & CONFIDENTIALITÉ ===== -->
@@ -1425,6 +1430,13 @@
     const div = document.createElement('div');
     div.textContent = String(texte);
     return div.innerHTML;
+  }
+
+  // Nom de fichier aléatoire pour le stockage — jamais le nom réel de l'utilisateur.
+  // Le nom d'origine reste affiché ailleurs (documents.nom), seul le chemin physique change.
+  function nomStorageAleatoire(nomOuExtension) {
+    const ext = nomOuExtension.includes('.') ? '.' + nomOuExtension.split('.').pop().toLowerCase() : '';
+    return crypto.randomUUID() + ext;
   }
 
   // Échappement spécifique pour une valeur injectée À L'INTÉRIEUR d'un attribut onclick="...'${valeur}'..."
@@ -2528,7 +2540,7 @@
 
     for (const locataireId of locataireIds) {
       const nomFichier = `Notification_revision_${trimestre}.pdf`;
-      const cheminFichier = `${structureId}/locataire/${locataireId}/${Date.now()}_${nomFichier}`;
+      const cheminFichier = `${structureId}/locataire/${locataireId}/${nomStorageAleatoire('.pdf')}`;
       const { error: errUpload } = await supabaseClient.storage.from('documents').upload(cheminFichier, pdfBlob, { contentType: 'application/pdf' });
       if (errUpload) { console.error('Upload notification échoué :', errUpload.message); continue; }
       await supabaseClient.from('documents').insert({
@@ -3560,6 +3572,10 @@
 
     if (!immeubleId) return alert('Sélectionne un immeuble');
     if (!montant || !date) return alert('Montant et date requis');
+    if (fichier) {
+      const erreurValidation = validerFichier(fichier);
+      if (erreurValidation) return alert(erreurValidation);
+    }
 
     const { data: immeubleInfo } = await supabaseClient.from('immeubles').select('structure_id').eq('id', immeubleId).single();
     const structureId = immeubleInfo.structure_id;
@@ -3571,7 +3587,7 @@
     if (errTx) return alert('Erreur : ' + errTx.message);
 
     if (fichier) {
-      const cheminFichier = `${structureId}/immeuble/${immeubleId}/${Date.now()}_${fichier.name}`;
+      const cheminFichier = `${structureId}/immeuble/${immeubleId}/${nomStorageAleatoire(fichier.name)}`;
       const { error: errUpload } = await supabaseClient.storage.from('documents').upload(cheminFichier, fichier);
       if (!errUpload) {
         await supabaseClient.from('documents').insert({
@@ -3637,7 +3653,7 @@
 
     for (const locataireId of locataireIds) {
       const nomFichier = `Quittance_${moisLabel.replace(' ', '_')}.pdf`;
-      const cheminFichier = `${structureId}/locataire/${locataireId}/${Date.now()}_${nomFichier}`;
+      const cheminFichier = `${structureId}/locataire/${locataireId}/${nomStorageAleatoire('.pdf')}`;
       const { error: errUpload } = await supabaseClient.storage.from('documents').upload(cheminFichier, pdfBlob, { contentType: 'application/pdf' });
       if (errUpload) { console.error('Upload quittance échoué :', errUpload.message); continue; }
       await supabaseClient.from('documents').insert({
@@ -3878,10 +3894,24 @@ Total payé : {{total}} €
 
 Le bailleur donne quittance au locataire pour le paiement ci-dessus et lui donne quittance de son loyer et de ses charges pour la période indiquée. Cette quittance annule tout reçu qui aurait pu être établi précédemment en cas de paiement partiel.`;
 
+  const QUOTA_STOCKAGE_OCTETS = 250 * 1024 * 1024; // 250 Mo par structure — configurable ici
+
   async function allerParametres() {
     setActiveNav('nav-parametres'); hideAllPages();
     document.getElementById('page-parametres').style.display = 'block';
     mettreAJourBoutonsTheme(localStorage.getItem('investa-theme') || 'dark');
+    chargerQuotaStockage();
+  }
+
+  async function chargerQuotaStockage() {
+    const structureId = await obtenirStructureParDefaut();
+    if (!structureId) return;
+    const { data: utilise } = await supabaseClient.rpc('stockage_utilise_structure', { p_structure_id: structureId });
+    const octetsUtilises = utilise || 0;
+    const pourcentage = Math.min(100, Math.round(octetsUtilises / QUOTA_STOCKAGE_OCTETS * 100));
+    document.getElementById('stockageLabel').textContent = `${(octetsUtilises / 1024 / 1024).toFixed(1)} Mo utilisés sur ${QUOTA_STOCKAGE_OCTETS / 1024 / 1024} Mo`;
+    document.getElementById('stockageBarre').style.width = pourcentage + '%';
+    document.getElementById('stockageBarre').style.background = pourcentage >= 90 ? 'var(--red)' : pourcentage >= 70 ? 'var(--amber)' : 'var(--green)';
   }
 
   function allerMentionsLegales() {
@@ -4102,7 +4132,7 @@ Durée : du {{date_debut}} au {{date_fin}}
     const pdfBlob = doc.output('blob');
 
     const nomFichier = `Bail_${locataire ? locataire.nom.replace(/\s/g, '_') : 'document'}.pdf`;
-    const cheminFichier = `${structureId}/locataire/${locataireId}/${Date.now()}_${nomFichier}`;
+    const cheminFichier = `${structureId}/locataire/${locataireId}/${nomStorageAleatoire('.pdf')}`;
     const { error: errUpload } = await supabaseClient.storage.from('documents').upload(cheminFichier, pdfBlob, { contentType: 'application/pdf' });
     if (errUpload) return alert('Erreur : ' + errUpload.message);
     await supabaseClient.from('documents').insert({
@@ -4556,13 +4586,25 @@ Durée : du {{date_debut}} au {{date_fin}}
   }
 
   // ---------- DOCUMENTS (partagé Immeuble/Lot/Locataire) ----------
+  // Configuration centralisée des limites d'upload — facile à ajuster en un seul endroit.
+  const LIMITE_TAILLE_FICHIER_OCTETS = 10 * 1024 * 1024; // 10 Mo
+  const TYPES_FICHIERS_AUTORISES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+
+  function validerFichier(file) {
+    if (file.size > LIMITE_TAILLE_FICHIER_OCTETS) return `Fichier trop volumineux (max ${LIMITE_TAILLE_FICHIER_OCTETS / 1024 / 1024} Mo).`;
+    if (!TYPES_FICHIERS_AUTORISES.includes(file.type)) return 'Type de fichier non autorisé (PDF, JPG, PNG, WEBP uniquement).';
+    return null;
+  }
+
   async function uploaderDocument(entityType, entityId, structureId, inputId, categorie) {
     const input = document.getElementById(inputId);
     const file = input.files[0];
     if (!file) return alert('Choisis un fichier');
     if (!structureId) return alert('Structure introuvable, réessaie dans quelques secondes.');
+    const erreurValidation = validerFichier(file);
+    if (erreurValidation) return alert(erreurValidation);
 
-    const cheminFichier = `${structureId}/${entityType}/${entityId}/${Date.now()}_${file.name}`;
+    const cheminFichier = `${structureId}/${entityType}/${entityId}/${nomStorageAleatoire(file.name)}`;
     const { error: errUpload } = await supabaseClient.storage.from('documents').upload(cheminFichier, file);
     if (errUpload) return alert('Erreur d\u2019upload : ' + errUpload.message);
 
