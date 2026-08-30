@@ -1434,6 +1434,27 @@
   const SUPABASE_ANON_KEY = 'sb_publishable_GKzraD5eOxGYVB9SXWXY5g_UMXbw-Zz';
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  // Monitoring d'erreurs minimal — jamais de donnée personnelle (nom/email/téléphone
+  // locataire, contenu de document, montant financier détaillé). Juste de quoi savoir
+  // qu'un problème existe avant que les utilisateurs n'ouvrent un ticket.
+  const VERSION_APP = 'investa-2026-08';
+
+  function logErreur(operation, error) {
+    try {
+      supabaseClient.from('logs_erreurs').insert({
+        page: window.location.hash || 'app',
+        operation: operation,
+        type_erreur: error && error.name ? error.name : 'inconnu',
+        message: error && error.message ? String(error.message).slice(0, 300) : String(error).slice(0, 300),
+        version_app: VERSION_APP,
+        navigateur: navigator.userAgent.slice(0, 200)
+      }).then(() => {});
+    } catch (e) { /* le monitoring ne doit jamais casser l'app elle-même */ }
+  }
+
+  window.addEventListener('error', (e) => logErreur('erreur_js_non_geree', e.error || e.message));
+  window.addEventListener('unhandledrejection', (e) => logErreur('promesse_rejetee_non_geree', e.reason));
+
   // Échappe tout texte saisi par l'utilisateur avant de l'injecter dans le HTML — protection XSS.
   // Utiliser SYSTÉMATIQUEMENT sur les champs texte libres (nom, adresse, email, description...)
   // avant de les insérer via innerHTML. Les nombres/dates n'en ont pas besoin.
@@ -1449,6 +1470,13 @@
   function nomStorageAleatoire(nomOuExtension) {
     const ext = nomOuExtension.includes('.') ? '.' + nomOuExtension.split('.').pop().toLowerCase() : '';
     return crypto.randomUUID() + ext;
+  }
+
+  // Si l'upload Storage réussit mais que l'enregistrement en base échoue ensuite,
+  // le fichier resterait invisible partout mais toujours payé en stockage — on le retire.
+  async function nettoyerFichierOrphelin(cheminFichier) {
+    const { error } = await supabaseClient.storage.from('documents').remove([cheminFichier]);
+    if (error) console.error('Nettoyage du fichier orphelin échoué :', error.message);
   }
 
   // Formatage centralisé — locale/devise en dur pour l'instant (France uniquement),
@@ -1615,7 +1643,7 @@
     const moisDate = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-01';
     document.getElementById('dashPeriode').textContent = now.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
 
-    const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
+    const { data: structures } = await supabaseClient.from('structures').select('id').order('created_at');
     const structIds = (structures || []).map(s => s.id);
     const { data: immeublesExistants } = structIds.length
       ? await supabaseClient.from('immeubles').select('id').in('structure_id', structIds).limit(1)
@@ -1986,14 +2014,14 @@
   async function chargerPatrimoine() {
     const div = document.getElementById('arbrePatrimoine');
     div.textContent = 'Chargement...';
-    const { data: structures, error: errS } = await supabaseClient.from('structures').select('*').order('created_at');
+    const { data: structures, error: errS } = await supabaseClient.from('structures').select('id').order('created_at');
     if (errS) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
     if (!structures.length) { div.innerHTML = '<div class="empty-state">Aucune structure pour le moment.</div>'; document.getElementById('arbreTotal').innerHTML = ''; return; }
 
     const structureIds = structures.map(s => s.id);
 
     // 1 requête groupée pour TOUS les immeubles de toutes les structures
-    const { data: tousImmeubles } = await supabaseClient.from('immeubles').select('*').in('structure_id', structureIds).order('created_at');
+    const { data: tousImmeubles } = await supabaseClient.from('immeubles').select('id, adresse, structure_id, valeur_estimee, dette_restante').in('structure_id', structureIds).order('created_at');
     const immeubleIds = (tousImmeubles || []).map(im => im.id);
 
     // 1 requête groupée pour TOUS les lots de tous les immeubles
@@ -2252,13 +2280,17 @@
     if (tab === 'infos') chargerInformationsImmeuble();
   }
 
-  async function chargerFinancesImmeuble() {
+  let offsetTransactionsImmeuble = 0;
+
+  async function chargerFinancesImmeuble(chargerPlus) {
     const div = document.getElementById('immTransactions');
-    div.textContent = 'Chargement...';
-    const { data: txs, error } = await supabaseClient.from('transactions').select('*').eq('immeuble_id', currentImmeubleId).order('date', { ascending: false });
+    if (!chargerPlus) { offsetTransactionsImmeuble = 0; div.textContent = 'Chargement...'; }
+    const { data: txs, error } = await supabaseClient.from('transactions').select('id, date, categorie, description, recuperable, type, montant')
+      .eq('immeuble_id', currentImmeubleId).order('date', { ascending: false }).range(offsetTransactionsImmeuble, offsetTransactionsImmeuble + PAGE_SIZE_HISTORIQUES - 1);
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
-    if (!txs || !txs.length) { div.innerHTML = '<div class="empty-state">Aucune transaction pour ce bien. (Ajoute une dépense travaux depuis l\u2019écran Loyers.)</div>'; return; }
-    div.innerHTML = txs.map(t => `
+    if (!chargerPlus && (!txs || !txs.length)) { div.innerHTML = '<div class="empty-state">Aucune transaction pour ce bien. (Ajoute une dépense travaux depuis l\u2019écran Loyers.)</div>'; return; }
+
+    const html = (txs || []).map(t => `
       <div class="row">
         <span>${t.date} — ${echapper(t.categorie)}${t.description ? ' (' + echapper(t.description) + ')' : ''}${t.recuperable ? ' <span class="badge-pill badge-vert" style="margin-left:6px;">Récupérable</span>' : ''}</span>
         <span>
@@ -2268,6 +2300,17 @@
         </span>
       </div>
     `).join('');
+
+    if (chargerPlus) {
+      document.getElementById('btnPlusTransactionsImmeuble').remove();
+      div.insertAdjacentHTML('beforeend', html);
+    } else {
+      div.innerHTML = html;
+    }
+    offsetTransactionsImmeuble += PAGE_SIZE_HISTORIQUES;
+    if (txs && txs.length === PAGE_SIZE_HISTORIQUES) {
+      div.insertAdjacentHTML('beforeend', `<button class="btn-secondary" id="btnPlusTransactionsImmeuble" style="width:100%; margin-top:8px;" onclick="chargerFinancesImmeuble(true)">Charger plus</button>`);
+    }
   }
 
   function chargerInformationsImmeuble() {
@@ -2323,7 +2366,7 @@
     }
 
     const { error } = await supabaseClient.from('immeubles').delete().eq('id', currentImmeubleId);
-    if (error) return alert('Erreur : ' + error.message);
+    if (error) { logErreur('supprimer_immeuble', error); return alert('Erreur : ' + error.message); }
     allerPatrimoine();
   }
 
@@ -2422,7 +2465,7 @@
 
     const { data: lotInfo } = await supabaseClient.from('lots').select('immeuble_id').eq('id', currentLotId).single();
     const { error } = await supabaseClient.from('lots').delete().eq('id', currentLotId);
-    if (error) return alert('Erreur : ' + error.message);
+    if (error) { logErreur('supprimer_lot', error); return alert('Erreur : ' + error.message); }
     ouvrirFicheImmeuble(lotInfo.immeuble_id);
   }
 
@@ -2578,11 +2621,12 @@
       const nomFichier = `Notification_revision_${trimestre}.pdf`;
       const cheminFichier = `${structureId}/locataire/${locataireId}/${nomStorageAleatoire('.pdf')}`;
       const { error: errUpload } = await supabaseClient.storage.from('documents').upload(cheminFichier, pdfBlob, { contentType: 'application/pdf' });
-      if (errUpload) { console.error('Upload notification échoué :', errUpload.message); continue; }
-      await supabaseClient.from('documents').insert({
+      if (errUpload) { logErreur('upload_notification_revision', errUpload); console.error('Upload notification échoué :', errUpload.message); continue; }
+      const { error: errInsertNotif } = await supabaseClient.from('documents').insert({
         structure_id: structureId, entity_type: 'locataire', entity_id: locataireId,
         nom: nomFichier, storage_path: cheminFichier, taille_octets: pdfBlob.size, categorie: 'revision_loyer'
       });
+      if (errInsertNotif) { console.error('Enregistrement notification échoué :', errInsertNotif.message); await nettoyerFichierOrphelin(cheminFichier); }
     }
   }
 
@@ -2770,7 +2814,7 @@
   async function supprimerChargeRecurrente(id, entityType, entityId, targetDivId) {
     if (!confirm('Supprimer cette charge récurrente ?')) return;
     const { error } = await supabaseClient.from('charges_recurrentes').delete().eq('id', id);
-    if (error) return alert('Erreur : ' + error.message);
+    if (error) { logErreur('supprimer_charge_recurrente', error); return alert('Erreur : ' + error.message); }
     chargerChargesRecurrentes(entityType, entityId, targetDivId);
   }
 
@@ -2805,34 +2849,63 @@
     div.innerHTML = items.length ? items.join('') : '<div class="empty-state">Rien à signaler. 👍</div>';
   }
 
-  async function chargerPaiementsLot(lotId) {
+  const PAGE_SIZE_HISTORIQUES = 50;
+  let offsetPaiementsLot = 0;
+  let bailIdsPaiementsLot = [];
+
+  async function chargerPaiementsLot(lotId, chargerPlus) {
     const div = document.getElementById('lotHistoriquePaiements');
-    div.textContent = 'Chargement...';
-    const { data: baux } = await supabaseClient.from('baux').select('id').eq('lot_id', lotId);
-    const bailIds = (baux || []).map(b => b.id);
-    if (!bailIds.length) { div.innerHTML = '<div class="empty-state">Aucun bail pour ce lot.</div>'; return; }
-    const { data: paiements } = await supabaseClient.from('paiements').select('*').in('bail_id', bailIds).order('mois', { ascending: false });
-    if (!paiements || !paiements.length) { div.innerHTML = '<div class="empty-state">Aucun paiement enregistré.</div>'; return; }
-    div.innerHTML = paiements.map(p => `
+    if (!chargerPlus) {
+      offsetPaiementsLot = 0;
+      div.textContent = 'Chargement...';
+      const { data: baux } = await supabaseClient.from('baux').select('id').eq('lot_id', lotId);
+      bailIdsPaiementsLot = (baux || []).map(b => b.id);
+      if (!bailIdsPaiementsLot.length) { div.innerHTML = '<div class="empty-state">Aucun bail pour ce lot.</div>'; return; }
+    }
+    const { data: paiements } = await supabaseClient.from('paiements').select('mois, montant_loyer, montant_charges, statut')
+      .in('bail_id', bailIdsPaiementsLot).order('mois', { ascending: false }).range(offsetPaiementsLot, offsetPaiementsLot + PAGE_SIZE_HISTORIQUES - 1);
+    if (!chargerPlus && (!paiements || !paiements.length)) { div.innerHTML = '<div class="empty-state">Aucun paiement enregistré.</div>'; return; }
+
+    const html = (paiements || []).map(p => `
       <div class="row">
         <span>${p.mois}</span>
         <span>${(Number(p.montant_loyer) + Number(p.montant_charges)).toLocaleString('fr-FR')} €</span>
         <span><span class="badge ${p.statut === 'paye' ? 'occupe' : (p.statut === 'en_retard' ? 'travaux' : 'vacant')}">${p.statut.replace('_', ' ')}</span></span>
       </div>
     `).join('');
+
+    if (chargerPlus) {
+      document.getElementById('btnPlusPaiementsLot').remove();
+      div.insertAdjacentHTML('beforeend', html);
+    } else {
+      div.innerHTML = html;
+    }
+    offsetPaiementsLot += PAGE_SIZE_HISTORIQUES;
+    if (paiements && paiements.length === PAGE_SIZE_HISTORIQUES) {
+      div.insertAdjacentHTML('beforeend', `<button class="btn-secondary" id="btnPlusPaiementsLot" style="width:100%; margin-top:8px;" onclick="chargerPaiementsLot('${lotId}', true)">Charger plus</button>`);
+    }
   }
 
-  async function chargerChargesLot(lotId) {
+  let offsetTransactionsLot = 0;
+  let immeubleIdChargesLot = null;
+
+  async function chargerChargesLot(lotId, chargerPlus) {
     const div = document.getElementById('lotCharges2');
-    div.textContent = 'Chargement...';
-    // Les travaux sont enregistrés au niveau immeuble (jamais lot_id, aucun formulaire ne le renseigne) —
-    // on interroge donc par immeuble plutôt que par lot, sinon cette liste reste vide en permanence.
-    const { data: lotInfo } = await supabaseClient.from('lots').select('immeuble_id').eq('id', lotId).single();
-    if (!lotInfo) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
-    const { data: txs, error } = await supabaseClient.from('transactions').select('*').eq('immeuble_id', lotInfo.immeuble_id).order('date', { ascending: false });
+    if (!chargerPlus) {
+      offsetTransactionsLot = 0;
+      div.textContent = 'Chargement...';
+      // Les travaux sont enregistrés au niveau immeuble (jamais lot_id, aucun formulaire ne le renseigne) —
+      // on interroge donc par immeuble plutôt que par lot, sinon cette liste reste vide en permanence.
+      const { data: lotInfo } = await supabaseClient.from('lots').select('immeuble_id').eq('id', lotId).single();
+      if (!lotInfo) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
+      immeubleIdChargesLot = lotInfo.immeuble_id;
+    }
+    const { data: txs, error } = await supabaseClient.from('transactions').select('id, date, categorie, description, recuperable, type, montant')
+      .eq('immeuble_id', immeubleIdChargesLot).order('date', { ascending: false }).range(offsetTransactionsLot, offsetTransactionsLot + PAGE_SIZE_HISTORIQUES - 1);
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
-    if (!txs || !txs.length) { div.innerHTML = '<div class="empty-state">Aucune transaction pour cet immeuble. (Ajoute une dépense travaux depuis l\u2019écran Loyers.)</div>'; return; }
-    div.innerHTML = txs.map(t => `
+    if (!chargerPlus && (!txs || !txs.length)) { div.innerHTML = '<div class="empty-state">Aucune transaction pour cet immeuble. (Ajoute une dépense travaux depuis l\u2019écran Loyers.)</div>'; return; }
+
+    const html = (txs || []).map(t => `
       <div class="row">
         <span>${t.date} — ${echapper(t.categorie)}${t.description ? ' (' + echapper(t.description) + ')' : ''}${t.recuperable ? ' <span class="badge-pill badge-vert" style="margin-left:6px;">Récupérable</span>' : ''}</span>
         <span>
@@ -2842,6 +2915,17 @@
         </span>
       </div>
     `).join('');
+
+    if (chargerPlus) {
+      document.getElementById('btnPlusTransactionsLot').remove();
+      div.insertAdjacentHTML('beforeend', html);
+    } else {
+      div.innerHTML = html;
+    }
+    offsetTransactionsLot += PAGE_SIZE_HISTORIQUES;
+    if (txs && txs.length === PAGE_SIZE_HISTORIQUES) {
+      div.insertAdjacentHTML('beforeend', `<button class="btn-secondary" id="btnPlusTransactionsLot" style="width:100%; margin-top:8px;" onclick="chargerChargesLot('${lotId}', true)">Charger plus</button>`);
+    }
   }
 
   async function chargerBail(lotId) {
@@ -2914,7 +2998,7 @@
     const { error } = await supabaseClient.rpc('ajouter_locataires_a_bail_existant', {
       p_bail_id: bailId, p_lot_id: lotId, p_noms_locataires: noms
     });
-    if (error) return alert('Erreur : ' + error.message);
+    if (error) { logErreur('ajouter_locataires_a_bail_existant', error); return alert('Erreur : ' + error.message); }
     ouvrirFicheLot(lotId);
   }
 
@@ -2931,7 +3015,7 @@
       p_lot_id: currentLotId, p_type: type, p_date_debut: date_debut,
       p_loyer: parseFloat(loyer), p_charges: parseFloat(charges || 0), p_noms_locataires: noms
     });
-    if (error) return alert('Erreur : ' + error.message);
+    if (error) { logErreur('creer_bail_avec_locataires', error); return alert('Erreur : ' + error.message); }
     ouvrirFicheLot(currentLotId);
   }
 
@@ -2946,7 +3030,7 @@
     }
 
     const { error } = await supabaseClient.from('locataires').delete().eq('id', currentLocataireId);
-    if (error) return alert('Erreur : ' + error.message);
+    if (error) { logErreur('supprimer_locataire', error); return alert('Erreur : ' + error.message); }
     allerLocataires();
   }
 
@@ -3064,16 +3148,40 @@
       ? colocataires.map(c => `<div class="row">${echapper(c.nom)}</div>`).join('')
       : '<div class="empty-state">Aucun (locataire seul)</div>';
 
+    chargerHistoriquePaiementsLocataire(bailIds);
+  }
+
+  let offsetPaiementsLocataire = 0;
+  let bailIdsPaiementsLocataire = [];
+
+  async function chargerHistoriquePaiementsLocataire(bailIds, chargerPlus) {
     const div = document.getElementById('historiquePaiementsLocataire');
-    if (!bailIds.length) { div.innerHTML = '<div class="empty-state">Aucun bail associé.</div>'; return; }
-    const { data: paiements } = await supabaseClient.from('paiements').select('*').in('bail_id', bailIds).order('mois', { ascending: false });
-    if (!paiements || !paiements.length) { div.innerHTML = '<div class="empty-state">Aucun paiement enregistré.</div>'; return; }
-    div.innerHTML = paiements.map(p => `
+    if (!chargerPlus) {
+      offsetPaiementsLocataire = 0;
+      bailIdsPaiementsLocataire = bailIds;
+      if (!bailIds.length) { div.innerHTML = '<div class="empty-state">Aucun bail associé.</div>'; return; }
+    }
+    const { data: paiements } = await supabaseClient.from('paiements').select('mois, montant_loyer, montant_charges, statut')
+      .in('bail_id', bailIdsPaiementsLocataire).order('mois', { ascending: false }).range(offsetPaiementsLocataire, offsetPaiementsLocataire + PAGE_SIZE_HISTORIQUES - 1);
+    if (!chargerPlus && (!paiements || !paiements.length)) { div.innerHTML = '<div class="empty-state">Aucun paiement enregistré.</div>'; return; }
+
+    const html = (paiements || []).map(p => `
       <div class="table-header-paiements" style="border:none; padding:9px 4px; margin:0; text-transform:none; letter-spacing:normal; color:var(--text); font-size:0.88rem; border-bottom:1px solid var(--border);">
         <span>${p.mois}</span><span class="small">Loyer + charges</span><span>${(Number(p.montant_loyer) + Number(p.montant_charges)).toLocaleString('fr-FR')} €</span>
         <span><span class="badge ${p.statut === 'paye' ? 'occupe' : (p.statut === 'en_retard' ? 'travaux' : 'vacant')}">${p.statut.replace('_', ' ')}</span></span>
       </div>
     `).join('');
+
+    if (chargerPlus) {
+      document.getElementById('btnPlusPaiementsLocataire').remove();
+      div.insertAdjacentHTML('beforeend', html);
+    } else {
+      div.innerHTML = html;
+    }
+    offsetPaiementsLocataire += PAGE_SIZE_HISTORIQUES;
+    if (paiements && paiements.length === PAGE_SIZE_HISTORIQUES) {
+      div.insertAdjacentHTML('beforeend', `<button class="btn-secondary" id="btnPlusPaiementsLocataire" style="width:100%; margin-top:8px;" onclick="chargerHistoriquePaiementsLocataire(null, true)">Charger plus</button>`);
+    }
   }
 
   function switchTabLocataire(tab) {
@@ -3143,7 +3251,7 @@
       p_lot_id: lotId, p_nom: nom, p_date_entree: dateEntree || null, p_date_sortie: dateSortie || null,
       p_loyer: loyer ? parseFloat(loyer) : null, p_email: email || null, p_telephone: telephone || null
     });
-    if (error) return alert('Erreur : ' + error.message);
+    if (error) { logErreur('creer_locataire_rapide', error); return alert('Erreur : ' + error.message); }
 
     // Reset du formulaire
     document.getElementById('nomLocataireRapide').value = '';
@@ -3163,7 +3271,7 @@
     const div = document.getElementById('listeLocatairesGlobale');
     div.textContent = 'Chargement...';
 
-    const { data: locataires, error } = await supabaseClient.from('locataires').select('*').order('nom');
+    const { data: locataires, error } = await supabaseClient.from('locataires').select('id, nom, email, telephone').order('nom');
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
     if (!locataires || !locataires.length) {
       div.innerHTML = `
@@ -3545,7 +3653,7 @@
   async function supprimerTransaction(txId, contexteType, contexteId) {
     if (!confirm('Supprimer cette transaction définitivement ?')) return;
     const { error } = await supabaseClient.from('transactions').delete().eq('id', txId);
-    if (error) return alert('Erreur : ' + error.message);
+    if (error) { logErreur('supprimer_transaction', error); return alert('Erreur : ' + error.message); }
     rafraichirListeTransactions({ type: contexteType, id: contexteId });
   }
 
@@ -3582,11 +3690,13 @@
     if (fichier) {
       const cheminFichier = `${structureId}/immeuble/${immeubleId}/${nomStorageAleatoire(fichier.name)}`;
       const { error: errUpload } = await supabaseClient.storage.from('documents').upload(cheminFichier, fichier);
+      if (errUpload) { logErreur('upload_facture_travaux', errUpload); alert('La dépense a été enregistrée, mais la facture n\u2019a pas pu être envoyée : ' + errUpload.message); }
       if (!errUpload) {
-        await supabaseClient.from('documents').insert({
+        const { error: errInsertFacture } = await supabaseClient.from('documents').insert({
           structure_id: structureId, entity_type: 'immeuble', entity_id: immeubleId,
           nom: fichier.name, storage_path: cheminFichier, taille_octets: fichier.size, categorie: 'travaux'
         });
+        if (errInsertFacture) { logErreur('insert_facture_travaux', errInsertFacture); await nettoyerFichierOrphelin(cheminFichier); alert('La dépense a été enregistrée, mais la facture n\u2019a pas pu être classée : ' + errInsertFacture.message); }
       }
     }
 
@@ -3648,11 +3758,12 @@
       const nomFichier = `Quittance_${moisLabel.replace(' ', '_')}.pdf`;
       const cheminFichier = `${structureId}/locataire/${locataireId}/${nomStorageAleatoire('.pdf')}`;
       const { error: errUpload } = await supabaseClient.storage.from('documents').upload(cheminFichier, pdfBlob, { contentType: 'application/pdf' });
-      if (errUpload) { console.error('Upload quittance échoué :', errUpload.message); continue; }
-      await supabaseClient.from('documents').insert({
+      if (errUpload) { logErreur('upload_quittance', errUpload); console.error('Upload quittance échoué :', errUpload.message); continue; }
+      const { error: errInsertQuit } = await supabaseClient.from('documents').insert({
         structure_id: structureId, entity_type: 'locataire', entity_id: locataireId,
         nom: nomFichier, storage_path: cheminFichier, taille_octets: pdfBlob.size, categorie: 'quittance'
       });
+      if (errInsertQuit) { console.error('Enregistrement quittance échoué :', errInsertQuit.message); await nettoyerFichierOrphelin(cheminFichier); }
       // TODO (dès la clé API Resend configurée) :
       // await envoyerQuittanceParEmail(locataireId, cheminFichier, moisLabel, total);
     }
@@ -3897,14 +4008,8 @@ Le bailleur donne quittance au locataire pour le paiement ci-dessus et lui donne
   }
 
   async function chargerQuotaStockage() {
-    const { data: structures } = await supabaseClient.from('structures').select('id').order('created_at').limit(1);
-    if (!structures || !structures.length) {
-      document.getElementById('stockageLabel').textContent = `0 Mo utilisés sur ${QUOTA_STOCKAGE_OCTETS / 1024 / 1024} Mo`;
-      document.getElementById('stockageBarre').style.width = '0%';
-      return;
-    }
-    const structureId = structures[0].id;
-    const { data: utilise } = await supabaseClient.rpc('stockage_utilise_structure', { p_structure_id: structureId });
+    const { data: utilise, error } = await supabaseClient.rpc('stockage_utilise_compte');
+    if (error) { document.getElementById('stockageLabel').textContent = 'Erreur de calcul.'; return; }
     const octetsUtilises = utilise || 0;
     const pourcentage = Math.min(100, Math.round(octetsUtilises / QUOTA_STOCKAGE_OCTETS * 100));
     document.getElementById('stockageLabel').textContent = `${(octetsUtilises / 1024 / 1024).toFixed(1)} Mo utilisés sur ${QUOTA_STOCKAGE_OCTETS / 1024 / 1024} Mo`;
@@ -4132,11 +4237,12 @@ Durée : du {{date_debut}} au {{date_fin}}
     const nomFichier = `Bail_${locataire ? locataire.nom.replace(/\s/g, '_') : 'document'}.pdf`;
     const cheminFichier = `${structureId}/locataire/${locataireId}/${nomStorageAleatoire('.pdf')}`;
     const { error: errUpload } = await supabaseClient.storage.from('documents').upload(cheminFichier, pdfBlob, { contentType: 'application/pdf' });
-    if (errUpload) return alert('Erreur : ' + errUpload.message);
-    await supabaseClient.from('documents').insert({
+    if (errUpload) { logErreur('upload_bail', errUpload); return alert('Erreur : ' + errUpload.message); }
+    const { error: errInsertBail } = await supabaseClient.from('documents').insert({
       structure_id: structureId, entity_type: 'locataire', entity_id: locataireId,
       nom: nomFichier, storage_path: cheminFichier, taille_octets: pdfBlob.size, categorie: 'bail'
     });
+    if (errInsertBail) { await nettoyerFichierOrphelin(cheminFichier); return alert('Erreur : ' + errInsertBail.message); }
 
     alert('Bail généré et classé dans les documents du locataire. N\u2019oublie pas : le contenu doit être validé par un avocat avant tout usage réel.');
     chargerDocumentsGlobal();
@@ -4159,7 +4265,7 @@ Durée : du {{date_debut}} au {{date_fin}}
   }
 
   async function envoyerDocumentAUnLocataire(docId) {
-    const { data: doc } = await supabaseClient.from('documents').select('*').eq('id', docId).single();
+    const { data: doc } = await supabaseClient.from('documents').select('structure_id, nom, storage_path, taille_octets, categorie').eq('id', docId).single();
     if (!doc) return;
     const { data: locataires } = await supabaseClient.from('locataires').select('id, nom').eq('structure_id', doc.structure_id).order('nom');
     if (!locataires || !locataires.length) return alert('Aucun locataire disponible.');
@@ -4174,7 +4280,7 @@ Durée : du {{date_debut}} au {{date_fin}}
       structure_id: doc.structure_id, entity_type: 'locataire', entity_id: locataireChoisi.id,
       nom: doc.nom, storage_path: doc.storage_path, taille_octets: doc.taille_octets, categorie: doc.categorie
     });
-    if (error) return alert('Erreur : ' + error.message);
+    if (error) { logErreur('envoyer_document_a_locataire', error); return alert('Erreur : ' + error.message); }
     alert(`Document classé chez ${locataireChoisi.nom}. L\u2019envoi par email n\u2019est pas encore actif.`);
   }
 
@@ -4271,7 +4377,7 @@ Durée : du {{date_debut}} au {{date_fin}}
   async function initTaches() {
     const sel = document.getElementById('structureTaches');
     if (!sel.options.length) {
-      const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
+      const { data: structures } = await supabaseClient.from('structures').select('id, nom').order('created_at');
       sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${echapper(s.nom)}</option>`).join('');
     }
     chargerTaches();
@@ -4604,13 +4710,13 @@ Durée : du {{date_debut}} au {{date_fin}}
 
     const cheminFichier = `${structureId}/${entityType}/${entityId}/${nomStorageAleatoire(file.name)}`;
     const { error: errUpload } = await supabaseClient.storage.from('documents').upload(cheminFichier, file);
-    if (errUpload) return alert('Erreur d\u2019upload : ' + errUpload.message);
+    if (errUpload) { logErreur('upload_document_import', errUpload); return alert('Erreur d\u2019upload : ' + errUpload.message); }
 
     const { error: errInsert } = await supabaseClient.from('documents').insert({
       structure_id: structureId, entity_type: entityType, entity_id: entityId,
       nom: file.name, storage_path: cheminFichier, taille_octets: file.size, categorie: categorie || 'autre'
     });
-    if (errInsert) return alert('Erreur : ' + errInsert.message);
+    if (errInsert) { await nettoyerFichierOrphelin(cheminFichier); return alert('Erreur : ' + errInsert.message); }
 
     input.value = '';
     const targetDiv = entityType === 'immeuble' ? 'listeDocumentsImmeuble' : entityType === 'lot' ? 'listeDocumentsLot' : 'listeDocumentsLocataire';
@@ -4648,7 +4754,7 @@ Durée : du {{date_debut}} au {{date_fin}}
     if (!confirm('Supprimer ce document ?')) return;
     await supabaseClient.storage.from('documents').remove([storagePath]);
     const { error } = await supabaseClient.from('documents').delete().eq('id', id);
-    if (error) return alert('Erreur : ' + error.message);
+    if (error) { logErreur('supprimer_document', error); return alert('Erreur : ' + error.message); }
     chargerDocuments(entityType, entityId, targetDivId);
   }
 
