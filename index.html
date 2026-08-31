@@ -2382,7 +2382,7 @@
     const { data: txs, error } = await supabaseClient.from('transactions').select('id, date, categorie, description, recuperable, type, montant')
       .eq('immeuble_id', currentImmeubleId).order('date', { ascending: false }).range(offsetTransactionsImmeuble, offsetTransactionsImmeuble + PAGE_SIZE_HISTORIQUES - 1);
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
-    if (!chargerPlus && (!txs || !txs.length)) { div.innerHTML = '<div class="empty-state">Aucune transaction pour ce bien. (Ajoute une dépense travaux depuis l\u2019écran Loyers.)</div>'; return; }
+    if (!chargerPlus && (!txs || !txs.length)) { div.innerHTML = '<div class="empty-state row-click" onclick="allerLoyers()">Aucune transaction pour ce bien — clique ici pour ajouter une dépense depuis Loyers →</div>'; return; }
 
     const html = (txs || []).map(t => `
       <div class="row">
@@ -2868,10 +2868,10 @@
     const div = document.getElementById('lotColocataires');
     div.textContent = 'Chargement...';
     const { data: bauxActifs } = await supabaseClient.from('baux').select('*').eq('lot_id', lotId).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
-    if (!bauxActifs || !bauxActifs.length) { div.innerHTML = '<div class="empty-state">Aucun bail actif — crée un bail dans l\u2019onglet "Bail".</div>'; return; }
+    if (!bauxActifs || !bauxActifs.length) { div.innerHTML = '<div class="empty-state row-click" onclick="switchTabLot(\'bail\')">Aucun bail actif — clique ici pour en créer un →</div>'; return; }
     const bail = bauxActifs[0];
     const { data: rattachements } = await supabaseClient.from('bail_locataires').select('*').eq('bail_id', bail.id);
-    if (!rattachements || !rattachements.length) { div.innerHTML = '<div class="empty-state">Aucun locataire — ajoutes-en un dans l\u2019onglet "Bail".</div>'; return; }
+    if (!rattachements || !rattachements.length) { div.innerHTML = '<div class="empty-state row-click" onclick="switchTabLot(\'bail\')">Aucun locataire — clique ici pour en ajouter un →</div>'; return; }
     const ids = rattachements.map(r => r.locataire_id);
     const { data: locataires } = await supabaseClient.from('locataires').select('*').in('id', ids);
 
@@ -3075,7 +3075,7 @@
     const { data: txs, error } = await supabaseClient.from('transactions').select('id, date, categorie, description, recuperable, type, montant')
       .eq('immeuble_id', immeubleIdChargesLot).order('date', { ascending: false }).range(offsetTransactionsLot, offsetTransactionsLot + PAGE_SIZE_HISTORIQUES - 1);
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
-    if (!chargerPlus && (!txs || !txs.length)) { div.innerHTML = '<div class="empty-state">Aucune transaction pour cet immeuble. (Ajoute une dépense travaux depuis l\u2019écran Loyers.)</div>'; return; }
+    if (!chargerPlus && (!txs || !txs.length)) { div.innerHTML = '<div class="empty-state row-click" onclick="allerLoyers()">Aucune transaction pour cet immeuble — clique ici pour ajouter une dépense depuis Loyers →</div>'; return; }
 
     const html = (txs || []).map(t => `
       <div class="row">
