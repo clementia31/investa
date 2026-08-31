@@ -464,6 +464,7 @@
       <div class="nav-item" id="nav-locataires" onclick="allerLocataires()"><span class="ic">👤</span> Locataires</div>
       <div class="nav-item" id="nav-loyers" onclick="allerLoyers()"><span class="ic">📅</span> Loyers</div>
       <div class="nav-item" id="nav-documents" onclick="allerDocuments()"><span class="ic">📄</span> Documents</div>
+      <div class="nav-item" id="nav-fiscalite" onclick="allerFiscalite()"><span class="ic">📊</span> Fiscalité</div>
       <div class="nav-item" id="nav-alertes" onclick="allerAlertes()"><span class="ic">🔔</span> À faire</div>
       <div class="nav-item" id="nav-parametres" onclick="allerParametres()"><span class="ic">⚙️</span> Paramètres</div>
 
@@ -1686,7 +1687,7 @@
 
   // ---------- NAVIGATION ----------
   const PAGES = ['dashboard', 'patrimoine', 'locataires', 'loyers', 'finances', 'prets', 'parametres', 'alertes', 'fiscalite', 'rapports', 'documents', 'fiche-immeuble', 'fiche-lot', 'fiche-locataire', 'mentions-legales'];
-  const NAV_IDS = ['nav-dashboard', 'nav-patrimoine', 'nav-locataires', 'nav-loyers', 'nav-parametres', 'nav-alertes', 'nav-documents'];
+  const NAV_IDS = ['nav-dashboard', 'nav-patrimoine', 'nav-locataires', 'nav-loyers', 'nav-fiscalite', 'nav-parametres', 'nav-alertes', 'nav-documents'];
 
   function hideAllPages() {
     PAGES.forEach(p => { const el = document.getElementById('page-' + p); if (el) el.style.display = 'none'; });
@@ -4668,25 +4669,51 @@ Durée : du {{date_debut}} au {{date_fin}}
     const debut = annee + '-01-01';
     const fin = annee + '-12-31';
     const labelsRegime = { sci_ir: "SCI à l'IR", sci_is: "SCI à l'IS", nom_propre: 'Nom propre', sarl_immo: 'SARL immobilière', autre: 'Autre' };
-
-    // 1 requête groupée pour toutes les transactions de toutes les structures, au lieu d'une par structure
     const structureIds = structures.map(s => s.id);
-    const { data: toutesTxs } = await supabaseClient.from('transactions').select('*').in('structure_id', structureIds).gte('date', debut).lte('date', fin);
-    const txsParStructure = {};
-    (toutesTxs || []).forEach(t => { (txsParStructure[t.structure_id] = txsParStructure[t.structure_id] || []).push(t); });
 
-    let html = '';
+    // Revenus réels : loyers + charges effectivement encaissés (paiements payés), retrouvés via immeuble → lot → bail
+    const { data: immeubles } = await supabaseClient.from('immeubles').select('id, structure_id').in('structure_id', structureIds);
+    const structureParImmeuble = {};
+    (immeubles || []).forEach(im => { structureParImmeuble[im.id] = im.structure_id; });
+    const tousImmeubleIds = (immeubles || []).map(im => im.id);
+
+    const { data: lots } = tousImmeubleIds.length ? await supabaseClient.from('lots').select('id, immeuble_id').in('immeuble_id', tousImmeubleIds) : { data: [] };
+    const structureParLot = {};
+    (lots || []).forEach(l => { structureParLot[l.id] = structureParImmeuble[l.immeuble_id]; });
+    const tousLotIds = (lots || []).map(l => l.id);
+
+    const { data: baux } = tousLotIds.length ? await supabaseClient.from('baux').select('id, lot_id').in('lot_id', tousLotIds) : { data: [] };
+    const structureParBail = {};
+    (baux || []).forEach(b => { structureParBail[b.id] = structureParLot[b.lot_id]; });
+    const tousBailIds = (baux || []).map(b => b.id);
+
+    const { data: paiements } = tousBailIds.length
+      ? await supabaseClient.from('paiements').select('bail_id, montant_loyer, montant_charges').in('bail_id', tousBailIds).eq('statut', 'paye').gte('mois', debut).lte('mois', fin)
+      : { data: [] };
+
+    const revenusParStructure = {};
+    (paiements || []).forEach(p => {
+      const sId = structureParBail[p.bail_id];
+      if (!sId) return;
+      revenusParStructure[sId] = (revenusParStructure[sId] || 0) + Number(p.montant_loyer) + Number(p.montant_charges);
+    });
+
+    // Charges déductibles réelles : dépenses effectivement enregistrées (travaux, etc.), pas de simple prévision
+    const { data: toutesTxs } = await supabaseClient.from('transactions').select('structure_id, montant').in('structure_id', structureIds).eq('type', 'depense').gte('date', debut).lte('date', fin);
+    const chargesParStructure = {};
+    (toutesTxs || []).forEach(t => { chargesParStructure[t.structure_id] = (chargesParStructure[t.structure_id] || 0) + Number(t.montant); });
+
+    let html = `<p class="small" style="grid-column:1/-1; margin:0 0 4px;">⚠️ Estimation indicative basée sur les données saisies dans Investa — pas une déclaration fiscale officielle. À vérifier avec un comptable avant toute déclaration réelle.</p>`;
     structures.forEach(s => {
-      const txs = txsParStructure[s.id] || [];
-      const revenus = txs.filter(t => t.type === 'recette').reduce((a, t) => a + Number(t.montant), 0);
-      const charges = txs.filter(t => t.type === 'depense').reduce((a, t) => a + Number(t.montant), 0);
+      const revenus = revenusParStructure[s.id] || 0;
+      const charges = chargesParStructure[s.id] || 0;
       const resultat = revenus - charges;
       html += `<div class="fisc-card" onclick="ouvrirAssociesStructure('${s.id}', '${echapperPourOnclick(s.nom)}')">
         <h4>${echapper(s.nom)}</h4>
         <div class="regime">${labelsRegime[s.type] || s.type}</div>
-        <div class="fisc-line"><span>Revenus bruts</span><span>${revenus.toLocaleString('fr-FR')} €</span></div>
-        <div class="fisc-line"><span>Charges déductibles</span><span>${charges.toLocaleString('fr-FR')} €</span></div>
-        <div class="fisc-line"><span>${s.type === 'sci_is' ? 'Résultat (avant IS)' : 'Résultat foncier'}</span><span>${resultat.toLocaleString('fr-FR')} €</span></div>
+        <div class="fisc-line"><span>Revenus (loyers + charges encaissés)</span><span>${revenus.toLocaleString('fr-FR')} €</span></div>
+        <div class="fisc-line"><span>Charges déductibles enregistrées</span><span>${charges.toLocaleString('fr-FR')} €</span></div>
+        <div class="fisc-line"><span>${s.type === 'sci_is' ? 'Résultat (avant IS)' : 'Résultat foncier estimé'}</span><span>${resultat.toLocaleString('fr-FR')} €</span></div>
       </div>`;
     });
     div.innerHTML = html;
