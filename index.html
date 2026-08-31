@@ -130,6 +130,8 @@
   .badge.travaux, .badge.en_retard { background: var(--red-bg); color: var(--red); }
 
   .row { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--border); font-size: 0.92rem; }
+  .ligne-edition-bail { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .ligne-edition-bail input { width: 130px; margin: 0; padding: 7px 10px; text-align: right; font-weight: 600; }
   .row:last-child { border-bottom: none; }
   .row-click { cursor: pointer; }
   .row-click:hover { color: var(--accent); }
@@ -2739,6 +2741,14 @@
     `).join('');
   }
 
+  function toggleEditionBail() {
+    const affichage = document.getElementById('bailAffichageResume');
+    const edition = document.getElementById('bailEditionInline');
+    const enEdition = edition.style.display === 'block';
+    edition.style.display = enEdition ? 'none' : 'block';
+    affichage.style.display = enEdition ? 'block' : 'none';
+  }
+
   async function enregistrerModifBail(bailId, lotId) {
     const loyer = document.getElementById('editLoyerBail').value;
     const charges = document.getElementById('editChargesBail').value;
@@ -3083,22 +3093,36 @@
       zone.innerHTML = `
         <div class="section-header-ajout">
           <h3>Bail en cours</h3>
-          <button class="btn-secondary btn-ajout-inline" id="btnModifierBail" onclick="toggleFormulaire('formModifierBail','btnModifierBail')">Modifier</button>
+          <button class="btn-secondary btn-ajout-inline" id="btnModifierBail" onclick="toggleEditionBail('${bail.id}', '${lotId}')">Modifier</button>
         </div>
-        <div class="small">Type : ${bail.type} · Loyer : ${bail.loyer} € · Charges : ${bail.charges} €${bail.depot_garantie ? ' · Dépôt : ' + bail.depot_garantie + ' €' : ''}</div>
-        <div class="small">Du ${bail.date_debut} ${bail.date_fin ? 'au ' + bail.date_fin : '(sans fin)'}${bail.irl_trimestre_reference ? ' · Dernière révision : ' + bail.irl_trimestre_reference : ''}</div>
 
-        <div class="card" id="formModifierBail" style="display:none; margin-top:10px;">
-          <p class="small" style="margin:0 0 8px;">Pour un simple correctif (erreur de saisie, changement négocié directement avec le locataire). Pour une révision légale annuelle, utilise plutôt la section ci-dessous.</p>
-          <div class="grid-2" style="margin-bottom:0;">
-            <input id="editLoyerBail" type="number" placeholder="Loyer (€)" value="${bail.loyer}">
-            <input id="editChargesBail" type="number" placeholder="Charges (€)" value="${bail.charges}">
+        <div id="bailAffichageResume">
+          <div class="small">Type : ${bail.type} · Loyer : ${bail.loyer} € · Charges : ${bail.charges} €${bail.depot_garantie ? ' · Dépôt : ' + bail.depot_garantie + ' €' : ''}</div>
+          <div class="small">Du ${bail.date_debut} ${bail.date_fin ? 'au ' + bail.date_fin : '(sans fin)'}${bail.irl_trimestre_reference ? ' · Dernière révision : ' + bail.irl_trimestre_reference : ''}</div>
+        </div>
+
+        <div id="bailEditionInline" style="display:none;">
+          <p class="small" style="margin:0 0 10px;">Pour un simple correctif. Pour une révision légale annuelle, utilise plutôt la section ci-dessous.</p>
+          <div class="ligne-edition-bail">
+            <span class="small">Loyer mensuel</span>
+            <input id="editLoyerBail" type="number" value="${bail.loyer}">
           </div>
-          <div class="grid-2" style="margin-bottom:0; margin-top:10px;">
-            <input id="editDepotBail" type="number" placeholder="Dépôt de garantie (€)" value="${bail.depot_garantie || ''}">
+          <div class="ligne-edition-bail">
+            <span class="small">Charges mensuelles</span>
+            <input id="editChargesBail" type="number" value="${bail.charges}">
+          </div>
+          <div class="ligne-edition-bail">
+            <span class="small">Dépôt de garantie</span>
+            <input id="editDepotBail" type="number" value="${bail.depot_garantie || ''}">
+          </div>
+          <div class="ligne-edition-bail" style="border-bottom:none;">
+            <span class="small">Fin de bail</span>
             <input id="editDateFinBail" type="date" value="${bail.date_fin || ''}">
           </div>
-          <button class="btn-primary" style="margin-top:10px;" onclick="enregistrerModifBail('${bail.id}', '${lotId}')">Enregistrer</button>
+          <div style="display:flex; gap:8px; margin-top:14px;">
+            <button class="btn-primary" style="flex:1;" onclick="enregistrerModifBail('${bail.id}', '${lotId}')">Enregistrer</button>
+            <button class="btn-secondary" style="flex:1;" onclick="toggleEditionBail('${bail.id}', '${lotId}')">Annuler</button>
+          </div>
         </div>
 
         <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
