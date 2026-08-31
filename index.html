@@ -372,6 +372,51 @@
   </div>
 </div>
 
+<div id="modalEditCharge" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
+  <div class="card" style="max-width:420px; width:90%;">
+    <h3 style="margin-top:0;">Modifier la charge récurrente</h3>
+    <select id="editChargeType">
+      <option value="copropriete">Charges de copropriété</option>
+      <option value="taxe_fonciere">Taxe foncière</option>
+      <option value="assurance">Assurance</option>
+      <option value="autre">Autre</option>
+    </select>
+    <div class="grid-2" style="margin-bottom:0;">
+      <input id="editChargeMontant" type="number" placeholder="Montant (€)">
+      <select id="editChargeFrequence">
+        <option value="trimestriel">Trimestriel</option>
+        <option value="annuel">Annuel</option>
+        <option value="mensuel">Mensuel</option>
+      </select>
+    </div>
+    <input id="editChargeEcheance" type="date">
+    <div style="display:flex; gap:8px; margin-top:10px;">
+      <button class="btn-primary" style="flex:1;" onclick="enregistrerModifCharge()">Enregistrer</button>
+      <button class="btn-secondary" style="flex:1;" onclick="fermerModalEditCharge()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalEditDocument" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
+  <div class="card" style="max-width:420px; width:90%;">
+    <h3 style="margin-top:0;">Modifier le document</h3>
+    <input id="editDocNom" placeholder="Nom du document">
+    <select id="editDocCategorie">
+      <option value="bail">Bail</option>
+      <option value="quittance">Quittance</option>
+      <option value="diagnostic">Diagnostic</option>
+      <option value="assurance">Assurance</option>
+      <option value="travaux">Travaux</option>
+      <option value="revision_loyer">Révision de loyer</option>
+      <option value="autre">Autre</option>
+    </select>
+    <div style="display:flex; gap:8px; margin-top:10px;">
+      <button class="btn-primary" style="flex:1;" onclick="enregistrerModifDocument()">Enregistrer</button>
+      <button class="btn-secondary" style="flex:1;" onclick="fermerModalEditDocument()">Annuler</button>
+    </div>
+  </div>
+</div>
+
 <!-- ============ AUTH ============ -->
 <div class="auth-wrap" id="auth">
   <div class="logo-login">
@@ -713,7 +758,27 @@
               <div class="small" id="lotSousTitre"></div>
               <div style="margin-top:8px;" id="lotBadgeStatut"></div>
             </div>
-            <button class="btn-secondary" style="padding:9px 16px; border-radius:8px; width:auto; color:var(--red); border-color:var(--red);" onclick="supprimerLot()">Supprimer</button>
+            <div style="display:flex; gap:8px;">
+              <button class="btn-secondary" style="padding:9px 16px; border-radius:8px; width:auto;" onclick="toggleFormulaire('formModifierLot','btnModifierLotFiche')" id="btnModifierLotFiche">Modifier</button>
+              <button class="btn-secondary" style="padding:9px 16px; border-radius:8px; width:auto; color:var(--red); border-color:var(--red);" onclick="supprimerLot()">Supprimer</button>
+            </div>
+          </div>
+          <div class="card" id="formModifierLot" style="display:none; margin-top:14px;">
+            <input id="editNomLot" placeholder="Nom (ex : Appartement 2, Studio A...)">
+            <div class="grid-2" style="margin-bottom:0;">
+              <select id="editTypeLot">
+                <option value="appartement">Appartement</option>
+                <option value="maison">Maison</option>
+                <option value="studio">Studio</option>
+                <option value="chambre">Chambre</option>
+                <option value="parking">Parking</option>
+                <option value="garage">Garage</option>
+                <option value="local_commercial">Local commercial</option>
+                <option value="autre">Autre</option>
+              </select>
+              <input id="editSurfaceLot" type="number" placeholder="Surface (m²)">
+            </div>
+            <button class="btn-primary" onclick="enregistrerModifLot()">Enregistrer</button>
           </div>
           <div class="grid-2" style="margin-top:18px; margin-bottom:0; grid-template-columns:repeat(3,1fr);">
             <div class="stat-card"><div class="lbl">Loyer mensuel</div><div class="val" id="lotLoyer">—</div></div>
@@ -2471,6 +2536,18 @@
     ouvrirFicheImmeuble(lotInfo.immeuble_id);
   }
 
+  async function enregistrerModifLot() {
+    const nom = document.getElementById('editNomLot').value;
+    const type = document.getElementById('editTypeLot').value;
+    const surface = document.getElementById('editSurfaceLot').value;
+    const { error } = await supabaseClient.from('lots').update({
+      nom: nom || null, type, surface: surface ? parseFloat(surface) : null
+    }).eq('id', currentLotId);
+    if (error) { logErreur('modifier_lot', error); return alert('Erreur : ' + error.message); }
+    document.getElementById('formModifierLot').style.display = 'none';
+    ouvrirFicheLot(currentLotId);
+  }
+
   async function ouvrirFicheLot(id) {
     currentLotId = id;
     hideAllPages();
@@ -2487,6 +2564,10 @@
     ]);
     currentLotStatutAffiche = lot.statut;
     afficherBadgeStatutLot(lot.statut);
+
+    document.getElementById('editNomLot').value = lot.nom || '';
+    document.getElementById('editTypeLot').value = lot.type;
+    document.getElementById('editSurfaceLot').value = lot.surface || '';
 
     document.getElementById('valeurLot').value = lot.valeur_estimee || '';
     document.getElementById('detteLot').value = lot.dette_restante || '';
@@ -2649,6 +2730,21 @@
     `).join('');
   }
 
+  async function enregistrerModifBail(bailId, lotId) {
+    const loyer = document.getElementById('editLoyerBail').value;
+    const charges = document.getElementById('editChargesBail').value;
+    const depot = document.getElementById('editDepotBail').value;
+    const dateFin = document.getElementById('editDateFinBail').value;
+    if (!loyer) return alert('Le loyer est requis');
+
+    const { error } = await supabaseClient.from('baux').update({
+      loyer: parseFloat(loyer), charges: charges ? parseFloat(charges) : 0,
+      depot_garantie: depot ? parseFloat(depot) : null, date_fin: dateFin || null
+    }).eq('id', bailId);
+    if (error) { logErreur('modifier_bail', error); return alert('Erreur : ' + error.message); }
+    chargerBail(lotId);
+  }
+
   async function terminerBail(bailId, lotId) {
     const dateSortie = document.getElementById('dateSortieBail').value || new Date().toISOString().split('T')[0];
     if (!confirm('Terminer ce bail au ' + dateSortie + ' ? Le locataire restera consultable dans l\u2019historique du lot.')) return;
@@ -2790,6 +2886,7 @@
             <div style="font-weight:600;">${Number(c.montant).toLocaleString('fr-FR')} €</div>
             <span class="badge-pill" style="background:${c.frequence === 'annuel' ? 'rgba(245,158,11,0.15)' : (c.frequence === 'mensuel' ? 'rgba(139,150,179,0.15)' : 'rgba(59,130,246,0.15)')}; color:${c.frequence === 'annuel' ? 'var(--amber)' : (c.frequence === 'mensuel' ? 'var(--text-dim)' : 'var(--accent)')};">${LABELS_FREQUENCE_CHARGE[c.frequence]}</span>
           </div>
+          <a href="#" onclick="ouvrirEditCharge('${c.id}', '${c.type_charge}', ${c.montant}, '${c.frequence}', '${c.prochaine_echeance}', '${entityType}', '${entityId}', '${targetDivId}'); return false;" style="margin-right:8px;" aria-label="Modifier">✏️</a>
           <a href="#" onclick="supprimerChargeRecurrente('${c.id}', '${entityType}', '${entityId}', '${targetDivId}'); return false;" style="color:var(--red); font-size:0.85rem;" aria-label="Supprimer">✕</a>
         </div>
       </div>
@@ -2813,6 +2910,40 @@
     document.getElementById('echeanceCharge' + prefixe).value = '';
     toggleFormulaire('formAjoutCharge' + prefixe, 'btnAjoutCharge' + prefixe);
     chargerChargesRecurrentes(entityType, entityId, 'listeCharges' + prefixe);
+  }
+
+  let contexteEditCharge = null;
+
+  function ouvrirEditCharge(id, typeCharge, montant, frequence, echeance, entityType, entityId, targetDivId) {
+    contexteEditCharge = { id, entityType, entityId, targetDivId };
+    document.getElementById('editChargeType').value = typeCharge;
+    document.getElementById('editChargeMontant').value = montant;
+    document.getElementById('editChargeFrequence').value = frequence;
+    document.getElementById('editChargeEcheance').value = echeance;
+    document.getElementById('modalEditCharge').style.display = 'flex';
+  }
+
+  function fermerModalEditCharge() {
+    document.getElementById('modalEditCharge').style.display = 'none';
+    contexteEditCharge = null;
+  }
+
+  async function enregistrerModifCharge() {
+    if (!contexteEditCharge) return;
+    const typeCharge = document.getElementById('editChargeType').value;
+    const montant = document.getElementById('editChargeMontant').value;
+    const frequence = document.getElementById('editChargeFrequence').value;
+    const echeance = document.getElementById('editChargeEcheance').value;
+    if (!montant || !echeance) return alert('Montant et prochaine échéance requis');
+
+    const { error } = await supabaseClient.from('charges_recurrentes').update({
+      type_charge: typeCharge, montant: parseFloat(montant), frequence, prochaine_echeance: echeance
+    }).eq('id', contexteEditCharge.id);
+    if (error) { logErreur('modifier_charge_recurrente', error); return alert('Erreur : ' + error.message); }
+
+    const { entityType, entityId, targetDivId } = contexteEditCharge;
+    fermerModalEditCharge();
+    chargerChargesRecurrentes(entityType, entityId, targetDivId);
   }
 
   async function supprimerChargeRecurrente(id, entityType, entityId, targetDivId) {
@@ -2941,9 +3072,25 @@
       const { data: rattachements } = await supabaseClient.from('bail_locataires').select('locataire_id').eq('bail_id', bail.id);
 
       zone.innerHTML = `
-        <h3>Bail en cours</h3>
+        <div class="section-header-ajout">
+          <h3>Bail en cours</h3>
+          <button class="btn-secondary btn-ajout-inline" id="btnModifierBail" onclick="toggleFormulaire('formModifierBail','btnModifierBail')">Modifier</button>
+        </div>
         <div class="small">Type : ${bail.type} · Loyer : ${bail.loyer} € · Charges : ${bail.charges} €${bail.depot_garantie ? ' · Dépôt : ' + bail.depot_garantie + ' €' : ''}</div>
         <div class="small">Du ${bail.date_debut} ${bail.date_fin ? 'au ' + bail.date_fin : '(sans fin)'}${bail.irl_trimestre_reference ? ' · Dernière révision : ' + bail.irl_trimestre_reference : ''}</div>
+
+        <div class="card" id="formModifierBail" style="display:none; margin-top:10px;">
+          <p class="small" style="margin:0 0 8px;">Pour un simple correctif (erreur de saisie, changement négocié directement avec le locataire). Pour une révision légale annuelle, utilise plutôt la section ci-dessous.</p>
+          <div class="grid-2" style="margin-bottom:0;">
+            <input id="editLoyerBail" type="number" placeholder="Loyer (€)" value="${bail.loyer}">
+            <input id="editChargesBail" type="number" placeholder="Charges (€)" value="${bail.charges}">
+          </div>
+          <div class="grid-2" style="margin-bottom:0; margin-top:10px;">
+            <input id="editDepotBail" type="number" placeholder="Dépôt de garantie (€)" value="${bail.depot_garantie || ''}">
+            <input id="editDateFinBail" type="date" value="${bail.date_fin || ''}">
+          </div>
+          <button class="btn-primary" style="margin-top:10px;" onclick="enregistrerModifBail('${bail.id}', '${lotId}')">Enregistrer</button>
+        </div>
 
         <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
           <p class="small" style="margin:0 0 4px; font-weight:600; color:var(--text);">Révision annuelle du loyer</p>
@@ -4398,12 +4545,44 @@ Durée : du {{date_debut}} au {{date_fin}}
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
     if (!taches || !taches.length) { div.innerHTML = '<div class="empty-state">Aucune tâche.</div>'; return; }
     div.innerHTML = taches.map(t => `
-      <div class="tache-row ${t.fait ? 'fait' : ''}">
+      <div class="tache-row ${t.fait ? 'fait' : ''}" id="tache-affichage-${t.id}">
         <input type="checkbox" class="tache-check" ${t.fait ? 'checked' : ''} onchange="basculerTache('${t.id}', this.checked)">
         <span class="titre">${echapper(t.titre)}</span>
         ${t.date_echeance ? `<span class="small" style="margin-left:auto;">${t.date_echeance}</span>` : ''}
+        <a href="#" onclick="ouvrirEditTache('${t.id}', '${echapperPourOnclick(t.titre)}', '${t.date_echeance || ''}'); return false;" style="margin-left:10px;" aria-label="Modifier">✏️</a>
+        <a href="#" onclick="supprimerTache('${t.id}'); return false;" style="margin-left:6px; color:var(--red);" aria-label="Supprimer">✕</a>
+      </div>
+      <div id="tache-edition-${t.id}" style="display:none; padding:10px 0; border-bottom:1px solid var(--border);">
+        <input id="editTitreTache-${t.id}" style="margin-bottom:6px;">
+        <div style="display:flex; gap:8px;">
+          <input id="editEcheanceTache-${t.id}" type="date" style="flex:1;">
+          <button class="btn-primary" style="width:auto; padding:8px 16px;" onclick="enregistrerModifTache('${t.id}')">OK</button>
+        </div>
       </div>
     `).join('');
+  }
+
+  function ouvrirEditTache(id, titreActuel, echeanceActuelle) {
+    document.getElementById('tache-affichage-' + id).style.display = 'none';
+    document.getElementById('tache-edition-' + id).style.display = 'block';
+    document.getElementById('editTitreTache-' + id).value = titreActuel;
+    document.getElementById('editEcheanceTache-' + id).value = echeanceActuelle;
+  }
+
+  async function enregistrerModifTache(id) {
+    const titre = document.getElementById('editTitreTache-' + id).value;
+    const echeance = document.getElementById('editEcheanceTache-' + id).value;
+    if (!titre) return alert('Titre requis');
+    const { error } = await supabaseClient.from('taches').update({ titre, date_echeance: echeance || null }).eq('id', id);
+    if (error) { logErreur('modifier_tache', error); return alert('Erreur : ' + error.message); }
+    chargerTaches();
+  }
+
+  async function supprimerTache(id) {
+    if (!confirm('Supprimer cette tâche ?')) return;
+    const { error } = await supabaseClient.from('taches').delete().eq('id', id);
+    if (error) { logErreur('supprimer_tache', error); return alert('Erreur : ' + error.message); }
+    chargerTaches();
   }
 
   async function creerTache() {
@@ -4744,6 +4923,7 @@ Durée : du {{date_debut}} au {{date_fin}}
         <span>📎 ${echapper(d.nom)} <span class="small">(${d.taille_octets ? Math.round(d.taille_octets / 1024) + ' Ko' : ''})</span></span>
         <span>
           <a href="#" onclick="telechargerDocument('${d.storage_path}'); return false;" style="color:var(--accent); margin-right:12px;">Ouvrir</a>
+          <a href="#" onclick="ouvrirEditDocument('${d.id}', '${echapperPourOnclick(d.nom)}', '${d.categorie}', '${entityType}', '${entityId}', '${targetDivId}'); return false;" style="margin-right:12px;">Modifier</a>
           <a href="#" onclick="supprimerDocument('${d.id}', '${d.storage_path}', '${entityType}', '${entityId}', '${targetDivId}'); return false;" style="color:var(--red);">Supprimer</a>
         </span>
       </div>
@@ -4754,6 +4934,34 @@ Durée : du {{date_debut}} au {{date_fin}}
     const { data, error } = await supabaseClient.storage.from('documents').createSignedUrl(storagePath, 60);
     if (error) return alert('Erreur : ' + error.message);
     window.open(data.signedUrl, '_blank');
+  }
+
+  let contexteEditDocument = null;
+
+  function ouvrirEditDocument(id, nom, categorie, entityType, entityId, targetDivId) {
+    contexteEditDocument = { id, entityType, entityId, targetDivId };
+    document.getElementById('editDocNom').value = nom;
+    document.getElementById('editDocCategorie').value = categorie;
+    document.getElementById('modalEditDocument').style.display = 'flex';
+  }
+
+  function fermerModalEditDocument() {
+    document.getElementById('modalEditDocument').style.display = 'none';
+    contexteEditDocument = null;
+  }
+
+  async function enregistrerModifDocument() {
+    if (!contexteEditDocument) return;
+    const nom = document.getElementById('editDocNom').value;
+    const categorie = document.getElementById('editDocCategorie').value;
+    if (!nom) return alert('Le nom est requis');
+
+    const { error } = await supabaseClient.from('documents').update({ nom, categorie }).eq('id', contexteEditDocument.id);
+    if (error) { logErreur('modifier_document', error); return alert('Erreur : ' + error.message); }
+
+    const { entityType, entityId, targetDivId } = contexteEditDocument;
+    fermerModalEditDocument();
+    chargerDocuments(entityType, entityId, targetDivId);
   }
 
   async function supprimerDocument(id, storagePath, entityType, entityId, targetDivId) {
