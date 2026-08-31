@@ -937,7 +937,10 @@
             </div>
           </div>
           <div class="card">
-            <h3>Résumé du bail</h3>
+            <div class="section-header-ajout">
+              <h3>Résumé du bail</h3>
+              <a href="#" id="lienModifierBailLocataire" style="font-size:0.85rem; display:none;">Modifier le loyer/bail →</a>
+            </div>
             <div id="locInformations">Chargement...</div>
           </div>
           <div class="card">
@@ -1178,6 +1181,11 @@
             <button class="theme-btn" id="btnThemeDark" onclick="definirTheme('dark')">🌙 Sombre</button>
             <button class="theme-btn" id="btnThemeLight" onclick="definirTheme('light')">☀️ Clair</button>
           </div>
+        </div>
+        <div class="card">
+          <h3>Nom de ton patrimoine</h3>
+          <input id="nomPatrimoine" placeholder="Mon patrimoine">
+          <button class="btn-primary" style="width:auto; padding:10px 18px;" onclick="enregistrerNomPatrimoine()">Enregistrer</button>
         </div>
         <div class="card">
           <h3>Mes données</h3>
@@ -3300,6 +3308,14 @@
       ? colocataires.map(c => `<div class="row">${echapper(c.nom)}</div>`).join('')
       : '<div class="empty-state">Aucun (locataire seul)</div>';
 
+    const lienModifierBail = document.getElementById('lienModifierBailLocataire');
+    if (bailActuel && !bailEstAncien) {
+      lienModifierBail.style.display = 'inline';
+      lienModifierBail.onclick = (e) => { e.preventDefault(); ouvrirFicheLot(bailActuel.lot_id); };
+    } else {
+      lienModifierBail.style.display = 'none';
+    }
+
     chargerHistoriquePaiementsLocataire(bailIds);
   }
 
@@ -4158,6 +4174,22 @@ Le bailleur donne quittance au locataire pour le paiement ci-dessus et lui donne
     document.getElementById('page-parametres').style.display = 'block';
     mettreAJourBoutonsTheme(localStorage.getItem('investa-theme') || 'dark');
     chargerQuotaStockage();
+    chargerNomPatrimoine();
+  }
+
+  async function chargerNomPatrimoine() {
+    const { data: structures } = await supabaseClient.from('structures').select('id, nom').order('created_at').limit(1);
+    if (structures && structures.length) document.getElementById('nomPatrimoine').value = structures[0].nom;
+  }
+
+  async function enregistrerNomPatrimoine() {
+    const nom = document.getElementById('nomPatrimoine').value;
+    if (!nom) return alert('Le nom ne peut pas être vide');
+    const structureId = await obtenirStructureParDefaut();
+    if (!structureId) return;
+    const { error } = await supabaseClient.from('structures').update({ nom }).eq('id', structureId);
+    if (error) { logErreur('modifier_nom_patrimoine', error); return alert('Erreur : ' + error.message); }
+    alert('Nom enregistré.');
   }
 
   async function chargerQuotaStockage() {
