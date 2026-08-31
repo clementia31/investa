@@ -942,9 +942,27 @@
           <div class="card">
             <div class="section-header-ajout">
               <h3>Résumé du bail</h3>
-              <a href="#" id="lienModifierBailLocataire" style="font-size:0.85rem; display:none;">Modifier le loyer/bail →</a>
+              <button class="btn-secondary btn-ajout-inline" id="btnModifierBailLocataire" style="display:none;" onclick="toggleEditionBailLocataire()">Modifier</button>
             </div>
             <div id="locInformations">Chargement...</div>
+            <div id="locBailEditionInline" style="display:none;">
+              <div class="ligne-edition-bail">
+                <span class="small">Loyer mensuel</span>
+                <input id="editLoyerBailLoc" type="number">
+              </div>
+              <div class="ligne-edition-bail">
+                <span class="small">Charges mensuelles</span>
+                <input id="editChargesBailLoc" type="number">
+              </div>
+              <div class="ligne-edition-bail" style="border-bottom:none;">
+                <span class="small">Dépôt de garantie</span>
+                <input id="editDepotBailLoc" type="number">
+              </div>
+              <div style="display:flex; gap:8px; margin-top:14px;">
+                <button class="btn-primary" style="flex:1;" onclick="enregistrerModifBailLocataire()">Enregistrer</button>
+                <button class="btn-secondary" style="flex:1;" onclick="toggleEditionBailLocataire()">Annuler</button>
+              </div>
+            </div>
           </div>
           <div class="card">
             <h3>Colocataire(s)</h3>
@@ -3219,6 +3237,28 @@
     allerLocataires();
   }
 
+  let bailActuelLocataire = null;
+
+  function toggleEditionBailLocataire() {
+    const div = document.getElementById('locBailEditionInline');
+    div.style.display = div.style.display === 'block' ? 'none' : 'block';
+  }
+
+  async function enregistrerModifBailLocataire() {
+    if (!bailActuelLocataire) return;
+    const loyer = document.getElementById('editLoyerBailLoc').value;
+    const charges = document.getElementById('editChargesBailLoc').value;
+    const depot = document.getElementById('editDepotBailLoc').value;
+    if (!loyer) return alert('Le loyer est requis');
+
+    const { error } = await supabaseClient.from('baux').update({
+      loyer: parseFloat(loyer), charges: charges ? parseFloat(charges) : 0,
+      depot_garantie: depot ? parseFloat(depot) : null
+    }).eq('id', bailActuelLocataire.id);
+    if (error) { logErreur('modifier_bail_depuis_locataire', error); return alert('Erreur : ' + error.message); }
+    ouvrirFicheLocataire(currentLocataireId, 'liste');
+  }
+
   async function ouvrirFicheLocataire(locataireId, origine) {
     currentLocataireOrigin = origine || 'lot';
     currentLocataireId = locataireId;
@@ -3333,13 +3373,18 @@
       ? colocataires.map(c => `<div class="row">${echapper(c.nom)}</div>`).join('')
       : '<div class="empty-state">Aucun (locataire seul)</div>';
 
-    const lienModifierBail = document.getElementById('lienModifierBailLocataire');
+    const btnModifierBail = document.getElementById('btnModifierBailLocataire');
     if (bailActuel && !bailEstAncien) {
-      lienModifierBail.style.display = 'inline';
-      lienModifierBail.onclick = (e) => { e.preventDefault(); ouvrirFicheLot(bailActuel.lot_id); };
+      btnModifierBail.style.display = 'inline-flex';
+      bailActuelLocataire = bailActuel;
+      document.getElementById('editLoyerBailLoc').value = bailActuel.loyer;
+      document.getElementById('editChargesBailLoc').value = bailActuel.charges;
+      document.getElementById('editDepotBailLoc').value = bailActuel.depot_garantie || '';
     } else {
-      lienModifierBail.style.display = 'none';
+      btnModifierBail.style.display = 'none';
+      bailActuelLocataire = null;
     }
+    document.getElementById('locBailEditionInline').style.display = 'none';
 
     chargerHistoriquePaiementsLocataire(bailIds);
   }
