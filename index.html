@@ -1876,7 +1876,7 @@
     const { data: tachesEnRetard } = await supabaseClient.from('taches').select('id').in('structure_id', structIds).eq('fait', false).not('date_echeance', 'is', null).lt('date_echeance', new Date().toISOString().split('T')[0]);
 
     const dans60jours = new Date(); dans60jours.setDate(dans60jours.getDate() + 60);
-    const { data: immeublesDpe } = await supabaseClient.from('immeubles').select('adresse, dpe_date_expiration').in('structure_id', structIds).not('dpe_date_expiration', 'is', null).lte('dpe_date_expiration', dans60jours.toISOString().split('T')[0]);
+    const { data: immeublesDpe } = await supabaseClient.from('immeubles').select('id, adresse, dpe_date_expiration').in('structure_id', structIds).not('dpe_date_expiration', 'is', null).lte('dpe_date_expiration', dans60jours.toISOString().split('T')[0]);
 
     // Bail révisable : date anniversaire de signature dans les 60 prochains jours
     const { data: tousBauxActifsDash } = await supabaseClient.from('baux').select('*, lots(nom, type, immeuble_id, immeubles(adresse, structure_id))').eq('statut', 'actif');
@@ -1891,26 +1891,26 @@
     });
 
     // Assurance locataire arrivant à expiration
-    const { data: locatairesAssurance } = await supabaseClient.from('locataires').select('nom, assurance_expiration').in('structure_id', structIds).not('assurance_expiration', 'is', null).lte('assurance_expiration', dans60jours.toISOString().split('T')[0]);
+    const { data: locatairesAssurance } = await supabaseClient.from('locataires').select('id, nom, assurance_expiration').in('structure_id', structIds).not('assurance_expiration', 'is', null).lte('assurance_expiration', dans60jours.toISOString().split('T')[0]);
 
     let html = '';
     if (retardCount > 0) html += `<div class="alert-row row-click" onclick="allerLoyers()"><span class="alert-dot high"></span><span style="flex:1;">${retardCount} loyer${retardCount > 1 ? 's' : ''} en retard</span><span class="small">→</span></div>`;
     if (tachesEnRetard && tachesEnRetard.length) html += `<div class="alert-row row-click" onclick="allerAlertes()"><span class="alert-dot med"></span><span style="flex:1;">${tachesEnRetard.length} tâche${tachesEnRetard.length > 1 ? 's' : ''} en retard</span><span class="small">→</span></div>`;
     (immeublesDpe || []).slice(0, 2).forEach(im => {
-      html += `<div class="alert-row"><span class="alert-dot med"></span><span style="flex:1;">DPE expire le ${im.dpe_date_expiration} — ${echapper(im.adresse)}</span></div>`;
+      html += `<div class="alert-row row-click" onclick="ouvrirFicheImmeuble('${im.id}')"><span class="alert-dot med"></span><span style="flex:1;">DPE expire le ${im.dpe_date_expiration} — ${echapper(im.adresse)}</span></div>`;
     });
     retardsFiltres.slice(0, 2).forEach(p => {
       const montant = Number(p.montant_loyer) + Number(p.montant_charges);
       html += `<div class="alert-row row-click" onclick="allerLoyers()"><span class="alert-dot high"></span><span style="flex:1;">${echapper(p.baux.lots.nom || p.baux.lots.type)}, ${echapper(p.baux.lots.immeubles.adresse)}</span><span class="badge-pill badge-rouge">${montant.toLocaleString('fr-FR')} €</span></div>`;
     });
     bauxFiltres.slice(0, 2).forEach(b => {
-      html += `<div class="alert-row"><span class="alert-dot med"></span><span style="flex:1;">Bail expire le ${b.date_fin} — ${echapper(b.lots.nom || b.lots.type)}</span></div>`;
+      html += `<div class="alert-row row-click" onclick="ouvrirFicheLot('${b.lot_id}')"><span class="alert-dot med"></span><span style="flex:1;">Bail expire le ${b.date_fin} — ${echapper(b.lots.nom || b.lots.type)}</span></div>`;
     });
     bauxRevisables.slice(0, 2).forEach(b => {
       html += `<div class="alert-row row-click" onclick="ouvrirFicheLot('${b.lot_id}')"><span class="alert-dot med"></span><span style="flex:1;">Révision annuelle du loyer possible — ${echapper(b.lots.nom || b.lots.type)}</span></div>`;
     });
     (locatairesAssurance || []).slice(0, 2).forEach(l => {
-      html += `<div class="alert-row"><span class="alert-dot med"></span><span style="flex:1;">Assurance à renouveler — ${echapper(l.nom)} (${l.assurance_expiration})</span></div>`;
+      html += `<div class="alert-row row-click" onclick="ouvrirFicheLocataire('${l.id}', 'liste')"><span class="alert-dot med"></span><span style="flex:1;">Assurance à renouveler — ${echapper(l.nom)} (${l.assurance_expiration})</span></div>`;
     });
     div.innerHTML = html || '<div class="empty-state">Rien à signaler pour le moment. 👍</div>';
   }
@@ -2853,15 +2853,19 @@
       : { data: [] };
     const nomParId = {};
     (locataires || []).forEach(l => { nomParId[l.id] = l.nom; });
-    const nomsParBail = {};
-    (rattachements || []).forEach(r => { (nomsParBail[r.bail_id] = nomsParBail[r.bail_id] || []).push(nomParId[r.locataire_id]); });
 
-    div.innerHTML = bauxTermines.map(b => `
+    div.innerHTML = bauxTermines.map(b => {
+      const idsEtNoms = (rattachements || []).filter(r => r.bail_id === b.id).map(r => ({ id: r.locataire_id, nom: nomParId[r.locataire_id] })).filter(x => x.nom);
+      const nomsHtml = idsEtNoms.length
+        ? idsEtNoms.map(x => `<a href="#" onclick="event.stopPropagation(); ouvrirFicheLocataire('${x.id}', 'lot'); return false;" style="color:inherit;">${echapper(x.nom)}</a>`).join(' et ')
+        : 'Locataire inconnu';
+      return `
       <div class="row">
-        <span>${echapper((nomsParBail[b.id] || ['Locataire inconnu']).join(' et '))}</span>
+        <span>${nomsHtml}</span>
         <span class="small">Du ${b.date_debut} au ${b.date_fin || '?'}${b.depot_restitue !== null && b.depot_restitue !== undefined ? ' · Dépôt restitué : ' + Number(b.depot_restitue).toLocaleString('fr-FR') + ' €' : ''}${b.motif_retenue_depot ? ' (' + echapper(b.motif_retenue_depot) + ')' : ''}</span>
       </div>
-    `).join('');
+    `;
+    }).join('');
   }
 
   async function chargerColocatairesLot(lotId) {
@@ -3362,7 +3366,7 @@
     }
 
     document.getElementById('locInformations').innerHTML = bailActuel ? `
-      <div class="row"><span class="small">Lot</span><span>${echapper(bailActuel.lots.nom || bailActuel.lots.type)}</span></div>
+      <div class="row"><span class="small">Lot</span><span class="row-click" onclick="ouvrirFicheLot('${bailActuel.lot_id}')">${echapper(bailActuel.lots.nom || bailActuel.lots.type)}</span></div>
       <div class="row"><span class="small">Bail</span><span>Du ${bailActuel.date_debut} ${bailActuel.date_fin ? 'au ' + bailActuel.date_fin : '(sans fin)'}</span></div>
       <div class="row"><span class="small">${monRattachement && monRattachement.loyer_part ? 'Loyer (ma part)' : 'Loyer'}</span><span>${loyerAffiche.toLocaleString('fr-FR')} €</span></div>
       <div class="row"><span class="small">Charges</span><span>${Number(bailActuel.charges).toLocaleString('fr-FR')} €</span></div>
@@ -3370,7 +3374,7 @@
     ` : '<div class="empty-state">Aucun bail actif.</div>';
 
     document.getElementById('colocatairesLocataire').innerHTML = colocataires.length
-      ? colocataires.map(c => `<div class="row">${echapper(c.nom)}</div>`).join('')
+      ? colocataires.map(c => `<div class="row row-click" onclick="ouvrirFicheLocataire('${c.id}', 'lot')">${echapper(c.nom)}</div>`).join('')
       : '<div class="empty-state">Aucun (locataire seul)</div>';
 
     const btnModifierBail = document.getElementById('btnModifierBailLocataire');
@@ -3695,18 +3699,24 @@
     const nomLocataireParId = {};
     (locatairesMois || []).forEach(l => { nomLocataireParId[l.id] = l.nom; });
     const nomsParBail = {};
+    const idsParBail = {};
     (rattachementsMois || []).forEach(r => {
       const nom = nomLocataireParId[r.locataire_id];
-      if (nom) (nomsParBail[r.bail_id] = nomsParBail[r.bail_id] || []).push(nom);
+      if (nom) {
+        (nomsParBail[r.bail_id] = nomsParBail[r.bail_id] || []).push(nom);
+        (idsParBail[r.bail_id] = idsParBail[r.bail_id] || []).push(r.locataire_id);
+      }
     });
 
     const items = bauxStructure.map(bail => {
       const paiement = paiementParBail[bail.id];
       const jourEcheance = Math.min(new Date(bail.date_debut).getDate(), nbJoursMois);
+      const idsLocataires = idsParBail[bail.id] || [];
       return {
         paiement, jour: jourEcheance, lotNom: bail.lots.nom || bail.lots.type, lotId: bail.lot_id,
         adresse: bail.lots.immeubles.adresse, montant: Number(paiement.montant_loyer) + Number(paiement.montant_charges),
-        nomLocataire: (nomsParBail[bail.id] || []).join(' et ') || 'Locataire inconnu'
+        nomLocataire: (nomsParBail[bail.id] || []).join(' et ') || 'Locataire inconnu',
+        locataireId: idsLocataires.length === 1 ? idsLocataires[0] : null
       };
     });
 
@@ -3764,7 +3774,7 @@
       return `
         <div class="loyer-item-row statut-${it.paiement.statut}" onclick="ouvrirDetailPaiement('${it.paiement.id}')">
           <div class="loyer-item-infos">
-            <div class="loyer-item-nom">${echapper(it.nomLocataire)}</div>
+            <div class="loyer-item-nom${it.locataireId ? ' row-click' : ''}"${it.locataireId ? ` onclick="event.stopPropagation(); ouvrirFicheLocataire('${it.locataireId}', 'liste')"` : ''}>${echapper(it.nomLocataire)}</div>
             <div class="loyer-item-souttitre"><a href="#" onclick="event.stopPropagation(); ouvrirFicheLot('${it.lotId}'); return false;" style="color:inherit;">${echapper(it.lotNom)} · ${echapper(it.adresse)}</a></div>
           </div>
           <div class="loyer-item-montant">${it.montant.toLocaleString('fr-FR')} €</div>
@@ -4573,27 +4583,27 @@ Durée : du {{date_debut}} au {{date_fin}}
     (paiements || []).forEach(p => {
       const lot = p.baux && p.baux.lots ? p.baux.lots : null;
       const immeuble = lot && lot.immeubles ? lot.immeubles.adresse : '';
-      items.push({ severite: 'haute', titre: 'Loyer en retard', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (${p.mois})` });
+      items.push({ severite: 'haute', titre: 'Loyer en retard', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (${p.mois})`, lien: p.baux ? { type: 'lot', id: p.baux.lot_id } : null });
     });
 
     const dansSoixanteJours = new Date(); dansSoixanteJours.setDate(dansSoixanteJours.getDate() + 60);
     const today = new Date().toISOString().split('T')[0];
-    const { data: baux } = await supabaseClient.from('baux').select('*, lots(nom, type, immeubles(adresse))').eq('statut', 'actif').not('date_fin', 'is', null).gte('date_fin', today).lte('date_fin', dansSoixanteJours.toISOString().split('T')[0]).order('date_fin');
+    const { data: baux } = await supabaseClient.from('baux').select('*, lots(id, nom, type, immeubles(adresse))').eq('statut', 'actif').not('date_fin', 'is', null).gte('date_fin', today).lte('date_fin', dansSoixanteJours.toISOString().split('T')[0]).order('date_fin');
     (baux || []).forEach(b => {
       const lot = b.lots;
       const immeuble = lot && lot.immeubles ? lot.immeubles.adresse : '';
       const joursRestants = Math.ceil((new Date(b.date_fin) - new Date()) / (1000 * 60 * 60 * 24));
-      items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'Bail arrivant à échéance', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (dans ${joursRestants} j)` });
+      items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'Bail arrivant à échéance', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (dans ${joursRestants} j)`, lien: lot ? { type: 'lot', id: lot.id } : null });
     });
 
-    const { data: immeublesDpe } = await supabaseClient.from('immeubles').select('adresse, dpe_date_expiration').not('dpe_date_expiration', 'is', null).lte('dpe_date_expiration', dansSoixanteJours.toISOString().split('T')[0]);
+    const { data: immeublesDpe } = await supabaseClient.from('immeubles').select('id, adresse, dpe_date_expiration').not('dpe_date_expiration', 'is', null).lte('dpe_date_expiration', dansSoixanteJours.toISOString().split('T')[0]);
     (immeublesDpe || []).forEach(im => {
       const joursRestants = Math.ceil((new Date(im.dpe_date_expiration) - new Date()) / (1000 * 60 * 60 * 24));
-      items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'DPE arrivant à expiration', detail: `${im.adresse} (dans ${joursRestants} j)` });
+      items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'DPE arrivant à expiration', detail: `${im.adresse} (dans ${joursRestants} j)`, lien: { type: 'immeuble', id: im.id } });
     });
 
     // Bail révisable : date anniversaire de signature dans les 60 prochains jours (moment légal de révision IRL)
-    const { data: bauxPourRevision } = await supabaseClient.from('baux').select('*, lots(nom, type, immeubles(adresse))').eq('statut', 'actif');
+    const { data: bauxPourRevision } = await supabaseClient.from('baux').select('*, lots(id, nom, type, immeubles(adresse))').eq('statut', 'actif');
     (bauxPourRevision || []).forEach(b => {
       const debut = new Date(b.date_debut);
       const maintenant = new Date();
@@ -4603,19 +4613,27 @@ Durée : du {{date_debut}} au {{date_fin}}
       if (joursAvant >= 0 && joursAvant <= 60) {
         const lot = b.lots;
         const immeuble = lot && lot.immeubles ? lot.immeubles.adresse : '';
-        items.push({ severite: joursAvant <= 15 ? 'haute' : 'moyenne', titre: 'Révision annuelle du loyer possible', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (dans ${joursAvant} j)` });
+        items.push({ severite: joursAvant <= 15 ? 'haute' : 'moyenne', titre: 'Révision annuelle du loyer possible', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (dans ${joursAvant} j)`, lien: lot ? { type: 'lot', id: lot.id } : null });
       }
     });
 
     // Assurance locataire arrivant à expiration
-    const { data: locatairesAssurancePourAlerte } = await supabaseClient.from('locataires').select('nom, assurance_expiration').not('assurance_expiration', 'is', null).lte('assurance_expiration', dansSoixanteJours.toISOString().split('T')[0]);
+    const { data: locatairesAssurancePourAlerte } = await supabaseClient.from('locataires').select('id, nom, assurance_expiration').not('assurance_expiration', 'is', null).lte('assurance_expiration', dansSoixanteJours.toISOString().split('T')[0]);
     (locatairesAssurancePourAlerte || []).forEach(l => {
       const joursRestants = Math.ceil((new Date(l.assurance_expiration) - new Date()) / (1000 * 60 * 60 * 24));
-      items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'Assurance locataire à renouveler', detail: `${l.nom} (dans ${joursRestants} j)` });
+      items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'Assurance locataire à renouveler', detail: `${l.nom} (dans ${joursRestants} j)`, lien: { type: 'locataire', id: l.id } });
     });
 
     return items;
   }
+
+  function naviguerVersLien(lien) {
+    if (!lien) return;
+    if (lien.type === 'lot') ouvrirFicheLot(lien.id);
+    else if (lien.type === 'immeuble') ouvrirFicheImmeuble(lien.id);
+    else if (lien.type === 'locataire') ouvrirFicheLocataire(lien.id, 'liste');
+  }
+
 
   async function chargerToutesAlertes(tab) {
     const idDiv = tab === 'toutes' ? 'listeAlertesToutes' : 'listeAlertesSeules';
@@ -4624,7 +4642,7 @@ Durée : du {{date_debut}} au {{date_fin}}
     const items = await collecterAlertes();
     if (!items.length) { div.innerHTML = '<div class="empty-state">Aucune alerte pour le moment. 👍</div>'; return; }
     div.innerHTML = items.map(it => `
-      <div class="row"><div><strong>${echapper(it.titre)}</strong><br><span class="small">${echapper(it.detail)}</span></div><span class="severite ${it.severite}">${it.severite === 'haute' ? 'Élevée' : 'Moyenne'}</span></div>
+      <div class="row ${it.lien ? 'row-click' : ''}" ${it.lien ? `onclick="naviguerVersLien(${JSON.stringify(it.lien).replace(/"/g, '&quot;')})"` : ''}><div><strong>${echapper(it.titre)}</strong><br><span class="small">${echapper(it.detail)}</span></div><span class="severite ${it.severite}">${it.severite === 'haute' ? 'Élevée' : 'Moyenne'}</span></div>
     `).join('');
   }
 
