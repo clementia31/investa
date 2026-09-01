@@ -97,6 +97,22 @@
   .overlay-menu-mobile { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; }
   .overlay-menu-mobile.ouverte { display: block; }
 
+  .btn-command-palette { position: fixed; top: 14px; right: 16px; z-index: 220; display: flex; align-items: center; gap: 8px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 9px 12px; color: var(--text-dim); font-size: 0.85rem; cursor: pointer; }
+  .btn-command-palette:hover { border-color: var(--accent); color: var(--text); }
+  .btn-command-palette .cp-label { display: none; }
+  @media (min-width: 700px) { .btn-command-palette .cp-label { display: inline; } }
+  .cp-kbd { background: var(--panel-2); border: 1px solid var(--border); border-radius: 5px; padding: 2px 7px; font-size: 0.72rem; color: var(--text-dim); }
+  .cp-box { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); overflow: hidden; width: 92%; max-width: 560px; max-height: 70vh; display: flex; flex-direction: column; }
+  .cp-input-row { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .cp-input-row input { flex: 1; background: none; border: none; outline: none; color: var(--text); font-size: 1.05rem; margin: 0; padding: 0; }
+  .cp-resultats { overflow-y: auto; padding: 8px 0; }
+  .cp-groupe-titre { padding: 10px 20px 4px; font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+  .cp-item { display: flex; align-items: center; gap: 12px; padding: 10px 20px; cursor: pointer; }
+  .cp-item.active, .cp-item:hover { background: var(--panel-2); }
+  .cp-item-nom { color: var(--text); font-size: 0.92rem; font-weight: 600; }
+  .cp-item-detail { color: var(--text-dim); font-size: 0.78rem; margin-top: 1px; }
+  .cp-footer { display: flex; gap: 16px; padding: 10px 20px; border-top: 1px solid var(--border); font-size: 0.72rem; color: var(--text-dim); flex-shrink: 0; }
+
   .progress-bar-track { height: 7px; background: var(--panel-2); border-radius: 10px; overflow: hidden; }
   .progress-bar-fill { height: 100%; background: var(--green); border-radius: 10px; transition: width 0.3s; }
 
@@ -453,6 +469,22 @@
 
     <button class="btn-menu-mobile" onclick="toggleMenuMobile()" aria-label="Ouvrir le menu">☰</button>
     <div class="overlay-menu-mobile" onclick="toggleMenuMobile()"></div>
+
+    <button class="btn-command-palette" onclick="ouvrirCommandPalette()" aria-label="Recherche rapide (Cmd+K)">
+      <span>🔍</span><span class="cp-label">Rechercher...</span><span class="cp-kbd">⌘K</span>
+    </button>
+
+    <div id="modalCommandPalette" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:flex-start; justify-content:center; padding-top:80px;">
+      <div class="cp-box">
+        <div class="cp-input-row">
+          <span>🔍</span>
+          <input id="cpInput" placeholder="Rechercher un locataire, un bien, une action..." autocomplete="off" oninput="chercherCommandPalette()" onkeydown="gererClavierCommandPalette(event)">
+          <span class="cp-kbd">esc</span>
+        </div>
+        <div id="cpResultats" class="cp-resultats"></div>
+        <div class="cp-footer"><span>↑↓ naviguer</span><span>↵ ouvrir</span><span>esc fermer</span></div>
+      </div>
+    </div>
 
     <!-- SIDEBAR -->
     <div class="sidebar">
@@ -1717,6 +1749,120 @@
     document.querySelector('.sidebar').classList.toggle('ouverte');
     document.querySelector('.overlay-menu-mobile').classList.toggle('ouverte');
   }
+
+  // ---------- COMMAND PALETTE (recherche rapide, ⌘K) ----------
+  const ACTIONS_COMMAND_PALETTE = [
+    { label: 'Ajouter un locataire', action: () => { allerLocataires(); setTimeout(() => document.getElementById('btnAjoutLocataireRapide')?.click(), 200); } },
+    { label: 'Ajouter un bien', action: () => allerPatrimoine() },
+    { label: 'Voir les loyers du mois', action: () => allerLoyers() },
+    { label: 'Voir les documents', action: () => allerDocuments() },
+    { label: 'Voir les tâches à faire', action: () => allerAlertes() },
+    { label: 'Voir la fiscalité', action: () => allerFiscalite() },
+    { label: 'Paramètres', action: () => allerParametres() }
+  ];
+
+  let resultatsCommandPalette = [];
+  let indexActifCommandPalette = -1;
+  let minuteurRechercheCP = null;
+
+  function ouvrirCommandPalette() {
+    document.getElementById('modalCommandPalette').style.display = 'flex';
+    const input = document.getElementById('cpInput');
+    input.value = '';
+    input.focus();
+    afficherActionsParDefautCommandPalette();
+  }
+
+  function fermerCommandPalette() {
+    document.getElementById('modalCommandPalette').style.display = 'none';
+  }
+
+  function afficherActionsParDefautCommandPalette() {
+    resultatsCommandPalette = ACTIONS_COMMAND_PALETTE.map(a => ({ type: 'action', label: a.label, action: a.action }));
+    indexActifCommandPalette = -1;
+    document.getElementById('cpResultats').innerHTML = `<div class="cp-groupe-titre">Actions rapides</div>` +
+      resultatsCommandPalette.map((r, i) => rendreLigneCommandPalette(r, i)).join('');
+  }
+
+  function chercherCommandPalette() {
+    clearTimeout(minuteurRechercheCP);
+    const terme = document.getElementById('cpInput').value.trim();
+    if (!terme) { afficherActionsParDefautCommandPalette(); return; }
+    minuteurRechercheCP = setTimeout(() => executerRechercheCommandPalette(terme), 200);
+  }
+
+  async function executerRechercheCommandPalette(terme) {
+    const [{ data: locataires }, { data: immeubles }] = await Promise.all([
+      supabaseClient.from('locataires').select('id, nom, email').ilike('nom', `%${terme}%`).limit(5),
+      supabaseClient.from('immeubles').select('id, adresse').ilike('adresse', `%${terme}%`).limit(5)
+    ]);
+
+    const actionsFiltrees = ACTIONS_COMMAND_PALETTE.filter(a => a.label.toLowerCase().includes(terme.toLowerCase()));
+
+    resultatsCommandPalette = [
+      ...(locataires || []).map(l => ({ type: 'locataire', id: l.id, label: l.nom, detail: l.email || '' })),
+      ...(immeubles || []).map(im => ({ type: 'immeuble', id: im.id, label: im.adresse, detail: '' })),
+      ...actionsFiltrees.map(a => ({ type: 'action', label: a.label, action: a.action }))
+    ];
+    indexActifCommandPalette = -1;
+
+    const div = document.getElementById('cpResultats');
+    if (!resultatsCommandPalette.length) { div.innerHTML = '<div class="empty-state">Aucun résultat.</div>'; return; }
+
+    let html = '';
+    if (locataires && locataires.length) html += '<div class="cp-groupe-titre">Locataires</div>' + resultatsCommandPalette.filter(r => r.type === 'locataire').map((r) => rendreLigneCommandPalette(r, resultatsCommandPalette.indexOf(r))).join('');
+    if (immeubles && immeubles.length) html += '<div class="cp-groupe-titre">Biens</div>' + resultatsCommandPalette.filter(r => r.type === 'immeuble').map((r) => rendreLigneCommandPalette(r, resultatsCommandPalette.indexOf(r))).join('');
+    if (actionsFiltrees.length) html += '<div class="cp-groupe-titre">Actions</div>' + resultatsCommandPalette.filter(r => r.type === 'action').map((r) => rendreLigneCommandPalette(r, resultatsCommandPalette.indexOf(r))).join('');
+    div.innerHTML = html;
+  }
+
+  function rendreLigneCommandPalette(r, index) {
+    const icone = r.type === 'locataire' ? '👤' : r.type === 'immeuble' ? '🏢' : '＋';
+    return `<div class="cp-item" id="cp-item-${index}" onclick="activerResultatCommandPalette(${index})">
+      <span>${icone}</span>
+      <div><div class="cp-item-nom">${echapper(r.label)}</div>${r.detail ? `<div class="cp-item-detail">${echapper(r.detail)}</div>` : ''}</div>
+    </div>`;
+  }
+
+  function activerResultatCommandPalette(index) {
+    const r = resultatsCommandPalette[index];
+    if (!r) return;
+    fermerCommandPalette();
+    if (r.type === 'locataire') ouvrirFicheLocataire(r.id, 'liste');
+    else if (r.type === 'immeuble') ouvrirFicheImmeuble(r.id);
+    else if (r.type === 'action') r.action();
+  }
+
+  function gererClavierCommandPalette(event) {
+    if (event.key === 'Escape') { fermerCommandPalette(); return; }
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      indexActifCommandPalette = Math.min(indexActifCommandPalette + 1, resultatsCommandPalette.length - 1);
+      mettreAJourSurbrillanceCommandPalette();
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      indexActifCommandPalette = Math.max(indexActifCommandPalette - 1, 0);
+      mettreAJourSurbrillanceCommandPalette();
+    } else if (event.key === 'Enter') {
+      event.preventDefault();
+      if (indexActifCommandPalette >= 0) activerResultatCommandPalette(indexActifCommandPalette);
+    }
+  }
+
+  function mettreAJourSurbrillanceCommandPalette() {
+    document.querySelectorAll('.cp-item').forEach(el => el.classList.remove('active'));
+    const actif = document.getElementById('cp-item-' + indexActifCommandPalette);
+    if (actif) { actif.classList.add('active'); actif.scrollIntoView({ block: 'nearest' }); }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      const modal = document.getElementById('modalCommandPalette');
+      if (modal.style.display === 'flex') fermerCommandPalette(); else ouvrirCommandPalette();
+    }
+  });
+
 
   function setActiveNav(id) {
     NAV_IDS.forEach(n => document.getElementById(n).classList.remove('active'));
