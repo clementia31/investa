@@ -474,7 +474,7 @@
         <div class="cp-input-row">
           <span>🔍</span>
           <input id="cpInput" placeholder="Rechercher un locataire, un bien, une action..." autocomplete="off" oninput="chercherCommandPalette()" onkeydown="gererClavierCommandPalette(event)">
-          <span class="cp-kbd">esc</span>
+          <button class="icon-btn-round" onclick="fermerCommandPalette()" aria-label="Fermer">✕</button>
         </div>
         <div id="cpResultats" class="cp-resultats"></div>
         <div class="cp-footer"><span>↑↓ naviguer</span><span>↵ ouvrir</span><span>esc fermer</span></div>
