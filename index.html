@@ -97,11 +97,10 @@
   .overlay-menu-mobile { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; }
   .overlay-menu-mobile.ouverte { display: block; }
 
-  .btn-command-palette { position: fixed; top: 14px; right: 16px; z-index: 220; display: flex; align-items: center; gap: 8px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 9px 12px; color: var(--text-dim); font-size: 0.85rem; cursor: pointer; }
-  .btn-command-palette:hover { border-color: var(--accent); color: var(--text); }
-  .btn-command-palette .cp-label { display: none; }
-  @media (min-width: 700px) { .btn-command-palette .cp-label { display: inline; } }
-  .cp-kbd { background: var(--panel-2); border: 1px solid var(--border); border-radius: 5px; padding: 2px 7px; font-size: 0.72rem; color: var(--text-dim); }
+  .btn-command-palette-sidebar { display: flex; align-items: center; gap: 8px; width: 100%; background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px; padding: 9px 12px; margin: 4px 0 16px; color: var(--text-dim); font-size: 0.85rem; cursor: pointer; text-align: left; }
+  .btn-command-palette-sidebar:hover { border-color: var(--accent); color: var(--text); }
+  .btn-command-palette-sidebar .cp-kbd { margin-left: auto; }
+  .cp-kbd { background: var(--panel); border: 1px solid var(--border); border-radius: 5px; padding: 2px 7px; font-size: 0.72rem; color: var(--text-dim); }
   .cp-box { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); overflow: hidden; width: 92%; max-width: 560px; max-height: 70vh; display: flex; flex-direction: column; }
   .cp-input-row { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
   .cp-input-row input { flex: 1; background: none; border: none; outline: none; color: var(--text); font-size: 1.05rem; margin: 0; padding: 0; }
@@ -470,10 +469,6 @@
     <button class="btn-menu-mobile" onclick="toggleMenuMobile()" aria-label="Ouvrir le menu">☰</button>
     <div class="overlay-menu-mobile" onclick="toggleMenuMobile()"></div>
 
-    <button class="btn-command-palette" onclick="ouvrirCommandPalette()" aria-label="Recherche rapide (Cmd+K)">
-      <span>🔍</span><span class="cp-label">Rechercher...</span><span class="cp-kbd">⌘K</span>
-    </button>
-
     <div id="modalCommandPalette" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:flex-start; justify-content:center; padding-top:80px;">
       <div class="cp-box">
         <div class="cp-input-row">
@@ -492,6 +487,10 @@
         <svg class="logo-symbol-sidebar" viewBox="0 0 200 500"><use href="#investa-symbol"></use></svg>
         <span class="logo-sidebar-texte">INVESTA</span>
       </div>
+
+      <button class="btn-command-palette-sidebar" onclick="ouvrirCommandPalette()">
+        <span>🔍</span><span>Rechercher...</span><span class="cp-kbd">⌘K</span>
+      </button>
 
       <div class="nav-item active" id="nav-dashboard" onclick="allerDashboard()"><span class="ic">◈</span> Dashboard</div>
       <div class="nav-item" id="nav-patrimoine" onclick="allerPatrimoine()"><span class="ic">🏢</span> Patrimoine</div>
