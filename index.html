@@ -326,6 +326,17 @@
 
   .locataires-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
   @media (max-width: 700px) { .locataires-grid { grid-template-columns: 1fr; } }
+  .doc-row-header, .doc-row { grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr; }
+  @media (max-width: 700px) {
+    .doc-row-header, .doc-row { grid-template-columns: 2fr 1fr; }
+    .doc-row-header span:nth-child(3), .doc-row-header span:nth-child(4),
+    .doc-row span:nth-child(3), .doc-row span:nth-child(4) { display: none; }
+  }
+  @media (max-width: 700px) {
+    .fisc-table-header, .fisc-assoc-row { grid-template-columns: 2fr 1fr; }
+    .fisc-table-header span:nth-child(3), .fisc-table-header span:nth-child(4),
+    .fisc-assoc-row span:nth-child(3), .fisc-assoc-row span:nth-child(4) { display: none; }
+  }
   .locataire-carte { background: var(--panel); border-radius: 16px; padding: 20px 20px 20px 17px; cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.25); border-left: 3px solid var(--border); transition: transform 0.15s; }
   .locataire-carte:hover { transform: translateY(-1px); }
   .locataire-carte.statut-retard { border-left-color: var(--red); }
@@ -1538,7 +1549,7 @@
         </div>
 
         <div class="card">
-          <div class="arbre-header" style="grid-template-columns: 2fr 1.5fr 1fr 1fr;">
+          <div class="arbre-header doc-row-header">
             <span>Nom</span><span>Bien / Lot</span><span>Type</span><span>Ajouté le</span>
           </div>
           <div id="listeDocumentsGlobal">Chargement...</div>
@@ -5414,7 +5425,7 @@ Durée : du {{date_debut}} au {{date_fin}}
 
     const labelsCat = { bail: 'Bail', quittance: 'Quittance', diagnostic: 'Diagnostic', assurance: 'Assurance', travaux: 'Travaux', revision_loyer: 'Révision loyer', autre: 'Autre' };
     div.innerHTML = items.map(d => `
-      <div class="row" style="display:grid; grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr; align-items:center;">
+      <div class="row doc-row" style="display:grid; align-items:center;">
         <span onclick="telechargerDocument('${d.storage_path}')" style="cursor:pointer; color:var(--accent);">📎 ${echapper(d.nom)}</span>
         <span class="small ${d.nomEntite !== '—' ? 'row-click' : ''}" ${d.nomEntite !== '—' ? `onclick="ouvrirEntiteDocument('${d.entity_type}', '${d.entity_id}')"` : ''}>${echapper(d.nomEntite)}</span>
         <span class="badge-outline">${labelsCat[d.categorie] || 'Autre'}</span>
