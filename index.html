@@ -717,6 +717,37 @@
 
           <div class="card">
             <div class="section-header-ajout">
+              <h3>Contacts</h3>
+              <button class="btn-secondary btn-ajout-inline" id="btnAjoutContactImm" onclick="toggleFormulaire('formAjoutContactImm','btnAjoutContactImm')">+ Ajouter</button>
+            </div>
+            <div class="card" id="formAjoutContactImm" style="display:none; margin-bottom:12px;">
+              <input id="contactNomImm" list="listeContactsExistantsImm" placeholder="Nom (ex : AXA, Foncia...)" oninput="preRemplirContactExistant('Imm')">
+              <datalist id="listeContactsExistantsImm"></datalist>
+              <div class="grid-2" style="margin-bottom:0;">
+                <select id="contactCategorieImm">
+                  <option value="syndic">Syndic</option>
+                  <option value="assurance">Assurance</option>
+                  <option value="banque">Banque</option>
+                  <option value="courtier">Courtier</option>
+                  <option value="plombier">Plombier</option>
+                  <option value="electricien">Électricien</option>
+                  <option value="artisan">Artisan</option>
+                  <option value="diagnostiqueur">Diagnostiqueur</option>
+                  <option value="agence">Agence</option>
+                  <option value="notaire">Notaire</option>
+                  <option value="comptable">Comptable</option>
+                  <option value="autre" selected>Autre</option>
+                </select>
+                <input id="contactTelephoneImm" placeholder="Téléphone">
+              </div>
+              <input id="contactEmailImm" placeholder="Email">
+              <button class="btn-primary" onclick="ajouterOuLierContact('Imm', 'immeuble', currentImmeubleId, currentImmeubleData.structure_id)">Enregistrer</button>
+            </div>
+            <div id="listeContactsImm">Chargement...</div>
+          </div>
+
+          <div class="card">
+            <div class="section-header-ajout">
               <h3>Notes</h3>
               <button class="btn-secondary btn-ajout-inline" id="btnAjoutNoteImm" onclick="toggleFormulaire('formAjoutNoteImm','btnAjoutNoteImm')">+ Ajouter</button>
             </div>
@@ -908,6 +939,36 @@
               <input id="taxeFonciereLot" type="number" placeholder="Taxe foncière annuelle (€)">
               <button class="btn-primary" onclick="enregistrerValeurLot()">Enregistrer</button>
             </div>
+          </div>
+          <div class="card">
+            <div class="section-header-ajout">
+              <h3>Contacts</h3>
+              <button class="btn-secondary btn-ajout-inline" id="btnAjoutContactLot" onclick="toggleFormulaire('formAjoutContactLot','btnAjoutContactLot')">+ Ajouter</button>
+            </div>
+            <div class="card" id="formAjoutContactLot" style="display:none; margin-bottom:12px;">
+              <input id="contactNomLot" list="listeContactsExistantsLot" placeholder="Nom (ex : AXA, Foncia...)" oninput="preRemplirContactExistant('Lot')">
+              <datalist id="listeContactsExistantsLot"></datalist>
+              <div class="grid-2" style="margin-bottom:0;">
+                <select id="contactCategorieLot">
+                  <option value="syndic">Syndic</option>
+                  <option value="assurance">Assurance</option>
+                  <option value="banque">Banque</option>
+                  <option value="courtier">Courtier</option>
+                  <option value="plombier">Plombier</option>
+                  <option value="electricien">Électricien</option>
+                  <option value="artisan">Artisan</option>
+                  <option value="diagnostiqueur">Diagnostiqueur</option>
+                  <option value="agence">Agence</option>
+                  <option value="notaire">Notaire</option>
+                  <option value="comptable">Comptable</option>
+                  <option value="autre" selected>Autre</option>
+                </select>
+                <input id="contactTelephoneLot" placeholder="Téléphone">
+              </div>
+              <input id="contactEmailLot" placeholder="Email">
+              <button class="btn-primary" onclick="ajouterOuLierContact('Lot', 'lot', currentLotId, currentLotStructureId)">Enregistrer</button>
+            </div>
+            <div id="listeContactsLot">Chargement...</div>
           </div>
           <div class="card">
             <div class="section-header-ajout">
@@ -2526,6 +2587,7 @@
     chargerActiviteRecenteImmeuble(id, lotIds);
     chargerChargesRecurrentes('immeuble', id, 'listeChargesImm');
     chargerNotes('immeuble', id, 'listeNotesImm');
+    chargerContacts('immeuble', id, 'listeContactsImm', currentImmeubleData.structure_id);
   }
 
   async function chargerASurveillerImmeuble(immeubleId, lotIds) {
@@ -2964,7 +3026,7 @@
       document.getElementById('tabcontent-lot-' + t).style.display = t === tab ? 'block' : 'none';
       document.getElementById('tabLot' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
     });
-    if (tab === 'resume') { chargerColocatairesLot(currentLotId); chargerEcheancesLot(currentLotId); chargerChargesRecurrentes('lot', currentLotId, 'listeChargesLot'); chargerHistoriqueLot(currentLotId); initialiserRegularisationCharges(currentLotId); chargerNotes('lot', currentLotId, 'listeNotesLot'); }
+    if (tab === 'resume') { chargerColocatairesLot(currentLotId); chargerEcheancesLot(currentLotId); chargerChargesRecurrentes('lot', currentLotId, 'listeChargesLot'); chargerHistoriqueLot(currentLotId); initialiserRegularisationCharges(currentLotId); chargerNotes('lot', currentLotId, 'listeNotesLot'); chargerContacts('lot', currentLotId, 'listeContactsLot', currentLotStructureId); }
     if (tab === 'bail') chargerBail(currentLotId);
     if (tab === 'paiements') chargerPaiementsLot(currentLotId);
     if (tab === 'documents') chargerDocuments('lot', currentLotId, 'listeDocumentsLot');
@@ -3252,6 +3314,97 @@
   // Onglet Résumé : prochain paiement, solde éventuel, bail qui approche de sa fin
   const LABELS_TYPE_CHARGE = { copropriete: 'Charges de copropriété', taxe_fonciere: 'Taxe foncière', assurance: 'Assurance', autre: 'Autre' };
   const LABELS_FREQUENCE_CHARGE = { mensuel: 'Mensuel', trimestriel: 'Trimestriel', annuel: 'Annuel' };
+
+  const LABELS_CATEGORIE_CONTACT = { syndic: 'Syndic', assurance: 'Assurance', banque: 'Banque', courtier: 'Courtier', plombier: 'Plombier', electricien: 'Électricien', artisan: 'Artisan', diagnostiqueur: 'Diagnostiqueur', agence: 'Agence', notaire: 'Notaire', comptable: 'Comptable', autre: 'Autre' };
+  let contactsStructureCache = {};
+
+  async function chargerContacts(entityType, entityId, targetDivId, structureId) {
+    const div = document.getElementById(targetDivId);
+    const { data: liens, error } = await supabaseClient.from('contact_links').select('id, contact_id, contacts(id, nom, categorie, telephone, email)').eq('entity_type', entityType).eq('entity_id', entityId);
+    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
+    if (!liens || !liens.length) { div.innerHTML = '<div class="empty-state">Aucun contact pour l\u2019instant.</div>'; return; }
+
+    div.innerHTML = liens.map(l => {
+      const c = l.contacts;
+      if (!c) return '';
+      return `
+      <div class="row" style="align-items:center;">
+        <span class="row-click" style="flex:1;" onclick="ouvrirContactPourModif('${entityType === 'immeuble' ? 'Imm' : 'Lot'}', '${c.id}', '${echapperPourOnclick(c.nom)}', '${c.categorie}', '${echapperPourOnclick(c.telephone || '')}', '${echapperPourOnclick(c.email || '')}')">
+          <span style="font-weight:600;">${echapper(c.nom)}</span>
+          <span class="small" style="display:block; margin-top:1px;">${LABELS_CATEGORIE_CONTACT[c.categorie] || 'Autre'}</span>
+        </span>
+        ${c.telephone ? `<a href="tel:${echapper(c.telephone)}" class="icon-btn-round" aria-label="Appeler" style="margin-right:6px;">📞</a>` : ''}
+        ${c.email ? `<a href="mailto:${echapper(c.email)}" class="icon-btn-round" aria-label="Envoyer un email" style="margin-right:6px;">✉️</a>` : ''}
+        <a href="#" onclick="delierContact('${l.id}', '${entityType}', '${entityId}', '${targetDivId}'); return false;" style="color:var(--red);" aria-label="Retirer">✕</a>
+      </div>
+    `;
+    }).join('');
+
+    // Auto-complétion : contacts déjà existants sur cette structure, réutilisables sans duplication
+    if (structureId) {
+      const { data: contacts } = await supabaseClient.from('contacts').select('*').eq('structure_id', structureId).order('nom');
+      const prefixe = entityType === 'immeuble' ? 'Imm' : 'Lot';
+      contactsStructureCache[prefixe] = contacts || [];
+      document.getElementById('listeContactsExistants' + prefixe).innerHTML = (contacts || []).map(c => `<option value="${echapper(c.nom)}">`).join('');
+    }
+  }
+
+  function preRemplirContactExistant(prefixe) {
+    const nomTape = document.getElementById('contactNom' + prefixe).value.trim().toLowerCase();
+    const existant = (contactsStructureCache[prefixe] || []).find(c => c.nom.toLowerCase() === nomTape);
+    if (existant) {
+      document.getElementById('contactCategorie' + prefixe).value = existant.categorie;
+      document.getElementById('contactTelephone' + prefixe).value = existant.telephone || '';
+      document.getElementById('contactEmail' + prefixe).value = existant.email || '';
+    }
+  }
+
+  function ouvrirContactPourModif(prefixe, id, nom, categorie, telephone, email) {
+    document.getElementById('contactNom' + prefixe).value = nom;
+    document.getElementById('contactCategorie' + prefixe).value = categorie;
+    document.getElementById('contactTelephone' + prefixe).value = telephone;
+    document.getElementById('contactEmail' + prefixe).value = email;
+    const form = document.getElementById('formAjoutContact' + prefixe);
+    if (form.style.display !== 'block') toggleFormulaire('formAjoutContact' + prefixe, 'btnAjoutContact' + prefixe);
+    document.getElementById('contactNom' + prefixe).scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+
+  async function ajouterOuLierContact(prefixe, entityType, entityId, structureId) {
+    const nom = document.getElementById('contactNom' + prefixe).value.trim();
+    const categorie = document.getElementById('contactCategorie' + prefixe).value;
+    const telephone = document.getElementById('contactTelephone' + prefixe).value.trim();
+    const email = document.getElementById('contactEmail' + prefixe).value.trim();
+    if (!nom) return alert('Le nom est requis');
+
+    const existant = (contactsStructureCache[prefixe] || []).find(c => c.nom.toLowerCase() === nom.toLowerCase());
+    let contactId;
+
+    if (existant) {
+      const { error: errMaj } = await supabaseClient.from('contacts').update({ nom, categorie, telephone: telephone || null, email: email || null }).eq('id', existant.id);
+      if (errMaj) { logErreur('modifier_contact', errMaj); return alert('Erreur : ' + errMaj.message); }
+      contactId = existant.id;
+    } else {
+      const { data: nouveau, error: errCreation } = await supabaseClient.from('contacts').insert({ structure_id: structureId, nom, categorie, telephone: telephone || null, email: email || null }).select().single();
+      if (errCreation) { logErreur('creer_contact', errCreation); return alert('Erreur : ' + errCreation.message); }
+      contactId = nouveau.id;
+    }
+
+    const { error: errLien } = await supabaseClient.from('contact_links').insert({ contact_id: contactId, entity_type: entityType, entity_id: entityId });
+    if (errLien && errLien.code !== '23505') { logErreur('lier_contact', errLien); return alert('Erreur : ' + errLien.message); } // 23505 = déjà lié, sans gravité
+
+    document.getElementById('contactNom' + prefixe).value = '';
+    document.getElementById('contactTelephone' + prefixe).value = '';
+    document.getElementById('contactEmail' + prefixe).value = '';
+    toggleFormulaire('formAjoutContact' + prefixe, 'btnAjoutContact' + prefixe);
+    chargerContacts(entityType, entityId, 'listeContacts' + prefixe, structureId);
+  }
+
+  async function delierContact(linkId, entityType, entityId, targetDivId) {
+    if (!confirm('Retirer ce contact de cette fiche ? (Le contact reste disponible sur tes autres biens s\u2019il y est li\u00e9.)')) return;
+    const { error } = await supabaseClient.from('contact_links').delete().eq('id', linkId);
+    if (error) { logErreur('delier_contact', error); return alert('Erreur : ' + error.message); }
+    chargerContacts(entityType, entityId, targetDivId);
+  }
 
   async function chargerNotes(entityType, entityId, targetDivId) {
     const div = document.getElementById(targetDivId);
