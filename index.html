@@ -843,6 +843,43 @@
         <div id="tabcontent-lot-resume">
           <div class="card">
             <div class="section-header-ajout">
+              <h3>Loyer</h3>
+              <button class="btn-secondary btn-ajout-inline" id="btnModifierLoyerLot" onclick="toggleEditionLoyerLot()">Modifier</button>
+            </div>
+            <div id="lotLoyerAffichage">
+              <div style="color:var(--text); font-size:1.5rem; font-weight:700; margin-bottom:14px;" id="lotLoyerMontantAffiche">— <span class="small" style="font-weight:400;">/ mois</span></div>
+              <div class="grid-2" style="margin-bottom:0; padding-top:14px; border-top:1px solid var(--border);">
+                <div>
+                  <div class="small" style="text-transform:uppercase; letter-spacing:0.04em; margin-bottom:4px;">Chauffage</div>
+                  <div id="lotChauffageAffiche" style="font-weight:600;">—</div>
+                </div>
+                <div>
+                  <div class="small" style="text-transform:uppercase; letter-spacing:0.04em; margin-bottom:4px;">Eau</div>
+                  <div id="lotEauAffiche" style="font-weight:600;">—</div>
+                </div>
+              </div>
+            </div>
+            <div id="lotLoyerEdition" style="display:none;">
+              <p class="small" style="margin:0 0 6px;">Loyer mensuel (€)</p>
+              <input id="editLoyerLot" type="number">
+              <div class="grid-2" style="margin-bottom:0; margin-top:10px;">
+                <div>
+                  <p class="small" style="margin:0 0 6px;">Chauffage (€/mois)</p>
+                  <input id="editChauffageLot" type="number">
+                </div>
+                <div>
+                  <p class="small" style="margin:0 0 6px;">Eau (€/mois)</p>
+                  <input id="editEauLot" type="number">
+                </div>
+              </div>
+              <div style="display:flex; gap:8px; margin-top:14px;">
+                <button class="btn-primary" style="flex:1;" onclick="enregistrerLoyerLot()">Enregistrer</button>
+                <button class="btn-secondary" style="flex:1;" onclick="toggleEditionLoyerLot()">Annuler</button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="section-header-ajout">
               <h3>Valeur, dette & taxe foncière</h3>
               <button class="btn-secondary btn-ajout-inline" id="btnModifierValeurLot" onclick="toggleFormulaire('formValeurLot','btnModifierValeurLot')">Modifier</button>
             </div>
@@ -2640,7 +2677,7 @@
       titre: l.nom || labelsParType[l.type] || l.type,
       sousTitre: labelsParType[l.type] + (l.surface ? ` · ${l.surface} m²` : ''),
       nbLots: 1, nbOccupes: l.statut === 'occupe' ? 1 : 0, statutLot: l.statut,
-      loyer: loyerParLot[l.id] || 0,
+      loyer: loyerParLot[l.id] || Number(l.loyer) || 0,
       onclick: `ouvrirFicheLot('${l.id}')`
     })).join('') + `</div>`;
   }
@@ -2721,6 +2758,27 @@
     ouvrirFicheImmeuble(lotInfo.immeuble_id);
   }
 
+  function toggleEditionLoyerLot() {
+    const affichage = document.getElementById('lotLoyerAffichage');
+    const edition = document.getElementById('lotLoyerEdition');
+    const enEdition = edition.style.display === 'block';
+    edition.style.display = enEdition ? 'none' : 'block';
+    affichage.style.display = enEdition ? 'block' : 'none';
+  }
+
+  async function enregistrerLoyerLot() {
+    const loyer = document.getElementById('editLoyerLot').value;
+    const chauffage = document.getElementById('editChauffageLot').value;
+    const eau = document.getElementById('editEauLot').value;
+    const { error } = await supabaseClient.from('lots').update({
+      loyer: loyer ? parseFloat(loyer) : null,
+      chauffage_montant: chauffage ? parseFloat(chauffage) : null,
+      eau_montant: eau ? parseFloat(eau) : null
+    }).eq('id', currentLotId);
+    if (error) { logErreur('modifier_loyer_lot', error); return alert('Erreur : ' + error.message); }
+    ouvrirFicheLot(currentLotId);
+  }
+
   async function enregistrerModifLot() {
     const nom = document.getElementById('editNomLot').value;
     const type = document.getElementById('editTypeLot').value;
@@ -2753,6 +2811,15 @@
     document.getElementById('editNomLot').value = lot.nom || '';
     document.getElementById('editTypeLot').value = lot.type;
     document.getElementById('editSurfaceLot').value = lot.surface || '';
+
+    document.getElementById('lotLoyerMontantAffiche').innerHTML = `${lot.loyer ? Number(lot.loyer).toLocaleString('fr-FR') : '—'} <span class="small" style="font-weight:400;">/ mois</span>`;
+    document.getElementById('lotChauffageAffiche').textContent = lot.chauffage_montant ? Number(lot.chauffage_montant).toLocaleString('fr-FR') + ' € / mois' : '—';
+    document.getElementById('lotEauAffiche').textContent = lot.eau_montant ? Number(lot.eau_montant).toLocaleString('fr-FR') + ' € / mois' : '—';
+    document.getElementById('editLoyerLot').value = lot.loyer || '';
+    document.getElementById('editChauffageLot').value = lot.chauffage_montant || '';
+    document.getElementById('editEauLot').value = lot.eau_montant || '';
+    document.getElementById('lotLoyerAffichage').style.display = 'block';
+    document.getElementById('lotLoyerEdition').style.display = 'none';
 
     document.getElementById('valeurLot').value = lot.valeur_estimee || '';
     document.getElementById('detteLot').value = lot.dette_restante || '';
