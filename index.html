@@ -1243,7 +1243,7 @@
         <div class="grid-3" style="margin-bottom:12px;">
           <div class="stat-card"><div class="lbl">Attendus</div><div class="val" id="loyersKpiAttendus">—</div></div>
           <div class="stat-card green"><div class="lbl">Encaissés</div><div class="val" id="loyersKpiEncaisses">—</div></div>
-          <div class="stat-card red"><div class="lbl">En retard</div><div class="val" id="loyersKpiRetard">—</div></div>
+          <div class="stat-card" id="cardKpiRetard"><div class="lbl">En retard</div><div class="val" id="loyersKpiRetard">—</div></div>
         </div>
 
         <div style="margin-bottom:16px;">
@@ -3130,6 +3130,9 @@
       genererNotificationRevisionIrl(bailId, ancienLoyer, nouveauLoyerCalcule, trimestreChoisi).catch(e => console.error('Notification révision échouée :', e));
     }
 
+    const { data: bailApres } = await supabaseClient.from('baux').select('charges').eq('id', bailId).single();
+    await synchroniserPaiementsFuturs(bailId, nouveauLoyerCalcule, bailApres ? Number(bailApres.charges) : 0);
+
     chargerBail(lotId);
     chargerHistoriqueRevisionsLot(lotId);
   }
@@ -3204,6 +3207,19 @@
     affichage.style.display = enEdition ? 'block' : 'none';
   }
 
+  // Un paiement déjà créé pour un mois garde son montant figé au moment de sa création.
+  // Sans ça, modifier le loyer du bail ne se répercute jamais sur "Loyers & Paiements" pour
+  // le mois en cours ou les mois suivants — connexion cassée entre Bail et Paiements.
+  // On ne touche jamais aux mois déjà passés (historique réel, jamais réécrit).
+  async function synchroniserPaiementsFuturs(bailId, nouveauLoyer, nouvellesCharges) {
+    const moisActuel = new Date();
+    const debutMoisActuel = moisActuel.getFullYear() + '-' + String(moisActuel.getMonth() + 1).padStart(2, '0') + '-01';
+    const { error } = await supabaseClient.from('paiements').update({
+      montant_loyer: nouveauLoyer, montant_charges: nouvellesCharges
+    }).eq('bail_id', bailId).gte('mois', debutMoisActuel);
+    if (error) logErreur('synchroniser_paiements_futurs', error);
+  }
+
   async function enregistrerModifBail(bailId, lotId) {
     const loyer = document.getElementById('editLoyerBail').value;
     const charges = document.getElementById('editChargesBail').value;
@@ -3211,11 +3227,13 @@
     const dateFin = document.getElementById('editDateFinBail').value;
     if (!loyer) return alert('Le loyer est requis');
 
+    const chargesNum = charges ? parseFloat(charges) : 0;
     const { error } = await supabaseClient.from('baux').update({
-      loyer: parseFloat(loyer), charges: charges ? parseFloat(charges) : 0,
+      loyer: parseFloat(loyer), charges: chargesNum,
       depot_garantie: depot ? parseFloat(depot) : null, date_fin: dateFin || null
     }).eq('id', bailId);
     if (error) { logErreur('modifier_bail', error); return alert('Erreur : ' + error.message); }
+    await synchroniserPaiementsFuturs(bailId, parseFloat(loyer), chargesNum);
     chargerBail(lotId);
   }
 
@@ -3841,11 +3859,13 @@
     const depot = document.getElementById('editDepotBailLoc').value;
     if (!loyer) return alert('Le loyer est requis');
 
+    const chargesNum = charges ? parseFloat(charges) : 0;
     const { error } = await supabaseClient.from('baux').update({
-      loyer: parseFloat(loyer), charges: charges ? parseFloat(charges) : 0,
+      loyer: parseFloat(loyer), charges: chargesNum,
       depot_garantie: depot ? parseFloat(depot) : null
     }).eq('id', bailActuelLocataire.id);
     if (error) { logErreur('modifier_bail_depuis_locataire', error); return alert('Erreur : ' + error.message); }
+    await synchroniserPaiementsFuturs(bailActuelLocataire.id, parseFloat(loyer), chargesNum);
     ouvrirFicheLocataire(currentLocataireId, 'liste');
   }
 
@@ -4323,6 +4343,8 @@
     document.getElementById('loyersKpiAttendus').textContent = formatMoney(attendus);
     document.getElementById('loyersKpiEncaisses').textContent = formatMoney(encaisses);
     document.getElementById('loyersKpiRetard').textContent = formatMoney(enRetard);
+    document.getElementById('cardKpiRetard').classList.toggle('red', enRetard > 0);
+    document.getElementById('cardKpiRetard').classList.toggle('green', enRetard === 0);
     document.getElementById('loyersProgressionLabel').textContent = pourcentage + ' % encaissé';
     document.getElementById('loyersProgressionBarre').style.width = pourcentage + '%';
   }
