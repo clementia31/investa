@@ -610,6 +610,27 @@
           <div><span class="lbl">Dette restante</span><span class="val" id="patDette">—</span></div>
         </div>
 
+        <div class="card">
+          <h3>Actif / Passif</h3>
+          <div class="grid-2" style="margin-bottom:14px;">
+            <div>
+              <div class="small" style="text-transform:uppercase; letter-spacing:0.04em;">Valeur nette</div>
+              <div style="color:var(--green); font-size:1.15rem; font-weight:700; margin-top:3px;" id="patValeurNette">—</div>
+            </div>
+            <div>
+              <div class="small" style="text-transform:uppercase; letter-spacing:0.04em;">Rendement brut</div>
+              <div style="color:var(--text); font-size:1.15rem; font-weight:700; margin-top:3px;" id="patRendementBrut">—</div>
+            </div>
+          </div>
+          <div style="height:14px; border-radius:8px; overflow:hidden; display:flex; margin-bottom:6px;" id="patBarreActifPassif"></div>
+          <div style="display:flex; justify-content:space-between;" class="small" id="patLabelsActifPassif"></div>
+        </div>
+
+        <div class="card" id="cardDetteParBien" style="display:none;">
+          <h3>Dette par bien</h3>
+          <div id="listeDetteParBien"></div>
+        </div>
+
         <button class="btn-ajout-replie" id="btnOuvrirAjoutBien" onclick="toggleAjoutPatrimoine()">+ Ajouter un bien ou un immeuble</button>
 
         <div id="panneauAjoutPatrimoine" style="display:none;">
@@ -715,7 +736,7 @@
           <div class="grid-4" style="margin-bottom:0;">
             <div class="stat-card"><div class="lbl">Valeur estimée</div><div class="val" id="immValeur">—</div></div>
             <div class="stat-card red"><div class="lbl">Dette</div><div class="val" id="immDette">—</div></div>
-            <div class="stat-card green"><div class="lbl">Equity</div><div class="val" id="immEquity">—</div></div>
+            <div class="stat-card green"><div class="lbl">Valeur nette</div><div class="val" id="immEquity">—</div></div>
             <div class="stat-card"><div class="lbl">Occupation</div><div class="val" id="immOccupation">—</div></div>
           </div>
           <div class="grid-4" style="margin-top:12px;">
@@ -2499,6 +2520,45 @@
     document.getElementById('patAttendu').textContent = formatMoney(loyersAttendus);
     document.getElementById('patOccupation').textContent = tauxOccup + ' %';
     document.getElementById('patDette').textContent = formatMoney(detteTotale);
+
+    // Actif / Passif
+    const valeurNette = valeurTotale - detteTotale;
+    const rendementBrut = valeurTotale > 0 ? ((loyersAttendus * 12) / valeurTotale * 100).toFixed(1) : null;
+    document.getElementById('patValeurNette').textContent = formatMoney(valeurNette);
+    document.getElementById('patRendementBrut').textContent = rendementBrut !== null ? rendementBrut + ' %' : 'Non calculable';
+    if (valeurTotale > 0) {
+      const pctNette = Math.max(0, Math.round(valeurNette / valeurTotale * 100));
+      const pctDette = 100 - pctNette;
+      document.getElementById('patBarreActifPassif').innerHTML = `<div style="width:${pctNette}%; background:var(--green);"></div><div style="width:${pctDette}%; background:var(--red);"></div>`;
+      document.getElementById('patLabelsActifPassif').innerHTML = `<span>${pctNette}% valeur nette</span><span>${pctDette}% dette</span>`;
+    } else {
+      document.getElementById('patBarreActifPassif').innerHTML = '';
+      document.getElementById('patLabelsActifPassif').innerHTML = '<span>Aucune valeur renseignée</span>';
+    }
+
+    // Dette par bien — uniquement les immeubles dont la valeur ET la dette sont renseignées (histogramme fidèle, pas d'invention)
+    const immeublesAvecDonnees = (tousImmeubles || []).filter(im => im.valeur_estimee && Number(im.valeur_estimee) > 0);
+    if (immeublesAvecDonnees.length) {
+      document.getElementById('cardDetteParBien').style.display = 'block';
+      document.getElementById('listeDetteParBien').innerHTML = immeublesAvecDonnees.map(im => {
+        const valeur = Number(im.valeur_estimee);
+        const dette = Number(im.dette_restante || 0);
+        const pct = Math.min(100, Math.round(dette / valeur * 100));
+        return `
+          <div style="margin-bottom:12px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px;" class="small">
+              <span style="color:var(--text);">${echapper(im.adresse)}</span>
+              <span>${formatMoney(dette)} / ${formatMoney(valeur)}</span>
+            </div>
+            <div style="height:8px; background:var(--panel-2); border-radius:4px; overflow:hidden;">
+              <div style="width:${pct}%; height:100%; background:var(--red);"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    } else {
+      document.getElementById('cardDetteParBien').style.display = 'none';
+    }
 
     rendreArbrePatrimoine('');
   }
