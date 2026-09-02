@@ -3207,16 +3207,18 @@
     affichage.style.display = enEdition ? 'block' : 'none';
   }
 
-  // Un paiement déjà créé pour un mois garde son montant figé au moment de sa création.
-  // Sans ça, modifier le loyer du bail ne se répercute jamais sur "Loyers & Paiements" pour
-  // le mois en cours ou les mois suivants — connexion cassée entre Bail et Paiements.
-  // On ne touche jamais aux mois déjà passés (historique réel, jamais réécrit).
-  async function synchroniserPaiementsFuturs(bailId, nouveauLoyer, nouvellesCharges) {
-    const moisActuel = new Date();
-    const debutMoisActuel = moisActuel.getFullYear() + '-' + String(moisActuel.getMonth() + 1).padStart(2, '0') + '-01';
-    const { error } = await supabaseClient.from('paiements').update({
-      montant_loyer: nouveauLoyer, montant_charges: nouvellesCharges
-    }).eq('bail_id', bailId).gte('mois', debutMoisActuel);
+  // "depuisDebut=true" (bouton "Modifier", correctif) : corrige TOUT l'historique du bail, y compris
+  // les mois déjà passés — l'utilisateur nous dit explicitement que l'ancienne valeur était une erreur.
+  // "depuisDebut=false" (révision IRL légale) : ne touche que le mois en cours et les suivants — une
+  // vraie augmentation légale ne doit jamais réécrire silencieusement ce qui s'est réellement passé avant.
+  async function synchroniserPaiementsFuturs(bailId, nouveauLoyer, nouvellesCharges, depuisDebut) {
+    let requete = supabaseClient.from('paiements').update({ montant_loyer: nouveauLoyer, montant_charges: nouvellesCharges }).eq('bail_id', bailId);
+    if (!depuisDebut) {
+      const moisActuel = new Date();
+      const debutMoisActuel = moisActuel.getFullYear() + '-' + String(moisActuel.getMonth() + 1).padStart(2, '0') + '-01';
+      requete = requete.gte('mois', debutMoisActuel);
+    }
+    const { error } = await requete;
     if (error) logErreur('synchroniser_paiements_futurs', error);
   }
 
@@ -3233,7 +3235,7 @@
       depot_garantie: depot ? parseFloat(depot) : null, date_fin: dateFin || null
     }).eq('id', bailId);
     if (error) { logErreur('modifier_bail', error); return alert('Erreur : ' + error.message); }
-    await synchroniserPaiementsFuturs(bailId, parseFloat(loyer), chargesNum);
+    await synchroniserPaiementsFuturs(bailId, parseFloat(loyer), chargesNum, true);
     chargerBail(lotId);
   }
 
@@ -3865,7 +3867,7 @@
       depot_garantie: depot ? parseFloat(depot) : null
     }).eq('id', bailActuelLocataire.id);
     if (error) { logErreur('modifier_bail_depuis_locataire', error); return alert('Erreur : ' + error.message); }
-    await synchroniserPaiementsFuturs(bailActuelLocataire.id, parseFloat(loyer), chargesNum);
+    await synchroniserPaiementsFuturs(bailActuelLocataire.id, parseFloat(loyer), chargesNum, true);
     ouvrirFicheLocataire(currentLocataireId, 'liste');
   }
 
