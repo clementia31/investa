@@ -441,6 +441,16 @@
       <option value="revision_loyer">Révision de loyer</option>
       <option value="autre">Autre</option>
     </select>
+    <div class="grid-2" style="margin-bottom:0;">
+      <div>
+        <label class="small" style="display:block; margin-bottom:4px;">Date du document</label>
+        <input type="date" id="editDocDate">
+      </div>
+      <div>
+        <label class="small" style="display:block; margin-bottom:4px;">Expiration <span style="opacity:0.6;">(optionnel)</span></label>
+        <input type="date" id="editDocExpiration">
+      </div>
+    </div>
     <div style="display:flex; gap:8px; margin-top:10px;">
       <button class="btn-primary" style="flex:1;" onclick="enregistrerModifDocument()">Enregistrer</button>
       <button class="btn-secondary" style="flex:1;" onclick="fermerModalEditDocument()">Annuler</button>
@@ -1681,6 +1691,16 @@
             <option value="autre">Autre</option>
           </select>
           <input type="file" id="fichierImportGlobal">
+          <div class="grid-2" style="margin-bottom:0;">
+            <div>
+              <label class="small" style="display:block; margin-bottom:4px;">Date du document</label>
+              <input type="date" id="dateDocumentImport">
+            </div>
+            <div>
+              <label class="small" style="display:block; margin-bottom:4px;">Expiration <span style="opacity:0.6;">(optionnel)</span></label>
+              <input type="date" id="dateExpirationImport">
+            </div>
+          </div>
           <button class="btn-primary" onclick="importerDocumentGlobal()">Envoyer</button>
         </div>
 
@@ -2185,6 +2205,9 @@
     // Assurance locataire arrivant à expiration
     const { data: locatairesAssurance } = await supabaseClient.from('locataires').select('id, nom, assurance_expiration').in('structure_id', structIds).not('assurance_expiration', 'is', null).lte('assurance_expiration', dans60jours.toISOString().split('T')[0]);
 
+    // Documents à échéance générique
+    const { data: documentsExpirantsDash } = await supabaseClient.from('documents').select('id, nom, storage_path, expiration_date').in('structure_id', structIds).not('expiration_date', 'is', null).lte('expiration_date', dans60jours.toISOString().split('T')[0]).order('expiration_date').limit(2);
+
     let html = '';
     if (retardCount > 0) html += `<div class="alert-row row-click" onclick="allerLoyers()"><span class="alert-dot high"></span><span style="flex:1;">${retardCount} loyer${retardCount > 1 ? 's' : ''} en retard</span><span class="small">→</span></div>`;
     if (tachesEnRetard && tachesEnRetard.length) html += `<div class="alert-row row-click" onclick="allerAlertes()"><span class="alert-dot med"></span><span style="flex:1;">${tachesEnRetard.length} tâche${tachesEnRetard.length > 1 ? 's' : ''} en retard</span><span class="small">→</span></div>`;
@@ -2203,6 +2226,10 @@
     });
     (locatairesAssurance || []).slice(0, 2).forEach(l => {
       html += `<div class="alert-row row-click" onclick="ouvrirFicheLocataire('${l.id}', 'liste')"><span class="alert-dot med"></span><span style="flex:1;">Assurance à renouveler — ${echapper(l.nom)} (${l.assurance_expiration})</span></div>`;
+    });
+    (documentsExpirantsDash || []).forEach(d => {
+      const jours = Math.ceil((new Date(d.expiration_date) - new Date()) / (1000 * 60 * 60 * 24));
+      html += `<div class="alert-row row-click" onclick="telechargerDocument('${d.storage_path}')"><span class="alert-dot med"></span><span style="flex:1;">${echapper(d.nom)} — ${jours < 0 ? 'expiré' : 'expire dans ' + jours + ' j'}</span></div>`;
     });
     div.innerHTML = html || '<div class="empty-state">Rien à signaler pour le moment. 👍</div>';
   }
@@ -3412,14 +3439,39 @@
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
     if (!notes || !notes.length) { div.innerHTML = '<div class="empty-state">Aucune note pour l\u2019instant.</div>'; return; }
     div.innerHTML = notes.map(n => `
-      <div class="row" style="align-items:flex-start;">
+      <div class="row" id="note-affichage-${n.id}" style="align-items:flex-start;">
         <span style="white-space:pre-wrap; flex:1;">${echapper(n.contenu)}</span>
         <span style="flex-shrink:0; margin-left:10px;">
           <span class="small" style="margin-right:8px;">${formatDate(n.created_at)}</span>
+          <a href="#" onclick="ouvrirEditionNote('${n.id}', '${echapperPourOnclick(n.contenu)}'); return false;" style="margin-right:8px;" aria-label="Modifier">✏️</a>
           <a href="#" onclick="supprimerNote('${n.id}', '${entityType}', '${entityId}', '${targetDivId}'); return false;" style="color:var(--red);" aria-label="Supprimer">✕</a>
         </span>
       </div>
+      <div id="note-edition-${n.id}" style="display:none; padding:10px 0; border-bottom:1px solid var(--border);">
+        <textarea id="note-texte-edition-${n.id}" rows="3" style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; resize:vertical;"></textarea>
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <button class="btn-primary" style="flex:1;" onclick="enregistrerModifNote('${n.id}', '${entityType}', '${entityId}', '${targetDivId}')">Enregistrer</button>
+          <button class="btn-secondary" style="flex:1;" onclick="ouvrirEditionNote('${n.id}', null)">Annuler</button>
+        </div>
+      </div>
     `).join('');
+  }
+
+  function ouvrirEditionNote(id, contenuActuel) {
+    const affichage = document.getElementById('note-affichage-' + id);
+    const edition = document.getElementById('note-edition-' + id);
+    const ouverture = contenuActuel !== null;
+    affichage.style.display = ouverture ? 'none' : 'flex';
+    edition.style.display = ouverture ? 'block' : 'none';
+    if (ouverture) document.getElementById('note-texte-edition-' + id).value = contenuActuel;
+  }
+
+  async function enregistrerModifNote(id, entityType, entityId, targetDivId) {
+    const contenu = document.getElementById('note-texte-edition-' + id).value.trim();
+    if (!contenu) return alert('La note ne peut pas être vide');
+    const { error } = await supabaseClient.from('notes').update({ contenu, updated_at: new Date().toISOString() }).eq('id', id);
+    if (error) { logErreur('modifier_note', error); return alert('Erreur : ' + error.message); }
+    chargerNotes(entityType, entityId, targetDivId);
   }
 
   async function ajouterNote(prefixe, entityType, entityId, structureId) {
@@ -5152,6 +5204,27 @@ Durée : du {{date_debut}} au {{date_fin}}
       items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'Assurance locataire à renouveler', detail: `${l.nom} (dans ${joursRestants} j)`, lien: { type: 'locataire', id: l.id } });
     });
 
+    // Documents à échéance générique (assurance PNO, contrats, garanties... — hors DPE/assurance locataire déjà gérés ci-dessus)
+    const { data: documentsExpirants } = await supabaseClient.from('documents').select('id, nom, storage_path, entity_type, entity_id, expiration_date').not('expiration_date', 'is', null).lte('expiration_date', dansSoixanteJours.toISOString().split('T')[0]);
+    if (documentsExpirants && documentsExpirants.length) {
+      const immIds = documentsExpirants.filter(d => d.entity_type === 'immeuble').map(d => d.entity_id);
+      const lotIds = documentsExpirants.filter(d => d.entity_type === 'lot').map(d => d.entity_id);
+      const locIds = documentsExpirants.filter(d => d.entity_type === 'locataire').map(d => d.entity_id);
+      const [{ data: immsPourDoc }, { data: lotsPourDoc }, { data: locsPourDoc }] = await Promise.all([
+        immIds.length ? supabaseClient.from('immeubles').select('id, adresse').in('id', immIds) : Promise.resolve({ data: [] }),
+        lotIds.length ? supabaseClient.from('lots').select('id, nom, type, immeubles(adresse)').in('id', lotIds) : Promise.resolve({ data: [] }),
+        locIds.length ? supabaseClient.from('locataires').select('id, nom').in('id', locIds) : Promise.resolve({ data: [] })
+      ]);
+      const nomImmPourDoc = {}; (immsPourDoc || []).forEach(i => nomImmPourDoc[i.id] = i.adresse);
+      const nomLotPourDoc = {}; (lotsPourDoc || []).forEach(l => nomLotPourDoc[l.id] = (l.nom || l.type) + (l.immeubles ? ' — ' + l.immeubles.adresse : ''));
+      const nomLocPourDoc = {}; (locsPourDoc || []).forEach(l => nomLocPourDoc[l.id] = l.nom);
+      documentsExpirants.forEach(d => {
+        const joursRestants = Math.ceil((new Date(d.expiration_date) - new Date()) / (1000 * 60 * 60 * 24));
+        const detail = d.entity_type === 'immeuble' ? (nomImmPourDoc[d.entity_id] || '') : d.entity_type === 'lot' ? (nomLotPourDoc[d.entity_id] || '') : (nomLocPourDoc[d.entity_id] || '');
+        items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: `${d.nom} — ${joursRestants < 0 ? 'expiré' : 'expire dans ' + joursRestants + ' j'}`, detail, lien: { type: 'document', storagePath: d.storage_path } });
+      });
+    }
+
     return items;
   }
 
@@ -5160,6 +5233,7 @@ Durée : du {{date_debut}} au {{date_fin}}
     if (lien.type === 'lot') ouvrirFicheLot(lien.id);
     else if (lien.type === 'immeuble') ouvrirFicheImmeuble(lien.id);
     else if (lien.type === 'locataire') ouvrirFicheLocataire(lien.id, 'liste');
+    else if (lien.type === 'document') telechargerDocument(lien.storagePath);
   }
 
 
@@ -5559,7 +5633,7 @@ Durée : du {{date_debut}} au {{date_fin}}
     return null;
   }
 
-  async function uploaderDocument(entityType, entityId, structureId, inputId, categorie) {
+  async function uploaderDocument(entityType, entityId, structureId, inputId, categorie, documentDate, expirationDate) {
     const input = document.getElementById(inputId);
     const file = input.files[0];
     if (!file) return alert('Choisis un fichier');
@@ -5573,7 +5647,8 @@ Durée : du {{date_debut}} au {{date_fin}}
 
     const { error: errInsert } = await supabaseClient.from('documents').insert({
       structure_id: structureId, entity_type: entityType, entity_id: entityId,
-      nom: file.name, storage_path: cheminFichier, taille_octets: file.size, categorie: categorie || 'autre'
+      nom: file.name, storage_path: cheminFichier, taille_octets: file.size, categorie: categorie || 'autre',
+      document_date: documentDate || null, expiration_date: expirationDate || null
     });
     if (errInsert) { await nettoyerFichierOrphelin(cheminFichier); return alert('Erreur : ' + errInsert.message); }
 
@@ -5594,10 +5669,10 @@ Durée : du {{date_debut}} au {{date_fin}}
 
     div.innerHTML = docs.map(d => `
       <div class="row">
-        <span>📎 ${echapper(d.nom)} <span class="small">(${d.taille_octets ? Math.round(d.taille_octets / 1024) + ' Ko' : ''})</span></span>
+        <span>📎 ${echapper(d.nom)} <span class="small">(${d.taille_octets ? Math.round(d.taille_octets / 1024) + ' Ko' : ''})</span> ${badgeEcheanceDocument(d.expiration_date)}</span>
         <span>
           <a href="#" onclick="telechargerDocument('${d.storage_path}'); return false;" style="color:var(--accent); margin-right:12px;">Ouvrir</a>
-          <a href="#" onclick="ouvrirEditDocument('${d.id}', '${echapperPourOnclick(d.nom)}', '${d.categorie}', '${entityType}', '${entityId}', '${targetDivId}'); return false;" style="margin-right:12px;">Modifier</a>
+          <a href="#" onclick="ouvrirEditDocument('${d.id}', '${echapperPourOnclick(d.nom)}', '${d.categorie}', '${entityType}', '${entityId}', '${targetDivId}', '${d.document_date || ''}', '${d.expiration_date || ''}'); return false;" style="margin-right:12px;">Modifier</a>
           <a href="#" onclick="supprimerDocument('${d.id}', '${d.storage_path}', '${entityType}', '${entityId}', '${targetDivId}'); return false;" style="color:var(--red);">Supprimer</a>
         </span>
       </div>
@@ -5612,10 +5687,12 @@ Durée : du {{date_debut}} au {{date_fin}}
 
   let contexteEditDocument = null;
 
-  function ouvrirEditDocument(id, nom, categorie, entityType, entityId, targetDivId) {
+  function ouvrirEditDocument(id, nom, categorie, entityType, entityId, targetDivId, documentDate, expirationDate) {
     contexteEditDocument = { id, entityType, entityId, targetDivId };
     document.getElementById('editDocNom').value = nom;
     document.getElementById('editDocCategorie').value = categorie;
+    document.getElementById('editDocDate').value = documentDate || '';
+    document.getElementById('editDocExpiration').value = expirationDate || '';
     document.getElementById('modalEditDocument').style.display = 'flex';
   }
 
@@ -5628,9 +5705,13 @@ Durée : du {{date_debut}} au {{date_fin}}
     if (!contexteEditDocument) return;
     const nom = document.getElementById('editDocNom').value;
     const categorie = document.getElementById('editDocCategorie').value;
+    const documentDate = document.getElementById('editDocDate').value;
+    const expirationDate = document.getElementById('editDocExpiration').value;
     if (!nom) return alert('Le nom est requis');
 
-    const { error } = await supabaseClient.from('documents').update({ nom, categorie }).eq('id', contexteEditDocument.id);
+    const { error } = await supabaseClient.from('documents').update({
+      nom, categorie, document_date: documentDate || null, expiration_date: expirationDate || null
+    }).eq('id', contexteEditDocument.id);
     if (error) { logErreur('modifier_document', error); return alert('Erreur : ' + error.message); }
 
     const { entityType, entityId, targetDivId } = contexteEditDocument;
@@ -5798,13 +5879,23 @@ Durée : du {{date_debut}} au {{date_fin}}
     const labelsCat = { bail: 'Bail', quittance: 'Quittance', diagnostic: 'Diagnostic', assurance: 'Assurance', travaux: 'Travaux', revision_loyer: 'Révision loyer', autre: 'Autre' };
     div.innerHTML = items.map(d => `
       <div class="row doc-row" style="display:grid; align-items:center;">
-        <span onclick="telechargerDocument('${d.storage_path}')" style="cursor:pointer; color:var(--accent);">📎 ${echapper(d.nom)}</span>
+        <span onclick="telechargerDocument('${d.storage_path}')" style="cursor:pointer; color:var(--accent);">📎 ${echapper(d.nom)} ${badgeEcheanceDocument(d.expiration_date)}</span>
         <span class="small ${d.nomEntite !== '—' ? 'row-click' : ''}" ${d.nomEntite !== '—' ? `onclick="ouvrirEntiteDocument('${d.entity_type}', '${d.entity_id}')"` : ''}>${echapper(d.nomEntite)}</span>
         <span class="badge-outline">${labelsCat[d.categorie] || 'Autre'}</span>
         <span class="small">${formatDate(d.created_at)}</span>
         <span>${d.categorie === 'diagnostic' ? `<a href="#" onclick="envoyerDocumentAUnLocataire('${d.id}'); return false;" style="color:var(--accent);">✉️ Envoyer</a>` : ''}</span>
       </div>
     `).join('');
+  }
+
+  function badgeEcheanceDocument(expirationDate) {
+    if (!expirationDate) return '';
+    const jours = Math.ceil((new Date(expirationDate) - new Date()) / (1000 * 60 * 60 * 24));
+    if (jours > 60) return '';
+    if (jours < 0) return `<span class="badge-pill" style="background:rgba(239,68,68,0.15); color:var(--red); margin-left:6px;">Expiré</span>`;
+    const couleur = jours <= 30 ? 'var(--red)' : 'var(--amber)';
+    const fond = jours <= 30 ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)';
+    return `<span class="badge-pill" style="background:${fond}; color:${couleur}; margin-left:6px;">Expire dans ${jours}j</span>`;
   }
 
   function filtrerDocumentsGlobal() {
@@ -5854,7 +5945,11 @@ Durée : du {{date_debut}} au {{date_fin}}
     }
     if (!structureId) return alert('Erreur : impossible de déterminer la structure de cette cible.');
 
-    await uploaderDocument(type, cibleId, structureId, 'fichierImportGlobal', categorie);
+    const dateDocument = document.getElementById('dateDocumentImport').value;
+    const dateExpiration = document.getElementById('dateExpirationImport').value;
+    await uploaderDocument(type, cibleId, structureId, 'fichierImportGlobal', categorie, dateDocument, dateExpiration);
+    document.getElementById('dateDocumentImport').value = '';
+    document.getElementById('dateExpirationImport').value = '';
     document.getElementById('cardImportDocument').style.display = 'none';
     chargerDocumentsGlobal();
   }
