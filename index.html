@@ -2074,26 +2074,25 @@
       return;
     }
 
-    // Loyers attendus : calculés directement depuis les BAUX ACTIFS, pas depuis la table paiements
-    // (qui ne se remplit que quand on ouvre l'écran Loyers) — comme ça le Dashboard reflète
-    // immédiatement tout bien créé depuis Patrimoine, sans étape intermédiaire.
-    // On compare au DERNIER jour du mois (pas le premier) pour bien compter un bail qui démarre
-    // en milieu de mois, et on exclut les baux déjà terminés (date de sortie passée).
     const dernierJourMoisDash = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()).padStart(2, '0');
-    const { data: bauxActifsBruts } = await supabaseClient.from('baux').select('loyer, charges, date_debut, date_fin').eq('statut', 'actif').lte('date_debut', dernierJourMoisDash);
+    const { data: bauxActifsBruts } = await supabaseClient.from('baux').select('id, loyer, charges, date_debut, date_fin').eq('statut', 'actif').lte('date_debut', dernierJourMoisDash);
     const bauxActifsMois = (bauxActifsBruts || []).filter(b => !b.date_fin || b.date_fin >= moisDate);
     let attendu = 0;
     (bauxActifsMois || []).forEach(b => { attendu += Number(b.loyer) + Number(b.charges); });
 
-    // Encaissé / en retard : ça, ça reste basé sur les vrais paiements enregistrés
-    // (le statut de paiement n'existe légitimement qu'une fois suivi dans Loyers)
-    const { data: paiements } = await supabaseClient.from('paiements').select('*').eq('mois', moisDate);
+    // Encaissé / en retard : le statut (payé/en retard) reste celui suivi dans Loyers, mais le MONTANT
+    // compté comme encaissé provient désormais du bail en direct — jamais de la copie figée dans
+    // paiements — pour ne plus jamais désynchroniser ce chiffre du reste du Dashboard.
+    const loyerParBail = {};
+    (bauxActifsBruts || []).forEach(b => { loyerParBail[b.id] = Number(b.loyer) + Number(b.charges); });
+    const { data: paiements } = await supabaseClient.from('paiements').select('bail_id, statut').eq('mois', moisDate);
     let encaisse = 0, retardCount = 0;
     (paiements || []).forEach(p => {
-      const total = Number(p.montant_loyer) + Number(p.montant_charges);
+      const total = loyerParBail[p.bail_id] !== undefined ? loyerParBail[p.bail_id] : 0;
       if (p.statut === 'paye') encaisse += total;
       if (p.statut === 'en_retard') retardCount++;
     });
+
 
     // Charges du mois
     const finMois = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
@@ -4317,13 +4316,23 @@
       }
     });
 
+    const now = new Date();
+    const moisDateActuel = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-01';
+    const moisAfficheEstPasse = moisDate < moisDateActuel;
+
     const items = bauxStructure.map(bail => {
       const paiement = paiementParBail[bail.id];
       const jourEcheance = Math.min(new Date(bail.date_debut).getDate(), nbJoursMois);
       const idsLocataires = idsParBail[bail.id] || [];
+      // Mois déjà passé → on respecte le montant réellement figé à l'époque (vrai historique).
+      // Mois en cours ou futur → on lit le loyer en direct du bail, jamais une copie qui pourrait
+      // être désynchronisée après une correction (cause du souci remonté par Marina).
+      const montant = moisAfficheEstPasse
+        ? Number(paiement.montant_loyer) + Number(paiement.montant_charges)
+        : Number(bail.loyer) + Number(bail.charges);
       return {
         paiement, jour: jourEcheance, lotNom: bail.lots.nom || bail.lots.type, lotId: bail.lot_id,
-        adresse: bail.lots.immeubles.adresse, montant: Number(paiement.montant_loyer) + Number(paiement.montant_charges),
+        adresse: bail.lots.immeubles.adresse, montant,
         nomLocataire: (nomsParBail[bail.id] || []).join(' et ') || 'Locataire inconnu',
         locataireId: idsLocataires.length === 1 ? idsLocataires[0] : null
       };
