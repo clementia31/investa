@@ -149,6 +149,9 @@
   .ligne-edition-bail input { width: 130px; margin: 0; padding: 7px 10px; text-align: right; font-weight: 600; }
   .row:last-child { border-bottom: none; }
   .row-click { cursor: pointer; }
+  .historique-bien-ligne { display: flex; align-items: center; gap: 12px; padding: 11px 4px; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .historique-bien-ligne:last-child { border-bottom: none; }
+  .historique-bien-ligne:hover { background: var(--panel-2); }
   .row-click:hover { color: var(--accent); }
   .small { font-size: 0.83rem; color: var(--text-dim); }
   .breadcrumb { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 14px; cursor: pointer; }
@@ -713,8 +716,21 @@
           </div>
 
           <div class="card">
-            <h3>Activité récente</h3>
+            <div class="section-header-ajout">
+              <h3>Notes</h3>
+              <button class="btn-secondary btn-ajout-inline" id="btnAjoutNoteImm" onclick="toggleFormulaire('formAjoutNoteImm','btnAjoutNoteImm')">+ Ajouter</button>
+            </div>
+            <div class="card" id="formAjoutNoteImm" style="display:none; margin-bottom:12px;">
+              <textarea id="noteTexteImm" rows="3" placeholder="Ex : Chaudière remplacée en février 2025..." style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; resize:vertical;"></textarea>
+              <button class="btn-primary" style="margin-top:8px;" onclick="ajouterNote('Imm', 'immeuble', currentImmeubleId, currentImmeubleData.structure_id)">Enregistrer</button>
+            </div>
+            <div id="listeNotesImm">Chargement...</div>
+          </div>
+
+          <div class="card">
+            <h3>Historique du bien</h3>
             <div id="immActiviteRecente">Chargement...</div>
+            <button class="btn-ajout-replie" id="btnPlusHistoriqueBien" style="display:none; margin-top:8px; margin-bottom:0;" onclick="afficherPlusHistoriqueBien()">Afficher plus</button>
           </div>
 
           <div class="card">
@@ -894,6 +910,17 @@
             </div>
           </div>
           <div class="card">
+            <div class="section-header-ajout">
+              <h3>Notes</h3>
+              <button class="btn-secondary btn-ajout-inline" id="btnAjoutNoteLot" onclick="toggleFormulaire('formAjoutNoteLot','btnAjoutNoteLot')">+ Ajouter</button>
+            </div>
+            <div class="card" id="formAjoutNoteLot" style="display:none; margin-bottom:12px;">
+              <textarea id="noteTexteLot" rows="3" placeholder="Ex : Prévoir peinture au départ du locataire..." style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; resize:vertical;"></textarea>
+              <button class="btn-primary" style="margin-top:8px;" onclick="ajouterNote('Lot', 'lot', currentLotId, currentLotStructureId)">Enregistrer</button>
+            </div>
+            <div id="listeNotesLot">Chargement...</div>
+          </div>
+          <div class="card">
             <h3>Locataire(s)</h3>
             <div id="lotColocataires">Chargement...</div>
           </div>
@@ -1042,6 +1069,17 @@
                 <button class="btn-secondary" style="flex:1;" onclick="toggleEditionBailLocataire()">Annuler</button>
               </div>
             </div>
+          </div>
+          <div class="card">
+            <div class="section-header-ajout">
+              <h3>Notes</h3>
+              <button class="btn-secondary btn-ajout-inline" id="btnAjoutNoteLoc" onclick="toggleFormulaire('formAjoutNoteLoc','btnAjoutNoteLoc')">+ Ajouter</button>
+            </div>
+            <div class="card" id="formAjoutNoteLoc" style="display:none; margin-bottom:12px;">
+              <textarea id="noteTexteLoc" rows="3" placeholder="Ex : Préfère être contacté le soir..." style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; resize:vertical;"></textarea>
+              <button class="btn-primary" style="margin-top:8px;" onclick="ajouterNote('Loc', 'locataire', currentLocataireId, currentLocataireStructureId)">Enregistrer</button>
+            </div>
+            <div id="listeNotesLoc">Chargement...</div>
           </div>
           <div class="card">
             <h3>Colocataire(s)</h3>
@@ -2487,6 +2525,7 @@
     chargerASurveillerImmeuble(id, lotIds);
     chargerActiviteRecenteImmeuble(id, lotIds);
     chargerChargesRecurrentes('immeuble', id, 'listeChargesImm');
+    chargerNotes('immeuble', id, 'listeNotesImm');
   }
 
   async function chargerASurveillerImmeuble(immeubleId, lotIds) {
@@ -2527,33 +2566,112 @@
       : '<div class="empty-state">Rien à signaler. 👍</div>';
   }
 
+  let bufferHistoriqueBien = [];
+  let nbAffichesHistoriqueBien = 8;
+
   async function chargerActiviteRecenteImmeuble(immeubleId, lotIds) {
     const div = document.getElementById('immActiviteRecente');
     const evenements = [];
 
-    const { data: transactions } = await supabaseClient.from('transactions').select('*').eq('immeuble_id', immeubleId).order('date', { ascending: false }).limit(8);
+    // Transactions (dépenses/recettes) — clic → onglet Finances de ce même bien
+    const { data: transactions } = await supabaseClient.from('transactions').select('*').eq('immeuble_id', immeubleId).order('date', { ascending: false }).limit(15);
     (transactions || []).forEach(t => {
-      evenements.push({ date: t.date, texte: echapper(t.description || t.categorie), montant: (t.type === 'recette' ? '+' : '-') + Number(t.montant).toLocaleString('fr-FR') + ' €' });
+      evenements.push({
+        date: t.date, icone: t.type === 'recette' ? '💰' : '🔧',
+        titre: echapper(t.description || t.categorie), detail: '',
+        montant: (t.type === 'recette' ? '+' : '-') + Number(t.montant).toLocaleString('fr-FR') + ' €',
+        montantClasse: t.type === 'recette' ? 'var(--green)' : 'var(--red)',
+        onclick: `switchTabImmeuble('finances')`
+      });
     });
 
+    let lotParId = {};
+    let bailParId = {};
     if (lotIds.length) {
-      const { data: baux } = await supabaseClient.from('baux').select('id, lots(nom, type)').in('lot_id', lotIds);
-      const bailParId = {};
+      const { data: lots } = await supabaseClient.from('lots').select('id, nom, type').in('id', lotIds);
+      (lots || []).forEach(l => lotParId[l.id] = l);
+
+      const { data: baux } = await supabaseClient.from('baux').select('*, lots(nom, type)').in('lot_id', lotIds);
       (baux || []).forEach(b => bailParId[b.id] = b);
       const bailIds = (baux || []).map(b => b.id);
+
+      // Paiements — clic → fiche du lot concerné
       if (bailIds.length) {
-        const { data: paiements } = await supabaseClient.from('paiements').select('*').in('bail_id', bailIds).eq('statut', 'paye').not('date_paiement', 'is', null).order('date_paiement', { ascending: false }).limit(8);
+        const { data: paiements } = await supabaseClient.from('paiements').select('*').in('bail_id', bailIds).eq('statut', 'paye').not('date_paiement', 'is', null).order('date_paiement', { ascending: false }).limit(15);
         (paiements || []).forEach(p => {
-          const lot = bailParId[p.bail_id];
-          evenements.push({ date: p.date_paiement, texte: `Loyer ${lot ? echapper(lot.lots.nom || lot.lots.type) : ''} reçu`, montant: '+' + (Number(p.montant_loyer) + Number(p.montant_charges)).toLocaleString('fr-FR') + ' €' });
+          const bail = bailParId[p.bail_id];
+          const lotNom = bail ? echapper(bail.lots.nom || bail.lots.type) : '';
+          evenements.push({
+            date: p.date_paiement, icone: '✓', titre: 'Loyer reçu', detail: lotNom,
+            montant: '+' + (Number(p.montant_loyer) + Number(p.montant_charges)).toLocaleString('fr-FR') + ' €', montantClasse: 'var(--green)',
+            onclick: bail ? `ouvrirFicheLot('${bail.lot_id}')` : null
+          });
+        });
+      }
+
+      // Nouveaux baux / fins de bail — clic → fiche du lot
+      (baux || []).forEach(b => {
+        const lotNom = echapper(b.lots.nom || b.lots.type);
+        evenements.push({ date: b.date_debut, icone: '👤', titre: 'Nouveau bail', detail: lotNom, montant: '', montantClasse: '', onclick: `ouvrirFicheLot('${b.lot_id}')` });
+        if (b.statut === 'termine' && b.date_fin) {
+          evenements.push({ date: b.date_fin, icone: '👤', titre: 'Fin de bail', detail: lotNom, montant: '', montantClasse: '', onclick: `ouvrirFicheLot('${b.lot_id}')` });
+        }
+      });
+
+      // Révisions de loyer — clic → fiche du lot
+      if (bailIds.length) {
+        const { data: revisions } = await supabaseClient.from('revisions_loyer').select('*').in('bail_id', bailIds).order('date_application', { ascending: false }).limit(15);
+        (revisions || []).forEach(r => {
+          const bail = bailParId[r.bail_id];
+          const lotNom = bail ? echapper(bail.lots.nom || bail.lots.type) : '';
+          evenements.push({
+            date: r.date_application, icone: '↗', titre: 'Révision du loyer',
+            detail: `${lotNom} · ${Number(r.ancien_loyer).toLocaleString('fr-FR')} € → ${Number(r.nouveau_loyer).toLocaleString('fr-FR')} €`,
+            montant: '', montantClasse: '', onclick: bail ? `ouvrirFicheLot('${bail.lot_id}')` : null
+          });
         });
       }
     }
 
+    // Documents importants (jamais quittance/révision — déjà représentés par leurs propres événements ci-dessus)
+    const idsEntites = [immeubleId, ...lotIds];
+    const { data: documents } = await supabaseClient.from('documents').select('*').in('entity_id', idsEntites).not('categorie', 'in', '(quittance,revision_loyer)').order('created_at', { ascending: false }).limit(15);
+    const labelsDoc = { bail: 'Bail ajouté', diagnostic: 'DPE / diagnostic ajouté', assurance: 'Assurance ajoutée', travaux: 'Facture travaux ajoutée', autre: 'Document ajouté' };
+    (documents || []).forEach(d => {
+      const lotNom = d.entity_type === 'lot' && lotParId[d.entity_id] ? echapper(lotParId[d.entity_id].nom || lotParId[d.entity_id].type) : '';
+      evenements.push({
+        date: d.created_at, icone: '📄', titre: labelsDoc[d.categorie] || 'Document ajouté', detail: lotNom,
+        montant: '', montantClasse: '', onclick: `telechargerDocument('${d.storage_path}')`
+      });
+    });
+
     evenements.sort((a, b) => new Date(b.date) - new Date(a.date));
-    div.innerHTML = evenements.length
-      ? evenements.slice(0, 8).map(e => `<div class="row"><span class="small">${formatDate(e.date)}</span><span style="flex:1; margin-left:10px;">${e.texte}</span><span>${e.montant}</span></div>`).join('')
-      : '<div class="empty-state">Aucune activité récente.</div>';
+    bufferHistoriqueBien = evenements;
+    nbAffichesHistoriqueBien = 8;
+    rendreHistoriqueBien();
+  }
+
+  function rendreHistoriqueBien() {
+    const div = document.getElementById('immActiviteRecente');
+    const btnPlus = document.getElementById('btnPlusHistoriqueBien');
+    if (!bufferHistoriqueBien.length) { div.innerHTML = '<div class="empty-state">Aucun événement pour le moment.</div>'; btnPlus.style.display = 'none'; return; }
+
+    div.innerHTML = bufferHistoriqueBien.slice(0, nbAffichesHistoriqueBien).map(e => `
+      <div class="row historique-bien-ligne" ${e.onclick ? `onclick="${e.onclick}"` : ''}>
+        <span class="small" style="width:60px; flex-shrink:0;">${formatDate(e.date)}</span>
+        <span style="flex:1;">
+          <span style="font-weight:600;">${e.icone} ${echapper(e.titre)}</span>
+          ${e.detail ? `<span class="small" style="display:block; margin-top:1px;">${e.detail}</span>` : ''}
+        </span>
+        ${e.montant ? `<span style="color:${e.montantClasse}; font-weight:700;">${e.montant}</span>` : ''}
+      </div>
+    `).join('');
+    btnPlus.style.display = nbAffichesHistoriqueBien < bufferHistoriqueBien.length ? 'block' : 'none';
+  }
+
+  function afficherPlusHistoriqueBien() {
+    nbAffichesHistoriqueBien += 8;
+    rendreHistoriqueBien();
   }
 
   function switchTabImmeuble(tab) {
@@ -2846,7 +2964,7 @@
       document.getElementById('tabcontent-lot-' + t).style.display = t === tab ? 'block' : 'none';
       document.getElementById('tabLot' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
     });
-    if (tab === 'resume') { chargerColocatairesLot(currentLotId); chargerEcheancesLot(currentLotId); chargerChargesRecurrentes('lot', currentLotId, 'listeChargesLot'); chargerHistoriqueLot(currentLotId); initialiserRegularisationCharges(currentLotId); }
+    if (tab === 'resume') { chargerColocatairesLot(currentLotId); chargerEcheancesLot(currentLotId); chargerChargesRecurrentes('lot', currentLotId, 'listeChargesLot'); chargerHistoriqueLot(currentLotId); initialiserRegularisationCharges(currentLotId); chargerNotes('lot', currentLotId, 'listeNotesLot'); }
     if (tab === 'bail') chargerBail(currentLotId);
     if (tab === 'paiements') chargerPaiementsLot(currentLotId);
     if (tab === 'documents') chargerDocuments('lot', currentLotId, 'listeDocumentsLot');
@@ -3134,6 +3252,39 @@
   // Onglet Résumé : prochain paiement, solde éventuel, bail qui approche de sa fin
   const LABELS_TYPE_CHARGE = { copropriete: 'Charges de copropriété', taxe_fonciere: 'Taxe foncière', assurance: 'Assurance', autre: 'Autre' };
   const LABELS_FREQUENCE_CHARGE = { mensuel: 'Mensuel', trimestriel: 'Trimestriel', annuel: 'Annuel' };
+
+  async function chargerNotes(entityType, entityId, targetDivId) {
+    const div = document.getElementById(targetDivId);
+    const { data: notes, error } = await supabaseClient.from('notes').select('*').eq('entity_type', entityType).eq('entity_id', entityId).order('created_at', { ascending: false });
+    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
+    if (!notes || !notes.length) { div.innerHTML = '<div class="empty-state">Aucune note pour l\u2019instant.</div>'; return; }
+    div.innerHTML = notes.map(n => `
+      <div class="row" style="align-items:flex-start;">
+        <span style="white-space:pre-wrap; flex:1;">${echapper(n.contenu)}</span>
+        <span style="flex-shrink:0; margin-left:10px;">
+          <span class="small" style="margin-right:8px;">${formatDate(n.created_at)}</span>
+          <a href="#" onclick="supprimerNote('${n.id}', '${entityType}', '${entityId}', '${targetDivId}'); return false;" style="color:var(--red);" aria-label="Supprimer">✕</a>
+        </span>
+      </div>
+    `).join('');
+  }
+
+  async function ajouterNote(prefixe, entityType, entityId, structureId) {
+    const contenu = document.getElementById('noteTexte' + prefixe).value.trim();
+    if (!contenu) return alert('La note ne peut pas être vide');
+    const { error } = await supabaseClient.from('notes').insert({ structure_id: structureId, entity_type: entityType, entity_id: entityId, contenu });
+    if (error) { logErreur('ajouter_note', error); return alert('Erreur : ' + error.message); }
+    document.getElementById('noteTexte' + prefixe).value = '';
+    toggleFormulaire('formAjoutNote' + prefixe, 'btnAjoutNote' + prefixe);
+    chargerNotes(entityType, entityId, 'listeNotes' + prefixe);
+  }
+
+  async function supprimerNote(id, entityType, entityId, targetDivId) {
+    if (!confirm('Supprimer cette note ?')) return;
+    const { error } = await supabaseClient.from('notes').delete().eq('id', id);
+    if (error) { logErreur('supprimer_note', error); return alert('Erreur : ' + error.message); }
+    chargerNotes(entityType, entityId, targetDivId);
+  }
 
   async function chargerChargesRecurrentes(entityType, entityId, targetDivId) {
     const div = document.getElementById(targetDivId);
@@ -3614,6 +3765,7 @@
     document.getElementById('locBailEditionInline').style.display = 'none';
 
     chargerHistoriquePaiementsLocataire(bailIds);
+    chargerNotes('locataire', currentLocataireId, 'listeNotesLoc');
   }
 
   let offsetPaiementsLocataire = 0;
