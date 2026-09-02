@@ -2537,28 +2537,11 @@
     }
 
     // Dette par bien — uniquement les immeubles dont la valeur ET la dette sont renseignées (histogramme fidèle, pas d'invention)
-    const immeublesAvecDonnees = (tousImmeubles || []).filter(im => im.valeur_estimee && Number(im.valeur_estimee) > 0);
-    if (immeublesAvecDonnees.length) {
-      document.getElementById('cardDetteParBien').style.display = 'block';
-      document.getElementById('listeDetteParBien').innerHTML = immeublesAvecDonnees.map(im => {
-        const valeur = Number(im.valeur_estimee);
-        const dette = Number(im.dette_restante || 0);
-        const pct = Math.min(100, Math.round(dette / valeur * 100));
-        return `
-          <div style="margin-bottom:12px;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:5px;" class="small">
-              <span style="color:var(--text);">${echapper(im.adresse)}</span>
-              <span>${formatMoney(dette)} / ${formatMoney(valeur)}</span>
-            </div>
-            <div style="height:8px; background:var(--panel-2); border-radius:4px; overflow:hidden;">
-              <div style="width:${pct}%; height:100%; background:var(--red);"></div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    } else {
-      document.getElementById('cardDetteParBien').style.display = 'none';
-    }
+    bufferDetteParBien = (tousImmeubles || []).filter(im => im.valeur_estimee && Number(im.valeur_estimee) > 0)
+      .sort((a, b) => Number(b.dette_restante || 0) - Number(a.dette_restante || 0));
+    nbAffichesDetteParBien = 2;
+    document.getElementById('cardDetteParBien').style.display = bufferDetteParBien.length ? 'block' : 'none';
+    if (bufferDetteParBien.length) rendreDetteParBien();
 
     rendreArbrePatrimoine('');
   }
@@ -2724,6 +2707,38 @@
     div.innerHTML = items.length
       ? items.map(it => `<div class="alert-row row-click" onclick="${it.onclick}"><span class="alert-dot ${it.severite === 'haute' ? 'high' : 'med'}"></span> ${it.texte}</div>`).join('')
       : '<div class="empty-state">Rien à signaler. 👍</div>';
+  }
+
+  let bufferDetteParBien = [];
+  let nbAffichesDetteParBien = 2;
+
+  function rendreDetteParBien() {
+    const div = document.getElementById('listeDetteParBien');
+    div.innerHTML = bufferDetteParBien.slice(0, nbAffichesDetteParBien).map(im => {
+      const valeur = Number(im.valeur_estimee);
+      const dette = Number(im.dette_restante || 0);
+      const pct = Math.min(100, Math.round(dette / valeur * 100));
+      return `
+        <div style="margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:5px;" class="small">
+            <span style="color:var(--text);">${echapper(im.adresse)}</span>
+            <span>${formatMoney(dette)} / ${formatMoney(valeur)}</span>
+          </div>
+          <div style="height:8px; background:var(--panel-2); border-radius:4px; overflow:hidden;">
+            <div style="width:${pct}%; height:100%; background:var(--red);"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    const reste = bufferDetteParBien.length - nbAffichesDetteParBien;
+    if (reste > 0) {
+      div.insertAdjacentHTML('beforeend', `<button class="btn-secondary" style="width:100%; margin-top:4px;" onclick="afficherPlusDetteParBien()">Afficher ${reste === 1 ? 'l\u2019autre bien' : 'les ' + reste + ' autres biens'}</button>`);
+    }
+  }
+
+  function afficherPlusDetteParBien() {
+    nbAffichesDetteParBien = bufferDetteParBien.length;
+    rendreDetteParBien();
   }
 
   let bufferHistoriqueBien = [];
