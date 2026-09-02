@@ -284,7 +284,7 @@
   .qty-stepper button { width: 26px; height: 26px; padding: 0; margin: 0; border-radius: 6px; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); cursor: pointer; }
   .qty-stepper span { min-width: 18px; text-align: center; font-weight: 600; font-size: 0.88rem; }
 
-  .immeuble-image { height: 140px; border-radius: 10px; background: var(--panel-2); display: flex; align-items: center; justify-content: center; font-size: 2.8rem; margin-bottom: 16px; }
+  .icone-header-fiche { width: 48px; height: 48px; border-radius: 12px; background: var(--panel-2); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
   .badge-outline { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.74rem; border: 1px solid var(--border); color: var(--text-dim); }
 
   .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin: 18px 0 16px 0; }
@@ -684,16 +684,20 @@
       <!-- ===== FICHE IMMEUBLE ===== -->
       <div id="page-fiche-immeuble" style="display:none;">
         <div class="breadcrumb-bar" id="breadcrumbImmeuble"></div>
-        <div class="card">
-          <div class="immeuble-image">🏢</div>
-          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-            <div>
-              <h2 style="margin:0 0 4px 0;" id="immTitre"></h2>
-              <div class="small" id="immSousTitre"></div>
-              <div style="margin-top:8px; display:flex; gap:6px;" id="immBadges"></div>
+        <div class="card" id="cardHeaderImmeuble" style="border-left:4px solid var(--border);">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:14px;">
+            <div style="display:flex; gap:14px; align-items:flex-start;">
+              <div class="icone-header-fiche" id="immIconeHeader">🏢</div>
+              <div>
+                <h2 style="margin:0 0 4px 0;" id="immTitre"></h2>
+                <div class="small" id="immSousTitre"></div>
+                <div style="margin-top:8px; display:flex; gap:6px;" id="immBadges"></div>
+              </div>
             </div>
-            <button class="btn-secondary" style="padding:9px 16px; border-radius:8px; width:auto;" onclick="ouvrirEditionImmeuble()">Modifier</button>
-            <button class="btn-secondary" style="padding:9px 16px; border-radius:8px; width:auto; color:var(--red); border-color:var(--red);" onclick="supprimerImmeuble()">Supprimer</button>
+            <div style="display:flex; gap:8px; flex-shrink:0;">
+              <button class="btn-secondary" style="padding:9px 16px; border-radius:8px; width:auto;" onclick="ouvrirEditionImmeuble()">Modifier</button>
+              <button class="btn-secondary" style="padding:9px 16px; border-radius:8px; width:auto; color:var(--red); border-color:var(--red);" onclick="supprimerImmeuble()">Supprimer</button>
+            </div>
           </div>
         </div>
 
@@ -2597,6 +2601,9 @@
     const lotIds = (lotsIm || []).map(l => l.id);
     const nbOccupes = (lotsIm || []).filter(l => l.statut === 'occupe').length;
     document.getElementById('immOccupation').textContent = lotsIm && lotsIm.length ? `${nbOccupes}/${lotsIm.length}` : '—';
+
+    const couleurStatut = !lotsIm || !lotsIm.length ? 'var(--border)' : nbOccupes === lotsIm.length ? 'var(--green)' : nbOccupes === 0 ? 'var(--red)' : 'var(--amber)';
+    document.getElementById('cardHeaderImmeuble').style.borderLeftColor = couleurStatut;
 
     let loyersAnnuels = 0;
     if (lotIds.length) {
