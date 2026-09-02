@@ -662,6 +662,8 @@
             </div>
           </div>
           <div class="small" id="recapQuantites" style="margin:12px 0;">Aucun lot pour l'instant</div>
+          <label class="small" style="display:block; margin-bottom:4px;">Loyer par lot <span style="opacity:0.6;">(optionnel — même montant pour tous, modifiable ensuite lot par lot)</span></label>
+          <input id="loyerQuickImmeuble" type="number" placeholder="Ex : 650">
           <button class="btn-green" onclick="creerImmeubleRapide()">Créer l'immeuble</button>
           <p class="small" style="text-align:center; margin-top:6px;">Chaque lot sera nommé automatiquement (Appartement 1, 2, 3...)</p>
           </div>
@@ -822,6 +824,7 @@
               <option value="local_commercial">Local commercial</option>
             </select>
             <input id="surfaceLot" type="number" placeholder="Surface (m²) — optionnel">
+            <input id="loyerAjoutLot" type="number" placeholder="Loyer (€) — optionnel, modifiable ensuite">
             <button class="btn-primary" onclick="creerLot()">Ajouter le lot</button>
           </div>
           <div class="card">
@@ -2367,19 +2370,20 @@
     if (!structureId) return;
 
     const adresse = document.getElementById('adresseQuickImmeuble').value || 'Adresse à compléter';
+    const loyerParDefaut = document.getElementById('loyerQuickImmeuble').value;
     const { data: immeuble, error: errImm } = await supabaseClient.from('immeubles').insert({ structure_id: structureId, adresse }).select().single();
     if (errImm) return alert('Erreur : ' + errImm.message);
 
     const lignesLots = [];
     Object.keys(LABELS_TYPE_LOT).forEach(key => {
       for (let i = 1; i <= quantitesImmeuble[key]; i++) {
-        lignesLots.push({ immeuble_id: immeuble.id, type: key, nom: `${LABELS_TYPE_LOT[key]} ${i}` });
+        lignesLots.push({ immeuble_id: immeuble.id, type: key, nom: `${LABELS_TYPE_LOT[key]} ${i}`, loyer: loyerParDefaut ? parseFloat(loyerParDefaut) : null });
       }
     });
     if (quantitesImmeuble.autre > 0) {
       const labelAutre = document.getElementById('autreLabelImmeuble').value.trim() || 'Autre';
       for (let i = 1; i <= quantitesImmeuble.autre; i++) {
-        lignesLots.push({ immeuble_id: immeuble.id, type: 'autre', nom: `${labelAutre} ${i}` });
+        lignesLots.push({ immeuble_id: immeuble.id, type: 'autre', nom: `${labelAutre} ${i}`, loyer: loyerParDefaut ? parseFloat(loyerParDefaut) : null });
       }
     }
 
@@ -2389,6 +2393,7 @@
     // Reset du formulaire
     document.getElementById('adresseQuickImmeuble').value = '';
     document.getElementById('autreLabelImmeuble').value = '';
+    document.getElementById('loyerQuickImmeuble').value = '';
     Object.keys(quantitesImmeuble).forEach(key => {
       quantitesImmeuble[key] = 0;
       const span = document.getElementById('qty-' + key);
@@ -2899,12 +2904,14 @@
     const nom = document.getElementById('nomLot').value;
     const type = document.getElementById('typeLot').value;
     const surface = document.getElementById('surfaceLot').value;
+    const loyer = document.getElementById('loyerAjoutLot').value;
     const { error } = await supabaseClient.from('lots').insert({
-      immeuble_id: currentImmeubleId, nom: nom || null, type, surface: surface ? parseFloat(surface) : null
+      immeuble_id: currentImmeubleId, nom: nom || null, type, surface: surface ? parseFloat(surface) : null, loyer: loyer ? parseFloat(loyer) : null
     });
     if (error) return alert('Erreur : ' + error.message);
     document.getElementById('nomLot').value = '';
     document.getElementById('surfaceLot').value = '';
+    document.getElementById('loyerAjoutLot').value = '';
     chargerLots(currentImmeubleId);
   }
 
@@ -5258,9 +5265,21 @@ Durée : du {{date_debut}} au {{date_fin}}
       const nomImmPourDoc = {}; (immsPourDoc || []).forEach(i => nomImmPourDoc[i.id] = i.adresse);
       const nomLotPourDoc = {}; (lotsPourDoc || []).forEach(l => nomLotPourDoc[l.id] = (l.nom || l.type) + (l.immeubles ? ' — ' + l.immeubles.adresse : ''));
       const nomLocPourDoc = {}; (locsPourDoc || []).forEach(l => nomLocPourDoc[l.id] = l.nom);
+
+      // Contact lié à la même entité que le document (ex : assurance PNO expirant → AXA)
+      const entitesAvecContactPossible = documentsExpirants.filter(d => d.entity_type === 'immeuble' || d.entity_type === 'lot');
+      const contactParEntite = {};
+      if (entitesAvecContactPossible.length) {
+        const { data: liensContact } = await supabaseClient.from('contact_links').select('entity_type, entity_id, contacts(nom, telephone)')
+          .in('entity_id', entitesAvecContactPossible.map(d => d.entity_id));
+        (liensContact || []).forEach(l => { if (l.contacts) contactParEntite[l.entity_type + '-' + l.entity_id] = l.contacts; });
+      }
+
       documentsExpirants.forEach(d => {
         const joursRestants = Math.ceil((new Date(d.expiration_date) - new Date()) / (1000 * 60 * 60 * 24));
-        const detail = d.entity_type === 'immeuble' ? (nomImmPourDoc[d.entity_id] || '') : d.entity_type === 'lot' ? (nomLotPourDoc[d.entity_id] || '') : (nomLocPourDoc[d.entity_id] || '');
+        let detail = d.entity_type === 'immeuble' ? (nomImmPourDoc[d.entity_id] || '') : d.entity_type === 'lot' ? (nomLotPourDoc[d.entity_id] || '') : (nomLocPourDoc[d.entity_id] || '');
+        const contactLie = contactParEntite[d.entity_type + '-' + d.entity_id];
+        if (contactLie) detail += ` · ${contactLie.nom}${contactLie.telephone ? ' · ' + contactLie.telephone : ''}`;
         items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: `${d.nom} — ${joursRestants < 0 ? 'expiré' : 'expire dans ' + joursRestants + ' j'}`, detail, lien: { type: 'document', storagePath: d.storage_path } });
       });
     }
