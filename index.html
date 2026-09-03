@@ -916,6 +916,9 @@
             <div class="stat-card"><div class="lbl">Charges mensuelles</div><div class="val" id="lotCharges">—</div></div>
             <div class="stat-card"><div class="lbl">Dépôt de garantie</div><div class="val" id="lotDepot">—</div></div>
           </div>
+          <div id="lienModifierLoyerHaut" style="margin-top:10px; display:none;">
+            <a href="#" class="small" onclick="switchTabLot('bail'); return false;" style="color:var(--accent);">Modifier le loyer, les charges ou le dépôt →</a>
+          </div>
         </div>
 
         <div class="tabs">
@@ -3179,6 +3182,7 @@
     // La carte "Loyer" (dédiée au logement vacant) ne s'affiche que sans bail actif —
     // une fois loué, le vrai loyer se modifie via l'onglet Bail, jamais en double ici.
     document.getElementById('cardLoyerVacant').style.display = bail ? 'none' : 'block';
+    document.getElementById('lienModifierLoyerHaut').style.display = bail ? 'block' : 'none';
     document.getElementById('editLoyerLotVacant').value = lot.loyer || '';
     document.getElementById('formLoyerVacant').style.display = 'none';
 
