@@ -389,7 +389,7 @@
 <div id="modalEditTransaction" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
   <div class="card" style="max-width:420px; width:90%;">
     <h3 style="margin-top:0;">Modifier la transaction</h3>
-    <input id="editTxMontant" type="number" placeholder="Montant (€)">
+    <input id="editTxMontant" type="number" min="0" placeholder="Montant (€)">
     <input id="editTxDate" type="date">
     <input id="editTxDescription" placeholder="Description">
     <label class="small" style="display:flex; align-items:center; gap:8px; margin:10px 0;">
@@ -413,7 +413,7 @@
       <option value="autre">Autre</option>
     </select>
     <div class="grid-2" style="margin-bottom:0;">
-      <input id="editChargeMontant" type="number" placeholder="Montant (€)">
+      <input id="editChargeMontant" type="number" min="0" placeholder="Montant (€)">
       <select id="editChargeFrequence">
         <option value="trimestriel">Trimestriel</option>
         <option value="annuel">Annuel</option>
@@ -654,13 +654,13 @@
           </div>
           <input id="adresseQuickBien" placeholder="Adresse">
           <div class="grid-2" style="margin-bottom:0;">
-            <input id="surfaceQuickBien" type="number" placeholder="Surface (m²)">
-            <input id="loyerQuickBien" type="number" placeholder="Loyer mensuel (€)">
+            <input id="surfaceQuickBien" type="number" min="0" placeholder="Surface (m²)">
+            <input id="loyerQuickBien" type="number" min="0" placeholder="Loyer mensuel (€)">
           </div>
-          <input id="chargesQuickBien" type="number" placeholder="Charges (€)">
+          <input id="chargesQuickBien" type="number" min="0" placeholder="Charges (€)">
           <div class="grid-2" style="margin-bottom:0;">
-            <input id="valeurQuickBien" type="number" placeholder="Valeur estimée (€)">
-            <input id="detteQuickBien" type="number" placeholder="Dette restante (€)">
+            <input id="valeurQuickBien" type="number" min="0" placeholder="Valeur estimée (€)">
+            <input id="detteQuickBien" type="number" min="0" placeholder="Dette restante (€)">
           </div>
           <p class="small" style="margin:12px 0 8px;">Statut</p>
           <div class="statut-picker" id="statutPickerBien">
@@ -685,7 +685,7 @@
           </div>
           <div class="small" id="recapQuantites" style="margin:12px 0;">Aucun lot pour l'instant</div>
           <label class="small" style="display:block; margin-bottom:4px;">Loyer par lot <span style="opacity:0.6;">(optionnel — même montant pour tous, modifiable ensuite lot par lot)</span></label>
-          <input id="loyerQuickImmeuble" type="number" placeholder="Ex : 650">
+          <input id="loyerQuickImmeuble" type="number" min="0" placeholder="Ex : 650">
           <button class="btn-green" onclick="creerImmeubleRapide()">Créer l'immeuble</button>
           <p class="small" style="text-align:center; margin-top:6px;">Chaque lot sera nommé automatiquement (Appartement 1, 2, 3...)</p>
           </div>
@@ -815,7 +815,7 @@
                 <option value="autre">Autre</option>
               </select>
               <div class="grid-2" style="margin-bottom:0;">
-                <input id="montantChargeImm" type="number" placeholder="Montant (€)">
+                <input id="montantChargeImm" type="number" min="0" placeholder="Montant (€)">
                 <select id="frequenceChargeImm">
                   <option value="trimestriel">Trimestriel</option>
                   <option value="annuel">Annuel</option>
@@ -845,8 +845,8 @@
               <option value="garage">Garage</option>
               <option value="local_commercial">Local commercial</option>
             </select>
-            <input id="surfaceLot" type="number" placeholder="Surface (m²) — optionnel">
-            <input id="loyerAjoutLot" type="number" placeholder="Loyer (€) — optionnel, modifiable ensuite">
+            <input id="surfaceLot" type="number" min="0" placeholder="Surface (m²) — optionnel">
+            <input id="loyerAjoutLot" type="number" min="0" placeholder="Loyer (€) — optionnel, modifiable ensuite">
             <button class="btn-primary" onclick="creerLot()">Ajouter le lot</button>
           </div>
           <div class="card">
@@ -907,7 +907,7 @@
                 <option value="local_commercial">Local commercial</option>
                 <option value="autre">Autre</option>
               </select>
-              <input id="editSurfaceLot" type="number" placeholder="Surface (m²)">
+              <input id="editSurfaceLot" type="number" min="0" placeholder="Surface (m²)">
             </div>
             <button class="btn-primary" onclick="enregistrerModifLot()">Enregistrer</button>
           </div>
@@ -947,15 +947,15 @@
             </div>
             <div id="lotLoyerEdition" style="display:none;">
               <p class="small" style="margin:0 0 6px;">Loyer mensuel (€)</p>
-              <input id="editLoyerLot" type="number">
+              <input id="editLoyerLot" type="number" min="0">
               <div class="grid-2" style="margin-bottom:0; margin-top:10px;">
                 <div>
                   <p class="small" style="margin:0 0 6px;">Chauffage (€/mois)</p>
-                  <input id="editChauffageLot" type="number">
+                  <input id="editChauffageLot" type="number" min="0">
                 </div>
                 <div>
                   <p class="small" style="margin:0 0 6px;">Eau (€/mois)</p>
-                  <input id="editEauLot" type="number">
+                  <input id="editEauLot" type="number" min="0">
                 </div>
               </div>
               <div style="display:flex; gap:8px; margin-top:14px;">
@@ -972,10 +972,10 @@
             <div id="lectureValeurLot" class="small">Chargement...</div>
             <div id="formValeurLot" style="display:none; margin-top:10px;">
               <div class="grid-2" style="margin-bottom:0;">
-                <input id="valeurLot" type="number" placeholder="Valeur estimée (€)">
-                <input id="detteLot" type="number" placeholder="Dette restante (€)">
+                <input id="valeurLot" type="number" min="0" placeholder="Valeur estimée (€)">
+                <input id="detteLot" type="number" min="0" placeholder="Dette restante (€)">
               </div>
-              <input id="taxeFonciereLot" type="number" placeholder="Taxe foncière annuelle (€)">
+              <input id="taxeFonciereLot" type="number" min="0" placeholder="Taxe foncière annuelle (€)">
               <button class="btn-primary" onclick="enregistrerValeurLot()">Enregistrer</button>
             </div>
           </div>
@@ -1053,7 +1053,7 @@
                 <option value="autre">Autre</option>
               </select>
               <div class="grid-2" style="margin-bottom:0;">
-                <input id="montantChargeLot" type="number" placeholder="Montant (€)">
+                <input id="montantChargeLot" type="number" min="0" placeholder="Montant (€)">
                 <select id="frequenceChargeLot">
                   <option value="trimestriel">Trimestriel</option>
                   <option value="annuel">Annuel</option>
@@ -1154,15 +1154,15 @@
             <div id="locBailEditionInline" style="display:none;">
               <div class="ligne-edition-bail">
                 <span class="small">Loyer mensuel</span>
-                <input id="editLoyerBailLoc" type="number">
+                <input id="editLoyerBailLoc" type="number" min="0">
               </div>
               <div class="ligne-edition-bail">
                 <span class="small">Charges mensuelles</span>
-                <input id="editChargesBailLoc" type="number">
+                <input id="editChargesBailLoc" type="number" min="0">
               </div>
               <div class="ligne-edition-bail" style="border-bottom:none;">
                 <span class="small">Dépôt de garantie</span>
-                <input id="editDepotBailLoc" type="number">
+                <input id="editDepotBailLoc" type="number" min="0">
               </div>
               <div style="display:flex; gap:8px; margin-top:14px;">
                 <button class="btn-primary" style="flex:1;" onclick="enregistrerModifBailLocataire()">Enregistrer</button>
@@ -1240,7 +1240,7 @@
             <input id="dateEntreeLocataireRapide" type="date">
             <input id="dateSortieLocataireRapide" type="date">
           </div>
-          <input id="loyerLocataireRapide" type="number" placeholder="Loyer (€) — nécessaire, ce bien n'a pas encore de bail" style="display:none;">
+          <input id="loyerLocataireRapide" type="number" min="0" placeholder="Loyer (€) — nécessaire, ce bien n'a pas encore de bail" style="display:none;">
           <div class="grid-2" style="margin-bottom:0;">
             <input id="emailLocataireRapide" type="email" placeholder="Email (optionnel)">
             <input id="telephoneLocataireRapide" placeholder="Téléphone (optionnel)">
@@ -1290,7 +1290,7 @@
         <button class="btn-ajout-replie" id="btnAjoutTravaux" onclick="toggleFormulaire('formAjoutTravaux','btnAjoutTravaux')">+ Ajouter des travaux (avec facture)</button>
         <div class="card" id="formAjoutTravaux" style="display:none;">
           <select id="immeubleTravaux"></select>
-          <input id="montantTravaux" type="number" placeholder="Montant (€)">
+          <input id="montantTravaux" type="number" min="0" placeholder="Montant (€)">
           <input id="dateTravaux" type="date">
           <input id="descriptionTravaux" placeholder="Description (ex: réparation chauffe-eau)">
           <label class="small" style="display:flex; align-items:center; gap:8px; margin:10px 0;">
@@ -1370,7 +1370,7 @@
         <div class="card" id="formAjoutTx" style="display:none;">
           <select id="typeTx"><option value="recette">Recette</option><option value="depense">Dépense</option></select>
           <input id="categorieTx" placeholder="Catégorie (ex: loyer, travaux, assurance)">
-          <input id="montantTx" type="number" placeholder="Montant (€)">
+          <input id="montantTx" type="number" min="0" placeholder="Montant (€)">
           <input id="dateTx" type="date">
           <input id="descriptionTx" placeholder="Description — optionnel">
           <button class="btn-primary" onclick="creerTransaction()">Ajouter</button>
@@ -1400,9 +1400,9 @@
         <button class="btn-ajout-replie" id="btnAjoutPret" onclick="toggleFormulaire('formAjoutPret','btnAjoutPret')">+ Ajouter un prêt</button>
         <div class="card" id="formAjoutPret" style="display:none;">
           <input id="banquePret" placeholder="Banque (ex: Crédit Agricole)">
-          <input id="capitalInitialPret" type="number" placeholder="Capital initial (€)">
-          <input id="tauxPret" type="number" step="0.01" placeholder="Taux (%)">
-          <input id="mensualitePret" type="number" placeholder="Mensualité (€)">
+          <input id="capitalInitialPret" type="number" min="0" placeholder="Capital initial (€)">
+          <input id="tauxPret" type="number" min="0" step="0.01" placeholder="Taux (%)">
+          <input id="mensualitePret" type="number" min="0" placeholder="Mensualité (€)">
           <input id="dateDebutPret" type="date">
           <input id="dateFinPret" type="date">
           <button class="btn-primary" onclick="creerPret()">Ajouter</button>
@@ -1532,7 +1532,7 @@
           <div id="listeAssocies">Chargement...</div>
           <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border); display:flex; gap:8px;">
             <input id="nomAssocie" placeholder="Nom de l'associé" style="flex:2;">
-            <input id="quotePartAssocie" type="number" placeholder="Quote-part %" style="flex:1;">
+            <input id="quotePartAssocie" type="number" min="0" max="100" placeholder="Quote-part %" style="flex:1;">
             <button class="btn-primary" style="width:auto; padding:10px 16px;" onclick="ajouterAssocie()">Ajouter</button>
           </div>
         </div>
@@ -1798,6 +1798,21 @@
   async function nettoyerFichierOrphelin(cheminFichier) {
     const { error } = await supabaseClient.storage.from('documents').remove([cheminFichier]);
     if (error) console.error('Nettoyage du fichier orphelin échoué :', error.message);
+  }
+
+  // Partagée par les 3 générateurs de PDF (quittance, notification IRL, bail) — upload + insertion
+  // en base, avec nettoyage automatique du fichier orphelin si l'insertion échoue après coup.
+  // Chaque appelant garde son propre traitement de l'erreur (boucle avec continue, ou alert()).
+  async function genererEtEnregistrerPdf(pdfBlob, nomFichier, structureId, entityType, entityId, categorie, contexteErreur) {
+    const cheminFichier = `${structureId}/${entityType}/${entityId}/${nomStorageAleatoire('.pdf')}`;
+    const { error: errUpload } = await supabaseClient.storage.from('documents').upload(cheminFichier, pdfBlob, { contentType: 'application/pdf' });
+    if (errUpload) { logErreur('upload_' + contexteErreur, errUpload); return { error: errUpload }; }
+    const { error: errInsert } = await supabaseClient.from('documents').insert({
+      structure_id: structureId, entity_type: entityType, entity_id: entityId,
+      nom: nomFichier, storage_path: cheminFichier, taille_octets: pdfBlob.size, categorie
+    });
+    if (errInsert) { logErreur('insert_' + contexteErreur, errInsert); await nettoyerFichierOrphelin(cheminFichier); return { error: errInsert }; }
+    return { error: null };
   }
 
   // Formatage centralisé — locale/devise en dur pour l'instant (France uniquement),
@@ -2912,10 +2927,10 @@
       <input id="editAdresse" placeholder="Adresse" value="${(im.adresse || '').replace(/"/g, '&quot;')}">
       <input id="editVille" placeholder="Ville" value="${(im.ville || '').replace(/"/g, '&quot;')}">
       <input id="editCodePostal" placeholder="Code postal" value="${im.code_postal || ''}">
-      <input id="editAnnee" type="number" placeholder="Année de construction" value="${im.annee_construction || ''}">
-      <input id="editValeur" type="number" placeholder="Valeur estimée (€)" value="${im.valeur_estimee || ''}">
-      <input id="editDette" type="number" placeholder="Dette restante (€)" value="${im.dette_restante || ''}">
-      <input id="editTaxeFonciere" type="number" placeholder="Taxe foncière annuelle (€)" value="${im.taxe_fonciere_annuelle || ''}">
+      <input id="editAnnee" type="number" min="1700" max="2100" placeholder="Année de construction" value="${im.annee_construction || ''}">
+      <input id="editValeur" type="number" min="0" placeholder="Valeur estimée (€)" value="${im.valeur_estimee || ''}">
+      <input id="editDette" type="number" min="0" placeholder="Dette restante (€)" value="${im.dette_restante || ''}">
+      <input id="editTaxeFonciere" type="number" min="0" placeholder="Taxe foncière annuelle (€)" value="${im.taxe_fonciere_annuelle || ''}">
       <p class="small" style="margin:12px 0 4px;">DPE — date d'expiration</p>
       <input id="editDpe" type="date" value="${im.dpe_date_expiration || ''}">
       <button class="btn-primary" onclick="sauvegarderInformationsImmeuble()">Enregistrer</button>
@@ -2941,27 +2956,32 @@
     switchTabImmeuble('infos');
   }
 
+  // Partagée par les 3 fonctions de suppression (immeuble, lot, locataire) — nettoie tout ce qui
+  // n'a pas de cascade automatique en base : documents (+ fichiers Storage), notes, et liaisons
+  // de contact (jamais le contact lui-même, qui peut être lié à d'autres biens).
+  async function nettoyerDonneesEntite(entityType, entityId) {
+    const { data: docs } = await supabaseClient.from('documents').select('id, storage_path').eq('entity_type', entityType).eq('entity_id', entityId);
+    if (docs && docs.length) {
+      await supabaseClient.storage.from('documents').remove(docs.map(d => d.storage_path));
+      const { error: errDoc } = await supabaseClient.from('documents').delete().eq('entity_type', entityType).eq('entity_id', entityId);
+      if (errDoc) logErreur('cleanup_documents_' + entityType, errDoc);
+    }
+    const { error: errNotes } = await supabaseClient.from('notes').delete().eq('entity_type', entityType).eq('entity_id', entityId);
+    if (errNotes) logErreur('cleanup_notes_' + entityType, errNotes);
+    if (entityType === 'immeuble' || entityType === 'lot') {
+      const { error: errLiens } = await supabaseClient.from('contact_links').delete().eq('entity_type', entityType).eq('entity_id', entityId);
+      if (errLiens) logErreur('cleanup_contact_links_' + entityType, errLiens);
+    }
+  }
+
   async function supprimerImmeuble() {
     if (!confirm('Supprimer définitivement cet immeuble ? Tous ses lots, baux, paiements et documents seront supprimés. Cette action est irréversible.')) return;
 
-    // Les documents ne sont pas nettoyés automatiquement (pas de cascade sur cette table) —
-    // on doit les retirer nous-mêmes, pour l'immeuble ET pour chacun de ses lots.
-    // Même chose pour les notes et les liaisons de contact (jamais nettoyées avant ce correctif).
+    // Nettoyage complet (documents, notes, contacts) pour l'immeuble ET chacun de ses lots —
+    // aucune cascade automatique en base pour ces tables polymorphes.
     const { data: lotsAssocies } = await supabaseClient.from('lots').select('id').eq('immeuble_id', currentImmeubleId);
-    const entitesADocuments = [{ type: 'immeuble', id: currentImmeubleId }, ...(lotsAssocies || []).map(l => ({ type: 'lot', id: l.id }))];
-
-    for (const ent of entitesADocuments) {
-      const { data: docs } = await supabaseClient.from('documents').select('id, storage_path').eq('entity_type', ent.type).eq('entity_id', ent.id);
-      if (docs && docs.length) {
-        await supabaseClient.storage.from('documents').remove(docs.map(d => d.storage_path));
-        const { error: errDoc } = await supabaseClient.from('documents').delete().eq('entity_type', ent.type).eq('entity_id', ent.id);
-        if (errDoc) logErreur('cleanup_documents_immeuble', errDoc);
-      }
-      const { error: errNotes } = await supabaseClient.from('notes').delete().eq('entity_type', ent.type).eq('entity_id', ent.id);
-      if (errNotes) logErreur('cleanup_notes_immeuble', errNotes);
-      const { error: errLiens } = await supabaseClient.from('contact_links').delete().eq('entity_type', ent.type).eq('entity_id', ent.id);
-      if (errLiens) logErreur('cleanup_contact_links_immeuble', errLiens);
-    }
+    const entites = [{ type: 'immeuble', id: currentImmeubleId }, ...(lotsAssocies || []).map(l => ({ type: 'lot', id: l.id }))];
+    for (const ent of entites) await nettoyerDonneesEntite(ent.type, ent.id);
 
     const { error } = await supabaseClient.from('immeubles').delete().eq('id', currentImmeubleId);
     if (error) { logErreur('supprimer_immeuble', error); return alert('Erreur : ' + error.message); }
@@ -3057,16 +3077,7 @@
   async function supprimerLot() {
     if (!confirm('Supprimer définitivement ce lot ? Son bail, ses paiements et ses documents seront supprimés. Cette action est irréversible.')) return;
 
-    const { data: docs } = await supabaseClient.from('documents').select('id, storage_path').eq('entity_type', 'lot').eq('entity_id', currentLotId);
-    if (docs && docs.length) {
-      await supabaseClient.storage.from('documents').remove(docs.map(d => d.storage_path));
-      const { error: errDoc } = await supabaseClient.from('documents').delete().eq('entity_type', 'lot').eq('entity_id', currentLotId);
-      if (errDoc) logErreur('cleanup_documents_lot', errDoc);
-    }
-    const { error: errNotesLot } = await supabaseClient.from('notes').delete().eq('entity_type', 'lot').eq('entity_id', currentLotId);
-    if (errNotesLot) logErreur('cleanup_notes_lot', errNotesLot);
-    const { error: errLiensLot } = await supabaseClient.from('contact_links').delete().eq('entity_type', 'lot').eq('entity_id', currentLotId);
-    if (errLiensLot) logErreur('cleanup_contact_links_lot', errLiensLot);
+    await nettoyerDonneesEntite('lot', currentLotId);
 
     const { data: lotInfo } = await supabaseClient.from('lots').select('immeuble_id').eq('id', currentLotId).single();
     const { error } = await supabaseClient.from('lots').delete().eq('id', currentLotId);
@@ -3274,14 +3285,8 @@
 
     for (const locataireId of locataireIds) {
       const nomFichier = `Notification_revision_${trimestre}.pdf`;
-      const cheminFichier = `${structureId}/locataire/${locataireId}/${nomStorageAleatoire('.pdf')}`;
-      const { error: errUpload } = await supabaseClient.storage.from('documents').upload(cheminFichier, pdfBlob, { contentType: 'application/pdf' });
-      if (errUpload) { logErreur('upload_notification_revision', errUpload); console.error('Upload notification échoué :', errUpload.message); continue; }
-      const { error: errInsertNotif } = await supabaseClient.from('documents').insert({
-        structure_id: structureId, entity_type: 'locataire', entity_id: locataireId,
-        nom: nomFichier, storage_path: cheminFichier, taille_octets: pdfBlob.size, categorie: 'revision_loyer'
-      });
-      if (errInsertNotif) { console.error('Enregistrement notification échoué :', errInsertNotif.message); await nettoyerFichierOrphelin(cheminFichier); }
+      const { error } = await genererEtEnregistrerPdf(pdfBlob, nomFichier, structureId, 'locataire', locataireId, 'revision_loyer', 'notification_revision');
+      if (error) console.error('Notification révision échouée :', error.message);
     }
   }
 
@@ -3446,7 +3451,7 @@
           <div class="row" style="align-items:center;">
             <span class="row-click" onclick="ouvrirFicheLocataire('${l.id}', 'lot')" style="flex:1;">${echapper(l.nom)}</span>
             <input type="text" placeholder="Chambre (ex: A)" value="${echapper(r.nom_chambre || '')}" style="width:110px; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); margin-right:6px;" id="chambre_${r.bail_id}_${r.locataire_id}">
-            <input type="number" placeholder="Loyer (€)" value="${r.loyer_part || ''}" style="width:100px; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); margin-right:6px;" id="loyerpart_${r.bail_id}_${r.locataire_id}">
+            <input type="number" min="0" placeholder="Loyer (€)" value="${r.loyer_part || ''}" style="width:100px; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); margin-right:6px;" id="loyerpart_${r.bail_id}_${r.locataire_id}">
             <button class="btn-mark-paid" onclick="enregistrerPartColocataire('${r.bail_id}', '${r.locataire_id}')">OK</button>
           </div>
         `;
@@ -3835,15 +3840,15 @@
           <p class="small" style="margin:0 0 10px;">Pour un simple correctif. Pour une révision légale annuelle, utilise plutôt la section ci-dessous.</p>
           <div class="ligne-edition-bail">
             <span class="small">Loyer mensuel</span>
-            <input id="editLoyerBail" type="number" value="${bail.loyer}">
+            <input id="editLoyerBail" type="number" min="0" value="${bail.loyer}">
           </div>
           <div class="ligne-edition-bail">
             <span class="small">Charges mensuelles</span>
-            <input id="editChargesBail" type="number" value="${bail.charges}">
+            <input id="editChargesBail" type="number" min="0" value="${bail.charges}">
           </div>
           <div class="ligne-edition-bail">
             <span class="small">Dépôt de garantie</span>
-            <input id="editDepotBail" type="number" value="${bail.depot_garantie || ''}">
+            <input id="editDepotBail" type="number" min="0" value="${bail.depot_garantie || ''}">
           </div>
           <div class="ligne-edition-bail" style="border-bottom:none;">
             <span class="small">Fin de bail</span>
@@ -3870,7 +3875,7 @@
           <input id="dateSortieBail" type="date">
           ${bail.depot_garantie ? `
           <div class="grid-2" style="margin-bottom:0; margin-top:8px;">
-            <input id="depotRestitueBail" type="number" placeholder="Dépôt restitué (€)">
+            <input id="depotRestitueBail" type="number" min="0" placeholder="Dépôt restitué (€)">
             <input id="motifRetenueBail" placeholder="Motif de retenue (optionnel)">
           </div>` : ''}
           <button class="btn-secondary" style="margin-top:8px; color:var(--red); border-color:var(--red);" onclick="terminerBail('${bail.id}', '${lotId}')">Terminer le bail</button>
@@ -3896,8 +3901,8 @@
           <option value="commercial">Commercial</option><option value="saisonnier">Saisonnier</option>
         </select>
         <input id="dateDebutBail" type="date">
-        <input id="loyerBail" type="number" placeholder="Loyer (€)">
-        <input id="chargesBail" type="number" placeholder="Charges (€)" value="0">
+        <input id="loyerBail" type="number" min="0" placeholder="Loyer (€)">
+        <input id="chargesBail" type="number" min="0" placeholder="Charges (€)" value="0">
         <input id="nomsLocataires" placeholder="Nom(s) locataire(s), séparés par une virgule si colocation">
         <button class="btn-primary" onclick="creerBail()">Créer le bail</button>
       `;
@@ -3916,7 +3921,10 @@
     ouvrirFicheLot(lotId);
   }
 
+  let creationBailEnCours = false;
+
   async function creerBail() {
+    if (creationBailEnCours) return;
     const type = document.getElementById('typeBail').value;
     const date_debut = document.getElementById('dateDebutBail').value;
     const loyer = document.getElementById('loyerBail').value;
@@ -3925,26 +3933,24 @@
     if (!date_debut || !loyer || !nomsRaw) return alert('Date de début, loyer et au moins un locataire sont requis');
     const noms = nomsRaw.split(',').map(n => n.trim()).filter(Boolean);
 
-    const { error } = await supabaseClient.rpc('creer_bail_avec_locataires', {
-      p_lot_id: currentLotId, p_type: type, p_date_debut: date_debut,
-      p_loyer: parseFloat(loyer), p_charges: parseFloat(charges || 0), p_noms_locataires: noms
-    });
-    if (error) { logErreur('creer_bail_avec_locataires', error); return alert('Erreur : ' + error.message); }
-    ouvrirFicheLot(currentLotId);
+    creationBailEnCours = true;
+    try {
+      const { error } = await supabaseClient.rpc('creer_bail_avec_locataires', {
+        p_lot_id: currentLotId, p_type: type, p_date_debut: date_debut,
+        p_loyer: parseFloat(loyer), p_charges: parseFloat(charges || 0), p_noms_locataires: noms
+      });
+      if (error) { logErreur('creer_bail_avec_locataires', error); return alert('Erreur : ' + error.message); }
+      ouvrirFicheLot(currentLotId);
+    } finally {
+      creationBailEnCours = false;
+    }
   }
 
   // ---------- FICHE LOCATAIRE ----------
   async function supprimerLocataire() {
     if (!confirm('Supprimer définitivement ce locataire ? Ses documents seront supprimés et il sera retiré de son bail. Cette action est irréversible.')) return;
 
-    const { data: docs } = await supabaseClient.from('documents').select('id, storage_path').eq('entity_type', 'locataire').eq('entity_id', currentLocataireId);
-    if (docs && docs.length) {
-      await supabaseClient.storage.from('documents').remove(docs.map(d => d.storage_path));
-      const { error: errDoc } = await supabaseClient.from('documents').delete().eq('entity_type', 'locataire').eq('entity_id', currentLocataireId);
-      if (errDoc) logErreur('cleanup_documents_locataire', errDoc);
-    }
-    const { error: errNotesLoc } = await supabaseClient.from('notes').delete().eq('entity_type', 'locataire').eq('entity_id', currentLocataireId);
-    if (errNotesLoc) logErreur('cleanup_notes_locataire', errNotesLoc);
+    await nettoyerDonneesEntite('locataire', currentLocataireId);
 
     const { error } = await supabaseClient.from('locataires').delete().eq('id', currentLocataireId);
     if (error) { logErreur('supprimer_locataire', error); return alert('Erreur : ' + error.message); }
@@ -4190,7 +4196,10 @@
     champLoyer.style.display = (baux && baux.length) ? 'none' : 'block';
   }
 
+  let creationLocataireEnCours = false;
+
   async function creerLocataireRapide() {
+    if (creationLocataireEnCours) return;
     const nom = document.getElementById('nomLocataireRapide').value;
     const lotId = document.getElementById('bienLocataireRapide').value;
     const dateEntree = document.getElementById('dateEntreeLocataireRapide').value;
@@ -4202,21 +4211,26 @@
     if (!nom) return alert('Nom requis');
     if (!lotId) return alert('Sélectionne un bien');
 
-    const { error } = await supabaseClient.rpc('creer_locataire_rapide', {
-      p_lot_id: lotId, p_nom: nom, p_date_entree: dateEntree || null, p_date_sortie: dateSortie || null,
-      p_loyer: loyer ? parseFloat(loyer) : null, p_email: email || null, p_telephone: telephone || null
-    });
-    if (error) { logErreur('creer_locataire_rapide', error); return alert('Erreur : ' + error.message); }
+    creationLocataireEnCours = true;
+    try {
+      const { error } = await supabaseClient.rpc('creer_locataire_rapide', {
+        p_lot_id: lotId, p_nom: nom, p_date_entree: dateEntree || null, p_date_sortie: dateSortie || null,
+        p_loyer: loyer ? parseFloat(loyer) : null, p_email: email || null, p_telephone: telephone || null
+      });
+      if (error) { logErreur('creer_locataire_rapide', error); return alert('Erreur : ' + error.message); }
 
-    // Reset du formulaire
-    document.getElementById('nomLocataireRapide').value = '';
-    document.getElementById('dateEntreeLocataireRapide').value = '';
-    document.getElementById('dateSortieLocataireRapide').value = '';
-    document.getElementById('loyerLocataireRapide').value = '';
-    document.getElementById('emailLocataireRapide').value = '';
-    document.getElementById('telephoneLocataireRapide').value = '';
-    toggleFormulaire('formAjoutLocataireRapide', 'btnAjoutLocataireRapide');
-    allerLocataires();
+      // Reset du formulaire
+      document.getElementById('nomLocataireRapide').value = '';
+      document.getElementById('dateEntreeLocataireRapide').value = '';
+      document.getElementById('dateSortieLocataireRapide').value = '';
+      document.getElementById('loyerLocataireRapide').value = '';
+      document.getElementById('emailLocataireRapide').value = '';
+      document.getElementById('telephoneLocataireRapide').value = '';
+      toggleFormulaire('formAjoutLocataireRapide', 'btnAjoutLocataireRapide');
+      allerLocataires();
+    } finally {
+      creationLocataireEnCours = false;
+    }
   }
 
   async function allerLocataires() {
@@ -4566,16 +4580,23 @@
     paiementDetailCourantId = null;
   }
 
+  let confirmationPaiementEnCours = false;
+
   async function confirmerStatutPaiement(statut) {
-    if (!paiementDetailCourantId) return;
-    const dateChoisie = document.getElementById('detailPaiementDate').value;
-    const { error } = await supabaseClient.from('paiements').update({
-      statut, date_paiement: statut === 'paye' ? (dateChoisie || new Date().toISOString().split('T')[0]) : null
-    }).eq('id', paiementDetailCourantId);
-    if (error) return alert('Erreur : ' + error.message);
-    if (statut === 'paye') genererQuittanceAuto(paiementDetailCourantId).catch(e => console.error('Génération quittance échouée :', e));
-    fermerDetailPaiement();
-    chargerCalendrierLoyers();
+    if (!paiementDetailCourantId || confirmationPaiementEnCours) return;
+    confirmationPaiementEnCours = true;
+    try {
+      const dateChoisie = document.getElementById('detailPaiementDate').value;
+      const { error } = await supabaseClient.from('paiements').update({
+        statut, date_paiement: statut === 'paye' ? (dateChoisie || new Date().toISOString().split('T')[0]) : null
+      }).eq('id', paiementDetailCourantId);
+      if (error) return alert('Erreur : ' + error.message);
+      if (statut === 'paye') genererQuittanceAuto(paiementDetailCourantId).catch(e => console.error('Génération quittance échouée :', e));
+      fermerDetailPaiement();
+      chargerCalendrierLoyers();
+    } finally {
+      confirmationPaiementEnCours = false;
+    }
   }
 
   // ---------- TRAVAUX (dépense + facture, depuis l'écran Loyers) ----------
@@ -4730,14 +4751,8 @@
 
     for (const locataireId of locataireIds) {
       const nomFichier = `Quittance_${moisLabel.replace(' ', '_')}.pdf`;
-      const cheminFichier = `${structureId}/locataire/${locataireId}/${nomStorageAleatoire('.pdf')}`;
-      const { error: errUpload } = await supabaseClient.storage.from('documents').upload(cheminFichier, pdfBlob, { contentType: 'application/pdf' });
-      if (errUpload) { logErreur('upload_quittance', errUpload); console.error('Upload quittance échoué :', errUpload.message); continue; }
-      const { error: errInsertQuit } = await supabaseClient.from('documents').insert({
-        structure_id: structureId, entity_type: 'locataire', entity_id: locataireId,
-        nom: nomFichier, storage_path: cheminFichier, taille_octets: pdfBlob.size, categorie: 'quittance'
-      });
-      if (errInsertQuit) { console.error('Enregistrement quittance échoué :', errInsertQuit.message); await nettoyerFichierOrphelin(cheminFichier); }
+      const { error } = await genererEtEnregistrerPdf(pdfBlob, nomFichier, structureId, 'locataire', locataireId, 'quittance', 'quittance');
+      if (error) console.error('Quittance échouée :', error.message);
       // TODO (dès la clé API Resend configurée) :
       // await envoyerQuittanceParEmail(locataireId, cheminFichier, moisLabel, total);
     }
@@ -5225,14 +5240,8 @@ Durée : du {{date_debut}} au {{date_fin}}
     const pdfBlob = doc.output('blob');
 
     const nomFichier = `Bail_${locataire ? locataire.nom.replace(/\s/g, '_') : 'document'}.pdf`;
-    const cheminFichier = `${structureId}/locataire/${locataireId}/${nomStorageAleatoire('.pdf')}`;
-    const { error: errUpload } = await supabaseClient.storage.from('documents').upload(cheminFichier, pdfBlob, { contentType: 'application/pdf' });
-    if (errUpload) { logErreur('upload_bail', errUpload); return alert('Erreur : ' + errUpload.message); }
-    const { error: errInsertBail } = await supabaseClient.from('documents').insert({
-      structure_id: structureId, entity_type: 'locataire', entity_id: locataireId,
-      nom: nomFichier, storage_path: cheminFichier, taille_octets: pdfBlob.size, categorie: 'bail'
-    });
-    if (errInsertBail) { await nettoyerFichierOrphelin(cheminFichier); return alert('Erreur : ' + errInsertBail.message); }
+    const { error } = await genererEtEnregistrerPdf(pdfBlob, nomFichier, structureId, 'locataire', locataireId, 'bail', 'bail');
+    if (error) return alert('Erreur : ' + error.message);
 
     alert('Bail généré et classé dans les documents du locataire. N\u2019oublie pas : le contenu doit être validé par un avocat avant tout usage réel.');
     chargerDocumentsGlobal();
