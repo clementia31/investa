@@ -542,7 +542,8 @@
           <div class="lang-badge" title="Anglais bientôt disponible">🇫🇷 FR</div>
         </div>
 
-        <div class="card" id="cardOnboarding" style="display:none; background:var(--panel);">
+        <div class="card" id="cardOnboarding" style="display:none; background:var(--panel); position:relative;">
+          <button class="icon-btn-round" onclick="fermerOnboarding()" aria-label="Fermer" style="position:absolute; top:14px; right:14px;">✕</button>
           <h2 style="margin:0 0 4px; font-size:1.15rem; color:var(--text);">Bienvenue sur Investa 👋</h2>
           <p class="small" style="margin:0 0 20px;">3 étapes pour prendre en main ton patrimoine.</p>
 
@@ -2072,18 +2073,29 @@
   }
 
   // ---------- DASHBOARD ----------
+  function fermerOnboarding() {
+    document.getElementById('cardOnboarding').style.display = 'none';
+    document.getElementById('dashboardContenuNormal').style.display = 'block';
+  }
+
   async function chargerDashboard() {
     const now = new Date();
     const moisDate = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-01';
     document.getElementById('dashPeriode').textContent = now.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
 
-    const { data: structures } = await supabaseClient.from('structures').select('id').order('created_at');
+    const { data: structures, error: errStructures } = await supabaseClient.from('structures').select('id').order('created_at');
+    if (errStructures) logErreur('chargement_structures_dashboard', errStructures);
     const structIds = (structures || []).map(s => s.id);
-    const { data: immeublesExistants } = structIds.length
+    const { data: immeublesExistants, error: errImmeubles } = structIds.length
       ? await supabaseClient.from('immeubles').select('id').in('structure_id', structIds).limit(1)
-      : { data: [] };
+      : { data: [], error: null };
+    if (errImmeubles) logErreur('chargement_immeubles_dashboard', errImmeubles);
 
-    if (!immeublesExistants || !immeublesExistants.length) {
+    // Ne jamais afficher l'onboarding suite à un souci réseau/session — un compte existant qui
+    // verrait "Bienvenue, ajoute ton premier bien" alors qu'il en a déjà est bien pire qu'un
+    // nouveau compte qui ne voit pas l'onboarding une fois (il peut toujours aller sur Patrimoine).
+    const problemeReseau = errStructures || errImmeubles;
+    if (!problemeReseau && (!immeublesExistants || !immeublesExistants.length)) {
       document.getElementById('cardOnboarding').style.display = 'block';
       document.getElementById('dashboardContenuNormal').style.display = 'none';
       return;
@@ -2934,6 +2946,7 @@
 
     // Les documents ne sont pas nettoyés automatiquement (pas de cascade sur cette table) —
     // on doit les retirer nous-mêmes, pour l'immeuble ET pour chacun de ses lots.
+    // Même chose pour les notes et les liaisons de contact (jamais nettoyées avant ce correctif).
     const { data: lotsAssocies } = await supabaseClient.from('lots').select('id').eq('immeuble_id', currentImmeubleId);
     const entitesADocuments = [{ type: 'immeuble', id: currentImmeubleId }, ...(lotsAssocies || []).map(l => ({ type: 'lot', id: l.id }))];
 
@@ -2944,6 +2957,10 @@
         const { error: errDoc } = await supabaseClient.from('documents').delete().eq('entity_type', ent.type).eq('entity_id', ent.id);
         if (errDoc) logErreur('cleanup_documents_immeuble', errDoc);
       }
+      const { error: errNotes } = await supabaseClient.from('notes').delete().eq('entity_type', ent.type).eq('entity_id', ent.id);
+      if (errNotes) logErreur('cleanup_notes_immeuble', errNotes);
+      const { error: errLiens } = await supabaseClient.from('contact_links').delete().eq('entity_type', ent.type).eq('entity_id', ent.id);
+      if (errLiens) logErreur('cleanup_contact_links_immeuble', errLiens);
     }
 
     const { error } = await supabaseClient.from('immeubles').delete().eq('id', currentImmeubleId);
@@ -3046,6 +3063,10 @@
       const { error: errDoc } = await supabaseClient.from('documents').delete().eq('entity_type', 'lot').eq('entity_id', currentLotId);
       if (errDoc) logErreur('cleanup_documents_lot', errDoc);
     }
+    const { error: errNotesLot } = await supabaseClient.from('notes').delete().eq('entity_type', 'lot').eq('entity_id', currentLotId);
+    if (errNotesLot) logErreur('cleanup_notes_lot', errNotesLot);
+    const { error: errLiensLot } = await supabaseClient.from('contact_links').delete().eq('entity_type', 'lot').eq('entity_id', currentLotId);
+    if (errLiensLot) logErreur('cleanup_contact_links_lot', errLiensLot);
 
     const { data: lotInfo } = await supabaseClient.from('lots').select('immeuble_id').eq('id', currentLotId).single();
     const { error } = await supabaseClient.from('lots').delete().eq('id', currentLotId);
@@ -3922,6 +3943,8 @@
       const { error: errDoc } = await supabaseClient.from('documents').delete().eq('entity_type', 'locataire').eq('entity_id', currentLocataireId);
       if (errDoc) logErreur('cleanup_documents_locataire', errDoc);
     }
+    const { error: errNotesLoc } = await supabaseClient.from('notes').delete().eq('entity_type', 'locataire').eq('entity_id', currentLocataireId);
+    if (errNotesLoc) logErreur('cleanup_notes_locataire', errNotesLoc);
 
     const { error } = await supabaseClient.from('locataires').delete().eq('id', currentLocataireId);
     if (error) { logErreur('supprimer_locataire', error); return alert('Erreur : ' + error.message); }
