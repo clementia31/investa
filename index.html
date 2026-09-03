@@ -929,12 +929,11 @@
         <div id="tabcontent-lot-resume">
           <div class="card">
             <div class="section-header-ajout">
-              <h3>Loyer</h3>
+              <h3>Caractéristiques</h3>
               <button class="btn-secondary btn-ajout-inline" id="btnModifierLoyerLot" onclick="toggleEditionLoyerLot()">Modifier</button>
             </div>
             <div id="lotLoyerAffichage">
-              <div style="color:var(--text); font-size:1.5rem; font-weight:700; margin-bottom:14px;" id="lotLoyerMontantAffiche">— <span class="small" style="font-weight:400;">/ mois</span></div>
-              <div class="grid-2" style="margin-bottom:0; padding-top:14px; border-top:1px solid var(--border);">
+              <div class="grid-2" style="margin-bottom:0;">
                 <div>
                   <div class="small" style="text-transform:uppercase; letter-spacing:0.04em; margin-bottom:4px;">Chauffage</div>
                   <div id="lotChauffageAffiche" style="font-weight:600;">—</div>
@@ -946,9 +945,7 @@
               </div>
             </div>
             <div id="lotLoyerEdition" style="display:none;">
-              <p class="small" style="margin:0 0 6px;">Loyer mensuel (€)</p>
-              <input id="editLoyerLot" type="number" min="0">
-              <div class="grid-2" style="margin-bottom:0; margin-top:10px;">
+              <div class="grid-2" style="margin-bottom:0;">
                 <div>
                   <p class="small" style="margin:0 0 6px;">Chauffage (€/mois)</p>
                   <input id="editChauffageLot" type="number" min="0">
@@ -962,6 +959,17 @@
                 <button class="btn-primary" style="flex:1;" onclick="enregistrerLoyerLot()">Enregistrer</button>
                 <button class="btn-secondary" style="flex:1;" onclick="toggleEditionLoyerLot()">Annuler</button>
               </div>
+            </div>
+          </div>
+          <div class="card" id="cardLoyerVacant" style="display:none;">
+            <div class="section-header-ajout">
+              <h3>Loyer</h3>
+              <button class="btn-secondary btn-ajout-inline" id="btnModifierLoyerVacant" onclick="toggleFormulaire('formLoyerVacant','btnModifierLoyerVacant')">Modifier</button>
+            </div>
+            <p class="small" style="margin:0;">Logement vacant — indique le loyer visé pour qu'il apparaisse partout, même sans locataire.</p>
+            <div id="formLoyerVacant" style="display:none; margin-top:10px;">
+              <input id="editLoyerLotVacant" type="number" min="0" placeholder="Loyer mensuel (€)">
+              <button class="btn-primary" onclick="enregistrerLoyerLotVacant()">Enregistrer</button>
             </div>
           </div>
           <div class="card">
@@ -3094,15 +3102,20 @@
   }
 
   async function enregistrerLoyerLot() {
-    const loyer = document.getElementById('editLoyerLot').value;
     const chauffage = document.getElementById('editChauffageLot').value;
     const eau = document.getElementById('editEauLot').value;
     const { error } = await supabaseClient.from('lots').update({
-      loyer: loyer ? parseFloat(loyer) : null,
       chauffage_montant: chauffage ? parseFloat(chauffage) : null,
       eau_montant: eau ? parseFloat(eau) : null
     }).eq('id', currentLotId);
-    if (error) { logErreur('modifier_loyer_lot', error); return alert('Erreur : ' + error.message); }
+    if (error) { logErreur('modifier_caracteristiques_lot', error); return alert('Erreur : ' + error.message); }
+    ouvrirFicheLot(currentLotId);
+  }
+
+  async function enregistrerLoyerLotVacant() {
+    const loyer = document.getElementById('editLoyerLotVacant').value;
+    const { error } = await supabaseClient.from('lots').update({ loyer: loyer ? parseFloat(loyer) : null }).eq('id', currentLotId);
+    if (error) { logErreur('modifier_loyer_lot_vacant', error); return alert('Erreur : ' + error.message); }
     ouvrirFicheLot(currentLotId);
   }
 
@@ -3139,10 +3152,8 @@
     document.getElementById('editTypeLot').value = lot.type;
     document.getElementById('editSurfaceLot').value = lot.surface || '';
 
-    document.getElementById('lotLoyerMontantAffiche').innerHTML = `${lot.loyer ? Number(lot.loyer).toLocaleString('fr-FR') : '—'} <span class="small" style="font-weight:400;">/ mois</span>`;
     document.getElementById('lotChauffageAffiche').textContent = lot.chauffage_montant ? Number(lot.chauffage_montant).toLocaleString('fr-FR') + ' € / mois' : '—';
     document.getElementById('lotEauAffiche').textContent = lot.eau_montant ? Number(lot.eau_montant).toLocaleString('fr-FR') + ' € / mois' : '—';
-    document.getElementById('editLoyerLot').value = lot.loyer || '';
     document.getElementById('editChauffageLot').value = lot.chauffage_montant || '';
     document.getElementById('editEauLot').value = lot.eau_montant || '';
     document.getElementById('lotLoyerAffichage').style.display = 'block';
@@ -3161,9 +3172,15 @@
 
     const { data: bauxActifs } = await supabaseClient.from('baux').select('*').eq('lot_id', id).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
     const bail = bauxActifs && bauxActifs[0];
-    document.getElementById('lotLoyer').textContent = bail ? Number(bail.loyer).toLocaleString('fr-FR') + ' €' : '—';
+    document.getElementById('lotLoyer').textContent = bail ? Number(bail.loyer).toLocaleString('fr-FR') + ' €' : (lot.loyer ? Number(lot.loyer).toLocaleString('fr-FR') + ' €' : '—');
     document.getElementById('lotCharges').textContent = bail ? Number(bail.charges).toLocaleString('fr-FR') + ' €' : '—';
     document.getElementById('lotDepot').textContent = bail && bail.depot_garantie ? Number(bail.depot_garantie).toLocaleString('fr-FR') + ' €' : '—';
+
+    // La carte "Loyer" (dédiée au logement vacant) ne s'affiche que sans bail actif —
+    // une fois loué, le vrai loyer se modifie via l'onglet Bail, jamais en double ici.
+    document.getElementById('cardLoyerVacant').style.display = bail ? 'none' : 'block';
+    document.getElementById('editLoyerLotVacant').value = lot.loyer || '';
+    document.getElementById('formLoyerVacant').style.display = 'none';
 
     switchTabLot('resume');
   }
