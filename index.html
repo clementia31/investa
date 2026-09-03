@@ -978,16 +978,19 @@
           <div class="card">
             <div class="section-header-ajout">
               <h3>Valeur, dette & taxe foncière</h3>
-              <button class="btn-secondary btn-ajout-inline" id="btnModifierValeurLot" onclick="toggleFormulaire('formValeurLot','btnModifierValeurLot')">Modifier</button>
+              <button class="btn-secondary btn-ajout-inline" id="btnModifierValeurLot" onclick="toggleEditionValeurLot()">Modifier</button>
             </div>
             <div id="lectureValeurLot" class="small">Chargement...</div>
-            <div id="formValeurLot" style="display:none; margin-top:10px;">
+            <div id="formValeurLot" style="display:none;">
               <div class="grid-2" style="margin-bottom:0;">
                 <input id="valeurLot" type="number" min="0" placeholder="Valeur estimée (€)">
                 <input id="detteLot" type="number" min="0" placeholder="Dette restante (€)">
               </div>
               <input id="taxeFonciereLot" type="number" min="0" placeholder="Taxe foncière annuelle (€)">
-              <button class="btn-primary" onclick="enregistrerValeurLot()">Enregistrer</button>
+              <div style="display:flex; gap:8px; margin-top:10px;">
+                <button class="btn-primary" style="flex:1;" onclick="enregistrerValeurLot()">Enregistrer</button>
+                <button class="btn-secondary" style="flex:1;" onclick="toggleEditionValeurLot()">Annuler</button>
+              </div>
             </div>
           </div>
           <div class="card">
@@ -1143,17 +1146,20 @@
           <div class="card">
             <div class="section-header-ajout">
               <h3>Informations</h3>
-              <button class="btn-secondary btn-ajout-inline" id="btnModifierInfosLoc" onclick="toggleFormulaire('formInfosLocataire','btnModifierInfosLoc')">Modifier</button>
+              <button class="btn-secondary btn-ajout-inline" id="btnModifierInfosLoc" onclick="toggleEditionInfosLocataire()">Modifier</button>
             </div>
             <div id="lectureInfosLocataire" class="small">Chargement...</div>
-            <div id="formInfosLocataire" style="display:none; margin-top:10px;">
+            <div id="formInfosLocataire" style="display:none;">
               <input id="nomLocataireEdit" placeholder="Nom">
               <div class="grid-2" style="margin-bottom:0;">
                 <input id="emailLocataireEdit" type="email" placeholder="Email">
                 <input id="telephoneLocataireEdit" placeholder="Téléphone">
               </div>
               <input id="garantieLocataire" placeholder="Garantie / répondant (nom, coordonnées)">
-              <button class="btn-primary" onclick="enregistrerInfosLocataire()">Enregistrer</button>
+              <div style="display:flex; gap:8px; margin-top:10px;">
+                <button class="btn-primary" style="flex:1;" onclick="enregistrerInfosLocataire()">Enregistrer</button>
+                <button class="btn-secondary" style="flex:1;" onclick="toggleEditionInfosLocataire()">Annuler</button>
+              </div>
             </div>
           </div>
           <div class="card">
@@ -1161,7 +1167,12 @@
               <h3>Résumé du bail</h3>
               <button class="btn-secondary btn-ajout-inline" id="btnModifierBailLocataire" style="display:none;" onclick="toggleEditionBailLocataire()">Modifier</button>
             </div>
-            <div id="locInformations">Chargement...</div>
+            <div id="locLotEtBail"></div>
+            <div id="locBailAffichage">
+              <div class="row"><span class="small" id="labelLoyerAffiche">Loyer</span><span id="valLoyerAffiche"></span></div>
+              <div class="row"><span class="small">Charges</span><span id="valChargesAffiche"></span></div>
+              <div class="row"><span class="small">Dépôt de garantie</span><span id="valDepotAffiche"></span></div>
+            </div>
             <div id="locBailEditionInline" style="display:none;">
               <div class="ligne-edition-bail">
                 <span class="small">Loyer mensuel</span>
@@ -3068,6 +3079,14 @@
     afficherBadgeStatutLot(statut);
   }
 
+  function toggleEditionValeurLot() {
+    const affichage = document.getElementById('lectureValeurLot');
+    const edition = document.getElementById('formValeurLot');
+    const enEdition = edition.style.display === 'block';
+    edition.style.display = enEdition ? 'none' : 'block';
+    affichage.style.display = enEdition ? 'block' : 'none';
+  }
+
   async function enregistrerValeurLot() {
     const valeur = document.getElementById('valeurLot').value;
     const dette = document.getElementById('detteLot').value;
@@ -3082,7 +3101,7 @@
       <div class="row"><span class="small">Dette restante</span><span>${dette ? Number(dette).toLocaleString('fr-FR') + ' €' : '—'}</span></div>
       <div class="row"><span class="small">Taxe foncière annuelle</span><span>${taxeFonciere ? Number(taxeFonciere).toLocaleString('fr-FR') + ' €' : '—'}</span></div>
     `;
-    toggleFormulaire('formValeurLot', 'btnModifierValeurLot');
+    toggleEditionValeurLot();
   }
 
   async function supprimerLot() {
@@ -3170,6 +3189,7 @@
       <div class="row"><span class="small">Dette restante</span><span>${lot.dette_restante ? Number(lot.dette_restante).toLocaleString('fr-FR') + ' €' : '—'}</span></div>
       <div class="row"><span class="small">Taxe foncière annuelle</span><span>${lot.taxe_fonciere_annuelle ? Number(lot.taxe_fonciere_annuelle).toLocaleString('fr-FR') + ' €' : '—'}</span></div>
     `;
+    document.getElementById('lectureValeurLot').style.display = 'block';
     document.getElementById('formValeurLot').style.display = 'none';
     document.getElementById('btnModifierValeurLot').style.display = 'inline-flex';
 
@@ -3981,8 +4001,11 @@
   let bailActuelLocataire = null;
 
   function toggleEditionBailLocataire() {
-    const div = document.getElementById('locBailEditionInline');
-    div.style.display = div.style.display === 'block' ? 'none' : 'block';
+    const affichage = document.getElementById('locBailAffichage');
+    const edition = document.getElementById('locBailEditionInline');
+    const enEdition = edition.style.display === 'block';
+    edition.style.display = enEdition ? 'none' : 'block';
+    affichage.style.display = enEdition ? 'block' : 'none';
   }
 
   async function enregistrerModifBailLocataire() {
@@ -4023,6 +4046,7 @@
       <div class="row"><span class="small">Téléphone</span><span>${locataire.telephone ? echapper(locataire.telephone) : '—'}</span></div>
       <div class="row"><span class="small">Garantie</span><span>${locataire.garantie ? echapper(locataire.garantie) : '—'}</span></div>
     `;
+    document.getElementById('lectureInfosLocataire').style.display = 'block';
     document.getElementById('formInfosLocataire').style.display = 'none';
     document.getElementById('btnModifierInfosLoc').style.display = 'inline-flex';
 
@@ -4104,13 +4128,18 @@
       blocLoyerMois.style.display = 'none';
     }
 
-    document.getElementById('locInformations').innerHTML = bailActuel ? `
+    document.getElementById('locLotEtBail').innerHTML = bailActuel ? `
       <div class="row"><span class="small">Lot</span><span class="row-click" onclick="ouvrirFicheLot('${bailActuel.lot_id}')">${echapper(bailActuel.lots.nom || bailActuel.lots.type)}</span></div>
       <div class="row"><span class="small">Bail</span><span>Du ${bailActuel.date_debut} ${bailActuel.date_fin ? 'au ' + bailActuel.date_fin : '(sans fin)'}</span></div>
-      <div class="row"><span class="small">${monRattachement && monRattachement.loyer_part ? 'Loyer (ma part)' : 'Loyer'}</span><span>${loyerAffiche.toLocaleString('fr-FR')} €</span></div>
-      <div class="row"><span class="small">Charges</span><span>${Number(bailActuel.charges).toLocaleString('fr-FR')} €</span></div>
-      <div class="row"><span class="small">Dépôt de garantie</span><span>${bailActuel.depot_garantie ? Number(bailActuel.depot_garantie).toLocaleString('fr-FR') + ' €' : '—'}</span></div>
     ` : '<div class="empty-state">Aucun bail actif.</div>';
+
+    if (bailActuel) {
+      document.getElementById('labelLoyerAffiche').textContent = monRattachement && monRattachement.loyer_part ? 'Loyer (ma part)' : 'Loyer';
+      document.getElementById('valLoyerAffiche').textContent = loyerAffiche.toLocaleString('fr-FR') + ' €';
+      document.getElementById('valChargesAffiche').textContent = Number(bailActuel.charges).toLocaleString('fr-FR') + ' €';
+      document.getElementById('valDepotAffiche').textContent = bailActuel.depot_garantie ? Number(bailActuel.depot_garantie).toLocaleString('fr-FR') + ' €' : '—';
+    }
+    document.getElementById('locBailAffichage').style.display = bailActuel ? 'block' : 'none';
 
     document.getElementById('colocatairesLocataire').innerHTML = colocataires.length
       ? colocataires.map(c => `<div class="row row-click" onclick="ouvrirFicheLocataire('${c.id}', 'lot')">${echapper(c.nom)}</div>`).join('')
@@ -4173,6 +4202,14 @@
     });
   }
 
+  function toggleEditionInfosLocataire() {
+    const affichage = document.getElementById('lectureInfosLocataire');
+    const edition = document.getElementById('formInfosLocataire');
+    const enEdition = edition.style.display === 'block';
+    edition.style.display = enEdition ? 'none' : 'block';
+    affichage.style.display = enEdition ? 'block' : 'none';
+  }
+
   async function enregistrerInfosLocataire() {
     const nom = document.getElementById('nomLocataireEdit').value;
     const email = document.getElementById('emailLocataireEdit').value;
@@ -4196,7 +4233,7 @@
       <div class="row"><span class="small">Téléphone</span><span>${telephone ? echapper(telephone) : '—'}</span></div>
       <div class="row"><span class="small">Garantie</span><span>${garantie ? echapper(garantie) : '—'}</span></div>
     `;
-    toggleFormulaire('formInfosLocataire', 'btnModifierInfosLoc');
+    toggleEditionInfosLocataire();
   }
 
   // ---------- LOCATAIRES (liste globale) ----------
