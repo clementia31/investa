@@ -248,6 +248,8 @@
   .badge-statut-clickable.occupe { background: rgba(34,197,94,0.15); color: #22c55e; }
   .badge-statut-clickable.vacant { background: rgba(245,158,11,0.15); color: var(--amber); }
   .badge-statut-clickable.travaux { background: rgba(239,68,68,0.15); color: var(--red); }
+  .badge-statut-clickable.proprietaire { background: rgba(96,165,250,0.15); color: #60a5fa; }
+  .badge-statut-clickable.agence { background: rgba(96,165,250,0.15); color: #60a5fa; }
   .badge-statut-clickable .chevron { font-size: 0.7rem; }
 
   .selecteur-statut-inline { display: inline-flex; gap: 4px; background: var(--panel-2); padding: 3px; border-radius: 20px; }
@@ -912,7 +914,7 @@
             </div>
             <button class="btn-primary" onclick="enregistrerModifLot()">Enregistrer</button>
           </div>
-          <div class="card" style="margin-top:18px;">
+          <div class="card" id="cardLoyerHaut" style="margin-top:18px;">
             <div class="section-header-ajout">
               <h3>Loyer</h3>
               <button class="btn-secondary btn-ajout-inline" id="btnModifierLoyerHaut" onclick="toggleEditionLoyerHaut()">Modifier</button>
@@ -943,6 +945,7 @@
               </div>
             </div>
           </div>
+          <div class="card" id="messageSansBail" style="margin-top:18px; display:none;"></div>
         </div>
 
         <div class="tabs">
@@ -2197,7 +2200,7 @@
     if (immeubleIds.length) {
       const { data: lots } = await supabaseClient.from('lots').select('statut').in('immeuble_id', immeubleIds);
       if (lots && lots.length) {
-        const occupes = lots.filter(l => l.statut === 'occupe').length;
+        const occupes = lots.filter(l => ['occupe', 'proprietaire', 'agence'].includes(l.statut)).length;
         tauxOccupation = Math.round((occupes / lots.length) * 100);
       }
     }
@@ -2560,7 +2563,7 @@
       const immeublesData = immeublesDeStructure.map(im => {
         const lotsDeImmeuble = lotsParImmeuble[im.id] || [];
         const loyersMensuels = lotsDeImmeuble.reduce((a, l) => a + (loyerParLot[l.id] || 0), 0);
-        const nbOccupes = lotsDeImmeuble.filter(l => l.statut === 'occupe').length;
+        const nbOccupes = lotsDeImmeuble.filter(l => ['occupe', 'proprietaire', 'agence'].includes(l.statut)).length;
         return { id: im.id, adresse: im.adresse, nbLots: lotsDeImmeuble.length, nbOccupes, loyersMensuels };
       });
       return { id: s.id, nom: s.nom, type: s.type, immeubles: immeublesData };
@@ -2578,7 +2581,7 @@
     });
     const loyersAttendus = (tousLots || []).reduce((a, l) => a + (loyerParLot[l.id] || 0), 0);
     const nbLotsTotal = (tousLots || []).length;
-    const nbOccupesTotal = (tousLots || []).filter(l => l.statut === 'occupe').length;
+    const nbOccupesTotal = (tousLots || []).filter(l => ['occupe', 'proprietaire', 'agence'].includes(l.statut)).length;
     const tauxOccup = nbLotsTotal ? Math.round((nbOccupesTotal / nbLotsTotal) * 100) : 0;
     document.getElementById('patValeur').textContent = formatMoney(valeurTotale);
     document.getElementById('patAttendu').textContent = formatMoney(loyersAttendus);
@@ -2710,7 +2713,7 @@
     // Loyers annuels + occupation = lots et baux actifs de cet immeuble
     const { data: lotsIm } = await supabaseClient.from('lots').select('id, statut').eq('immeuble_id', id);
     const lotIds = (lotsIm || []).map(l => l.id);
-    const nbOccupes = (lotsIm || []).filter(l => l.statut === 'occupe').length;
+    const nbOccupes = (lotsIm || []).filter(l => ['occupe', 'proprietaire', 'agence'].includes(l.statut)).length;
     document.getElementById('immOccupation').textContent = lotsIm && lotsIm.length ? `${nbOccupes}/${lotsIm.length}` : '—';
 
     const couleurStatut = !lotsIm || !lotsIm.length ? 'var(--border)' : nbOccupes === lotsIm.length ? 'var(--green)' : nbOccupes === 0 ? 'var(--red)' : 'var(--amber)';
@@ -3044,7 +3047,7 @@
       icone: iconesParType[l.type] || '📁',
       titre: l.nom || labelsParType[l.type] || l.type,
       sousTitre: labelsParType[l.type] + (l.surface ? ` · ${l.surface} m²` : ''),
-      nbLots: 1, nbOccupes: l.statut === 'occupe' ? 1 : 0, statutLot: l.statut,
+      nbLots: 1, nbOccupes: ['occupe', 'proprietaire', 'agence'].includes(l.statut) ? 1 : 0, statutLot: l.statut,
       loyer: loyerParLot[l.id] || Number(l.loyer) || 0,
       onclick: `ouvrirFicheLot('${l.id}')`
     })).join('') + `</div>`;
@@ -3066,7 +3069,7 @@
   }
 
   // ---------- FICHE LOT ----------
-  const LABELS_STATUT_LOT = { occupe: 'Loué', vacant: 'Vacant', travaux: 'Travaux' };
+  const LABELS_STATUT_LOT = { occupe: 'Loué', vacant: 'Vacant', travaux: 'Travaux', proprietaire: 'Occupé par moi-même', agence: 'Géré par une agence' };
   let currentLotStatutAffiche = 'vacant';
 
   function afficherBadgeStatutLot(statut) {
@@ -3208,6 +3211,16 @@
     ]);
     currentLotStatutAffiche = lot.statut;
     afficherBadgeStatutLot(lot.statut);
+
+    // Occupé par le propriétaire ou géré par une agence : pas de bail à suivre dans Investa.
+    const necessiteUnBail = !['proprietaire', 'agence'].includes(lot.statut);
+    document.getElementById('tabLotBail').style.display = necessiteUnBail ? 'block' : 'none';
+    document.getElementById('tabLotPaiements').style.display = necessiteUnBail ? 'block' : 'none';
+    document.getElementById('cardLoyerHaut').style.display = necessiteUnBail ? 'block' : 'none';
+    document.getElementById('messageSansBail').style.display = necessiteUnBail ? 'none' : 'block';
+    document.getElementById('messageSansBail').textContent = lot.statut === 'proprietaire'
+      ? 'Occupé par toi-même — aucun loyer ni bail à suivre pour ce logement.'
+      : 'Géré par une agence — aucun loyer ni bail à suivre ici, l\u2019agence s\u2019en occupe.';
 
     document.getElementById('editNomLot').value = lot.nom || '';
     document.getElementById('editTypeLot').value = lot.type;
