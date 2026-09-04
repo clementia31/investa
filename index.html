@@ -627,6 +627,7 @@
           </div>
           <div style="height:14px; border-radius:8px; overflow:hidden; display:flex; margin-bottom:6px;" id="patBarreActifPassif"></div>
           <div style="display:flex; justify-content:space-between;" class="small" id="patLabelsActifPassif"></div>
+          <div id="zoneCourbePatrimoine" style="margin-top:18px; padding-top:18px; border-top:1px solid var(--border);"></div>
         </div>
 
         <div class="card" id="cardDetteParBien" style="display:none;">
@@ -2520,6 +2521,98 @@
 
   let donneesArbrePatrimoine = [];
 
+  // Capture automatique — un seul instantané par mois, jamais de tâche planifiée à faire tourner.
+  // Simplification assumée : un seul instantané global, rattaché à la structure principale du compte
+  // (couvre le cas très large où un compte n'a qu'une seule structure).
+  async function capturerInstantanePatrimoine(structureIds, valeur, dette, valeurNette) {
+    if (!structureIds.length) return;
+    const structureId = structureIds[0];
+    const now = new Date();
+    const mois = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-01';
+    const { error } = await supabaseClient.from('snapshots_patrimoine').insert({
+      structure_id: structureId, mois, valeur, dette, valeur_nette: valeurNette
+    });
+    // 23505 = un instantané existe déjà pour ce mois — normal, pas une vraie erreur.
+    if (error && error.code !== '23505') logErreur('capturer_instantane_patrimoine', error);
+  }
+
+  async function afficherCourbePatrimoine(structureIds, valeurNetteActuelle) {
+    const zone = document.getElementById('zoneCourbePatrimoine');
+    if (!zone || !structureIds.length) return;
+    const structureId = structureIds[0];
+
+    const { data: instantanes } = await supabaseClient.from('snapshots_patrimoine').select('mois, valeur_nette').eq('structure_id', structureId).order('mois');
+    const reelParMois = {};
+    (instantanes || []).forEach(s => { reelParMois[s.mois] = Number(s.valeur_nette); });
+
+    // Loyers réellement encaissés par mois — sert à reconstruire rétroactivement les mois
+    // sans vrai instantané (Option B), en attendant que les vrais instantanés s'accumulent.
+    const { data: immeublesStruct } = await supabaseClient.from('immeubles').select('id, created_at').eq('structure_id', structureId);
+    const immeubleIds = (immeublesStruct || []).map(im => im.id);
+    const { data: lotsStruct } = immeubleIds.length ? await supabaseClient.from('lots').select('id').in('immeuble_id', immeubleIds) : { data: [] };
+    const lotIds = (lotsStruct || []).map(l => l.id);
+    const { data: bauxStruct } = lotIds.length ? await supabaseClient.from('baux').select('id').in('lot_id', lotIds) : { data: [] };
+    const bailIds = (bauxStruct || []).map(b => b.id);
+    const { data: paiements } = bailIds.length
+      ? await supabaseClient.from('paiements').select('mois, montant_loyer, montant_charges').in('bail_id', bailIds).eq('statut', 'paye')
+      : { data: [] };
+    const loyersParMois = {};
+    (paiements || []).forEach(p => { loyersParMois[p.mois] = (loyersParMois[p.mois] || 0) + Number(p.montant_loyer) + Number(p.montant_charges); });
+
+    // On ne remonte jamais avant la création du tout premier bien — sinon on fabriquerait
+    // une trajectoire "avant" que le patrimoine n'existe réellement dans Investa.
+    const datesCreation = (immeublesStruct || []).map(im => new Date(im.created_at));
+    const dateMinAutorisee = datesCreation.length ? new Date(Math.min(...datesCreation)) : new Date();
+
+    const moisAAfficher = [];
+    const aujourdhui = new Date();
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(aujourdhui.getFullYear(), aujourdhui.getMonth() - i, 1);
+      const debutMoisDate = new Date(d.getFullYear(), d.getMonth(), 1);
+      const debutMoisCreation = new Date(dateMinAutorisee.getFullYear(), dateMinAutorisee.getMonth(), 1);
+      if (debutMoisDate >= debutMoisCreation) {
+        moisAAfficher.push(d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-01');
+      }
+    }
+
+    if (moisAAfficher.length < 2) {
+      zone.innerHTML = '<div class="small" style="opacity:0.7;">Pas encore assez d\u2019historique pour une courbe — reviens dans quelques mois.</div>';
+      return;
+    }
+
+    const points = moisAAfficher.map((mois, idx) => {
+      if (reelParMois[mois] !== undefined) return { mois, valeur: reelParMois[mois], reel: true };
+      let cumulLoyersDepuis = 0;
+      for (let j = idx; j < moisAAfficher.length; j++) cumulLoyersDepuis += loyersParMois[moisAAfficher[j]] || 0;
+      return { mois, valeur: valeurNetteActuelle - cumulLoyersDepuis, reel: false };
+    });
+
+    const valeurs = points.map(p => p.valeur);
+    const min = Math.min(...valeurs), max = Math.max(...valeurs);
+    const ecart = max - min || 1;
+    const largeur = 460, hauteur = 110;
+    const coords = points.map((p, i) => ({
+      x: (i / (points.length - 1)) * largeur,
+      y: hauteur - ((p.valeur - min) / ecart) * hauteur
+    }));
+    const polyline = coords.map(c => `${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(' ');
+    const dernierPoint = coords[coords.length - 1];
+    const premierMoisLabel = new Date(moisAAfficher[0]).toLocaleDateString('fr-FR', { month: 'short' });
+    const dernierMoisLabel = new Date(moisAAfficher[moisAAfficher.length - 1]).toLocaleDateString('fr-FR', { month: 'short' });
+    const variation = valeurNetteActuelle - points[0].valeur;
+    const nbInstantanesReels = (instantanes || []).length;
+
+    zone.innerHTML = `
+      <div class="small" style="color:${variation >= 0 ? 'var(--green)' : 'var(--red)'}; margin-bottom:8px;">${variation >= 0 ? '+' : ''}${formatMoney(variation)} sur les 12 derniers mois</div>
+      <svg viewBox="0 0 ${largeur} ${hauteur}" style="width:100%; height:auto; display:block;">
+        <polyline points="${polyline}" fill="none" stroke="var(--green)" stroke-width="2.5"/>
+        <circle cx="${dernierPoint.x.toFixed(1)}" cy="${dernierPoint.y.toFixed(1)}" r="4" fill="var(--green)"/>
+      </svg>
+      <div class="small" style="display:flex; justify-content:space-between; margin-top:4px;"><span>${premierMoisLabel}</span><span>${dernierMoisLabel}</span></div>
+      ${nbInstantanesReels < 2 ? '<div class="small" style="margin-top:6px; opacity:0.7;">Estimation basée sur tes loyers encaissés — devient plus précise chaque mois.</div>' : ''}
+    `;
+  }
+
   async function chargerPatrimoine() {
     const div = document.getElementById('arbrePatrimoine');
     div.textContent = 'Chargement...';
@@ -2601,6 +2694,11 @@
     } else {
       document.getElementById('patBarreActifPassif').innerHTML = '';
       document.getElementById('patLabelsActifPassif').innerHTML = '<span>Aucune valeur renseignée</span>';
+    }
+
+    if (structureIds.length && valeurTotale > 0) {
+      await capturerInstantanePatrimoine(structureIds, valeurTotale, detteTotale, valeurNette);
+      await afficherCourbePatrimoine(structureIds, valeurNette);
     }
 
     // Dette par bien — uniquement les immeubles dont la valeur ET la dette sont renseignées (histogramme fidèle, pas d'invention)
