@@ -2167,7 +2167,17 @@
     }
 
     const dernierJourMoisDash = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()).padStart(2, '0');
-    const { data: bauxActifsBruts } = await supabaseClient.from('baux').select('id, loyer, charges, date_debut, date_fin').eq('statut', 'actif').lte('date_debut', dernierJourMoisDash);
+    const finMois = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+
+    // Ces 4 requêtes ne dépendent pas les unes des autres — parties en même temps plutôt que
+    // les unes après les autres, pour réduire le temps de chargement perçu au minimum nécessaire.
+    const [{ data: bauxActifsBruts }, { data: paiements }, { data: depenses }, { data: immeubles }] = await Promise.all([
+      supabaseClient.from('baux').select('id, loyer, charges, date_debut, date_fin').eq('statut', 'actif').lte('date_debut', dernierJourMoisDash),
+      supabaseClient.from('paiements').select('bail_id, statut').eq('mois', moisDate),
+      supabaseClient.from('transactions').select('montant').eq('type', 'depense').in('structure_id', structIds).gte('date', moisDate).lte('date', finMois),
+      supabaseClient.from('immeubles').select('*').in('structure_id', structIds)
+    ]);
+
     const bauxActifsMois = (bauxActifsBruts || []).filter(b => !b.date_fin || b.date_fin >= moisDate);
     let attendu = 0;
     (bauxActifsMois || []).forEach(b => { attendu += Number(b.loyer) + Number(b.charges); });
@@ -2177,7 +2187,6 @@
     // paiements — pour ne plus jamais désynchroniser ce chiffre du reste du Dashboard.
     const loyerParBail = {};
     (bauxActifsBruts || []).forEach(b => { loyerParBail[b.id] = Number(b.loyer) + Number(b.charges); });
-    const { data: paiements } = await supabaseClient.from('paiements').select('bail_id, statut').eq('mois', moisDate);
     let encaisse = 0, retardCount = 0;
     (paiements || []).forEach(p => {
       const total = loyerParBail[p.bail_id] !== undefined ? loyerParBail[p.bail_id] : 0;
@@ -2185,14 +2194,7 @@
       if (p.statut === 'en_retard') retardCount++;
     });
 
-
-    // Charges du mois
-    const finMois = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
-    const { data: depenses } = await supabaseClient.from('transactions').select('montant').eq('type', 'depense').in('structure_id', structIds).gte('date', moisDate).lte('date', finMois);
     const totalCharges = (depenses || []).reduce((a, t) => a + Number(t.montant), 0);
-
-    // Valeur patrimoine / dette / occupation
-    const { data: immeubles } = await supabaseClient.from('immeubles').select('*').in('structure_id', structIds);
     const valeurPatrimoine = (immeubles || []).reduce((a, i) => a + Number(i.valeur_estimee || 0), 0);
     const dette = (immeubles || []).reduce((a, i) => a + Number(i.dette_restante || 0), 0);
 
@@ -2215,11 +2217,11 @@
     document.getElementById('dashValeur').textContent = formatMoney(valeurPatrimoine);
     document.getElementById('dashDette').textContent = formatMoney(dette);
 
-    // Graphique cash-flow 12 derniers mois
-    await dessinerCashflow12Mois(structIds);
-
-    // À faire : retards + échéances proches (retardCount réutilisé en tête de liste)
-    await chargerAlertesDashboard(structIds, retardCount);
+    // Le graphique et les alertes ne dépendent pas non plus l'un de l'autre — même principe.
+    await Promise.all([
+      dessinerCashflow12Mois(structIds),
+      chargerAlertesDashboard(structIds, retardCount)
+    ]);
   }
 
   async function dessinerCashflow12Mois(structIds) {
