@@ -2575,8 +2575,12 @@
       }
     }
 
-    if (moisAAfficher.length < 2) {
-      zone.innerHTML = '<div class="small" style="opacity:0.7;">Pas encore assez d\u2019historique pour une courbe — reviens dans quelques mois.</div>';
+    // La courbe reste masquée tant que le patrimoine a moins de 6 mois d'existence dans Investa —
+    // en dessous, l'estimation rétroactive est trop fragile pour être vraiment utile. La capture
+    // automatique continue de tourner en arrière-plan, pour que la courbe apparaisse d'elle-même
+    // dès que ce seuil est atteint, sans rien à faire de plus.
+    if (moisAAfficher.length < 6) {
+      zone.innerHTML = '';
       return;
     }
 
