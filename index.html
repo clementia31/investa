@@ -2546,32 +2546,36 @@
     if (error && error.code !== '23505') logErreur('capturer_instantane_patrimoine', error);
   }
 
-  async function afficherCourbePatrimoine(structureIds, valeurNetteActuelle) {
+  async function afficherCourbePatrimoine(structureIds, valeurNetteActuelle, tousImmeubles, tousLots, tousBauxActifs) {
     const zone = document.getElementById('zoneCourbePatrimoine');
     if (!zone || !structureIds.length) return;
     const structureId = structureIds[0];
 
-    const { data: instantanes } = await supabaseClient.from('snapshots_patrimoine').select('mois, valeur_nette').eq('structure_id', structureId).order('mois');
+    // Réutilise les données déjà chargées par chargerPatrimoine juste avant — plus aucune requête
+    // immeubles/lots/baux nécessaire ici (c'était le vrai problème de lenteur signalé : 5 requêtes
+    // séquentielles, dont 3 redondantes avec des données déjà en mémoire). Seuls les vrais
+    // instantanés et les paiements sont de la donnée neuve, récupérés en parallèle plutôt qu'en série.
+    const immeublesDeLaStructure = (tousImmeubles || []).filter(im => im.structure_id === structureId);
+    const immeubleIdsStructure = new Set(immeublesDeLaStructure.map(im => im.id));
+    const lotIdsStructure = new Set((tousLots || []).filter(l => immeubleIdsStructure.has(l.immeuble_id)).map(l => l.id));
+    const bauxDeLaStructure = (tousBauxActifs || []).filter(b => lotIdsStructure.has(b.lot_id));
+    const bailIds = bauxDeLaStructure.map(b => b.id);
+
+    const [{ data: instantanes }, { data: paiements }] = await Promise.all([
+      supabaseClient.from('snapshots_patrimoine').select('mois, valeur_nette').eq('structure_id', structureId).order('mois'),
+      bailIds.length
+        ? supabaseClient.from('paiements').select('mois, montant_loyer, montant_charges').in('bail_id', bailIds).eq('statut', 'paye')
+        : Promise.resolve({ data: [] })
+    ]);
+
     const reelParMois = {};
     (instantanes || []).forEach(s => { reelParMois[s.mois] = Number(s.valeur_nette); });
-
-    // Loyers réellement encaissés par mois — sert à reconstruire rétroactivement les mois
-    // sans vrai instantané (Option B), en attendant que les vrais instantanés s'accumulent.
-    const { data: immeublesStruct } = await supabaseClient.from('immeubles').select('id, created_at').eq('structure_id', structureId);
-    const immeubleIds = (immeublesStruct || []).map(im => im.id);
-    const { data: lotsStruct } = immeubleIds.length ? await supabaseClient.from('lots').select('id').in('immeuble_id', immeubleIds) : { data: [] };
-    const lotIds = (lotsStruct || []).map(l => l.id);
-    const { data: bauxStruct } = lotIds.length ? await supabaseClient.from('baux').select('id').in('lot_id', lotIds) : { data: [] };
-    const bailIds = (bauxStruct || []).map(b => b.id);
-    const { data: paiements } = bailIds.length
-      ? await supabaseClient.from('paiements').select('mois, montant_loyer, montant_charges').in('bail_id', bailIds).eq('statut', 'paye')
-      : { data: [] };
     const loyersParMois = {};
     (paiements || []).forEach(p => { loyersParMois[p.mois] = (loyersParMois[p.mois] || 0) + Number(p.montant_loyer) + Number(p.montant_charges); });
 
     // On ne remonte jamais avant la création du tout premier bien — sinon on fabriquerait
     // une trajectoire "avant" que le patrimoine n'existe réellement dans Investa.
-    const datesCreation = (immeublesStruct || []).map(im => new Date(im.created_at));
+    const datesCreation = immeublesDeLaStructure.map(im => new Date(im.created_at));
     const dateMinAutorisee = datesCreation.length ? new Date(Math.min(...datesCreation)) : new Date();
 
     const moisAAfficher = [];
@@ -2637,7 +2641,7 @@
     const structureIds = structures.map(s => s.id);
 
     // 1 requête groupée pour TOUS les immeubles de toutes les structures
-    const { data: tousImmeubles } = await supabaseClient.from('immeubles').select('id, adresse, structure_id, valeur_estimee, dette_restante').in('structure_id', structureIds).order('created_at');
+    const { data: tousImmeubles } = await supabaseClient.from('immeubles').select('id, adresse, structure_id, valeur_estimee, dette_restante, created_at').in('structure_id', structureIds).order('created_at');
     const immeubleIds = (tousImmeubles || []).map(im => im.id);
 
     // 1 requête groupée pour TOUS les lots de tous les immeubles
@@ -2650,7 +2654,7 @@
     // (on exclut ceux qui n'ont pas encore démarré ou déjà terminés, par rapport à aujourd'hui)
     const aujourdhuiStr = new Date().toISOString().split('T')[0];
     const { data: tousBauxActifsBruts } = lotIds.length
-      ? await supabaseClient.from('baux').select('lot_id, loyer, charges, date_debut, date_fin').in('lot_id', lotIds).eq('statut', 'actif')
+      ? await supabaseClient.from('baux').select('id, lot_id, loyer, charges, date_debut, date_fin').in('lot_id', lotIds).eq('statut', 'actif')
       : { data: [] };
     const tousBauxActifs = (tousBauxActifsBruts || []).filter(b => b.date_debut <= aujourdhuiStr && (!b.date_fin || b.date_fin >= aujourdhuiStr));
 
@@ -2712,7 +2716,7 @@
 
     if (structureIds.length && valeurTotale > 0) {
       await capturerInstantanePatrimoine(structureIds, valeurTotale, detteTotale, valeurNette);
-      await afficherCourbePatrimoine(structureIds, valeurNette);
+      await afficherCourbePatrimoine(structureIds, valeurNette, tousImmeubles, tousLots, tousBauxActifs);
     }
 
     // Dette par bien — uniquement les immeubles dont la valeur ET la dette sont renseignées (histogramme fidèle, pas d'invention)
