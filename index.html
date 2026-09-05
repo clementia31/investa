@@ -2634,28 +2634,20 @@
   async function chargerPatrimoine() {
     const div = document.getElementById('arbrePatrimoine');
     div.textContent = 'Chargement...';
-    const { data: structures, error: errS } = await supabaseClient.from('structures').select('id').order('created_at');
-    if (errS) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
-    if (!structures.length) { div.innerHTML = '<div class="empty-state">Aucune structure pour le moment.</div>'; document.getElementById('arbreTotal').innerHTML = ''; return; }
 
-    const structureIds = structures.map(s => s.id);
+    // 1 seul aller-retour réseau au lieu de 4 en cascade (structures → immeubles → lots → baux) —
+    // tout le travail de jointure se fait désormais côté base, dans une seule fonction.
+    const { data: donnees, error: errDonnees } = await supabaseClient.rpc('charger_donnees_patrimoine');
+    if (errDonnees) { logErreur('charger_donnees_patrimoine', errDonnees); div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
 
-    // 1 requête groupée pour TOUS les immeubles de toutes les structures
-    const { data: tousImmeubles } = await supabaseClient.from('immeubles').select('id, adresse, structure_id, valeur_estimee, dette_restante, created_at').in('structure_id', structureIds).order('created_at');
-    const immeubleIds = (tousImmeubles || []).map(im => im.id);
+    const structureIds = donnees.structure_ids || [];
+    if (!structureIds.length) { div.innerHTML = '<div class="empty-state">Aucune structure pour le moment.</div>'; document.getElementById('arbreTotal').innerHTML = ''; return; }
 
-    // 1 requête groupée pour TOUS les lots de tous les immeubles
-    const { data: tousLots } = immeubleIds.length
-      ? await supabaseClient.from('lots').select('id, immeuble_id, statut, valeur_estimee, dette_restante').in('immeuble_id', immeubleIds)
-      : { data: [] };
-    const lotIds = (tousLots || []).map(l => l.id);
-
-    // 1 requête groupée pour TOUS les baux actifs de tous les lots
-    // (on exclut ceux qui n'ont pas encore démarré ou déjà terminés, par rapport à aujourd'hui)
+    const tousImmeubles = donnees.immeubles || [];
+    const tousLots = donnees.lots || [];
+    const structuresData = donnees.structures || [];
     const aujourdhuiStr = new Date().toISOString().split('T')[0];
-    const { data: tousBauxActifsBruts } = lotIds.length
-      ? await supabaseClient.from('baux').select('id, lot_id, loyer, charges, date_debut, date_fin').in('lot_id', lotIds).eq('statut', 'actif')
-      : { data: [] };
+    const tousBauxActifsBruts = donnees.baux || [];
     const tousBauxActifs = (tousBauxActifsBruts || []).filter(b => b.date_debut <= aujourdhuiStr && (!b.date_fin || b.date_fin >= aujourdhuiStr));
 
     // Regroupement en mémoire (JS), plus aucune requête réseau supplémentaire
@@ -2669,7 +2661,7 @@
       loyerParLot[b.lot_id] = (loyerParLot[b.lot_id] || 0) + Number(b.loyer) + Number(b.charges);
     });
 
-    donneesArbrePatrimoine = structures.map(s => {
+    donneesArbrePatrimoine = structuresData.map(s => {
       const immeublesDeStructure = (tousImmeubles || []).filter(im => im.structure_id === s.id);
       const immeublesData = immeublesDeStructure.map(im => {
         const lotsDeImmeuble = lotsParImmeuble[im.id] || [];
@@ -2715,8 +2707,10 @@
     }
 
     if (structureIds.length && valeurTotale > 0) {
-      await capturerInstantanePatrimoine(structureIds, valeurTotale, detteTotale, valeurNette);
-      await afficherCourbePatrimoine(structureIds, valeurNette, tousImmeubles, tousLots, tousBauxActifs);
+      await Promise.all([
+        capturerInstantanePatrimoine(structureIds, valeurTotale, detteTotale, valeurNette),
+        afficherCourbePatrimoine(structureIds, valeurNette, tousImmeubles, tousLots, tousBauxActifs)
+      ]);
     }
 
     // Dette par bien — uniquement les immeubles dont la valeur ET la dette sont renseignées (histogramme fidèle, pas d'invention)
