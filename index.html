@@ -1273,18 +1273,26 @@
 
         <button class="btn-ajout-replie" id="btnAjoutLocataireRapide" onclick="toggleFormulaire('formAjoutLocataireRapide','btnAjoutLocataireRapide')">+ Ajouter un locataire</button>
         <div class="card" id="formAjoutLocataireRapide" style="display:none;">
-          <input id="nomLocataireRapide" placeholder="Nom du locataire">
+          <input id="nomLocataireRapide" list="listeLocatairesExistants" placeholder="Nom du locataire" oninput="verifierLocataireExistant()">
+          <datalist id="listeLocatairesExistants"></datalist>
+          <div id="alerteLocataireExistant" style="display:none; background:rgba(245,158,11,0.1); border:1px solid var(--amber); border-radius:8px; padding:10px 12px; margin-bottom:12px; font-size:0.85rem; color:var(--amber);"></div>
           <select id="bienLocataireRapide" onchange="verifierBailExistantLocataireRapide()"></select>
           <div class="grid-2" style="margin-bottom:0;">
             <input id="dateEntreeLocataireRapide" type="date">
             <input id="dateSortieLocataireRapide" type="date">
           </div>
           <input id="loyerLocataireRapide" type="number" min="0" placeholder="Loyer (€) — nécessaire, ce bien n'a pas encore de bail" style="display:none;">
-          <div class="grid-2" style="margin-bottom:0;">
+          <div class="grid-2" style="margin-bottom:0;" id="champsContactLocataireRapide">
             <input id="emailLocataireRapide" type="email" placeholder="Email (optionnel)">
             <input id="telephoneLocataireRapide" placeholder="Téléphone (optionnel)">
           </div>
-          <button class="btn-primary" onclick="creerLocataireRapide()">Ajouter le locataire</button>
+          <div id="boutonsCreationLocataire">
+            <button class="btn-primary" onclick="creerLocataireRapide()">Ajouter le locataire</button>
+          </div>
+          <div id="boutonsLocataireExistant" style="display:none; gap:8px;">
+            <button class="btn-primary" style="flex:1;" onclick="attacherLocataireExistant()">Utiliser la fiche existante</button>
+            <button class="btn-secondary" style="flex:1;" onclick="forcerCreationLocataire()">Créer quand même</button>
+          </div>
         </div>
 
         <div class="card">
@@ -4379,19 +4387,100 @@
   // ---------- LOCATAIRES (liste globale) ----------
   let donneesLocatairesGlobal = [];
 
+  let cacheLocatairesExistants = [];
+
   async function chargerBiensPourLocataireRapide() {
     const sel = document.getElementById('bienLocataireRapide');
     const { data: lots } = await supabaseClient.from('lots').select('id, nom, type, immeubles(adresse)').order('created_at');
     sel.innerHTML = (lots || []).map(l => `<option value="${l.id}">${echapper(l.immeubles.adresse)} — ${echapper(l.nom || l.type)}</option>`).join('');
     verifierBailExistantLocataireRapide();
+
+    // Locataires déjà existants + leur bien actuel — pour l'auto-complétion et la détection de doublon.
+    // Requêtes séparées + jointure côté JS (pattern déjà éprouvé partout ailleurs dans l'app),
+    // plutôt qu'une jointure imbriquée à 3 niveaux jamais utilisée ni testée jusqu'ici.
+    const { data: locataires } = await supabaseClient.from('locataires').select('id, nom');
+    const { data: rattachements } = await supabaseClient.from('bail_locataires').select('locataire_id, bail_id');
+    const bailIdsUniques = [...new Set((rattachements || []).map(r => r.bail_id))];
+    const { data: bauxPourLocataires } = bailIdsUniques.length
+      ? await supabaseClient.from('baux').select('id, statut, lot_id').in('id', bailIdsUniques).eq('statut', 'actif')
+      : { data: [] };
+    const lotIdsUniques = [...new Set((bauxPourLocataires || []).map(b => b.lot_id))];
+    const { data: lotsPourLocataires } = lotIdsUniques.length
+      ? await supabaseClient.from('lots').select('id, nom, type').in('id', lotIdsUniques)
+      : { data: [] };
+
+    const bailActifParId = {}; (bauxPourLocataires || []).forEach(b => { bailActifParId[b.id] = b; });
+    const lotParId = {}; (lotsPourLocataires || []).forEach(l => { lotParId[l.id] = l; });
+    const bailActifParLocataire = {};
+    (rattachements || []).forEach(r => {
+      const bail = bailActifParId[r.bail_id];
+      if (bail) bailActifParLocataire[r.locataire_id] = bail;
+    });
+
+    cacheLocatairesExistants = (locataires || []).map(l => {
+      const bail = bailActifParLocataire[l.id];
+      const lot = bail ? lotParId[bail.lot_id] : null;
+      return { id: l.id, nom: l.nom, bienActuel: lot ? (lot.nom || lot.type) : null };
+    });
+    document.getElementById('listeLocatairesExistants').innerHTML = cacheLocatairesExistants.map(l => `<option value="${echapper(l.nom)}">`).join('');
   }
 
-  async function verifierBailExistantLocataireRapide() {
+  function verifierLocataireExistant() {
+    const nomTape = document.getElementById('nomLocataireRapide').value.trim().toLowerCase();
+    const trouve = cacheLocatairesExistants.find(l => l.nom.toLowerCase() === nomTape);
+    const alerte = document.getElementById('alerteLocataireExistant');
+
+    if (trouve) {
+      alerte.style.display = 'block';
+      alerte.textContent = `\u26a0 Un locataire "${trouve.nom}" existe déjà${trouve.bienActuel ? ' (' + trouve.bienActuel + ')' : ''}. Continuer créera une deuxième fiche séparée.`;
+      document.getElementById('boutonsCreationLocataire').style.display = 'none';
+      document.getElementById('boutonsLocataireExistant').style.display = 'flex';
+      document.getElementById('boutonsLocataireExistant').dataset.locataireId = trouve.id;
+    } else {
+      alerte.style.display = 'none';
+      document.getElementById('boutonsCreationLocataire').style.display = 'block';
+      document.getElementById('boutonsLocataireExistant').style.display = 'none';
+    }
+  }
+
+  async function attacherLocataireExistant() {
+    if (creationLocataireEnCours) return;
+    const locataireId = document.getElementById('boutonsLocataireExistant').dataset.locataireId;
     const lotId = document.getElementById('bienLocataireRapide').value;
-    const champLoyer = document.getElementById('loyerLocataireRapide');
-    if (!lotId) { champLoyer.style.display = 'none'; return; }
-    const { data: baux } = await supabaseClient.from('baux').select('id').eq('lot_id', lotId).eq('statut', 'actif').limit(1);
-    champLoyer.style.display = (baux && baux.length) ? 'none' : 'block';
+    const dateEntree = document.getElementById('dateEntreeLocataireRapide').value;
+    const dateSortie = document.getElementById('dateSortieLocataireRapide').value;
+    const loyer = document.getElementById('loyerLocataireRapide').value;
+    if (!lotId) return alert('Sélectionne un bien');
+
+    creationLocataireEnCours = true;
+    try {
+      const { error } = await supabaseClient.rpc('attacher_locataire_existant', {
+        p_lot_id: lotId, p_locataire_id: locataireId, p_date_entree: dateEntree || null,
+        p_date_sortie: dateSortie || null, p_loyer: loyer ? parseFloat(loyer) : null
+      });
+      if (error) { logErreur('attacher_locataire_existant', error); return alert('Erreur : ' + error.message); }
+      reinitialiserFormulaireLocataireRapide();
+      allerLocataires();
+    } finally {
+      creationLocataireEnCours = false;
+    }
+  }
+
+  function forcerCreationLocataire() {
+    creerLocataireRapide();
+  }
+
+  function reinitialiserFormulaireLocataireRapide() {
+    document.getElementById('nomLocataireRapide').value = '';
+    document.getElementById('dateEntreeLocataireRapide').value = '';
+    document.getElementById('dateSortieLocataireRapide').value = '';
+    document.getElementById('loyerLocataireRapide').value = '';
+    document.getElementById('emailLocataireRapide').value = '';
+    document.getElementById('telephoneLocataireRapide').value = '';
+    document.getElementById('alerteLocataireExistant').style.display = 'none';
+    document.getElementById('boutonsCreationLocataire').style.display = 'block';
+    document.getElementById('boutonsLocataireExistant').style.display = 'none';
+    toggleFormulaire('formAjoutLocataireRapide', 'btnAjoutLocataireRapide');
   }
 
   let creationLocataireEnCours = false;
@@ -5840,9 +5929,19 @@ Durée : du {{date_debut}} au {{date_fin}}
     });
   }
 
+  // Injection de formule (CSV/Excel) : si un texte libre saisi par l'utilisateur (ex: une
+  // description de transaction) commence par =, +, -, @, tab ou retour chariot, Excel peut
+  // l'interpréter comme une formule à l'ouverture — jusqu'à exécuter une commande sur la machine
+  // de quiconque ouvre le fichier. On neutralise en préfixant d'une apostrophe (convention standard),
+  // qui force Excel à traiter la valeur comme du texte brut, jamais comme une formule.
+  function neutraliserFormule(valeur) {
+    const val = (valeur === null || valeur === undefined) ? '' : String(valeur);
+    return /^[=+\-@\t\r]/.test(val) ? "'" + val : val;
+  }
+
   function telechargerCSV(nomFichier, lignes) {
     const csv = lignes.map(ligne => ligne.map(champ => {
-      const val = (champ === null || champ === undefined) ? '' : String(champ);
+      const val = neutraliserFormule(champ);
       return '"' + val.replace(/"/g, '""') + '"';
     }).join(';')).join('\n');
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
@@ -5857,7 +5956,8 @@ Durée : du {{date_debut}} au {{date_fin}}
   }
 
   function telechargerXLSX(nomFichier, lignes) {
-    const feuille = XLSX.utils.aoa_to_sheet(lignes);
+    const lignesNeutralisees = lignes.map(ligne => ligne.map(champ => neutraliserFormule(champ)));
+    const feuille = XLSX.utils.aoa_to_sheet(lignesNeutralisees);
     const classeur = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(classeur, feuille, 'Rapport');
     XLSX.writeFile(classeur, nomFichier);
