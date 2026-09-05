@@ -2236,12 +2236,15 @@
     const div = document.getElementById('dashChartCashflow');
     const now = new Date();
     const debut = new Date(now.getFullYear(), now.getMonth() - 11, 1);
-    const { data: txs } = await supabaseClient.from('transactions').select('*').in('structure_id', structIds).gte('date', debut.toISOString().split('T')[0]);
 
     // Loyers : calculés depuis les DATES DU BAIL (récurrent chaque mois où le bail est actif),
     // pas depuis la table paiements qui ne se remplit que si on a visité ce mois précis dans Loyers.
     // Ça s'adapte automatiquement à la date d'entrée et à la date de sortie de chaque locataire.
-    const { data: bauxTousStruct } = await supabaseClient.from('baux').select('id, loyer, charges, date_debut, date_fin, lots(immeubles(structure_id))').eq('statut', 'actif');
+    // Les 2 requêtes ci-dessous ne dépendent pas l'une de l'autre — parties en parallèle.
+    const [{ data: txs }, { data: bauxTousStruct }] = await Promise.all([
+      supabaseClient.from('transactions').select('*').in('structure_id', structIds).gte('date', debut.toISOString().split('T')[0]),
+      supabaseClient.from('baux').select('id, loyer, charges, date_debut, date_fin, lots(immeubles(structure_id))').eq('statut', 'actif')
+    ]);
     const bauxStruct = (bauxTousStruct || []).filter(b => b.lots && b.lots.immeubles && structIds.includes(b.lots.immeubles.structure_id));
     const bailIdsStruct = bauxStruct.map(b => b.id);
 
@@ -2283,20 +2286,30 @@
 
   async function chargerAlertesDashboard(structIds, retardCount) {
     const div = document.getElementById('dashAlertes');
-    const { data: retards } = await supabaseClient.from('paiements').select('*, baux(lots(nom, type, immeuble_id, immeubles(adresse, structure_id)))').eq('statut', 'en_retard');
-    const retardsFiltres = (retards || []).filter(p => p.baux && p.baux.lots && p.baux.lots.immeubles && structIds.includes(p.baux.lots.immeubles.structure_id));
-
     const dans30jours = new Date(); dans30jours.setDate(dans30jours.getDate() + 30);
-    const { data: baux } = await supabaseClient.from('baux').select('*, lots(nom, type, immeubles(adresse, structure_id))').eq('statut', 'actif').not('date_fin', 'is', null).lte('date_fin', dans30jours.toISOString().split('T')[0]).gte('date_fin', new Date().toISOString().split('T')[0]);
+    const dans60jours = new Date(); dans60jours.setDate(dans60jours.getDate() + 60);
+    const aujourdhui = new Date().toISOString().split('T')[0];
+
+    // Ces 7 requêtes ne dépendent pas les unes des autres — parties toutes en même temps
+    // plutôt qu'à la queue leu leu (c'était la vraie cause de la lenteur du Dashboard).
+    const [
+      { data: retards }, { data: baux }, { data: tachesEnRetard },
+      { data: immeublesDpe }, { data: tousBauxActifsDash },
+      { data: locatairesAssurance }, { data: documentsExpirantsDash }
+    ] = await Promise.all([
+      supabaseClient.from('paiements').select('*, baux(lots(nom, type, immeuble_id, immeubles(adresse, structure_id)))').eq('statut', 'en_retard'),
+      supabaseClient.from('baux').select('*, lots(nom, type, immeubles(adresse, structure_id))').eq('statut', 'actif').not('date_fin', 'is', null).lte('date_fin', dans30jours.toISOString().split('T')[0]).gte('date_fin', aujourdhui),
+      supabaseClient.from('taches').select('id').in('structure_id', structIds).eq('fait', false).not('date_echeance', 'is', null).lt('date_echeance', aujourdhui),
+      supabaseClient.from('immeubles').select('id, adresse, dpe_date_expiration').in('structure_id', structIds).not('dpe_date_expiration', 'is', null).lte('dpe_date_expiration', dans60jours.toISOString().split('T')[0]),
+      supabaseClient.from('baux').select('*, lots(nom, type, immeuble_id, immeubles(adresse, structure_id))').eq('statut', 'actif'),
+      supabaseClient.from('locataires').select('id, nom, assurance_expiration').in('structure_id', structIds).not('assurance_expiration', 'is', null).lte('assurance_expiration', dans60jours.toISOString().split('T')[0]),
+      supabaseClient.from('documents').select('id, nom, storage_path, expiration_date').in('structure_id', structIds).not('expiration_date', 'is', null).lte('expiration_date', dans60jours.toISOString().split('T')[0]).order('expiration_date').limit(2)
+    ]);
+
+    const retardsFiltres = (retards || []).filter(p => p.baux && p.baux.lots && p.baux.lots.immeubles && structIds.includes(p.baux.lots.immeubles.structure_id));
     const bauxFiltres = (baux || []).filter(b => b.lots && b.lots.immeubles && structIds.includes(b.lots.immeubles.structure_id));
 
-    const { data: tachesEnRetard } = await supabaseClient.from('taches').select('id').in('structure_id', structIds).eq('fait', false).not('date_echeance', 'is', null).lt('date_echeance', new Date().toISOString().split('T')[0]);
-
-    const dans60jours = new Date(); dans60jours.setDate(dans60jours.getDate() + 60);
-    const { data: immeublesDpe } = await supabaseClient.from('immeubles').select('id, adresse, dpe_date_expiration').in('structure_id', structIds).not('dpe_date_expiration', 'is', null).lte('dpe_date_expiration', dans60jours.toISOString().split('T')[0]);
-
     // Bail révisable : date anniversaire de signature dans les 60 prochains jours
-    const { data: tousBauxActifsDash } = await supabaseClient.from('baux').select('*, lots(nom, type, immeuble_id, immeubles(adresse, structure_id))').eq('statut', 'actif');
     const bauxRevisables = (tousBauxActifsDash || []).filter(b => {
       if (!b.lots || !b.lots.immeubles || !structIds.includes(b.lots.immeubles.structure_id)) return false;
       const debut = new Date(b.date_debut);
@@ -2306,12 +2319,6 @@
       const joursAvant = Math.ceil((anniversaire - maintenant) / (1000 * 60 * 60 * 24));
       return joursAvant >= 0 && joursAvant <= 60;
     });
-
-    // Assurance locataire arrivant à expiration
-    const { data: locatairesAssurance } = await supabaseClient.from('locataires').select('id, nom, assurance_expiration').in('structure_id', structIds).not('assurance_expiration', 'is', null).lte('assurance_expiration', dans60jours.toISOString().split('T')[0]);
-
-    // Documents à échéance générique
-    const { data: documentsExpirantsDash } = await supabaseClient.from('documents').select('id, nom, storage_path, expiration_date').in('structure_id', structIds).not('expiration_date', 'is', null).lte('expiration_date', dans60jours.toISOString().split('T')[0]).order('expiration_date').limit(2);
 
     let html = '';
     if (retardCount > 0) html += `<div class="alert-row row-click" onclick="allerLoyers()"><span class="alert-dot high"></span><span style="flex:1;">${retardCount} loyer${retardCount > 1 ? 's' : ''} en retard</span><span class="small">→</span></div>`;
