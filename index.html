@@ -2183,7 +2183,7 @@
       supabaseClient.from('baux').select('id, loyer, charges, date_debut, date_fin').eq('statut', 'actif').lte('date_debut', dernierJourMoisDash),
       supabaseClient.from('paiements').select('bail_id, statut').eq('mois', moisDate),
       supabaseClient.from('transactions').select('montant').eq('type', 'depense').in('structure_id', structIds).gte('date', moisDate).lte('date', finMois),
-      supabaseClient.from('immeubles').select('*').in('structure_id', structIds)
+      supabaseClient.from('immeubles').select('id, valeur_estimee, dette_restante').in('structure_id', structIds)
     ]);
 
     const bauxActifsMois = (bauxActifsBruts || []).filter(b => !b.date_fin || b.date_fin >= moisDate);
@@ -2242,7 +2242,7 @@
     // Ça s'adapte automatiquement à la date d'entrée et à la date de sortie de chaque locataire.
     // Les 2 requêtes ci-dessous ne dépendent pas l'une de l'autre — parties en parallèle.
     const [{ data: txs }, { data: bauxTousStruct }] = await Promise.all([
-      supabaseClient.from('transactions').select('*').in('structure_id', structIds).gte('date', debut.toISOString().split('T')[0]),
+      supabaseClient.from('transactions').select('date, type, montant').in('structure_id', structIds).gte('date', debut.toISOString().split('T')[0]),
       supabaseClient.from('baux').select('id, loyer, charges, date_debut, date_fin, lots(immeubles(structure_id))').eq('statut', 'actif')
     ]);
     const bauxStruct = (bauxTousStruct || []).filter(b => b.lots && b.lots.immeubles && structIds.includes(b.lots.immeubles.structure_id));
@@ -2803,7 +2803,7 @@
     setActiveNav('nav-patrimoine'); hideAllPages();
     document.getElementById('page-fiche-immeuble').style.display = 'block';
 
-    const { data: im } = await supabaseClient.from('immeubles').select('*').eq('id', id).single();
+    const { data: im } = await supabaseClient.from('immeubles').select('id, adresse, ville, code_postal, annee_construction, valeur_estimee, dette_restante, taxe_fonciere_annuelle, dpe_date_expiration, structure_id, created_at').eq('id', id).single();
     currentImmeubleData = im;
 
     document.getElementById('immTitre').textContent = im.adresse;
@@ -2934,7 +2934,7 @@
     const evenements = [];
 
     // Transactions (dépenses/recettes) — clic → onglet Finances de ce même bien
-    const { data: transactions } = await supabaseClient.from('transactions').select('*').eq('immeuble_id', immeubleId).order('date', { ascending: false }).limit(15);
+    const { data: transactions } = await supabaseClient.from('transactions').select('date, type, description, categorie, montant').eq('immeuble_id', immeubleId).order('date', { ascending: false }).limit(15);
     (transactions || []).forEach(t => {
       evenements.push({
         date: t.date, icone: t.type === 'recette' ? '💰' : '🔧',
@@ -2957,7 +2957,7 @@
 
       // Paiements — clic → fiche du lot concerné
       if (bailIds.length) {
-        const { data: paiements } = await supabaseClient.from('paiements').select('*').in('bail_id', bailIds).eq('statut', 'paye').not('date_paiement', 'is', null).order('date_paiement', { ascending: false }).limit(15);
+        const { data: paiements } = await supabaseClient.from('paiements').select('bail_id, date_paiement, montant_loyer, montant_charges').in('bail_id', bailIds).eq('statut', 'paye').not('date_paiement', 'is', null).order('date_paiement', { ascending: false }).limit(15);
         (paiements || []).forEach(p => {
           const bail = bailParId[p.bail_id];
           const lotNom = bail ? echapper(bail.lots.nom || bail.lots.type) : '';
@@ -2980,7 +2980,7 @@
 
       // Révisions de loyer — clic → fiche du lot
       if (bailIds.length) {
-        const { data: revisions } = await supabaseClient.from('revisions_loyer').select('*').in('bail_id', bailIds).order('date_application', { ascending: false }).limit(15);
+        const { data: revisions } = await supabaseClient.from('revisions_loyer').select('bail_id, date_application, ancien_loyer, nouveau_loyer').in('bail_id', bailIds).order('date_application', { ascending: false }).limit(15);
         (revisions || []).forEach(r => {
           const bail = bailParId[r.bail_id];
           const lotNom = bail ? echapper(bail.lots.nom || bail.lots.type) : '';
@@ -2995,7 +2995,7 @@
 
     // Documents importants (jamais quittance/révision — déjà représentés par leurs propres événements ci-dessus)
     const idsEntites = [immeubleId, ...lotIds];
-    const { data: documents } = await supabaseClient.from('documents').select('*').in('entity_id', idsEntites).not('categorie', 'in', '(quittance,revision_loyer)').order('created_at', { ascending: false }).limit(15);
+    const { data: documents } = await supabaseClient.from('documents').select('entity_type, entity_id, categorie, created_at, storage_path').in('entity_id', idsEntites).not('categorie', 'in', '(quittance,revision_loyer)').order('created_at', { ascending: false }).limit(15);
     const labelsDoc = { bail: 'Bail ajouté', diagnostic: 'DPE / diagnostic ajouté', assurance: 'Assurance ajoutée', travaux: 'Facture travaux ajoutée', autre: 'Document ajouté' };
     (documents || []).forEach(d => {
       const lotNom = d.entity_type === 'lot' && lotParId[d.entity_id] ? echapper(lotParId[d.entity_id].nom || lotParId[d.entity_id].type) : '';
@@ -3148,7 +3148,7 @@
 
   async function chargerLots(immeubleId) {
     const div = document.getElementById('listeLots');
-    const { data: lots, error } = await supabaseClient.from('lots').select('*').eq('immeuble_id', immeubleId).order('created_at');
+    const { data: lots, error } = await supabaseClient.from('lots').select('id, type, nom, surface, statut, loyer').eq('immeuble_id', immeubleId).order('created_at');
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
     if (!lots.length) { div.innerHTML = '<div class="empty-state">Aucun lot pour le moment.</div>'; return; }
 
@@ -3362,7 +3362,7 @@
     document.getElementById('formValeurLot').style.display = 'none';
     document.getElementById('btnModifierValeurLot').style.display = 'inline-flex';
 
-    const { data: bauxActifs } = await supabaseClient.from('baux').select('*').eq('lot_id', id).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
+    const { data: bauxActifs } = await supabaseClient.from('baux').select('id, loyer, charges, depot_garantie').eq('lot_id', id).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
     const bail = bauxActifs && bauxActifs[0];
     bailActuelPourLoyerHaut = bail || null;
 
@@ -3392,7 +3392,7 @@
     if (tab === 'resume') { chargerColocatairesLot(currentLotId); chargerEcheancesLot(currentLotId); chargerChargesRecurrentes('lot', currentLotId, 'listeChargesLot'); chargerHistoriqueLot(currentLotId); initialiserRegularisationCharges(currentLotId); chargerNotes('lot', currentLotId, 'listeNotesLot'); chargerContacts('lot', currentLotId, 'listeContactsLot', currentLotStructureId); }
     if (tab === 'bail') chargerBail(currentLotId);
     if (tab === 'paiements') chargerPaiementsLot(currentLotId);
-    if (tab === 'documents') chargerDocuments('lot', currentLotId, 'listeDocumentsLot');
+    if (tab === 'documents') chargerDocuments('lot', currentLotId, 'listeDocumentsLot', null, bailActuelPourLoyerHaut ? bailActuelPourLoyerHaut.id : null);
     if (tab === 'charges') chargerChargesLot(currentLotId);
   }
 
@@ -3400,7 +3400,7 @@
   let nouveauLoyerCalcule = null;
 
   async function initialiserSelecteurIrl() {
-    const { data } = await supabaseClient.from('irl_indices').select('*').order('trimestre');
+    const { data } = await supabaseClient.from('irl_indices').select('trimestre, valeur').order('trimestre');
     donneesIrlIndices = data || [];
     const sel = document.getElementById('irlNouveauTrimestre');
     sel.innerHTML = '<option value="">Choisir le nouveau trimestre de référence</option>' +
@@ -3478,7 +3478,7 @@
     const { data: rattachements } = await supabaseClient.from('bail_locataires').select('locataire_id').eq('bail_id', bailId);
     const locataireIds = (rattachements || []).map(r => r.locataire_id);
     if (!locataireIds.length) return;
-    const { data: locataires } = await supabaseClient.from('locataires').select('*').in('id', locataireIds);
+    const { data: locataires } = await supabaseClient.from('locataires').select('nom').in('id', locataireIds);
     const nomsLocataires = (locataires || []).map(l => l.nom).join(' et ');
 
     const { data: modeleEnreg } = await supabaseClient.from('modeles_documents').select('contenu').eq('structure_id', structureId).eq('type', 'notification_revision_irl').maybeSingle();
@@ -3512,7 +3512,7 @@
     const { data: baux } = await supabaseClient.from('baux').select('id').eq('lot_id', lotId);
     const bailIds = (baux || []).map(b => b.id);
     if (!bailIds.length) { div.innerHTML = ''; return; }
-    const { data: revisions } = await supabaseClient.from('revisions_loyer').select('*').in('bail_id', bailIds).order('date_application', { ascending: false });
+    const { data: revisions } = await supabaseClient.from('revisions_loyer').select('date_application, trimestre_reference, ancien_loyer, nouveau_loyer').in('bail_id', bailIds).order('date_application', { ascending: false });
     if (!revisions || !revisions.length) { div.innerHTML = '<div class="empty-state">Aucune révision appliquée pour l\u2019instant.</div>'; return; }
     div.innerHTML = revisions.map(r => `
       <div class="row">
@@ -3612,7 +3612,7 @@
 
   async function chargerHistoriqueLot(lotId) {
     const div = document.getElementById('historiqueLocatairesLot');
-    const { data: bauxTermines } = await supabaseClient.from('baux').select('*').eq('lot_id', lotId).eq('statut', 'termine').order('date_fin', { ascending: false });
+    const { data: bauxTermines } = await supabaseClient.from('baux').select('id, date_debut, date_fin, depot_restitue, motif_retenue_depot').eq('lot_id', lotId).eq('statut', 'termine').order('date_fin', { ascending: false });
     if (!bauxTermines || !bauxTermines.length) { div.innerHTML = '<div class="empty-state">Aucun ancien locataire.</div>'; return; }
 
     const bailIds = bauxTermines.map(b => b.id);
@@ -3641,13 +3641,13 @@
   async function chargerColocatairesLot(lotId) {
     const div = document.getElementById('lotColocataires');
     div.textContent = 'Chargement...';
-    const { data: bauxActifs } = await supabaseClient.from('baux').select('*').eq('lot_id', lotId).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
+    const { data: bauxActifs } = await supabaseClient.from('baux').select('id, type').eq('lot_id', lotId).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
     if (!bauxActifs || !bauxActifs.length) { div.innerHTML = '<div class="empty-state row-click" onclick="switchTabLot(\'bail\')">Aucun bail actif — clique ici pour en créer un →</div>'; return; }
     const bail = bauxActifs[0];
-    const { data: rattachements } = await supabaseClient.from('bail_locataires').select('*').eq('bail_id', bail.id);
+    const { data: rattachements } = await supabaseClient.from('bail_locataires').select('bail_id, locataire_id, nom_chambre, loyer_part').eq('bail_id', bail.id);
     if (!rattachements || !rattachements.length) { div.innerHTML = '<div class="empty-state row-click" onclick="switchTabLot(\'bail\')">Aucun locataire — clique ici pour en ajouter un →</div>'; return; }
     const ids = rattachements.map(r => r.locataire_id);
-    const { data: locataires } = await supabaseClient.from('locataires').select('*').in('id', ids);
+    const { data: locataires } = await supabaseClient.from('locataires').select('id, nom, email').in('id', ids);
 
     if (bail.type === 'colocation') {
       div.innerHTML = rattachements.map(r => {
@@ -3709,7 +3709,7 @@
 
     // Auto-complétion : contacts déjà existants sur cette structure, réutilisables sans duplication
     if (structureId) {
-      const { data: contacts } = await supabaseClient.from('contacts').select('*').eq('structure_id', structureId).order('nom');
+      const { data: contacts } = await supabaseClient.from('contacts').select('id, nom, categorie, telephone, email').eq('structure_id', structureId).order('nom');
       const prefixe = entityType === 'immeuble' ? 'Imm' : 'Lot';
       contactsStructureCache[prefixe] = contacts || [];
       document.getElementById('listeContactsExistants' + prefixe).innerHTML = (contacts || []).map(c => `<option value="${echapper(c.nom)}">`).join('');
@@ -3775,7 +3775,7 @@
 
   async function chargerNotes(entityType, entityId, targetDivId) {
     const div = document.getElementById(targetDivId);
-    const { data: notes, error } = await supabaseClient.from('notes').select('*').eq('entity_type', entityType).eq('entity_id', entityId).order('created_at', { ascending: false });
+    const { data: notes, error } = await supabaseClient.from('notes').select('id, contenu, created_at').eq('entity_type', entityType).eq('entity_id', entityId).order('created_at', { ascending: false });
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
     if (!notes || !notes.length) { div.innerHTML = '<div class="empty-state">Aucune note pour l\u2019instant.</div>'; return; }
     div.innerHTML = notes.map(n => `
@@ -3833,7 +3833,7 @@
 
   async function chargerChargesRecurrentes(entityType, entityId, targetDivId) {
     const div = document.getElementById(targetDivId);
-    const { data: charges } = await supabaseClient.from('charges_recurrentes').select('*').eq('entity_type', entityType).eq('entity_id', entityId).order('prochaine_echeance');
+    const { data: charges } = await supabaseClient.from('charges_recurrentes').select('id, type_charge, montant, frequence, prochaine_echeance').eq('entity_type', entityType).eq('entity_id', entityId).order('prochaine_echeance');
     if (!charges || !charges.length) { div.innerHTML = '<div class="empty-state">Aucune charge récurrente enregistrée.</div>'; return; }
     div.innerHTML = charges.map(c => `
       <div class="row">
@@ -3916,12 +3916,12 @@
   async function chargerEcheancesLot(lotId) {
     const div = document.getElementById('lotEcheances');
     div.textContent = 'Chargement...';
-    const { data: bauxActifs } = await supabaseClient.from('baux').select('*').eq('lot_id', lotId).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
+    const { data: bauxActifs } = await supabaseClient.from('baux').select('id, date_fin').eq('lot_id', lotId).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
     if (!bauxActifs || !bauxActifs.length) { div.innerHTML = '<div class="empty-state">Aucun bail actif.</div>'; return; }
     const bail = bauxActifs[0];
 
     const items = [];
-    const { data: prochain } = await supabaseClient.from('paiements').select('*').eq('bail_id', bail.id).in('statut', ['a_venir', 'en_retard']).order('mois').limit(1);
+    const { data: prochain } = await supabaseClient.from('paiements').select('statut, mois, montant_loyer, montant_charges').eq('bail_id', bail.id).in('statut', ['a_venir', 'en_retard']).order('mois').limit(1);
     if (prochain && prochain.length) {
       const p = prochain[0];
       const montant = (Number(p.montant_loyer) + Number(p.montant_charges)).toLocaleString('fr-FR');
@@ -4025,7 +4025,7 @@
 
   async function chargerBail(lotId) {
     const zone = document.getElementById('zoneBail');
-    const { data: baux } = await supabaseClient.from('baux').select('*').eq('lot_id', lotId).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
+    const { data: baux } = await supabaseClient.from('baux').select('id, type, loyer, depot_garantie, date_debut, date_fin, irl_trimestre_reference').eq('lot_id', lotId).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
 
     if (baux && baux.length) {
       const bail = baux[0];
@@ -4184,7 +4184,7 @@
     hideAllPages();
     document.getElementById('page-fiche-locataire').style.display = 'block';
 
-    const { data: locataire } = await supabaseClient.from('locataires').select('*').eq('id', locataireId).single();
+    const { data: locataire } = await supabaseClient.from('locataires').select('id, structure_id, nom, email, telephone, garantie').eq('id', locataireId).single();
     currentLocataireStructureId = locataire.structure_id;
     const initiales = locataire.nom.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
     document.getElementById('locAvatar').textContent = initiales;
@@ -4209,10 +4209,8 @@
     `;
 
     switchTabLocataire('bail');
-    chargerDocuments('locataire', locataireId, 'listeDocumentsLocataire');
-    chargerDocuments('locataire', locataireId, 'listeQuittancesLocataire', 'quittance');
 
-    const { data: rattachements } = await supabaseClient.from('bail_locataires').select('*').eq('locataire_id', locataireId);
+    const { data: rattachements } = await supabaseClient.from('bail_locataires').select('bail_id, nom_chambre, loyer_part').eq('locataire_id', locataireId);
     const bailIds = (rattachements || []).map(r => r.bail_id);
 
     let colocataires = [];
@@ -4220,14 +4218,14 @@
     let monRattachement = null;
     let bailEstAncien = false;
     if (bailIds.length) {
-      const { data: bauxDetails } = await supabaseClient.from('baux').select('*, lots(nom, type, immeuble_id, immeubles(adresse))').in('id', bailIds).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
+      const { data: bauxDetails } = await supabaseClient.from('baux').select('id, type, loyer, charges, depot_garantie, date_debut, date_fin, lot_id, lots(nom, type, immeuble_id, immeubles(adresse))').in('id', bailIds).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
       bailActuel = bauxDetails && bauxDetails[0];
       if (bailActuel) monRattachement = rattachements.find(r => r.bail_id === bailActuel.id);
 
       if (!bailActuel) {
         // Aucun bail actif : on retombe sur le dernier bail terminé pour garder une trace/contexte,
         // plutôt que d'afficher une fiche vide sans aucune indication d'où vivait ce locataire.
-        const { data: bauxTermines } = await supabaseClient.from('baux').select('*, lots(nom, type, immeuble_id, immeubles(adresse))').in('id', bailIds).eq('statut', 'termine').order('date_fin', { ascending: false }).limit(1);
+        const { data: bauxTermines } = await supabaseClient.from('baux').select('id, type, loyer, charges, depot_garantie, date_debut, date_fin, lot_id, lots(nom, type, immeuble_id, immeubles(adresse))').in('id', bailIds).eq('statut', 'termine').order('date_fin', { ascending: false }).limit(1);
         bailActuel = bauxTermines && bauxTermines[0];
         if (bailActuel) { bailEstAncien = true; monRattachement = rattachements.find(r => r.bail_id === bailActuel.id); }
       }
@@ -4235,10 +4233,15 @@
       const { data: autresRattachements } = await supabaseClient.from('bail_locataires').select('locataire_id').in('bail_id', bailIds).neq('locataire_id', locataireId);
       const autresIds = [...new Set((autresRattachements || []).map(r => r.locataire_id))];
       if (autresIds.length) {
-        const { data } = await supabaseClient.from('locataires').select('*').in('id', autresIds);
+        const { data } = await supabaseClient.from('locataires').select('id, nom').in('id', autresIds);
         colocataires = data || [];
       }
     }
+
+    // Le bail rattaché (ex: le PDF du bail signé) reste visible ici aussi, en plus des
+    // documents propres au locataire — sans ça, il "disparaîtrait" du point de vue du locataire.
+    chargerDocuments('locataire', locataireId, 'listeDocumentsLocataire', null, bailActuel ? bailActuel.id : null);
+    chargerDocuments('locataire', locataireId, 'listeQuittancesLocataire', 'quittance');
 
     document.getElementById('locSousTitre').innerHTML = bailActuel
       ? `<a href="#" onclick="ouvrirFicheLot('${bailActuel.lot_id}'); return false;" style="color:inherit;">${echapper(bailActuel.lots.nom || bailActuel.lots.type)} · ${echapper(bailActuel.lots.immeubles.adresse)}</a>${bailEstAncien ? ` <span class="small">(ancien locataire — bail terminé le ${bailActuel.date_fin})</span>` : ''}`
@@ -4265,7 +4268,7 @@
     const blocLoyerMois = document.getElementById('locLoyerMoisBloc');
     if (bailActuel && !bailEstAncien) {
       const moisEnCours = new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0') + '-01';
-      const { data: paiementMois } = await supabaseClient.from('paiements').select('*').eq('bail_id', bailActuel.id).eq('mois', moisEnCours).maybeSingle();
+      const { data: paiementMois } = await supabaseClient.from('paiements').select('statut').eq('bail_id', bailActuel.id).eq('mois', moisEnCours).maybeSingle();
       if (paiementMois) {
         const labelsStatut = { paye: ['Payé', 'badge-vert'], en_retard: ['En retard', 'badge-rouge'], a_venir: ['À venir', 'badge-orange'] };
         const [texteStatut, classeStatut] = labelsStatut[paiementMois.statut] || ['—', 'badge-gris'];
@@ -4692,7 +4695,7 @@
     const bailIds = bauxStructure.map(b => b.id);
 
     // 1 requête groupée : tous les paiements déjà existants pour ce mois, pour tous les baux d'un coup
-    const { data: paiementsExistants } = await supabaseClient.from('paiements').select('*').in('bail_id', bailIds).eq('mois', moisDate);
+    const { data: paiementsExistants } = await supabaseClient.from('paiements').select('id, bail_id, statut, date_paiement, montant_loyer, montant_charges').in('bail_id', bailIds).eq('mois', moisDate);
     const paiementParBail = {};
     (paiementsExistants || []).forEach(p => paiementParBail[p.bail_id] = p);
 
@@ -4902,7 +4905,7 @@
   let contexteRafraichissementTx = null;
 
   async function ouvrirEditTransaction(txId, contexteType, contexteId) {
-    const { data: tx, error } = await supabaseClient.from('transactions').select('*').eq('id', txId).single();
+    const { data: tx, error } = await supabaseClient.from('transactions').select('montant, date, description, recuperable').eq('id', txId).single();
     if (error || !tx) return alert('Erreur : impossible de charger cette transaction.');
     transactionEnEdition = txId;
     contexteRafraichissementTx = { type: contexteType, id: contexteId };
@@ -5010,7 +5013,7 @@
     const { data: rattachements } = await supabaseClient.from('bail_locataires').select('locataire_id').eq('bail_id', bail.id);
     const locataireIds = (rattachements || []).map(r => r.locataire_id);
     if (!locataireIds.length) return;
-    const { data: locataires } = await supabaseClient.from('locataires').select('*').in('id', locataireIds);
+    const { data: locataires } = await supabaseClient.from('locataires').select('nom').in('id', locataireIds);
     const nomsLocataires = (locataires || []).map(l => l.nom).join(' et ');
 
     const montantLoyer = Number(paiement.montant_loyer);
@@ -5061,7 +5064,7 @@
     document.getElementById('page-finances').style.display = 'block';
     const sel = document.getElementById('structureFinances');
     if (!sel.options.length) {
-      const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
+      const { data: structures } = await supabaseClient.from('structures').select('id, nom').order('created_at');
       sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${echapper(s.nom)}</option>`).join('');
     }
     const moisInput = document.getElementById('moisFinances');
@@ -5085,7 +5088,7 @@
     const moisStr = document.getElementById('moisFinances').value;
     if (!structureId) return;
 
-    let query = supabaseClient.from('transactions').select('*').eq('structure_id', structureId);
+    let query = supabaseClient.from('transactions').select('date, type, categorie, description, montant').eq('structure_id', structureId);
     if (moisStr) {
       const debut = moisStr + '-01';
       const [an, mo] = moisStr.split('-').map(Number);
@@ -5149,7 +5152,7 @@
       const structIds = (structures || []).map(s => s.id);
       let immeubles = [];
       if (structIds.length) {
-        const { data } = await supabaseClient.from('immeubles').select('*').in('structure_id', structIds).order('created_at');
+        const { data } = await supabaseClient.from('immeubles').select('id, adresse').in('structure_id', structIds).order('created_at');
         immeubles = data || [];
       }
       sel.innerHTML = immeubles.map(i => `<option value="${i.id}">${echapper(i.adresse)}</option>`).join('');
@@ -5161,7 +5164,7 @@
     const immeubleId = document.getElementById('immeublePrets').value;
     const div = document.getElementById('listePrets');
     if (!immeubleId) { div.innerHTML = '<div class="empty-state">Aucun immeuble disponible.</div>'; return; }
-    const { data: prets, error } = await supabaseClient.from('prets').select('*').eq('immeuble_id', immeubleId).order('created_at', { ascending: false });
+    const { data: prets, error } = await supabaseClient.from('prets').select('id, banque, capital_initial, capital_restant, taux, mensualite, date_debut, date_fin').eq('immeuble_id', immeubleId).order('created_at', { ascending: false });
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
     if (!prets || !prets.length) { div.innerHTML = '<div class="empty-state">Aucun prêt pour cet immeuble.</div>'; return; }
     div.innerHTML = prets.map(p => {
@@ -5213,7 +5216,7 @@
     const zone = document.getElementById('amort-' + pretId);
     if (zone.style.display === 'block') { zone.style.display = 'none'; return; }
 
-    const { data: pret, error } = await supabaseClient.from('prets').select('*').eq('id', pretId).single();
+    const { data: pret, error } = await supabaseClient.from('prets').select('capital_initial, mensualite, taux, date_debut, date_fin').eq('id', pretId).single();
     if (error) return alert('Erreur : ' + error.message);
 
     const lignes = calculerAmortissement(pret);
@@ -5501,7 +5504,7 @@ Durée : du {{date_debut}} au {{date_fin}}
     const { data: rattachement } = await supabaseClient.from('bail_locataires').select('bail_id').eq('locataire_id', locataireId);
     const bailIds = (rattachement || []).map(r => r.bail_id);
     if (!bailIds.length) return alert('Ce locataire n\u2019a aucun bail.');
-    const { data: bauxActifs } = await supabaseClient.from('baux').select('*, lots(nom, type, immeubles(adresse, ville, structure_id, structures(nom)))').in('id', bailIds).eq('statut', 'actif').limit(1);
+    const { data: bauxActifs } = await supabaseClient.from('baux').select('id, loyer, charges, depot_garantie, date_debut, date_fin, lots(nom, type, immeubles(adresse, ville, structure_id, structures(nom)))').in('id', bailIds).eq('statut', 'actif').limit(1);
     if (!bauxActifs || !bauxActifs.length) return alert('Aucun bail actif pour ce locataire.');
     const bail = bauxActifs[0];
     const lot = bail.lots;
@@ -5532,10 +5535,10 @@ Durée : du {{date_debut}} au {{date_fin}}
     const pdfBlob = doc.output('blob');
 
     const nomFichier = `Bail_${locataire ? locataire.nom.replace(/\s/g, '_') : 'document'}.pdf`;
-    const { error } = await genererEtEnregistrerPdf(pdfBlob, nomFichier, structureId, 'locataire', locataireId, 'bail', 'bail');
+    const { error } = await genererEtEnregistrerPdf(pdfBlob, nomFichier, structureId, 'bail', bail.id, 'bail', 'bail');
     if (error) return alert('Erreur : ' + error.message);
 
-    alert('Bail généré et classé dans les documents du locataire. N\u2019oublie pas : le contenu doit être validé par un avocat avant tout usage réel.');
+    alert('Bail généré, rattaché à ce bail précis. N\u2019oublie pas : le contenu doit être validé par un avocat avant tout usage réel.');
     chargerDocumentsGlobal();
   }
 
@@ -5721,7 +5724,7 @@ Durée : du {{date_debut}} au {{date_fin}}
     const div = document.getElementById('listeTaches');
     if (!structureId) { div.innerHTML = '<div class="empty-state">Sélectionne une structure.</div>'; return; }
     div.textContent = 'Chargement...';
-    const { data: taches, error } = await supabaseClient.from('taches').select('*').eq('structure_id', structureId).order('fait').order('date_echeance', { nullsFirst: false });
+    const { data: taches, error } = await supabaseClient.from('taches').select('id, titre, fait, date_echeance').eq('structure_id', structureId).order('fait').order('date_echeance', { nullsFirst: false });
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
     if (!taches || !taches.length) { div.innerHTML = '<div class="empty-state">Aucune tâche.</div>'; return; }
     div.innerHTML = taches.map(t => `
@@ -5809,7 +5812,7 @@ Durée : du {{date_debut}} au {{date_fin}}
     const div = document.getElementById('fiscGrid');
     div.textContent = 'Chargement...';
 
-    const { data: structures, error } = await supabaseClient.from('structures').select('*').order('created_at');
+    const { data: structures, error } = await supabaseClient.from('structures').select('id, nom, type').order('created_at');
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
     if (!structures || !structures.length) { div.innerHTML = '<div class="empty-state">Aucune structure pour le moment.</div>'; return; }
 
@@ -5881,10 +5884,10 @@ Durée : du {{date_debut}} au {{date_fin}}
     const debut = annee + '-01-01';
     const fin = annee + '-12-31';
 
-    const { data: txs } = await supabaseClient.from('transactions').select('*').eq('structure_id', currentStructureFiscaliteId).gte('date', debut).lte('date', fin);
+    const { data: txs } = await supabaseClient.from('transactions').select('type, montant').eq('structure_id', currentStructureFiscaliteId).gte('date', debut).lte('date', fin);
     const resultatTotal = (txs || []).filter(t => t.type === 'recette').reduce((a, t) => a + Number(t.montant), 0) - (txs || []).filter(t => t.type === 'depense').reduce((a, t) => a + Number(t.montant), 0);
 
-    const { data: associes, error } = await supabaseClient.from('associes').select('*').eq('structure_id', currentStructureFiscaliteId).order('created_at');
+    const { data: associes, error } = await supabaseClient.from('associes').select('nom, quote_part').eq('structure_id', currentStructureFiscaliteId).order('created_at');
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
     if (!associes || !associes.length) { div.innerHTML = '<div class="empty-state">Aucun associé renseigné.</div>'; return; }
 
@@ -5914,7 +5917,7 @@ Durée : du {{date_debut}} au {{date_fin}}
     document.getElementById('page-rapports').style.display = 'block';
     const sel = document.getElementById('structureRapports');
     if (!sel.options.length) {
-      const { data: structures } = await supabaseClient.from('structures').select('*').order('created_at');
+      const { data: structures } = await supabaseClient.from('structures').select('id, nom').order('created_at');
       sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${echapper(s.nom)}</option>`).join('');
     }
     const selA = document.getElementById('anneeRapports');
@@ -5992,7 +5995,7 @@ Durée : du {{date_debut}} au {{date_fin}}
   async function exporterTransactions(format) {
     const structureId = document.getElementById('structureRapports').value;
     if (!structureId) return alert('Sélectionne une structure');
-    const { data: txs, error } = await supabaseClient.from('transactions').select('*').eq('structure_id', structureId).order('date');
+    const { data: txs, error } = await supabaseClient.from('transactions').select('date, type, categorie, montant, description').eq('structure_id', structureId).order('date');
     if (error) return alert('Erreur : ' + error.message);
     const lignes = [['Date', 'Type', 'Catégorie', 'Montant', 'Description']];
     (txs || []).forEach(t => lignes.push([t.date, t.type, t.categorie, t.montant, t.description || '']));
@@ -6028,7 +6031,7 @@ Durée : du {{date_debut}} au {{date_fin}}
     if (!structureId) return alert('Sélectionne une structure');
     const debut = annee + '-01-01';
     const fin = annee + '-12-31';
-    const { data: txs, error } = await supabaseClient.from('transactions').select('*').eq('structure_id', structureId).gte('date', debut).lte('date', fin);
+    const { data: txs, error } = await supabaseClient.from('transactions').select('type, montant').eq('structure_id', structureId).gte('date', debut).lte('date', fin);
     if (error) return alert('Erreur : ' + error.message);
     const revenus = (txs || []).filter(t => t.type === 'recette').reduce((a, t) => a + Number(t.montant), 0);
     const charges = (txs || []).filter(t => t.type === 'depense').reduce((a, t) => a + Number(t.montant), 0);
@@ -6046,9 +6049,9 @@ Durée : du {{date_debut}} au {{date_fin}}
     if (!structureId) return alert('Sélectionne une structure');
     const debut = annee + '-01-01';
     const fin = annee + '-12-31';
-    const { data: txs } = await supabaseClient.from('transactions').select('*').eq('structure_id', structureId).gte('date', debut).lte('date', fin);
+    const { data: txs } = await supabaseClient.from('transactions').select('type, montant').eq('structure_id', structureId).gte('date', debut).lte('date', fin);
     const resultatTotal = (txs || []).filter(t => t.type === 'recette').reduce((a, t) => a + Number(t.montant), 0) - (txs || []).filter(t => t.type === 'depense').reduce((a, t) => a + Number(t.montant), 0);
-    const { data: associes, error } = await supabaseClient.from('associes').select('*').eq('structure_id', structureId);
+    const { data: associes, error } = await supabaseClient.from('associes').select('nom, quote_part').eq('structure_id', structureId);
     if (error) return alert('Erreur : ' + error.message);
     const lignes = [['Associé', 'Quote-part (%)', 'Part du résultat']];
     (associes || []).forEach(a => lignes.push([a.nom, a.quote_part, (resultatTotal * Number(a.quote_part) / 100).toFixed(2)]));
@@ -6058,7 +6061,7 @@ Durée : du {{date_debut}} au {{date_fin}}
   async function exporterSyntheseParBien(format) {
     const structureId = document.getElementById('structureRapports').value;
     if (!structureId) return alert('Sélectionne une structure');
-    const { data: immeubles, error } = await supabaseClient.from('immeubles').select('*').eq('structure_id', structureId);
+    const { data: immeubles, error } = await supabaseClient.from('immeubles').select('id, adresse').eq('structure_id', structureId);
     if (error) return alert('Erreur : ' + error.message);
     if (!immeubles || !immeubles.length) { telechargerRapport('synthese_par_bien', [['Aucun immeuble pour cette structure']], format); return; }
 
@@ -6126,23 +6129,34 @@ Durée : du {{date_debut}} au {{date_fin}}
     chargerDocuments(entityType, entityId, targetDiv);
   }
 
-  async function chargerDocuments(entityType, entityId, targetDivId, categorieFiltre) {
+  async function chargerDocuments(entityType, entityId, targetDivId, categorieFiltre, bailIdSupplementaire) {
     const div = document.getElementById(targetDivId);
     if (!div) return;
     div.textContent = 'Chargement...';
-    let requete = supabaseClient.from('documents').select('*').eq('entity_type', entityType).eq('entity_id', entityId).order('created_at', { ascending: false });
+    let requete = supabaseClient.from('documents').select('id, nom, taille_octets, categorie, storage_path, document_date, expiration_date, entity_type, entity_id').eq('entity_type', entityType).eq('entity_id', entityId).order('created_at', { ascending: false });
     if (categorieFiltre) requete = requete.eq('categorie', categorieFiltre);
     const { data: docs, error } = await requete;
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
-    if (!docs || !docs.length) { div.innerHTML = '<div class="empty-state">Aucun document.</div>'; return; }
 
-    div.innerHTML = docs.map(d => `
+    // Les documents rattachés au bail actif (ex: le bail signé lui-même) restent visibles ici
+    // aussi — un locataire ou un lot doit voir "son" bail sans avoir à deviner où il est classé.
+    let tousLesDocs = docs || [];
+    if (bailIdSupplementaire) {
+      let requeteBail = supabaseClient.from('documents').select('id, nom, taille_octets, categorie, storage_path, document_date, expiration_date, entity_type, entity_id').eq('entity_type', 'bail').eq('entity_id', bailIdSupplementaire).order('created_at', { ascending: false });
+      if (categorieFiltre) requeteBail = requeteBail.eq('categorie', categorieFiltre);
+      const { data: docsBail } = await requeteBail;
+      tousLesDocs = [...tousLesDocs, ...(docsBail || [])];
+    }
+
+    if (!tousLesDocs.length) { div.innerHTML = '<div class="empty-state">Aucun document.</div>'; return; }
+
+    div.innerHTML = tousLesDocs.map(d => `
       <div class="row">
         <span>📎 ${echapper(d.nom)} <span class="small">(${d.taille_octets ? Math.round(d.taille_octets / 1024) + ' Ko' : ''})</span> ${badgeEcheanceDocument(d.expiration_date)}</span>
         <span>
           <a href="#" onclick="telechargerDocument('${d.storage_path}'); return false;" style="color:var(--accent); margin-right:12px;">Ouvrir</a>
-          <a href="#" onclick="ouvrirEditDocument('${d.id}', '${echapperPourOnclick(d.nom)}', '${d.categorie}', '${entityType}', '${entityId}', '${targetDivId}', '${d.document_date || ''}', '${d.expiration_date || ''}'); return false;" style="margin-right:12px;">Modifier</a>
-          <a href="#" onclick="supprimerDocument('${d.id}', '${d.storage_path}', '${entityType}', '${entityId}', '${targetDivId}'); return false;" style="color:var(--red);">Supprimer</a>
+          <a href="#" onclick="ouvrirEditDocument('${d.id}', '${echapperPourOnclick(d.nom)}', '${d.categorie}', '${d.entity_type}', '${d.entity_id}', '${targetDivId}', '${d.document_date || ''}', '${d.expiration_date || ''}'); return false;" style="margin-right:12px;">Modifier</a>
+          <a href="#" onclick="supprimerDocument('${d.id}', '${d.storage_path}', '${d.entity_type}', '${d.entity_id}', '${targetDivId}'); return false;" style="color:var(--red);">Supprimer</a>
         </span>
       </div>
     `).join('');
@@ -6239,11 +6253,11 @@ Durée : du {{date_debut}} au {{date_fin}}
     const { data: rattachement } = await supabaseClient.from('bail_locataires').select('bail_id').eq('locataire_id', locataireId);
     const bailIds = (rattachement || []).map(r => r.bail_id);
     if (!bailIds.length) return alert('Ce locataire n\u2019a aucun bail.');
-    const { data: bauxActifs } = await supabaseClient.from('baux').select('*').in('id', bailIds).eq('statut', 'actif').limit(1);
+    const { data: bauxActifs } = await supabaseClient.from('baux').select('id, loyer, charges').in('id', bailIds).eq('statut', 'actif').limit(1);
     if (!bauxActifs || !bauxActifs.length) return alert('Aucun bail actif pour ce locataire.');
     const bail = bauxActifs[0];
 
-    const { data: paiementExistant } = await supabaseClient.from('paiements').select('*').eq('bail_id', bail.id).eq('mois', moisDate).maybeSingle();
+    const { data: paiementExistant } = await supabaseClient.from('paiements').select('id').eq('bail_id', bail.id).eq('mois', moisDate).maybeSingle();
     let paiementId;
     if (paiementExistant) {
       const { error: errMaj } = await supabaseClient.from('paiements').update({ statut: 'paye', date_paiement: moisDate }).eq('id', paiementExistant.id);
