@@ -737,17 +737,23 @@
         </div>
 
         <div id="tabcontent-vue">
-          <div class="grid-4" style="margin-bottom:0;">
-            <div class="stat-card"><div class="lbl">Valeur estimée</div><div class="val" id="immValeur">—</div></div>
-            <div class="stat-card red"><div class="lbl">Dette</div><div class="val" id="immDette">—</div></div>
-            <div class="stat-card green"><div class="lbl">Valeur nette</div><div class="val" id="immEquity">—</div></div>
-            <div class="stat-card"><div class="lbl">Occupation</div><div class="val" id="immOccupation">—</div></div>
-          </div>
-          <div class="grid-4" style="margin-top:12px;">
-            <div class="stat-card"><div class="lbl">Loyer annuel</div><div class="val" id="immLoyerAnnuel">—</div></div>
-            <div class="stat-card amber"><div class="lbl">Charges annuelles</div><div class="val" id="immCharges">—</div></div>
-            <div class="stat-card green"><div class="lbl">Cash-flow annuel</div><div class="val" id="immCashflow">—</div></div>
-            <div class="stat-card"><div class="lbl">Rendement brut</div><div class="val" id="immRendement">—</div></div>
+          <div class="card">
+            <div class="grid-2" style="margin-bottom:14px;">
+              <div>
+                <div class="small" style="text-transform:uppercase; letter-spacing:0.04em;">Valeur nette</div>
+                <div style="color:var(--green); font-size:1.3rem; font-weight:700; margin-top:3px;" id="immEquity">—</div>
+              </div>
+              <div>
+                <div class="small" style="text-transform:uppercase; letter-spacing:0.04em;">Rendement brut</div>
+                <div style="font-size:1.3rem; font-weight:700; margin-top:3px;" id="immRendement">—</div>
+              </div>
+            </div>
+            <div style="height:10px; border-radius:5px; overflow:hidden; display:flex; margin-bottom:6px;" id="immBarreActifPassif"></div>
+            <div style="display:flex; justify-content:space-between;" class="small" id="immLabelsActifPassif"></div>
+            <div style="display:flex; justify-content:space-between; margin-top:14px; padding-top:14px; border-top:1px solid var(--border);" class="small">
+              <span>Cash-flow annuel : <strong style="color:var(--text);" id="immCashflow">—</strong></span>
+              <span>Occupation : <strong style="color:var(--text);" id="immOccupation">—</strong></span>
+            </div>
           </div>
 
           <a href="#" onclick="ouvrirLoyersPourImmeuble(currentImmeubleData.structure_id, currentImmeubleId); return false;" style="display:inline-block; margin-top:10px; color:var(--accent); font-size:0.88rem;">Voir les loyers de ce bien →</a>
@@ -920,10 +926,10 @@
               <h3>Loyer</h3>
               <button class="btn-secondary btn-ajout-inline" id="btnModifierLoyerHaut" onclick="toggleEditionLoyerHaut()">Modifier</button>
             </div>
-            <div id="loyerHautAffichage" class="grid-2" style="margin-bottom:0; grid-template-columns:repeat(3,1fr);">
-              <div class="stat-card"><div class="lbl">Loyer mensuel</div><div class="val" id="lotLoyer">—</div></div>
-              <div class="stat-card"><div class="lbl">Charges mensuelles</div><div class="val" id="lotCharges">—</div></div>
-              <div class="stat-card"><div class="lbl">Dépôt de garantie</div><div class="val" id="lotDepot">—</div></div>
+            <div id="loyerHautAffichage" style="text-align:center; padding:6px 0;">
+              <div id="iconeStatutLotHero" style="width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:1.6rem; background:var(--panel-2);">🏠</div>
+              <div id="messageStatutLotHero" style="font-weight:700; font-size:1.1rem;">—</div>
+              <div id="sousMessageStatutLotHero" class="small" style="margin-top:4px;"></div>
             </div>
             <div id="loyerHautEdition" style="display:none;">
               <div class="grid-2" style="margin-bottom:0;">
@@ -2895,8 +2901,6 @@
       <span class="badge-outline">Immeuble</span>
       ${im.annee_construction ? `<span class="badge-outline">Construit en ${im.annee_construction}</span>` : ''}
     `;
-    document.getElementById('immValeur').textContent = im.valeur_estimee ? Number(im.valeur_estimee).toLocaleString('fr-FR') + ' €' : '—';
-    document.getElementById('immDette').textContent = im.dette_restante ? Number(im.dette_restante).toLocaleString('fr-FR') + ' €' : '—';
     const equity = (Number(im.valeur_estimee) || 0) - (Number(im.dette_restante) || 0);
     document.getElementById('immEquity').textContent = (im.valeur_estimee || im.dette_restante) ? equity.toLocaleString('fr-FR') + ' €' : '—';
 
@@ -2904,7 +2908,6 @@
     const ilYA1An = new Date(); ilYA1An.setFullYear(ilYA1An.getFullYear() - 1);
     const { data: depenses } = await supabaseClient.from('transactions').select('montant').eq('immeuble_id', id).eq('type', 'depense').gte('date', dateLocale(ilYA1An));
     const chargesAnnuelles = (depenses || []).reduce((a, t) => a + Number(t.montant), 0);
-    document.getElementById('immCharges').textContent = chargesAnnuelles.toLocaleString('fr-FR') + ' €';
 
     // Loyers annuels + occupation = lots et baux actifs de cet immeuble
     const { data: lotsIm } = await supabaseClient.from('lots').select('id, statut').eq('immeuble_id', id);
@@ -2920,12 +2923,23 @@
       const { data: bauxActifs } = await supabaseClient.from('baux').select('loyer, charges').in('lot_id', lotIds).eq('statut', 'actif');
       loyersAnnuels = (bauxActifs || []).reduce((a, b) => a + (Number(b.loyer) + Number(b.charges)) * 12, 0);
     }
-    document.getElementById('immLoyerAnnuel').textContent = loyersAnnuels.toLocaleString('fr-FR') + ' €';
     const cashflowAnnuel = loyersAnnuels - chargesAnnuelles;
     document.getElementById('immCashflow').textContent = (cashflowAnnuel >= 0 ? '+' : '') + cashflowAnnuel.toLocaleString('fr-FR') + ' €';
 
     const rendement = im.valeur_estimee && Number(im.valeur_estimee) > 0 ? (loyersAnnuels / Number(im.valeur_estimee) * 100).toFixed(1) : null;
     document.getElementById('immRendement').textContent = rendement !== null ? rendement + ' %' : '—';
+
+    // Barre proportionnelle valeur nette / dette, même langage visuel que Patrimoine
+    const valeurTotaleImm = Number(im.valeur_estimee) || 0;
+    if (valeurTotaleImm > 0) {
+      const pctNetteImm = Math.max(0, Math.round(equity / valeurTotaleImm * 100));
+      const pctDetteImm = 100 - pctNetteImm;
+      document.getElementById('immBarreActifPassif').innerHTML = `<div style="width:${pctNetteImm}%; background:var(--green);"></div><div style="width:${pctDetteImm}%; background:var(--red);"></div>`;
+      document.getElementById('immLabelsActifPassif').innerHTML = `<span>${pctNetteImm}% valeur nette</span><span>${pctDetteImm}% dette</span>`;
+    } else {
+      document.getElementById('immBarreActifPassif').innerHTML = '';
+      document.getElementById('immLabelsActifPassif').innerHTML = '<span>Aucune valeur renseignée</span>';
+    }
 
     switchTabImmeuble('vue');
     chargerASurveillerImmeuble(id, lotIds);
@@ -3309,7 +3323,7 @@
     const edition = document.getElementById('loyerHautEdition');
     const enEdition = edition.style.display === 'block';
     edition.style.display = enEdition ? 'none' : 'block';
-    affichage.style.display = enEdition ? 'grid' : 'none';
+    affichage.style.display = enEdition ? 'block' : 'none';
   }
 
   async function enregistrerLoyerHaut() {
@@ -3453,13 +3467,53 @@
     document.getElementById('formValeurLot').style.display = 'none';
     document.getElementById('btnModifierValeurLot').style.display = 'inline-flex';
 
-    const { data: bauxActifs } = await supabaseClient.from('baux').select('id, loyer, charges, depot_garantie').eq('lot_id', id).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
+    const { data: bauxActifs } = await supabaseClient.from('baux').select('id, loyer, charges, depot_garantie, date_debut').eq('lot_id', id).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
     const bail = bauxActifs && bauxActifs[0];
     bailActuelPourLoyerHaut = bail || null;
 
-    document.getElementById('lotLoyer').textContent = bail ? Number(bail.loyer).toLocaleString('fr-FR') + ' €' : (lot.loyer ? Number(lot.loyer).toLocaleString('fr-FR') + ' €' : '—');
-    document.getElementById('lotCharges').textContent = bail ? Number(bail.charges).toLocaleString('fr-FR') + ' €' : '—';
-    document.getElementById('lotDepot').textContent = bail && bail.depot_garantie ? Number(bail.depot_garantie).toLocaleString('fr-FR') + ' €' : '—';
+    const iconeHero = document.getElementById('iconeStatutLotHero');
+    const messageHero = document.getElementById('messageStatutLotHero');
+    const sousMessageHero = document.getElementById('sousMessageStatutLotHero');
+
+    if (bail) {
+      const { data: rattachementsHero } = await supabaseClient.from('bail_locataires').select('locataire_id').eq('bail_id', bail.id);
+      const idsHero = (rattachementsHero || []).map(r => r.locataire_id);
+      let nomsHero = 'un locataire';
+      if (idsHero.length) {
+        const { data: locatairesHero } = await supabaseClient.from('locataires').select('nom').in('id', idsHero);
+        if (locatairesHero && locatairesHero.length) nomsHero = locatairesHero.map(l => l.nom).join(' et ');
+      }
+      iconeHero.style.background = 'rgba(34,197,94,0.15)';
+      messageHero.style.color = 'var(--green)';
+      iconeHero.textContent = '🏠';
+      messageHero.textContent = `Loué à ${nomsHero}`;
+      const total = Number(bail.loyer) + Number(bail.charges);
+      sousMessageHero.textContent = `${total.toLocaleString('fr-FR')} € / mois · depuis le ${formatDate(bail.date_debut)}`;
+    } else if (lot.statut === 'travaux') {
+      iconeHero.style.background = 'rgba(239,68,68,0.15)';
+      messageHero.style.color = 'var(--red)';
+      iconeHero.textContent = '🔧';
+      messageHero.textContent = 'En travaux';
+      sousMessageHero.textContent = '';
+    } else if (lot.statut === 'proprietaire') {
+      iconeHero.style.background = 'rgba(96,165,250,0.15)';
+      messageHero.style.color = 'var(--accent)';
+      iconeHero.textContent = '🏠';
+      messageHero.textContent = 'Occupé par toi-même';
+      sousMessageHero.textContent = '';
+    } else if (lot.statut === 'agence') {
+      iconeHero.style.background = 'rgba(96,165,250,0.15)';
+      messageHero.style.color = 'var(--accent)';
+      iconeHero.textContent = '🏢';
+      messageHero.textContent = 'Géré par une agence';
+      sousMessageHero.textContent = '';
+    } else {
+      iconeHero.style.background = 'var(--panel-2)';
+      messageHero.style.color = 'var(--amber)';
+      iconeHero.textContent = '🏠';
+      messageHero.textContent = 'Vacant';
+      sousMessageHero.textContent = (lot.loyer !== null && lot.loyer !== undefined) ? `Loyer visé : ${Number(lot.loyer).toLocaleString('fr-FR')} €` : 'Aucun loyer visé renseigné';
+    }
 
     // Champs d'édition : loyer toujours modifiable (bail si loué, référence du lot sinon).
     // Charges/dépôt n'ont de sens qu'avec un vrai bail — masqués sur un logement vacant.
@@ -3469,7 +3523,7 @@
     document.getElementById('labelChargesHaut').parentElement.style.display = bail ? 'block' : 'none';
     document.getElementById('zoneDepotHaut').style.display = bail ? 'block' : 'none';
 
-    document.getElementById('loyerHautAffichage').style.display = 'grid';
+    document.getElementById('loyerHautAffichage').style.display = 'block';
     document.getElementById('loyerHautEdition').style.display = 'none';
 
     switchTabLot('resume');
