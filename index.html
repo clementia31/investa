@@ -1900,9 +1900,21 @@
   const LOCALE_ACTUELLE = 'fr-FR';
   const DEVISE_ACTUELLE = 'EUR';
 
+  // Formate une date en AAAA-MM-JJ en HEURE LOCALE — jamais toISOString().split('T')[0],
+  // qui convertit en UTC et peut décaler d'un jour dans la fenêtre juste après minuit
+  // heure locale (ex: 1h du matin en France peut encore être "hier" en UTC).
+  function dateLocale(date) {
+    return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+  }
+
   function formatMoney(valeur) {
     if (valeur === null || valeur === undefined || isNaN(valeur)) return '—';
-    return new Intl.NumberFormat(LOCALE_ACTUELLE, { style: 'currency', currency: DEVISE_ACTUELLE, maximumFractionDigits: 0 }).format(Number(valeur));
+    const nombre = Number(valeur);
+    // Évite l'affichage "-0 €" — un artefact d'arrondi JavaScript sur une valeur
+    // quasi nulle (ex: un cash-flow très proche de zéro après soustraction), jamais
+    // un vrai montant négatif significatif.
+    const valeurNormalisee = Object.is(Math.round(nombre), -0) ? 0 : nombre;
+    return new Intl.NumberFormat(LOCALE_ACTUELLE, { style: 'currency', currency: DEVISE_ACTUELLE, maximumFractionDigits: 0 }).format(valeurNormalisee);
   }
 
   function formatDate(dateIso) {
@@ -2206,7 +2218,7 @@
     }
 
     const dernierJourMoisDash = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()).padStart(2, '0');
-    const finMois = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+    const finMois = dateLocale(new Date(now.getFullYear(), now.getMonth() + 1, 0));
 
     // Ces 4 requêtes ne dépendent pas les unes des autres — parties en même temps plutôt que
     // les unes après les autres, pour réduire le temps de chargement perçu au minimum nécessaire.
@@ -2273,7 +2285,7 @@
     // Ça s'adapte automatiquement à la date d'entrée et à la date de sortie de chaque locataire.
     // Les 2 requêtes ci-dessous ne dépendent pas l'une de l'autre — parties en parallèle.
     const [{ data: txs }, { data: bauxTousStruct }] = await Promise.all([
-      supabaseClient.from('transactions').select('date, type, montant').in('structure_id', structIds).gte('date', debut.toISOString().split('T')[0]),
+      supabaseClient.from('transactions').select('date, type, montant').in('structure_id', structIds).gte('date', dateLocale(debut)),
       supabaseClient.from('baux').select('id, loyer, charges, date_debut, date_fin, lots(immeubles(structure_id))').eq('statut', 'actif')
     ]);
     const bauxStruct = (bauxTousStruct || []).filter(b => b.lots && b.lots.immeubles && structIds.includes(b.lots.immeubles.structure_id));
@@ -2281,7 +2293,7 @@
 
     // On respecte quand même les corrections manuelles "en retard" faites via le calendrier
     const { data: paiementsEnRetard } = bailIdsStruct.length
-      ? await supabaseClient.from('paiements').select('bail_id, mois').in('bail_id', bailIdsStruct).eq('statut', 'en_retard').gte('mois', debut.toISOString().split('T')[0])
+      ? await supabaseClient.from('paiements').select('bail_id, mois').in('bail_id', bailIdsStruct).eq('statut', 'en_retard').gte('mois', dateLocale(debut))
       : { data: [] };
     const enRetardParMoisBail = new Set((paiementsEnRetard || []).map(p => `${p.bail_id}_${p.mois}`));
 
@@ -2297,7 +2309,7 @@
     });
     mois.forEach(m => {
       const moisDateStr = m.annee + '-' + String(m.moisIdx + 1).padStart(2, '0') + '-01';
-      const dernierJour = new Date(m.annee, m.moisIdx + 1, 0).toISOString().split('T')[0];
+      const dernierJour = dateLocale(new Date(m.annee, m.moisIdx + 1, 0));
       bauxStruct.forEach(b => {
         const actifCeMois = b.date_debut <= dernierJour && (!b.date_fin || b.date_fin >= moisDateStr);
         if (actifCeMois && !enRetardParMoisBail.has(`${b.id}_${moisDateStr}`)) {
@@ -2319,7 +2331,7 @@
     const div = document.getElementById('dashAlertes');
     const dans30jours = new Date(); dans30jours.setDate(dans30jours.getDate() + 30);
     const dans60jours = new Date(); dans60jours.setDate(dans60jours.getDate() + 60);
-    const aujourdhui = new Date().toISOString().split('T')[0];
+    const aujourdhui = dateLocale(new Date());
 
     // Ces 7 requêtes ne dépendent pas les unes des autres — parties toutes en même temps
     // plutôt qu'à la queue leu leu (c'était la vraie cause de la lenteur du Dashboard).
@@ -2329,12 +2341,12 @@
       { data: locatairesAssurance }, { data: documentsExpirantsDash }
     ] = await Promise.all([
       supabaseClient.from('paiements').select('mois, montant_loyer, montant_charges, baux(lot_id, lots(nom, type, immeuble_id, immeubles(adresse, structure_id)))').eq('statut', 'en_retard'),
-      supabaseClient.from('baux').select('date_debut, date_fin, lot_id, lots(nom, type, immeubles(adresse, structure_id))').eq('statut', 'actif').not('date_fin', 'is', null).lte('date_fin', dans30jours.toISOString().split('T')[0]).gte('date_fin', aujourdhui),
+      supabaseClient.from('baux').select('date_debut, date_fin, lot_id, lots(nom, type, immeubles(adresse, structure_id))').eq('statut', 'actif').not('date_fin', 'is', null).lte('date_fin', dateLocale(dans30jours)).gte('date_fin', aujourdhui),
       supabaseClient.from('taches').select('id').in('structure_id', structIds).eq('fait', false).not('date_echeance', 'is', null).lt('date_echeance', aujourdhui),
-      supabaseClient.from('immeubles').select('id, adresse, dpe_date_expiration').in('structure_id', structIds).not('dpe_date_expiration', 'is', null).lte('dpe_date_expiration', dans60jours.toISOString().split('T')[0]),
+      supabaseClient.from('immeubles').select('id, adresse, dpe_date_expiration').in('structure_id', structIds).not('dpe_date_expiration', 'is', null).lte('dpe_date_expiration', dateLocale(dans60jours)),
       supabaseClient.from('baux').select('date_debut, date_fin, lot_id, lots(nom, type, immeuble_id, immeubles(adresse, structure_id))').eq('statut', 'actif'),
-      supabaseClient.from('locataires').select('id, nom, assurance_expiration').in('structure_id', structIds).not('assurance_expiration', 'is', null).lte('assurance_expiration', dans60jours.toISOString().split('T')[0]),
-      supabaseClient.from('documents').select('id, nom, storage_path, expiration_date').in('structure_id', structIds).not('expiration_date', 'is', null).lte('expiration_date', dans60jours.toISOString().split('T')[0]).order('expiration_date').limit(2)
+      supabaseClient.from('locataires').select('id, nom, assurance_expiration').in('structure_id', structIds).not('assurance_expiration', 'is', null).lte('assurance_expiration', dateLocale(dans60jours)),
+      supabaseClient.from('documents').select('id, nom, storage_path, expiration_date').in('structure_id', structIds).not('expiration_date', 'is', null).lte('expiration_date', dateLocale(dans60jours)).order('expiration_date').limit(2)
     ]);
 
     const retardsFiltres = (retards || []).filter(p => p.baux && p.baux.lots && p.baux.lots.immeubles && structIds.includes(p.baux.lots.immeubles.structure_id));
@@ -2441,7 +2453,7 @@
 
     if (loyer) {
       const { error: errBail } = await supabaseClient.from('baux').insert({
-        lot_id: lot.id, type: 'nu', date_debut: new Date().toISOString().split('T')[0],
+        lot_id: lot.id, type: 'nu', date_debut: dateLocale(new Date()),
         loyer: parseFloat(loyer), charges: charges ? parseFloat(charges) : 0, statut: 'actif'
       });
       if (errBail) alert('Le bien a été créé, mais le loyer n\u2019a pas pu être enregistré : ' + errBail.message);
@@ -2684,7 +2696,7 @@
     const tousImmeubles = donnees.immeubles || [];
     const tousLots = donnees.lots || [];
     const structuresData = donnees.structures || [];
-    const aujourdhuiStr = new Date().toISOString().split('T')[0];
+    const aujourdhuiStr = dateLocale(new Date());
     const tousBauxActifsBruts = donnees.baux || [];
     const tousBauxActifs = (tousBauxActifsBruts || []).filter(b => b.date_debut <= aujourdhuiStr && (!b.date_fin || b.date_fin >= aujourdhuiStr));
 
@@ -2854,7 +2866,7 @@
 
     // Charges annuelles = dépenses des 12 derniers mois pour cet immeuble
     const ilYA1An = new Date(); ilYA1An.setFullYear(ilYA1An.getFullYear() - 1);
-    const { data: depenses } = await supabaseClient.from('transactions').select('montant').eq('immeuble_id', id).eq('type', 'depense').gte('date', ilYA1An.toISOString().split('T')[0]);
+    const { data: depenses } = await supabaseClient.from('transactions').select('montant').eq('immeuble_id', id).eq('type', 'depense').gte('date', dateLocale(ilYA1An));
     const chargesAnnuelles = (depenses || []).reduce((a, t) => a + Number(t.montant), 0);
     document.getElementById('immCharges').textContent = chargesAnnuelles.toLocaleString('fr-FR') + ' €';
 
@@ -3166,10 +3178,20 @@
   async function supprimerImmeuble() {
     if (!confirm('Supprimer définitivement cet immeuble ? Tous ses lots, baux, paiements et documents seront supprimés. Cette action est irréversible.')) return;
 
-    // Nettoyage complet (documents, notes, contacts) pour l'immeuble ET chacun de ses lots —
-    // aucune cascade automatique en base pour ces tables polymorphes.
+    // Nettoyage complet (documents, notes, contacts) pour l'immeuble, chacun de ses lots,
+    // ET chacun des baux de ces lots (les documents de bail — ex: le PDF généré — sont
+    // rattachés au bail précis, pas au lot, depuis le sprint 64) — aucune cascade
+    // automatique en base pour ces tables polymorphes.
     const { data: lotsAssocies } = await supabaseClient.from('lots').select('id').eq('immeuble_id', currentImmeubleId);
-    const entites = [{ type: 'immeuble', id: currentImmeubleId }, ...(lotsAssocies || []).map(l => ({ type: 'lot', id: l.id }))];
+    const lotIdsAssocies = (lotsAssocies || []).map(l => l.id);
+    const { data: bauxAssocies } = lotIdsAssocies.length
+      ? await supabaseClient.from('baux').select('id').in('lot_id', lotIdsAssocies)
+      : { data: [] };
+    const entites = [
+      { type: 'immeuble', id: currentImmeubleId },
+      ...(lotsAssocies || []).map(l => ({ type: 'lot', id: l.id })),
+      ...(bauxAssocies || []).map(b => ({ type: 'bail', id: b.id }))
+    ];
     for (const ent of entites) await nettoyerDonneesEntite(ent.type, ent.id);
 
     const { error } = await supabaseClient.from('immeubles').delete().eq('id', currentImmeubleId);
@@ -3305,6 +3327,8 @@
     if (!confirm('Supprimer définitivement ce lot ? Son bail, ses paiements et ses documents seront supprimés. Cette action est irréversible.')) return;
 
     await nettoyerDonneesEntite('lot', currentLotId);
+    const { data: bauxDuLot } = await supabaseClient.from('baux').select('id').eq('lot_id', currentLotId);
+    for (const b of (bauxDuLot || [])) await nettoyerDonneesEntite('bail', b.id);
 
     const { data: lotInfo } = await supabaseClient.from('lots').select('immeuble_id').eq('id', currentLotId).single();
     const { error } = await supabaseClient.from('lots').delete().eq('id', currentLotId);
@@ -3455,6 +3479,10 @@
       resultatDiv.innerHTML = `<span style="color:var(--red);">Indice de ${trimestreAnPasse} manquant dans la table — impossible de calculer sans lui.</span>`;
       return;
     }
+    if (!indiceAncien.valeur || Number(indiceAncien.valeur) <= 0) {
+      resultatDiv.innerHTML = `<span style="color:var(--red);">Indice de ${trimestreAnPasse} invalide (${indiceAncien.valeur}) — vérifie la table irl_indices avant de continuer.</span>`;
+      return;
+    }
 
     // Formule légale : nouveau loyer = loyer actuel × (IRL du trimestre N / IRL du même trimestre N-1), arrondi au centime inférieur
     const brut = loyerActuel * (indiceNouveau.valeur / indiceAncien.valeur);
@@ -3584,7 +3612,7 @@
   }
 
   async function terminerBail(bailId, lotId) {
-    const dateSortie = document.getElementById('dateSortieBail').value || new Date().toISOString().split('T')[0];
+    const dateSortie = document.getElementById('dateSortieBail').value || dateLocale(new Date());
     if (!confirm('Terminer ce bail au ' + dateSortie + ' ? Le locataire restera consultable dans l\u2019historique du lot.')) return;
 
     const champDepot = document.getElementById('depotRestitueBail');
@@ -4428,6 +4456,14 @@
 
   let cacheLocatairesExistants = [];
 
+  async function verifierBailExistantLocataireRapide() {
+    const lotId = document.getElementById('bienLocataireRapide').value;
+    const champLoyer = document.getElementById('loyerLocataireRapide');
+    if (!lotId) { champLoyer.style.display = 'none'; return; }
+    const { data: baux } = await supabaseClient.from('baux').select('id').eq('lot_id', lotId).eq('statut', 'actif').limit(1);
+    champLoyer.style.display = (baux && baux.length) ? 'none' : 'block';
+  }
+
   async function chargerBiensPourLocataireRapide() {
     const sel = document.getElementById('bienLocataireRapide');
     const { data: lots } = await supabaseClient.from('lots').select('id, nom, type, immeubles(adresse)').order('created_at');
@@ -4905,7 +4941,7 @@
     document.getElementById('detailPaiementTitre').innerHTML = `<a href="#" onclick="ouvrirFicheLot('${item.lotId}'); return false;" style="color:var(--accent);">${echapper(item.lotNom)}</a>`;
     document.getElementById('detailPaiementSousTitre').textContent = item.adresse;
     document.getElementById('detailPaiementMontant').textContent = item.montant.toLocaleString('fr-FR') + ' €';
-    document.getElementById('detailPaiementDate').value = item.paiement.date_paiement || new Date().toISOString().split('T')[0];
+    document.getElementById('detailPaiementDate').value = item.paiement.date_paiement || dateLocale(new Date());
     document.getElementById('panelPaiementDetail').style.display = 'block';
     document.getElementById('panelPaiementDetail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
@@ -4923,7 +4959,7 @@
     try {
       const dateChoisie = document.getElementById('detailPaiementDate').value;
       const { error } = await supabaseClient.from('paiements').update({
-        statut, date_paiement: statut === 'paye' ? (dateChoisie || new Date().toISOString().split('T')[0]) : null
+        statut, date_paiement: statut === 'paye' ? (dateChoisie || dateLocale(new Date())) : null
       }).eq('id', paiementDetailCourantId);
       if (error) return alert('Erreur : ' + error.message);
       if (statut === 'paye') genererQuittanceAuto(paiementDetailCourantId).catch(e => console.error('Génération quittance échouée :', e));
@@ -5132,7 +5168,7 @@
     if (moisStr) {
       const debut = moisStr + '-01';
       const [an, mo] = moisStr.split('-').map(Number);
-      const fin = new Date(an, mo, 0).toISOString().split('T')[0];
+      const fin = dateLocale(new Date(an, mo, 0));
       query = query.gte('date', debut).lte('date', fin);
     }
     const { data: txs, error } = await query.order('date', { ascending: false });
@@ -5388,7 +5424,7 @@ Le bailleur donne quittance au locataire pour le paiement ci-dessus et lui donne
     const blob = new Blob([JSON.stringify(export_complet, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = `investa_export_${new Date().toISOString().split('T')[0]}.json`;
+    a.href = url; a.download = `investa_export_${dateLocale(new Date())}.json`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -5686,8 +5722,8 @@ Durée : du {{date_debut}} au {{date_fin}}
     });
 
     const dansSoixanteJours = new Date(); dansSoixanteJours.setDate(dansSoixanteJours.getDate() + 60);
-    const today = new Date().toISOString().split('T')[0];
-    const { data: baux } = await supabaseClient.from('baux').select('date_fin, lots(id, nom, type, immeubles(adresse))').eq('statut', 'actif').not('date_fin', 'is', null).gte('date_fin', today).lte('date_fin', dansSoixanteJours.toISOString().split('T')[0]).order('date_fin');
+    const today = dateLocale(new Date());
+    const { data: baux } = await supabaseClient.from('baux').select('date_fin, lots(id, nom, type, immeubles(adresse))').eq('statut', 'actif').not('date_fin', 'is', null).gte('date_fin', today).lte('date_fin', dateLocale(dansSoixanteJours)).order('date_fin');
     (baux || []).forEach(b => {
       const lot = b.lots;
       const immeuble = lot && lot.immeubles ? lot.immeubles.adresse : '';
@@ -5695,7 +5731,7 @@ Durée : du {{date_debut}} au {{date_fin}}
       items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'Bail arrivant à échéance', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (dans ${joursRestants} j)`, lien: lot ? { type: 'lot', id: lot.id } : null });
     });
 
-    const { data: immeublesDpe } = await supabaseClient.from('immeubles').select('id, adresse, dpe_date_expiration').not('dpe_date_expiration', 'is', null).lte('dpe_date_expiration', dansSoixanteJours.toISOString().split('T')[0]);
+    const { data: immeublesDpe } = await supabaseClient.from('immeubles').select('id, adresse, dpe_date_expiration').not('dpe_date_expiration', 'is', null).lte('dpe_date_expiration', dateLocale(dansSoixanteJours));
     (immeublesDpe || []).forEach(im => {
       const joursRestants = Math.ceil((new Date(im.dpe_date_expiration) - new Date()) / (1000 * 60 * 60 * 24));
       items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'DPE arrivant à expiration', detail: `${im.adresse} (dans ${joursRestants} j)`, lien: { type: 'immeuble', id: im.id } });
@@ -5717,14 +5753,14 @@ Durée : du {{date_debut}} au {{date_fin}}
     });
 
     // Assurance locataire arrivant à expiration
-    const { data: locatairesAssurancePourAlerte } = await supabaseClient.from('locataires').select('id, nom, assurance_expiration').not('assurance_expiration', 'is', null).lte('assurance_expiration', dansSoixanteJours.toISOString().split('T')[0]);
+    const { data: locatairesAssurancePourAlerte } = await supabaseClient.from('locataires').select('id, nom, assurance_expiration').not('assurance_expiration', 'is', null).lte('assurance_expiration', dateLocale(dansSoixanteJours));
     (locatairesAssurancePourAlerte || []).forEach(l => {
       const joursRestants = Math.ceil((new Date(l.assurance_expiration) - new Date()) / (1000 * 60 * 60 * 24));
       items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'Assurance locataire à renouveler', detail: `${l.nom} (dans ${joursRestants} j)`, lien: { type: 'locataire', id: l.id } });
     });
 
     // Documents à échéance générique (assurance PNO, contrats, garanties... — hors DPE/assurance locataire déjà gérés ci-dessus)
-    const { data: documentsExpirants } = await supabaseClient.from('documents').select('id, nom, storage_path, entity_type, entity_id, expiration_date').not('expiration_date', 'is', null).lte('expiration_date', dansSoixanteJours.toISOString().split('T')[0]);
+    const { data: documentsExpirants } = await supabaseClient.from('documents').select('id, nom, storage_path, entity_type, entity_id, expiration_date').not('expiration_date', 'is', null).lte('expiration_date', dateLocale(dansSoixanteJours));
     if (documentsExpirants && documentsExpirants.length) {
       const immIds = documentsExpirants.filter(d => d.entity_type === 'immeuble').map(d => d.entity_id);
       const lotIds = documentsExpirants.filter(d => d.entity_type === 'lot').map(d => d.entity_id);
@@ -6133,10 +6169,10 @@ Durée : du {{date_debut}} au {{date_fin}}
     const { data: tousBauxActifsBruts } = lotIds.length
       ? await supabaseClient.from('baux').select('lot_id, loyer, charges, date_debut, date_fin').in('lot_id', lotIds).eq('statut', 'actif')
       : { data: [] };
-    const aujourdhuiStrSynthese = new Date().toISOString().split('T')[0];
+    const aujourdhuiStrSynthese = dateLocale(new Date());
     const tousBauxActifs = (tousBauxActifsBruts || []).filter(b => b.date_debut <= aujourdhuiStrSynthese && (!b.date_fin || b.date_fin >= aujourdhuiStrSynthese));
     const ilYA1An = new Date(); ilYA1An.setFullYear(ilYA1An.getFullYear() - 1);
-    const { data: toutesDepenses } = await supabaseClient.from('transactions').select('immeuble_id, montant').in('immeuble_id', immeubleIds).eq('type', 'depense').gte('date', ilYA1An.toISOString().split('T')[0]);
+    const { data: toutesDepenses } = await supabaseClient.from('transactions').select('immeuble_id, montant').in('immeuble_id', immeubleIds).eq('type', 'depense').gte('date', dateLocale(ilYA1An));
 
     // Regroupement en mémoire
     const lotsParImmeuble = {};
