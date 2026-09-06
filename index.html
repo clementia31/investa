@@ -342,16 +342,12 @@
     .fisc-table-header span:nth-child(3), .fisc-table-header span:nth-child(4),
     .fisc-assoc-row span:nth-child(3), .fisc-assoc-row span:nth-child(4) { display: none; }
   }
-  .locataire-carte { background: var(--panel); border-radius: 16px; padding: 20px 20px 20px 17px; cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.25); border-left: 3px solid var(--border); transition: transform 0.15s; }
+  .locataire-carte { background: var(--panel); border-radius: 16px; padding: 20px; cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.25); transition: transform 0.15s; }
   .locataire-carte:hover { transform: translateY(-1px); }
-  .locataire-carte.statut-retard { border-left-color: var(--red); }
-  .locataire-carte.statut-ajour { border-left-color: var(--green); }
   .locataire-carte-nom { font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; }
   .locataire-carte-souttitre { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 14px; }
-  .locataire-carte-bas { display: flex; justify-content: space-between; align-items: baseline; }
   .locataire-carte-loyer { font-size: 1.1rem; font-weight: 600; }
   .locataire-carte-loyer .unite { font-size: 0.72rem; color: var(--text-dim); font-weight: 400; }
-  .locataire-carte-statut-texte { font-size: 0.72rem; font-weight: 600; }
   .locataire-carte-icons { display: flex; gap: 6px; margin-top: 12px; }
   .locataire-carte-icons .icon-btn-round { width: 30px; height: 30px; font-size: 0.82rem; }
 
@@ -576,28 +572,32 @@
         </div>
 
         <div id="dashboardContenuNormal">
-          <div class="bandeau-patrimoine">
-            <div class="row-click" onclick="allerPatrimoine()"><span class="lbl">Valeur du patrimoine</span><span class="val" id="dashValeur">—</span></div>
-            <div class="row-click" onclick="allerLoyers()"><span class="lbl">Loyers attendus</span><span class="val" id="dashAttendu">—</span></div>
-            <div><span class="lbl">Taux d'occupation</span><span class="val" id="dashOccupation">—</span></div>
-            <div><span class="lbl">Dette restante</span><span class="val" id="dashDette">—</span></div>
+          <div class="card" id="cardHeroDashboard" style="margin-bottom:16px;">
+            <div class="small" id="dashSalutation" style="margin-bottom:6px;">Bonjour 👋</div>
+            <div id="dashMessagePrincipal" style="font-size:1.5rem; font-weight:700; margin-bottom:4px;">—</div>
+            <div class="small" id="dashSousMessage"></div>
           </div>
-          <div style="margin-bottom:16px;">
-            <div class="small" style="margin-bottom:5px;" id="dashOccupationLabel">— % occupé</div>
-            <div class="progress-bar-track"><div class="progress-bar-fill" id="dashOccupationBarre" style="width:0%;"></div></div>
+
+          <div class="grid-2" style="margin-bottom:16px;">
+            <div class="card">
+              <div class="small" style="margin-bottom:6px;">Cash-flow ce mois</div>
+              <div style="font-size:1.3rem; font-weight:700;" id="dashCashflow">—</div>
+              <div id="dashChartCashflow" style="margin-top:10px;">Chargement...</div>
+            </div>
+            <div class="card row-click" id="cardProchaineEcheance" style="display:none;">
+              <div class="small" style="margin-bottom:6px;">Prochaine échéance</div>
+              <div style="font-size:1.1rem; font-weight:700;" id="dashEcheanceTitre">—</div>
+              <div class="small" style="margin-top:2px;" id="dashEcheanceDetail"></div>
+            </div>
+            <div class="card" id="cardRienASignaler" style="display:none;">
+              <div class="small" style="margin-bottom:6px;">Prochaine échéance</div>
+              <div style="font-size:1.1rem; font-weight:700; color:var(--green);">Rien à signaler</div>
+            </div>
           </div>
-          <div class="grid-2">
-            <div class="card">
-              <div style="display:flex; justify-content:space-between; align-items:baseline;">
-                <h3 style="margin:0;">Cash-flow mensuel</h3>
-                <span class="small" id="dashCashflow">—</span>
-              </div>
-              <div id="dashChartCashflow">Chargement...</div>
-            </div>
-            <div class="card">
-              <h3>À faire</h3>
-              <div id="dashAlertes">Chargement...</div>
-            </div>
+
+          <div class="card" id="cardAFaireDashboard">
+            <h3>À faire</h3>
+            <div id="dashAlertes">Chargement...</div>
           </div>
         </div>
       </div>
@@ -2211,7 +2211,8 @@
     document.getElementById('dashboardContenuNormal').style.display = 'block';
 
     if (!structures || !structures.length) {
-      ['dashAttendu','dashCashflow','dashOccupation','dashValeur','dashDette'].forEach(id => document.getElementById(id).textContent = '—');
+      document.getElementById('dashMessagePrincipal').textContent = 'Ajoute ton premier bien pour commencer';
+      document.getElementById('dashCashflow').textContent = '—';
       document.getElementById('dashChartCashflow').innerHTML = '<div class="empty-state">—</div>';
       document.getElementById('dashAlertes').innerHTML = '<div class="empty-state">—</div>';
       return;
@@ -2220,13 +2221,12 @@
     const dernierJourMoisDash = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()).padStart(2, '0');
     const finMois = dateLocale(new Date(now.getFullYear(), now.getMonth() + 1, 0));
 
-    // Ces 4 requêtes ne dépendent pas les unes des autres — parties en même temps plutôt que
+    // Ces 3 requêtes ne dépendent pas les unes des autres — parties en même temps plutôt que
     // les unes après les autres, pour réduire le temps de chargement perçu au minimum nécessaire.
-    const [{ data: bauxActifsBruts }, { data: paiements }, { data: depenses }, { data: immeubles }] = await Promise.all([
+    const [{ data: bauxActifsBruts }, { data: paiements }, { data: depenses }] = await Promise.all([
       supabaseClient.from('baux').select('id, loyer, charges, date_debut, date_fin').eq('statut', 'actif').lte('date_debut', dernierJourMoisDash),
       supabaseClient.from('paiements').select('bail_id, statut').eq('mois', moisDate),
-      supabaseClient.from('transactions').select('montant').eq('type', 'depense').in('structure_id', structIds).gte('date', moisDate).lte('date', finMois),
-      supabaseClient.from('immeubles').select('id, valeur_estimee, dette_restante').in('structure_id', structIds)
+      supabaseClient.from('transactions').select('montant').eq('type', 'depense').in('structure_id', structIds).gte('date', moisDate).lte('date', finMois)
     ]);
 
     const bauxActifsMois = (bauxActifsBruts || []).filter(b => !b.date_fin || b.date_fin >= moisDate);
@@ -2246,33 +2246,29 @@
     });
 
     const totalCharges = (depenses || []).reduce((a, t) => a + Number(t.montant), 0);
-    const valeurPatrimoine = (immeubles || []).reduce((a, i) => a + Number(i.valeur_estimee || 0), 0);
-    const dette = (immeubles || []).reduce((a, i) => a + Number(i.dette_restante || 0), 0);
 
-    const immeubleIds = (immeubles || []).map(i => i.id);
-    let tauxOccupation = 0;
-    if (immeubleIds.length) {
-      const { data: lots } = await supabaseClient.from('lots').select('statut').in('immeuble_id', immeubleIds);
-      if (lots && lots.length) {
-        const occupes = lots.filter(l => ['occupe', 'proprietaire', 'agence'].includes(l.statut)).length;
-        tauxOccupation = Math.round((occupes / lots.length) * 100);
-      }
-    }
-
-    document.getElementById('dashAttendu').textContent = formatMoney(attendu);
     const cashflow = encaisse - totalCharges;
     document.getElementById('dashCashflow').textContent = (cashflow >= 0 ? '+' : '') + formatMoney(cashflow) + ' ce mois';
-    document.getElementById('dashOccupation').textContent = tauxOccupation + ' %';
-    document.getElementById('dashOccupationLabel').textContent = tauxOccupation + ' % occupé';
-    document.getElementById('dashOccupationBarre').style.width = tauxOccupation + '%';
-    document.getElementById('dashValeur').textContent = formatMoney(valeurPatrimoine);
-    document.getElementById('dashDette').textContent = formatMoney(dette);
 
     // Le graphique et les alertes ne dépendent pas non plus l'un de l'autre — même principe.
+    // chargerAlertesDashboard détermine aussi le message principal ("Tout va bien" ou le vrai
+    // problème le plus urgent) et la prochaine échéance, à partir des mêmes signaux déjà calculés.
     await Promise.all([
       dessinerCashflow12Mois(structIds),
       chargerAlertesDashboard(structIds, retardCount)
     ]);
+
+    // Support des liens profonds pour les futures notifications push (iPhone) — le jour où
+    // l'app native enverra une notification, elle ouvrira l'app sur #notification, et cette
+    // page mettra automatiquement en avant la carte "À faire" plutôt que de laisser deviner.
+    if (window.location.hash.includes('notification')) {
+      const carte = document.getElementById('cardAFaireDashboard');
+      if (carte) {
+        carte.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        carte.style.outline = '2px solid var(--accent)';
+        setTimeout(() => { carte.style.outline = 'none'; }, 3000);
+      }
+    }
   }
 
   async function dessinerCashflow12Mois(structIds) {
@@ -2387,6 +2383,46 @@
       html += `<div class="alert-row row-click" onclick="telechargerDocument('${d.storage_path}')"><span class="alert-dot med"></span><span style="flex:1;">${echapper(d.nom)} — ${jours < 0 ? 'expiré' : 'expire dans ' + jours + ' j'}</span></div>`;
     });
     div.innerHTML = html || '<div class="empty-state">Rien à signaler pour le moment. 👍</div>';
+
+    // Message principal : le problème le plus urgent s'il y en a un, sinon "tout va bien".
+    // Prochaine échéance : le plus proche dans le temps parmi tout ce qui expire bientôt,
+    // toutes catégories confondues (DPE, bail, document, assurance).
+    const messagePrincipal = document.getElementById('dashMessagePrincipal');
+    const sousMessage = document.getElementById('dashSousMessage');
+    if (retardCount > 0) {
+      messagePrincipal.textContent = `${retardCount} loyer${retardCount > 1 ? 's' : ''} en retard`;
+      messagePrincipal.style.color = 'var(--red)';
+      sousMessage.textContent = 'Va voir Loyers pour relancer.';
+    } else if (tachesEnRetard && tachesEnRetard.length) {
+      messagePrincipal.textContent = `${tachesEnRetard.length} tâche${tachesEnRetard.length > 1 ? 's' : ''} en retard`;
+      messagePrincipal.style.color = 'var(--amber)';
+      sousMessage.textContent = 'Va voir À faire pour les traiter.';
+    } else {
+      messagePrincipal.textContent = 'Tout va bien aujourd\u2019hui';
+      messagePrincipal.style.color = 'var(--green)';
+      sousMessage.textContent = 'Aucune action urgente pour le moment.';
+    }
+
+    const echeances = [];
+    (immeublesDpe || []).forEach(im => echeances.push({ date: im.dpe_date_expiration, titre: 'DPE', detail: im.adresse, onclick: `ouvrirFicheImmeuble('${im.id}')` }));
+    bauxFiltres.forEach(b => echeances.push({ date: b.date_fin, titre: 'Bail se termine', detail: b.lots.nom || b.lots.type, onclick: `ouvrirFicheLot('${b.lot_id}')` }));
+    (documentsExpirantsDash || []).forEach(d => echeances.push({ date: d.expiration_date, titre: echapper(d.nom), detail: '', onclick: `telechargerDocument('${d.storage_path}')` }));
+    (locatairesAssurance || []).forEach(l => echeances.push({ date: l.assurance_expiration, titre: 'Assurance locataire', detail: l.nom, onclick: `ouvrirFicheLocataire('${l.id}', 'liste')` }));
+    echeances.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    const carteEcheance = document.getElementById('cardProchaineEcheance');
+    const carteRien = document.getElementById('cardRienASignaler');
+    if (echeances.length) {
+      const jours = Math.ceil((new Date(echeances[0].date) - new Date()) / (1000 * 60 * 60 * 24));
+      document.getElementById('dashEcheanceTitre').textContent = `${echeances[0].titre} — ${jours <= 0 ? 'expiré' : jours + ' j'}`;
+      document.getElementById('dashEcheanceDetail').textContent = echeances[0].detail;
+      carteEcheance.setAttribute('onclick', echeances[0].onclick);
+      carteEcheance.style.display = 'block';
+      carteRien.style.display = 'none';
+    } else {
+      carteEcheance.style.display = 'none';
+      carteRien.style.display = 'block';
+    }
   }
 
   // ---------- STRUCTURES ----------
@@ -4674,18 +4710,19 @@
     if (!items.length) { div.innerHTML = '<div class="empty-state">Aucun locataire ne correspond.</div>'; return; }
 
     div.innerHTML = `<div class="locataires-grid">` + items.slice(0, nbAffichesLocataires).map(l => {
-      const classeStatut = l.statut === 'en_retard' ? 'statut-retard' : l.statut === 'a_jour' ? 'statut-ajour' : '';
-      const texteStatut = l.statut === 'en_retard'
-        ? '<span class="locataire-carte-statut-texte" style="color:var(--red);">En retard</span>'
-        : l.statut === 'a_jour' ? '<span class="locataire-carte-statut-texte" style="color:var(--green);">À jour</span>' : '';
+      const badgeStatut = l.statut === 'en_retard'
+        ? '<span class="badge-pill" style="background:rgba(239,68,68,0.15); color:var(--red); flex-shrink:0;">En retard</span>'
+        : l.statut === 'a_jour' ? '<span class="badge-pill" style="background:rgba(34,197,94,0.15); color:var(--green); flex-shrink:0;">À jour</span>' : '';
       return `
-        <div class="locataire-carte ${classeStatut}" onclick="ouvrirFicheLocataire('${l.id}', 'liste')">
-          <div class="locataire-carte-nom">${echapper(l.nom)}</div>
-          <div class="locataire-carte-souttitre">${l.lotId ? `<a href="#" onclick="event.stopPropagation(); ouvrirFicheLot('${l.lotId}'); return false;" style="color:inherit;">${echapper(l.sousTitre)}</a>` : echapper(l.sousTitre)}</div>
-          <div class="locataire-carte-bas">
-            ${l.loyer !== null ? `<div class="locataire-carte-loyer">${l.loyer.toLocaleString('fr-FR')} € <span class="unite">/ mois</span></div>` : '<div></div>'}
-            ${texteStatut}
+        <div class="locataire-carte" onclick="ouvrirFicheLocataire('${l.id}', 'liste')">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+            <div>
+              <div class="locataire-carte-nom">${echapper(l.nom)}</div>
+              <div class="locataire-carte-souttitre">${l.lotId ? `<a href="#" onclick="event.stopPropagation(); ouvrirFicheLot('${l.lotId}'); return false;" style="color:inherit;">${echapper(l.sousTitre)}</a>` : echapper(l.sousTitre)}</div>
+            </div>
+            ${badgeStatut}
           </div>
+          ${l.loyer !== null ? `<div class="locataire-carte-loyer" style="margin-top:10px;">${l.loyer.toLocaleString('fr-FR')} € <span class="unite">/ mois</span></div>` : ''}
           ${(l.email || l.telephone) ? `<div class="locataire-carte-icons" onclick="event.stopPropagation()">
             ${l.email ? `<a class="icon-btn-round" href="mailto:${echapper(l.email)}" title="${echapper(l.email)}" aria-label="Envoyer un email">✉️</a>` : ''}
             ${l.telephone ? `<a class="icon-btn-round" href="tel:${echapper(l.telephone)}" title="${echapper(l.telephone)}" aria-label="Appeler">📞</a>` : ''}
@@ -5983,23 +6020,78 @@ Durée : du {{date_debut}} au {{date_fin}}
     const { data: txs } = await supabaseClient.from('transactions').select('type, montant').eq('structure_id', currentStructureFiscaliteId).gte('date', debut).lte('date', fin);
     const resultatTotal = (txs || []).filter(t => t.type === 'recette').reduce((a, t) => a + Number(t.montant), 0) - (txs || []).filter(t => t.type === 'depense').reduce((a, t) => a + Number(t.montant), 0);
 
-    const { data: associes, error } = await supabaseClient.from('associes').select('nom, quote_part').eq('structure_id', currentStructureFiscaliteId).order('created_at');
+    const { data: associes, error } = await supabaseClient.from('associes').select('id, nom, quote_part').eq('structure_id', currentStructureFiscaliteId).order('created_at');
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
     if (!associes || !associes.length) { div.innerHTML = '<div class="empty-state">Aucun associé renseigné.</div>'; return; }
 
+    cacheAssociesActuels = associes;
     div.innerHTML = associes.map(a => {
       const part = resultatTotal * (Number(a.quote_part) / 100);
-      return `<div class="fisc-assoc-row">
+      return `
+      <div class="fisc-assoc-row" id="assoc-affichage-${a.id}">
         <span>${echapper(a.nom)}</span><span>${a.quote_part} %</span><span>${part.toLocaleString('fr-FR')} €</span>
-        <span class="small">À déclarer</span>
+        <span>
+          <a href="#" onclick="ouvrirEditionAssocie('${a.id}'); return false;" aria-label="Modifier">✏️</a>
+          <a href="#" onclick="supprimerAssocie('${a.id}'); return false;" style="color:var(--red); margin-left:8px;" aria-label="Supprimer">✕</a>
+        </span>
+      </div>
+      <div id="assoc-edition-${a.id}" style="display:none; padding:10px 4px; border-bottom:1px solid var(--border);">
+        <div style="display:flex; gap:8px;">
+          <input id="editNomAssocie-${a.id}" value="${echapper(a.nom)}" style="flex:2;">
+          <input id="editQuotePartAssocie-${a.id}" type="number" min="0" max="100" value="${a.quote_part}" style="flex:1;">
+          <button class="btn-primary" style="width:auto; padding:8px 14px;" onclick="enregistrerModifAssocie('${a.id}')">OK</button>
+          <button class="btn-secondary" style="width:auto; padding:8px 14px;" onclick="ouvrirEditionAssocie('${a.id}')">Annuler</button>
+        </div>
       </div>`;
     }).join('');
+  }
+
+  let cacheAssociesActuels = [];
+
+  function ouvrirEditionAssocie(id) {
+    const affichage = document.getElementById('assoc-affichage-' + id);
+    const edition = document.getElementById('assoc-edition-' + id);
+    const enEdition = edition.style.display === 'block';
+    edition.style.display = enEdition ? 'none' : 'block';
+    affichage.style.display = enEdition ? 'grid' : 'none';
+  }
+
+  async function enregistrerModifAssocie(id) {
+    const nom = document.getElementById('editNomAssocie-' + id).value;
+    const quotePart = document.getElementById('editQuotePartAssocie-' + id).value;
+    if (!nom || !quotePart) return alert('Nom et quote-part requis');
+
+    const totalAutres = cacheAssociesActuels.filter(a => a.id !== id).reduce((a, ass) => a + Number(ass.quote_part), 0);
+    if (totalAutres + parseFloat(quotePart) > 100) {
+      return alert(`Impossible : ${totalAutres}% sont déjà répartis entre les autres associés. Cette part (${quotePart}%) ferait dépasser 100%.`);
+    }
+
+    const { error } = await supabaseClient.from('associes').update({ nom, quote_part: parseFloat(quotePart) }).eq('id', id);
+    if (error) return alert('Erreur : ' + error.message);
+    chargerAssocies();
+  }
+
+  async function supprimerAssocie(id) {
+    if (!confirm('Supprimer cet associé ?')) return;
+    const { error } = await supabaseClient.from('associes').delete().eq('id', id);
+    if (error) return alert('Erreur : ' + error.message);
+    chargerAssocies();
   }
 
   async function ajouterAssocie() {
     const nom = document.getElementById('nomAssocie').value;
     const quotePart = document.getElementById('quotePartAssocie').value;
     if (!nom || !quotePart) return alert('Nom et quote-part requis');
+
+    // Une SCI ne peut jamais avoir plus de 100% de parts réparties au total — vérifié ici pour
+    // un retour immédiat, mais la vraie protection vit dans un déclencheur côté base (sprint 68),
+    // jamais uniquement côté client.
+    const { data: associesExistants } = await supabaseClient.from('associes').select('quote_part').eq('structure_id', currentStructureFiscaliteId);
+    const totalActuel = (associesExistants || []).reduce((a, ass) => a + Number(ass.quote_part), 0);
+    if (totalActuel + parseFloat(quotePart) > 100) {
+      return alert(`Impossible : ${totalActuel}% sont déjà répartis entre les associés existants. Cette part (${quotePart}%) ferait dépasser 100%.`);
+    }
+
     const { error } = await supabaseClient.from('associes').insert({ structure_id: currentStructureFiscaliteId, nom, quote_part: parseFloat(quotePart) });
     if (error) return alert('Erreur : ' + error.message);
     document.getElementById('nomAssocie').value = '';
