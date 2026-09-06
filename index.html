@@ -1479,9 +1479,19 @@
           <button class="btn-secondary" style="width:auto; padding:10px 18px;" onclick="exporterMesDonnees()">Exporter mes données (JSON)</button>
           <button class="btn-secondary" style="width:auto; padding:10px 18px; margin-left:8px; color:var(--red); border-color:var(--red);" onclick="ouvrirSuppressionDonnees()">Supprimer toutes mes données</button>
           <div id="panneauSuppressionDonnees" style="display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
-            <p class="small" style="color:var(--red); margin:0 0 8px;">Action définitive et irréversible : tous tes biens, locataires, baux, paiements et documents seront supprimés. Tape SUPPRIMER pour confirmer.</p>
+            <p class="small" style="color:var(--red); margin:0 0 8px;">Action définitive et irréversible : tous tes biens, locataires, baux, paiements et documents seront supprimés. Tu restes connecté avec un compte vide. Tape SUPPRIMER pour confirmer.</p>
             <input id="confirmationSuppressionDonnees" placeholder="SUPPRIMER">
             <button class="btn-secondary" style="color:var(--red); border-color:var(--red);" onclick="supprimerToutesMesDonnees()">Confirmer la suppression définitive</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Supprimer mon compte</h3>
+          <p class="small" style="margin:0 0 12px;">Supprime tes données <strong>et</strong> ton compte de connexion lui-même — tu ne pourras plus jamais te reconnecter avec cet email.</p>
+          <button class="btn-secondary" style="width:auto; padding:10px 18px; color:var(--red); border-color:var(--red);" onclick="ouvrirSuppressionCompte()">Supprimer mon compte définitivement</button>
+          <div id="panneauSuppressionCompte" style="display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
+            <p class="small" style="color:var(--red); margin:0 0 8px;">Action définitive et irréversible : données ET compte supprimés. Tape SUPPRIMER MON COMPTE pour confirmer.</p>
+            <input id="confirmationSuppressionCompte" placeholder="SUPPRIMER MON COMPTE">
+            <button class="btn-secondary" style="color:var(--red); border-color:var(--red);" onclick="supprimerMonCompteDefinitivement()">Confirmer la suppression du compte</button>
           </div>
         </div>
         <div class="card">
@@ -1824,6 +1834,27 @@
   window.addEventListener('error', (e) => logErreur('erreur_js_non_geree', e.error || e.message));
   window.addEventListener('unhandledrejection', (e) => logErreur('promesse_rejetee_non_geree', e.reason));
 
+  // Relance automatique — STRICTEMENT réservée aux LECTURES (select). Ne jamais l'utiliser sur une
+  // écriture (insert/update/delete) : si la requête a en fait réussi côté serveur malgré une erreur
+  // réseau côté client, une relance créerait un doublon ou une double action. Sans risque sur une
+  // lecture, qui peut être refaite autant de fois que nécessaire sans conséquence.
+  async function avecRetry(fonctionRequete, tentatives = 2, delaiMs = 800) {
+    let derniereErreur = null;
+    for (let essai = 0; essai <= tentatives; essai++) {
+      try {
+        const resultat = await fonctionRequete();
+        if (!resultat.error) return resultat;
+        derniereErreur = resultat.error;
+      } catch (exception) {
+        // Panne réseau totale (pas une erreur "propre" renvoyée par Supabase) — doit aussi
+        // déclencher une nouvelle tentative, exactement comme une erreur classique.
+        derniereErreur = exception;
+      }
+      if (essai < tentatives) await new Promise(r => setTimeout(r, delaiMs));
+    }
+    return { data: null, error: derniereErreur };
+  }
+
   // Échappe tout texte saisi par l'utilisateur avant de l'injecter dans le HTML — protection XSS.
   // Utiliser SYSTÉMATIQUEMENT sur les champs texte libres (nom, adresse, email, description...)
   // avant de les insérer via innerHTML. Les nombres/dates n'en ont pas besoin.
@@ -2147,7 +2178,7 @@
     const moisDate = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-01';
     document.getElementById('dashPeriode').textContent = now.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
 
-    const { data: structures, error: errStructures } = await supabaseClient.from('structures').select('id').order('created_at');
+    const { data: structures, error: errStructures } = await avecRetry(() => supabaseClient.from('structures').select('id').order('created_at'));
     if (errStructures) logErreur('chargement_structures_dashboard', errStructures);
     const structIds = (structures || []).map(s => s.id);
     const { data: immeublesExistants, error: errImmeubles } = structIds.length
@@ -2297,11 +2328,11 @@
       { data: immeublesDpe }, { data: tousBauxActifsDash },
       { data: locatairesAssurance }, { data: documentsExpirantsDash }
     ] = await Promise.all([
-      supabaseClient.from('paiements').select('*, baux(lots(nom, type, immeuble_id, immeubles(adresse, structure_id)))').eq('statut', 'en_retard'),
-      supabaseClient.from('baux').select('*, lots(nom, type, immeubles(adresse, structure_id))').eq('statut', 'actif').not('date_fin', 'is', null).lte('date_fin', dans30jours.toISOString().split('T')[0]).gte('date_fin', aujourdhui),
+      supabaseClient.from('paiements').select('mois, montant_loyer, montant_charges, baux(lot_id, lots(nom, type, immeuble_id, immeubles(adresse, structure_id)))').eq('statut', 'en_retard'),
+      supabaseClient.from('baux').select('date_debut, date_fin, lot_id, lots(nom, type, immeubles(adresse, structure_id))').eq('statut', 'actif').not('date_fin', 'is', null).lte('date_fin', dans30jours.toISOString().split('T')[0]).gte('date_fin', aujourdhui),
       supabaseClient.from('taches').select('id').in('structure_id', structIds).eq('fait', false).not('date_echeance', 'is', null).lt('date_echeance', aujourdhui),
       supabaseClient.from('immeubles').select('id, adresse, dpe_date_expiration').in('structure_id', structIds).not('dpe_date_expiration', 'is', null).lte('dpe_date_expiration', dans60jours.toISOString().split('T')[0]),
-      supabaseClient.from('baux').select('*, lots(nom, type, immeuble_id, immeubles(adresse, structure_id))').eq('statut', 'actif'),
+      supabaseClient.from('baux').select('date_debut, date_fin, lot_id, lots(nom, type, immeuble_id, immeubles(adresse, structure_id))').eq('statut', 'actif'),
       supabaseClient.from('locataires').select('id, nom, assurance_expiration').in('structure_id', structIds).not('assurance_expiration', 'is', null).lte('assurance_expiration', dans60jours.toISOString().split('T')[0]),
       supabaseClient.from('documents').select('id, nom, storage_path, expiration_date').in('structure_id', structIds).not('expiration_date', 'is', null).lte('expiration_date', dans60jours.toISOString().split('T')[0]).order('expiration_date').limit(2)
     ]);
@@ -2644,7 +2675,7 @@
 
     // 1 seul aller-retour réseau au lieu de 4 en cascade (structures → immeubles → lots → baux) —
     // tout le travail de jointure se fait désormais côté base, dans une seule fonction.
-    const { data: donnees, error: errDonnees } = await supabaseClient.rpc('charger_donnees_patrimoine');
+    const { data: donnees, error: errDonnees } = await avecRetry(() => supabaseClient.rpc('charger_donnees_patrimoine'));
     if (errDonnees) { logErreur('charger_donnees_patrimoine', errDonnees); div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
 
     const structureIds = donnees.structure_ids || [];
@@ -2951,7 +2982,7 @@
       const { data: lots } = await supabaseClient.from('lots').select('id, nom, type').in('id', lotIds);
       (lots || []).forEach(l => lotParId[l.id] = l);
 
-      const { data: baux } = await supabaseClient.from('baux').select('*, lots(nom, type)').in('lot_id', lotIds);
+      const { data: baux } = await supabaseClient.from('baux').select('id, lots(nom, type)').in('lot_id', lotIds);
       (baux || []).forEach(b => bailParId[b.id] = b);
       const bailIds = (baux || []).map(b => b.id);
 
@@ -3316,7 +3347,7 @@
     currentLotId = id;
     hideAllPages();
     document.getElementById('page-fiche-lot').style.display = 'block';
-    const { data: lot } = await supabaseClient.from('lots').select('*, immeubles(structure_id, adresse)').eq('id', id).single();
+    const { data: lot } = await supabaseClient.from('lots').select('id, nom, type, surface, statut, loyer, chauffage_montant, eau_montant, valeur_estimee, dette_restante, taxe_fonciere_annuelle, immeuble_id, immeubles(structure_id, adresse)').eq('id', id).single();
     currentLotStructureId = lot.immeubles.structure_id;
 
     document.getElementById('lotTitre').textContent = lot.nom || lot.type;
@@ -3468,7 +3499,7 @@
 
   // Génère un courrier PDF pour chaque locataire du bail, classé dans ses documents (catégorie "revision_loyer")
   async function genererNotificationRevisionIrl(bailId, ancienLoyer, nouveauLoyer, trimestre) {
-    const { data: bail } = await supabaseClient.from('baux').select('*, lots(nom, type, immeubles(adresse, ville, structure_id, structures(nom)))').eq('id', bailId).single();
+    const { data: bail } = await supabaseClient.from('baux').select('lots(nom, type, immeubles(adresse, ville, structure_id, structures(nom)))').eq('id', bailId).single();
     if (!bail) return;
     const lot = bail.lots;
     const immeuble = lot.immeubles;
@@ -4531,6 +4562,7 @@
   async function allerLocataires() {
     setActiveNav('nav-locataires'); hideAllPages();
     document.getElementById('page-locataires').style.display = 'block';
+    nbAffichesLocataires = 30;
     chargerBiensPourLocataireRapide();
     const div = document.getElementById('listeLocatairesGlobale');
     div.textContent = 'Chargement...';
@@ -4586,8 +4618,11 @@
   }
 
   function filtrerListeLocataires() {
+    nbAffichesLocataires = 30;
     rendreListeLocataires();
   }
+
+  let nbAffichesLocataires = 30;
 
   function rendreListeLocataires() {
     const div = document.getElementById('listeLocatairesGlobale');
@@ -4602,7 +4637,7 @@
 
     if (!items.length) { div.innerHTML = '<div class="empty-state">Aucun locataire ne correspond.</div>'; return; }
 
-    div.innerHTML = `<div class="locataires-grid">` + items.map(l => {
+    div.innerHTML = `<div class="locataires-grid">` + items.slice(0, nbAffichesLocataires).map(l => {
       const classeStatut = l.statut === 'en_retard' ? 'statut-retard' : l.statut === 'a_jour' ? 'statut-ajour' : '';
       const texteStatut = l.statut === 'en_retard'
         ? '<span class="locataire-carte-statut-texte" style="color:var(--red);">En retard</span>'
@@ -4621,7 +4656,12 @@
           </div>` : ''}
         </div>
       `;
-    }).join('') + `</div>`;
+    }).join('') + `</div>` + (items.length > nbAffichesLocataires ? `<button class="btn-secondary" style="width:100%; margin-top:12px;" onclick="afficherPlusLocataires()">Afficher les ${items.length - nbAffichesLocataires} autres</button>` : '');
+  }
+
+  function afficherPlusLocataires() {
+    nbAffichesLocataires += 30;
+    rendreListeLocataires();
   }
 
   // ---------- LOYERS (calendrier) ----------
@@ -4670,7 +4710,7 @@
     const moisIdx = moisLoyersCourant.getMonth();
     const moisDate = annee + '-' + String(moisIdx + 1).padStart(2, '0') + '-01';
 
-    const { data: baux, error } = await supabaseClient.from('baux').select('*, lots(nom, type, immeuble_id, immeubles(adresse))').eq('statut', 'actif');
+    const { data: baux, error } = await supabaseClient.from('baux').select('id, lot_id, loyer, charges, date_debut, date_fin, lots(nom, type, immeuble_id, immeubles(adresse))').eq('statut', 'actif');
     if (error) return;
     let bauxStructure = (baux || []).filter(b => b.lots && b.lots.immeubles);
     if (immeubleFiltre) bauxStructure = bauxStructure.filter(b => b.lots.immeuble_id === immeubleFiltre);
@@ -5002,7 +5042,7 @@
   // L'ENVOI PAR EMAIL n'est pas encore branché — dès que la clé API Resend sera configurée,
   // il suffira d'appeler envoyerQuittanceParEmail(...) juste après l'upload ci-dessous (voir le TODO).
   async function genererQuittanceAuto(paiementId) {
-    const { data: paiement } = await supabaseClient.from('paiements').select('*, baux(*, lots(nom, type, immeubles(adresse, ville, structure_id, structures(nom))))').eq('id', paiementId).single();
+    const { data: paiement } = await supabaseClient.from('paiements').select('montant_loyer, montant_charges, mois, baux(id, lots(nom, type, immeubles(adresse, ville, structure_id, structures(nom))))').eq('id', paiementId).single();
     if (!paiement || !paiement.baux) return;
     const bail = paiement.baux;
     const lot = bail.lots;
@@ -5358,24 +5398,54 @@ Le bailleur donne quittance au locataire pour le paiement ci-dessus et lui donne
     panneau.style.display = panneau.style.display === 'block' ? 'none' : 'block';
   }
 
-  async function supprimerToutesMesDonnees() {
-    if (document.getElementById('confirmationSuppressionDonnees').value !== 'SUPPRIMER') return alert('Tape exactement SUPPRIMER pour confirmer.');
-    if (!confirm('Dernière confirmation : toutes tes données seront supprimées définitivement. Continuer ?')) return;
+  function ouvrirSuppressionCompte() {
+    const panneau = document.getElementById('panneauSuppressionCompte');
+    panneau.style.display = panneau.style.display === 'block' ? 'none' : 'block';
+  }
 
+  // Partagée par "Supprimer mes données" et "Supprimer mon compte" — le nettoyage des données
+  // est rigoureusement identique dans les deux cas, seule la suite diffère (rester connecté
+  // avec un compte vide, ou supprimer le compte d'authentification lui-même en plus).
+  async function nettoyerToutesLesDonnees() {
     const { data: structures } = await supabaseClient.from('structures').select('id');
     const structureIds = (structures || []).map(s => s.id);
-    if (!structureIds.length) return alert('Aucune donnée à supprimer.');
+    if (!structureIds.length) return true;
 
-    // Les documents ne sont pas nettoyés par cascade (entité polymorphe) : on les retire nous-mêmes.
     const { data: docs } = await supabaseClient.from('documents').select('storage_path').in('structure_id', structureIds);
     if (docs && docs.length) {
       await supabaseClient.storage.from('documents').remove(docs.map(d => d.storage_path));
     }
 
     const { error } = await supabaseClient.from('structures').delete().in('id', structureIds);
-    if (error) return alert('Erreur : ' + error.message);
+    if (error) { alert('Erreur : ' + error.message); return false; }
+    return true;
+  }
+
+  async function supprimerToutesMesDonnees() {
+    if (document.getElementById('confirmationSuppressionDonnees').value !== 'SUPPRIMER') return alert('Tape exactement SUPPRIMER pour confirmer.');
+    if (!confirm('Dernière confirmation : toutes tes données seront supprimées définitivement. Continuer ?')) return;
+
+    const { data: structuresCheck } = await supabaseClient.from('structures').select('id').limit(1);
+    if (!structuresCheck || !structuresCheck.length) return alert('Aucune donnée à supprimer.');
+
+    const succes = await nettoyerToutesLesDonnees();
+    if (!succes) return;
 
     alert('Toutes tes données ont été supprimées. Tu vas être déconnecté.');
+    seDeconnecter();
+  }
+
+  async function supprimerMonCompteDefinitivement() {
+    if (document.getElementById('confirmationSuppressionCompte').value !== 'SUPPRIMER MON COMPTE') return alert('Tape exactement SUPPRIMER MON COMPTE pour confirmer.');
+    if (!confirm('Dernière confirmation : ton compte et toutes tes données seront supprimés définitivement, sans retour possible. Continuer ?')) return;
+
+    const succes = await nettoyerToutesLesDonnees();
+    if (!succes) return;
+
+    const { error } = await supabaseClient.rpc('supprimer_mon_compte_definitivement');
+    if (error) { logErreur('supprimer_compte', error); return alert('Tes données ont été supprimées, mais la suppression du compte a échoué : ' + error.message + '. Contacte le support.'); }
+
+    alert('Ton compte a été supprimé définitivement.');
     seDeconnecter();
   }
 
@@ -5608,7 +5678,7 @@ Durée : du {{date_debut}} au {{date_fin}}
 
   async function collecterAlertes() {
     const items = [];
-    const { data: paiements } = await supabaseClient.from('paiements').select('*, baux(lot_id, lots(nom, type, immeuble_id, immeubles(adresse)))').eq('statut', 'en_retard').order('mois');
+    const { data: paiements } = await supabaseClient.from('paiements').select('mois, baux(lot_id, lots(nom, type, immeuble_id, immeubles(adresse)))').eq('statut', 'en_retard').order('mois');
     (paiements || []).forEach(p => {
       const lot = p.baux && p.baux.lots ? p.baux.lots : null;
       const immeuble = lot && lot.immeubles ? lot.immeubles.adresse : '';
@@ -5617,7 +5687,7 @@ Durée : du {{date_debut}} au {{date_fin}}
 
     const dansSoixanteJours = new Date(); dansSoixanteJours.setDate(dansSoixanteJours.getDate() + 60);
     const today = new Date().toISOString().split('T')[0];
-    const { data: baux } = await supabaseClient.from('baux').select('*, lots(id, nom, type, immeubles(adresse))').eq('statut', 'actif').not('date_fin', 'is', null).gte('date_fin', today).lte('date_fin', dansSoixanteJours.toISOString().split('T')[0]).order('date_fin');
+    const { data: baux } = await supabaseClient.from('baux').select('date_fin, lots(id, nom, type, immeubles(adresse))').eq('statut', 'actif').not('date_fin', 'is', null).gte('date_fin', today).lte('date_fin', dansSoixanteJours.toISOString().split('T')[0]).order('date_fin');
     (baux || []).forEach(b => {
       const lot = b.lots;
       const immeuble = lot && lot.immeubles ? lot.immeubles.adresse : '';
@@ -5632,7 +5702,7 @@ Durée : du {{date_debut}} au {{date_fin}}
     });
 
     // Bail révisable : date anniversaire de signature dans les 60 prochains jours (moment légal de révision IRL)
-    const { data: bauxPourRevision } = await supabaseClient.from('baux').select('*, lots(id, nom, type, immeubles(adresse))').eq('statut', 'actif');
+    const { data: bauxPourRevision } = await supabaseClient.from('baux').select('date_debut, lots(id, nom, type, immeubles(adresse))').eq('statut', 'actif');
     (bauxPourRevision || []).forEach(b => {
       const debut = new Date(b.date_debut);
       const maintenant = new Date();
@@ -5719,15 +5789,20 @@ Durée : du {{date_debut}} au {{date_fin}}
     chargerTaches();
   }
 
-  async function chargerTaches() {
+  let offsetTaches = 0;
+  const PAGE_SIZE_TACHES = 30;
+
+  async function chargerTaches(chargerPlus) {
     const structureId = document.getElementById('structureTaches').value;
     const div = document.getElementById('listeTaches');
     if (!structureId) { div.innerHTML = '<div class="empty-state">Sélectionne une structure.</div>'; return; }
-    div.textContent = 'Chargement...';
-    const { data: taches, error } = await supabaseClient.from('taches').select('id, titre, fait, date_echeance').eq('structure_id', structureId).order('fait').order('date_echeance', { nullsFirst: false });
+    if (!chargerPlus) { offsetTaches = 0; div.textContent = 'Chargement...'; }
+    const { data: taches, error } = await supabaseClient.from('taches').select('id, titre, fait, date_echeance').eq('structure_id', structureId).order('fait').order('date_echeance', { nullsFirst: false }).range(offsetTaches, offsetTaches + PAGE_SIZE_TACHES - 1);
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
-    if (!taches || !taches.length) { div.innerHTML = '<div class="empty-state">Aucune tâche.</div>'; return; }
-    div.innerHTML = taches.map(t => `
+    if (!chargerPlus && (!taches || !taches.length)) { div.innerHTML = '<div class="empty-state">Aucune tâche.</div>'; return; }
+    const btnExistant = document.getElementById('btnPlusTaches');
+    if (btnExistant) btnExistant.remove();
+    const html = (taches || []).map(t => `
       <div class="tache-row ${t.fait ? 'fait' : ''}" id="tache-affichage-${t.id}">
         <input type="checkbox" class="tache-check" ${t.fait ? 'checked' : ''} onchange="basculerTache('${t.id}', this.checked)">
         <span class="titre">${echapper(t.titre)}</span>
@@ -5743,6 +5818,11 @@ Durée : du {{date_debut}} au {{date_fin}}
         </div>
       </div>
     `).join('');
+    if (chargerPlus) div.insertAdjacentHTML('beforeend', html); else div.innerHTML = html;
+    offsetTaches += PAGE_SIZE_TACHES;
+    if (taches && taches.length === PAGE_SIZE_TACHES) {
+      div.insertAdjacentHTML('beforeend', `<button class="btn-secondary" id="btnPlusTaches" style="width:100%; margin-top:8px;" onclick="chargerTaches(true)">Charger plus</button>`);
+    }
   }
 
   function ouvrirEditTache(id, titreActuel, echeanceActuelle) {
@@ -5821,35 +5901,15 @@ Durée : du {{date_debut}} au {{date_fin}}
     const labelsRegime = { sci_ir: "SCI à l'IR", sci_is: "SCI à l'IS", nom_propre: 'Nom propre', sarl_immo: 'SARL immobilière', autre: 'Autre' };
     const structureIds = structures.map(s => s.id);
 
-    // Revenus réels : loyers + charges effectivement encaissés (paiements payés), retrouvés via immeuble → lot → bail
-    const { data: immeubles } = await supabaseClient.from('immeubles').select('id, structure_id').in('structure_id', structureIds);
-    const structureParImmeuble = {};
-    (immeubles || []).forEach(im => { structureParImmeuble[im.id] = im.structure_id; });
-    const tousImmeubleIds = (immeubles || []).map(im => im.id);
-
-    const { data: lots } = tousImmeubleIds.length ? await supabaseClient.from('lots').select('id, immeuble_id').in('immeuble_id', tousImmeubleIds) : { data: [] };
-    const structureParLot = {};
-    (lots || []).forEach(l => { structureParLot[l.id] = structureParImmeuble[l.immeuble_id]; });
-    const tousLotIds = (lots || []).map(l => l.id);
-
-    const { data: baux } = tousLotIds.length ? await supabaseClient.from('baux').select('id, lot_id').in('lot_id', tousLotIds) : { data: [] };
-    const structureParBail = {};
-    (baux || []).forEach(b => { structureParBail[b.id] = structureParLot[b.lot_id]; });
-    const tousBailIds = (baux || []).map(b => b.id);
-
-    const { data: paiements } = tousBailIds.length
-      ? await supabaseClient.from('paiements').select('bail_id, montant_loyer, montant_charges').in('bail_id', tousBailIds).eq('statut', 'paye').gte('mois', debut).lte('mois', fin)
-      : { data: [] };
-
+    // Revenus réels (via 1 seule RPC côté base plutôt que 4 requêtes en cascade) et charges
+    // réelles ne dépendent pas l'une de l'autre — parties en même temps.
+    const [{ data: revenusJson }, { data: toutesTxs }] = await Promise.all([
+      supabaseClient.rpc('calculer_revenus_fiscalite', { p_structure_ids: structureIds, p_debut: debut, p_fin: fin }),
+      supabaseClient.from('transactions').select('structure_id, montant').in('structure_id', structureIds).eq('type', 'depense').gte('date', debut).lte('date', fin)
+    ]);
     const revenusParStructure = {};
-    (paiements || []).forEach(p => {
-      const sId = structureParBail[p.bail_id];
-      if (!sId) return;
-      revenusParStructure[sId] = (revenusParStructure[sId] || 0) + Number(p.montant_loyer) + Number(p.montant_charges);
-    });
+    Object.keys(revenusJson || {}).forEach(sId => { revenusParStructure[sId] = Number(revenusJson[sId]); });
 
-    // Charges déductibles réelles : dépenses effectivement enregistrées (travaux, etc.), pas de simple prévision
-    const { data: toutesTxs } = await supabaseClient.from('transactions').select('structure_id, montant').in('structure_id', structureIds).eq('type', 'depense').gte('date', debut).lte('date', fin);
     const chargesParStructure = {};
     (toutesTxs || []).forEach(t => { chargesParStructure[t.structure_id] = (chargesParStructure[t.structure_id] || 0) + Number(t.montant); });
 
@@ -6010,7 +6070,7 @@ Durée : du {{date_debut}} au {{date_fin}}
     const bailIds = bauxStructure.map(b => b.id);
     if (!bailIds.length) { telechargerRapport('paiements', [['Aucun bail pour cette structure']], format); return; }
 
-    const { data: paiements, error } = await supabaseClient.from('paiements').select('*, baux(id)').in('bail_id', bailIds).order('mois');
+    const { data: paiements, error } = await supabaseClient.from('paiements').select('bail_id, mois, montant_loyer, montant_charges, statut, date_paiement').in('bail_id', bailIds).order('mois');
     if (error) return alert('Erreur : ' + error.message);
 
     const lignes = [['Mois', 'Lot', 'Immeuble', 'Loyer', 'Charges', 'Statut', 'Date de paiement']];
