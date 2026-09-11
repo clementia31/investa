@@ -169,6 +169,18 @@
     </div>
     <p class="small" style="color:var(--text-dim); margin-top:-6px;">Volume API, erreurs 24h et uploads échoués nécessitent un vrai outil de monitoring externe (non instrumenté ici) — à mettre en place avant une vraie montée en charge.</p>
 
+    <div class="section-title">5 — Locataires (espace locataire)</div>
+    <div class="grid-4">
+      <div class="stat-card"><div class="lbl">Locataires total</div><div class="val" id="lTotalLocataires">—</div></div>
+      <div class="stat-card"><div class="lbl">Avec compte actif</div><div class="val" id="lAvecCompte">—</div></div>
+      <div class="stat-card green"><div class="lbl">Connectés ≥1 fois</div><div class="val" id="lConnectes">—</div></div>
+      <div class="stat-card"><div class="lbl">Taux d'activation</div><div class="val" id="lActivation">—</div><div class="small">parmi ceux avec compte</div></div>
+    </div>
+    <div class="grid-3">
+      <div class="stat-card"><div class="lbl">Signalements (total)</div><div class="val" id="lSignalementsTotal">—</div></div>
+      <div class="stat-card amber"><div class="lbl">Signalements 30 jours</div><div class="val" id="lSignalements30j">—</div></div>
+    </div>
+
     <div class="card">
       <h3>Utilisateurs</h3>
       <table>
@@ -201,6 +213,7 @@
     }
     document.getElementById('app').style.display = 'block';
     chargerMetriques();
+    chargerMetriquesLocataires();
   }
 
   supabaseClient.auth.getSession().then(({ data: { session } }) => {
@@ -329,6 +342,21 @@
       div.style.display = 'block';
       div.innerHTML = `<p class="small" style="color:var(--red); margin:0;">⚠️ Nouvel indice IRL probablement disponible : <strong>${trimestreAttendu}</strong> — dernier enregistré en base : ${dernierEnBase || 'aucun'}. Vérifier sur insee.fr et l'ajouter.</p>`;
     }
+  }
+
+  async function chargerMetriquesLocataires() {
+    const { data, error } = await supabaseClient.rpc('admin_get_metrics_locataires');
+    if (error) {
+      document.getElementById('lTotalLocataires').textContent = 'Erreur';
+      console.error('chargerMetriquesLocataires:', error.message);
+      return;
+    }
+    document.getElementById('lTotalLocataires').textContent = data.total_locataires;
+    document.getElementById('lAvecCompte').textContent = data.avec_compte;
+    document.getElementById('lConnectes').textContent = data.connectes_au_moins_une_fois;
+    document.getElementById('lActivation').textContent = data.taux_activation + ' %';
+    document.getElementById('lSignalementsTotal').textContent = data.signalements_total;
+    document.getElementById('lSignalements30j').textContent = data.signalements_30j;
   }
 
   async function chargerUtilisateurs() {
