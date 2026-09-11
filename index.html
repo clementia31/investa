@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Investa — Gestion immobilière</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 500'%3E%3Cg fill='none' stroke='%234CAF50' stroke-width='18' stroke-linecap='square' stroke-linejoin='miter'%3E%3Cpath d='M33 476 V33 H167 V476'/%3E%3Cpath d='M33 476 H67 V354 L100 324 L133 354 V476 H167'/%3E%3Cpath d='M100 324 V476'/%3E%3C/g%3E%3C/svg%3E">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js" integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <style>
   :root {
     --bg: #0b1120;
@@ -342,12 +342,16 @@
     .fisc-table-header span:nth-child(3), .fisc-table-header span:nth-child(4),
     .fisc-assoc-row span:nth-child(3), .fisc-assoc-row span:nth-child(4) { display: none; }
   }
-  .locataire-carte { background: var(--panel); border-radius: 16px; padding: 20px; cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.25); transition: transform 0.15s; }
+  .locataire-carte { background: var(--panel); border-radius: 16px; padding: 20px 20px 20px 17px; cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.25); border-left: 3px solid var(--border); transition: transform 0.15s; }
   .locataire-carte:hover { transform: translateY(-1px); }
+  .locataire-carte.statut-retard { border-left-color: var(--red); }
+  .locataire-carte.statut-ajour { border-left-color: var(--green); }
   .locataire-carte-nom { font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; }
   .locataire-carte-souttitre { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 14px; }
+  .locataire-carte-bas { display: flex; justify-content: space-between; align-items: baseline; }
   .locataire-carte-loyer { font-size: 1.1rem; font-weight: 600; }
   .locataire-carte-loyer .unite { font-size: 0.72rem; color: var(--text-dim); font-weight: 400; }
+  .locataire-carte-statut-texte { font-size: 0.72rem; font-weight: 600; }
   .locataire-carte-icons { display: flex; gap: 6px; margin-top: 12px; }
   .locataire-carte-icons .icon-btn-round { width: 30px; height: 30px; font-size: 0.82rem; }
 
@@ -465,11 +469,22 @@
       <div class="logo-login-baseline">Gestion immobilière</div>
     </div>
   </div>
-  <input id="email" type="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Mot de passe">
-  <button class="btn-primary" onclick="seConnecter()">Se connecter</button>
-  <button class="btn-secondary" onclick="sInscrire()">Créer un compte</button>
-  <p style="text-align:center; margin-top:10px;"><a href="#" onclick="demanderReinitialisationMdp(); return false;" class="small">Mot de passe oublié ?</a></p>
+  <div class="quick-add-tabs">
+    <div class="quick-tab active" id="atOnglet-proprietaire" onclick="switchAuthTab('proprietaire')">Propriétaire</div>
+    <div class="quick-tab" id="atOnglet-locataire" onclick="switchAuthTab('locataire')">Locataire</div>
+  </div>
+  <div id="formAuthProprietaire">
+    <input id="email" type="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Mot de passe">
+    <button class="btn-primary" onclick="seConnecter()">Se connecter</button>
+    <button class="btn-secondary" onclick="sInscrire()">Créer un compte</button>
+    <p style="text-align:center; margin-top:10px;"><a href="#" onclick="demanderReinitialisationMdp(); return false;" class="small">Mot de passe oublié ?</a></p>
+  </div>
+  <div id="formAuthLocataire" style="display:none;">
+    <input id="emailLocataire" type="email" placeholder="Email">
+    <button class="btn-primary" onclick="envoyerLienLocataire()">Recevoir un lien de connexion</button>
+    <p class="small" style="text-align:center; margin-top:10px;">Aucun mot de passe requis — un lien te sera envoyé par email.</p>
+  </div>
   <p id="msg"></p>
 </div>
 
@@ -483,6 +498,18 @@
   <button class="btn-primary" onclick="validerNouveauMdp()">Enregistrer</button>
   <p id="msgReinit"></p>
 </div>
+
+<!-- ============ SÉLECTEUR DE RÔLE (double compte) ============ -->
+<div class="auth-wrap" id="selecteurRole" style="display:none;">
+  <div class="logo-login">
+    <svg class="logo-symbol-lg" viewBox="0 0 200 500"><use href="#investa-symbol"></use></svg>
+    <div class="logo-login-texte"><div class="logo-login-nom">INVESTA</div></div>
+  </div>
+  <p class="small" style="text-align:center; margin:0 0 16px;">Tu es à la fois propriétaire et locataire. Comment veux-tu te connecter ?</p>
+  <button class="btn-secondary" onclick="choisirRole('proprietaire')">Comme propriétaire</button>
+  <button class="btn-secondary" onclick="choisirRole('locataire')">Comme locataire</button>
+</div>
+
 
 <!-- ============ APP ============ -->
 <div id="app">
@@ -572,32 +599,28 @@
         </div>
 
         <div id="dashboardContenuNormal">
-          <div class="card" id="cardHeroDashboard" style="margin-bottom:16px;">
-            <div class="small" id="dashSalutation" style="margin-bottom:6px;">Bonjour 👋</div>
-            <div id="dashMessagePrincipal" style="font-size:1.5rem; font-weight:700; margin-bottom:4px;">—</div>
-            <div class="small" id="dashSousMessage"></div>
+          <div class="bandeau-patrimoine">
+            <div class="row-click" onclick="allerPatrimoine()"><span class="lbl">Valeur du patrimoine</span><span class="val" id="dashValeur">—</span></div>
+            <div class="row-click" onclick="allerLoyers()"><span class="lbl">Loyers attendus</span><span class="val" id="dashAttendu">—</span></div>
+            <div><span class="lbl">Taux d'occupation</span><span class="val" id="dashOccupation">—</span></div>
+            <div><span class="lbl">Dette restante</span><span class="val" id="dashDette">—</span></div>
           </div>
-
-          <div class="grid-2" style="margin-bottom:16px;">
+          <div style="margin-bottom:16px;">
+            <div class="small" style="margin-bottom:5px;" id="dashOccupationLabel">— % occupé</div>
+            <div class="progress-bar-track"><div class="progress-bar-fill" id="dashOccupationBarre" style="width:0%;"></div></div>
+          </div>
+          <div class="grid-2">
             <div class="card">
-              <div class="small" style="margin-bottom:6px;">Cash-flow ce mois</div>
-              <div style="font-size:1.3rem; font-weight:700;" id="dashCashflow">—</div>
-              <div id="dashChartCashflow" style="margin-top:10px;">Chargement...</div>
+              <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                <h3 style="margin:0;">Cash-flow mensuel</h3>
+                <span class="small" id="dashCashflow">—</span>
+              </div>
+              <div id="dashChartCashflow">Chargement...</div>
             </div>
-            <div class="card row-click" id="cardProchaineEcheance" style="display:none;">
-              <div class="small" style="margin-bottom:6px;">Prochaine échéance</div>
-              <div style="font-size:1.1rem; font-weight:700;" id="dashEcheanceTitre">—</div>
-              <div class="small" style="margin-top:2px;" id="dashEcheanceDetail"></div>
+            <div class="card">
+              <h3>À faire</h3>
+              <div id="dashAlertes">Chargement...</div>
             </div>
-            <div class="card" id="cardRienASignaler" style="display:none;">
-              <div class="small" style="margin-bottom:6px;">Prochaine échéance</div>
-              <div style="font-size:1.1rem; font-weight:700; color:var(--green);">Rien à signaler</div>
-            </div>
-          </div>
-
-          <div class="card" id="cardAFaireDashboard">
-            <h3>À faire</h3>
-            <div id="dashAlertes">Chargement...</div>
           </div>
         </div>
       </div>
@@ -737,23 +760,17 @@
         </div>
 
         <div id="tabcontent-vue">
-          <div class="card">
-            <div class="grid-2" style="margin-bottom:14px;">
-              <div>
-                <div class="small" style="text-transform:uppercase; letter-spacing:0.04em;">Valeur nette</div>
-                <div style="color:var(--green); font-size:1.3rem; font-weight:700; margin-top:3px;" id="immEquity">—</div>
-              </div>
-              <div>
-                <div class="small" style="text-transform:uppercase; letter-spacing:0.04em;">Rendement brut</div>
-                <div style="font-size:1.3rem; font-weight:700; margin-top:3px;" id="immRendement">—</div>
-              </div>
-            </div>
-            <div style="height:10px; border-radius:5px; overflow:hidden; display:flex; margin-bottom:6px;" id="immBarreActifPassif"></div>
-            <div style="display:flex; justify-content:space-between;" class="small" id="immLabelsActifPassif"></div>
-            <div style="display:flex; justify-content:space-between; margin-top:14px; padding-top:14px; border-top:1px solid var(--border);" class="small">
-              <span>Cash-flow annuel : <strong style="color:var(--text);" id="immCashflow">—</strong></span>
-              <span>Occupation : <strong style="color:var(--text);" id="immOccupation">—</strong></span>
-            </div>
+          <div class="grid-4" style="margin-bottom:0;">
+            <div class="stat-card"><div class="lbl">Valeur estimée</div><div class="val" id="immValeur">—</div></div>
+            <div class="stat-card red"><div class="lbl">Dette</div><div class="val" id="immDette">—</div></div>
+            <div class="stat-card green"><div class="lbl">Valeur nette</div><div class="val" id="immEquity">—</div></div>
+            <div class="stat-card"><div class="lbl">Occupation</div><div class="val" id="immOccupation">—</div></div>
+          </div>
+          <div class="grid-4" style="margin-top:12px;">
+            <div class="stat-card"><div class="lbl">Loyer annuel</div><div class="val" id="immLoyerAnnuel">—</div></div>
+            <div class="stat-card amber"><div class="lbl">Charges annuelles</div><div class="val" id="immCharges">—</div></div>
+            <div class="stat-card green"><div class="lbl">Cash-flow annuel</div><div class="val" id="immCashflow">—</div></div>
+            <div class="stat-card"><div class="lbl">Rendement brut</div><div class="val" id="immRendement">—</div></div>
           </div>
 
           <a href="#" onclick="ouvrirLoyersPourImmeuble(currentImmeubleData.structure_id, currentImmeubleId); return false;" style="display:inline-block; margin-top:10px; color:var(--accent); font-size:0.88rem;">Voir les loyers de ce bien →</a>
@@ -926,10 +943,10 @@
               <h3>Loyer</h3>
               <button class="btn-secondary btn-ajout-inline" id="btnModifierLoyerHaut" onclick="toggleEditionLoyerHaut()">Modifier</button>
             </div>
-            <div id="loyerHautAffichage" style="text-align:center; padding:6px 0;">
-              <div id="iconeStatutLotHero" style="width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:1.6rem; background:var(--panel-2);">🏠</div>
-              <div id="messageStatutLotHero" style="font-weight:700; font-size:1.1rem;">—</div>
-              <div id="sousMessageStatutLotHero" class="small" style="margin-top:4px;"></div>
+            <div id="loyerHautAffichage" class="grid-2" style="margin-bottom:0; grid-template-columns:repeat(3,1fr);">
+              <div class="stat-card"><div class="lbl">Loyer mensuel</div><div class="val" id="lotLoyer">—</div></div>
+              <div class="stat-card"><div class="lbl">Charges mensuelles</div><div class="val" id="lotCharges">—</div></div>
+              <div class="stat-card"><div class="lbl">Dépôt de garantie</div><div class="val" id="lotDepot">—</div></div>
             </div>
             <div id="loyerHautEdition" style="display:none;">
               <div class="grid-2" style="margin-bottom:0;">
@@ -1138,20 +1155,24 @@
       <!-- ===== FICHE LOCATAIRE ===== -->
       <div id="page-fiche-locataire" style="display:none;">
         <div class="breadcrumb-bar" id="breadcrumbLocataire"></div>
-        <div class="card" style="text-align:center;">
-          <div class="avatar" id="locAvatar" style="margin:0 auto 12px;"></div>
-          <h2 style="margin:0 0 4px 0;" id="locNom"></h2>
-          <div class="small" id="locSousTitre"></div>
-          <div style="margin-top:8px; display:flex; gap:6px; justify-content:center;" id="locBadges"></div>
-          <div style="margin-top:16px; display:flex; gap:24px; justify-content:center;" id="locContactIcons"></div>
-          <div class="loyer-mois-bloc" id="locLoyerMoisBloc" style="display:none; margin-top:16px; text-align:left;">
+        <div class="card">
+          <div style="display:flex; gap:16px; align-items:center;">
+            <div class="avatar" id="locAvatar"></div>
+            <div style="flex:1;">
+              <h2 style="margin:0 0 4px 0;" id="locNom"></h2>
+              <div class="small" id="locSousTitre"></div>
+              <div style="margin-top:8px; display:flex; gap:6px;" id="locBadges"></div>
+            </div>
+            <div style="display:flex; gap:8px;" id="locContactIcons"></div>
+            <button class="btn-secondary" style="padding:9px 16px; border-radius:8px; width:auto; color:var(--red); border-color:var(--red);" onclick="supprimerLocataire()">Supprimer</button>
+          </div>
+          <div class="loyer-mois-bloc" id="locLoyerMoisBloc" style="display:none;">
             <div>
               <p class="small" style="margin:0;" id="locLoyerMoisLabel"></p>
               <p class="loyer-mois-montant" id="locLoyerMoisMontant"></p>
             </div>
             <span class="badge-pill" id="locLoyerMoisStatut"></span>
           </div>
-          <a href="#" onclick="supprimerLocataire(); return false;" class="small" style="display:block; margin-top:16px; color:var(--red);">Supprimer ce locataire</a>
         </div>
 
         <div class="tabs">
@@ -1474,6 +1495,13 @@
           <p class="small" style="margin:0 0 10px;">Apparaît en tant que bailleur/propriétaire sur les quittances, bails et notifications générés automatiquement.</p>
           <input id="nomPatrimoine" placeholder="Mon patrimoine">
           <button class="btn-primary" style="width:auto; padding:10px 18px;" onclick="enregistrerNomPatrimoine()">Enregistrer</button>
+        </div>
+        <div class="card">
+          <h3>Aide & Support</h3>
+          <p class="small" style="margin:0 0 10px;">Une question, un bug à signaler ? Écris-nous directement.</p>
+          <input id="supportSujet" placeholder="Sujet">
+          <textarea id="supportMessage" rows="4" placeholder="Ton message" style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; resize:vertical; margin:5px 0;"></textarea>
+          <button class="btn-primary" style="width:auto; padding:10px 18px;" onclick="envoyerSupportParEmail()">Envoyer par email →</button>
         </div>
         <div class="card">
           <h3>Mes données</h3>
@@ -1810,6 +1838,83 @@
   </div>
 </div>
 
+<!-- ============ ESPACE LOCATAIRE ============ -->
+<div id="app-locataire" style="display:none;">
+  <div class="auth-wrap" style="max-width:420px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+      <div id="locHeaderNomBonjour" style="font-weight:600; font-size:1.05rem;">Bonjour</div>
+      <a href="#" onclick="seDeconnecter(); return false;" class="icon-btn-round" aria-label="Déconnexion">→</a>
+    </div>
+
+    <div class="card" id="cardLogementLocataireEsp" style="margin-bottom:12px;">
+      <div class="small" style="text-transform:uppercase; letter-spacing:0.03em; margin-bottom:4px;">Ton logement</div>
+      <div id="espLogementNom" style="font-weight:600;">—</div>
+      <div id="espLogementAdresse" class="small" style="margin-top:1px;">—</div>
+    </div>
+
+    <div class="card row-click" id="cardLoyerLocataireEsp" style="margin-bottom:12px; display:none;" onclick="ouvrirDetailLoyerLocataire()">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div class="small" style="text-transform:uppercase; letter-spacing:0.03em; margin-bottom:4px;" id="espLoyerLabel">Loyer</div>
+          <div id="espLoyerMontant" style="font-weight:600; font-size:1.1rem;">—</div>
+        </div>
+        <span class="badge-pill" id="espLoyerStatut"></span>
+      </div>
+    </div>
+
+    <div class="card row-click" id="cardBailLocataireEsp" style="margin-bottom:12px; display:none;" onclick="telechargerDocument(bailPdfPathLocataireEsp)">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div class="small" style="text-transform:uppercase; letter-spacing:0.03em; margin-bottom:4px;">Bail</div>
+          <div id="espBailDates" style="font-weight:600;">—</div>
+        </div>
+        <span style="color:var(--accent);">📄</span>
+      </div>
+    </div>
+
+    <h3 style="margin:16px 0 8px; font-size:0.95rem;">Quittances</h3>
+    <div class="card"><div id="espListeQuittances">Chargement...</div></div>
+  </div>
+
+  <!-- Panneau détail du loyer (remonte du bas) -->
+  <div id="modalDetailLoyerLocataire" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:flex-end; justify-content:center;">
+    <div class="card" style="max-width:420px; width:100%; margin:0; border-radius:16px 16px 0 0;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <h3 style="margin:0;" id="espDetailMoisTitre">—</h3>
+        <span class="badge-pill" id="espDetailStatut"></span>
+      </div>
+      <p class="small" id="espDetailDatePaiement" style="margin:0 0 14px;"></p>
+      <div class="row"><span class="small">Loyer hors charges</span><span id="espDetailLoyerHC">—</span></div>
+      <div class="row"><span class="small">Charges</span><span id="espDetailCharges">—</span></div>
+      <div class="row" style="font-weight:600;"><span>Total payé</span><span id="espDetailTotal">—</span></div>
+      <button class="btn-secondary" style="width:100%; margin-top:14px;" id="espDetailBtnQuittance" onclick="telechargerDocument(espDetailStoragePathQuittance)">Télécharger la quittance</button>
+      <button class="btn-secondary" style="width:100%; margin-top:8px;" onclick="fermerDetailLoyerLocataire()">Fermer</button>
+    </div>
+  </div>
+
+  <!-- Bouton flottant "+" -->
+  <button class="icon-btn-round" style="position:fixed; bottom:24px; right:24px; width:56px; height:56px; font-size:1.5rem; background:var(--accent); color:white; border:none; box-shadow:0 4px 14px rgba(59,130,246,0.4);" onclick="ouvrirSignalementLocataire()" aria-label="Signaler un problème">+</button>
+
+  <!-- Modal signalement -->
+  <div id="modalSignalementLocataire" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
+    <div class="card" style="max-width:420px; width:90%;">
+      <h3 style="margin-top:0;">Signaler un problème</h3>
+      <select id="signalementType">
+        <option value="fuite">Fuite</option>
+        <option value="panne">Panne</option>
+        <option value="autre">Autre</option>
+      </select>
+      <textarea id="signalementDescription" rows="3" placeholder="Décris le problème" style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; resize:vertical; margin:5px 0;"></textarea>
+      <input type="file" id="signalementPhoto" accept="image/*">
+      <div style="display:flex; gap:8px; margin-top:10px;">
+        <button class="btn-primary" style="flex:1;" onclick="envoyerSignalementLocataire()">Envoyer au propriétaire</button>
+        <button class="btn-secondary" style="flex:1;" onclick="fermerSignalementLocataire()">Annuler</button>
+      </div>
+      <p id="msgSignalement" class="small" style="margin-top:8px;"></p>
+    </div>
+  </div>
+</div>
+
 <script>
   const SUPABASE_URL = 'https://rhpjttobvyofpauccbrj.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_GKzraD5eOxGYVB9SXWXY5g_UMXbw-Zz';
@@ -1998,17 +2103,202 @@
   async function seDeconnecter() {
     await supabaseClient.auth.signOut();
     document.getElementById('app').style.display = 'none';
+    document.getElementById('app-locataire').style.display = 'none';
+    document.getElementById('selecteurRole').style.display = 'none';
     document.getElementById('auth').style.display = 'block';
   }
 
+  // Détermine si le compte connecté est propriétaire (membre d'au moins une structure),
+  // locataire (email correspondant à une fiche locataire), ou les deux — et affiche
+  // l'interface correspondante. Si les deux, laisse la personne choisir.
   async function afficherApp() {
     const { data: { user } } = await supabaseClient.auth.getUser();
     if (!user) return;
+
+    const [{ data: mesStructures }, { data: mesFichesLocataire }] = await Promise.all([
+      supabaseClient.from('structures').select('id').limit(1),
+      supabaseClient.from('locataires').select('id').ilike('email', user.email).limit(1)
+    ]);
+    const estProprietaire = !!(mesStructures && mesStructures.length);
+    const estLocataire = !!(mesFichesLocataire && mesFichesLocataire.length);
+
     document.getElementById('auth').style.display = 'none';
+
+    if (estProprietaire && estLocataire) {
+      document.getElementById('selecteurRole').style.display = 'block';
+      return;
+    }
+    if (estLocataire) { afficherAppLocataire(); return; }
+    afficherAppProprietaire();
+  }
+
+  function choisirRole(role) {
+    document.getElementById('selecteurRole').style.display = 'none';
+    if (role === 'locataire') afficherAppLocataire(); else afficherAppProprietaire();
+  }
+
+  async function afficherAppProprietaire() {
+    document.getElementById('app-locataire').style.display = 'none';
     document.getElementById('app').style.display = 'block';
+    const { data: { user } } = await supabaseClient.auth.getUser();
     document.getElementById('userEmail').textContent = user.email;
     allerDashboard();
   }
+
+  function afficherAppLocataire() {
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('app-locataire').style.display = 'block';
+    chargerEspaceLocataire();
+  }
+
+  function switchAuthTab(role) {
+    document.getElementById('atOnglet-proprietaire').classList.toggle('active', role === 'proprietaire');
+    document.getElementById('atOnglet-locataire').classList.toggle('active', role === 'locataire');
+    document.getElementById('formAuthProprietaire').style.display = role === 'proprietaire' ? 'block' : 'none';
+    document.getElementById('formAuthLocataire').style.display = role === 'locataire' ? 'block' : 'none';
+    document.getElementById('msg').textContent = '';
+  }
+
+  async function envoyerLienLocataire() {
+    const email = document.getElementById('emailLocataire').value.trim();
+    const msgDiv = document.getElementById('msg');
+    if (!email) { msgDiv.textContent = 'Email requis.'; return; }
+    const { error } = await supabaseClient.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin } });
+    if (error) { msgDiv.textContent = traduireErreurAuth(error); return; }
+    msgDiv.textContent = 'Lien envoyé — vérifie ta boîte mail (et les spams).';
+  }
+
+  // ---------- ESPACE LOCATAIRE ----------
+  let currentLocataireIdEsp = null;
+  let bailPdfPathLocataireEsp = null;
+  let paiementMoisCourantEsp = null;
+  let espDetailStoragePathQuittance = null;
+
+  async function chargerEspaceLocataire() {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    const { data: locataire, error } = await supabaseClient.from('locataires').select('id, nom, structure_id').ilike('email', user.email).limit(1).maybeSingle();
+    if (error || !locataire) { alert('Impossible de charger ton espace.'); return; }
+    currentLocataireIdEsp = locataire.id;
+    document.getElementById('locHeaderNomBonjour').textContent = 'Bonjour ' + (locataire.nom || '').split(' ')[0];
+
+    document.getElementById('cardLoyerLocataireEsp').style.display = 'none';
+    document.getElementById('cardBailLocataireEsp').style.display = 'none';
+
+    const { data: rattachements } = await supabaseClient.from('bail_locataires').select('bail_id').eq('locataire_id', locataire.id);
+    const bailIds = (rattachements || []).map(r => r.bail_id);
+    let bailActif = null;
+    if (bailIds.length) {
+      const { data: baux } = await supabaseClient.from('baux').select('id, loyer, charges, date_debut, date_fin, lot_id, lots(nom, type, immeuble_id, immeubles(adresse, ville))').in('id', bailIds).eq('statut', 'actif').limit(1);
+      bailActif = baux && baux[0];
+    }
+
+    if (bailActif) {
+      document.getElementById('espLogementNom').textContent = bailActif.lots.nom || bailActif.lots.type;
+      document.getElementById('espLogementAdresse').textContent = [bailActif.lots.immeubles.adresse, bailActif.lots.immeubles.ville].filter(Boolean).join(', ');
+      document.getElementById('espBailDates').textContent = 'Du ' + formatDate(bailActif.date_debut) + (bailActif.date_fin ? ' au ' + formatDate(bailActif.date_fin) : ' — sans fin');
+
+      const { data: docBail } = await supabaseClient.from('documents').select('storage_path').eq('entity_type', 'bail').eq('entity_id', bailActif.id).eq('categorie', 'bail').order('created_at', { ascending: false }).limit(1).maybeSingle();
+      bailPdfPathLocataireEsp = docBail ? docBail.storage_path : null;
+      document.getElementById('cardBailLocataireEsp').style.display = bailPdfPathLocataireEsp ? 'block' : 'none';
+
+      const now = new Date();
+      const moisDate = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-01';
+      const { data: paiementMois } = await supabaseClient.from('paiements').select('id, statut, montant_loyer, montant_charges, date_paiement').eq('bail_id', bailActif.id).eq('mois', moisDate).maybeSingle();
+      if (paiementMois) {
+        paiementMoisCourantEsp = paiementMois;
+        const total = Number(paiementMois.montant_loyer) + Number(paiementMois.montant_charges);
+        const labelsStatut = { paye: ['Payé', 'badge-vert'], en_retard: ['En retard', 'badge-rouge'], a_venir: ['À venir', 'badge-orange'] };
+        const [texte, classe] = labelsStatut[paiementMois.statut] || ['—', 'badge-gris'];
+        document.getElementById('espLoyerLabel').textContent = 'Loyer de ' + now.toLocaleDateString('fr-FR', { month: 'long' });
+        document.getElementById('espLoyerMontant').textContent = total.toLocaleString('fr-FR') + ' €';
+        document.getElementById('espLoyerStatut').className = 'badge-pill ' + classe;
+        document.getElementById('espLoyerStatut').textContent = texte;
+        document.getElementById('cardLoyerLocataireEsp').style.display = 'block';
+      } else {
+        paiementMoisCourantEsp = null;
+      }
+    } else {
+      document.getElementById('espLogementNom').textContent = 'Aucun bail actif';
+      document.getElementById('espLogementAdresse').textContent = '';
+    }
+
+    const { data: quittances } = await supabaseClient.from('documents').select('nom, storage_path').eq('entity_type', 'locataire').eq('entity_id', locataire.id).eq('categorie', 'quittance').order('created_at', { ascending: false });
+    const div = document.getElementById('espListeQuittances');
+    div.innerHTML = (quittances && quittances.length) ? quittances.map(q => `
+      <div class="row row-click" onclick="telechargerDocument('${q.storage_path}')">
+        <span>${echapper(q.nom)}</span><span style="color:var(--accent);">↓</span>
+      </div>
+    `).join('') : '<div class="empty-state">Aucune quittance pour l\u2019instant.</div>';
+  }
+
+  async function ouvrirDetailLoyerLocataire() {
+    if (!paiementMoisCourantEsp) return;
+    const p = paiementMoisCourantEsp;
+    const now = new Date();
+    document.getElementById('espDetailMoisTitre').textContent = now.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    const labelsStatut = { paye: ['Payé', 'badge-vert'], en_retard: ['En retard', 'badge-rouge'], a_venir: ['À venir', 'badge-orange'] };
+    const [texte, classe] = labelsStatut[p.statut] || ['—', 'badge-gris'];
+    document.getElementById('espDetailStatut').className = 'badge-pill ' + classe;
+    document.getElementById('espDetailStatut').textContent = texte;
+    document.getElementById('espDetailDatePaiement').textContent = p.date_paiement ? 'Payé le ' + formatDate(p.date_paiement) : '';
+    document.getElementById('espDetailLoyerHC').textContent = Number(p.montant_loyer).toLocaleString('fr-FR') + ' €';
+    document.getElementById('espDetailCharges').textContent = Number(p.montant_charges).toLocaleString('fr-FR') + ' €';
+    document.getElementById('espDetailTotal').textContent = (Number(p.montant_loyer) + Number(p.montant_charges)).toLocaleString('fr-FR') + ' €';
+
+    const { data: quittances } = await supabaseClient.from('documents').select('storage_path').eq('entity_type', 'locataire').eq('entity_id', currentLocataireIdEsp).eq('categorie', 'quittance').order('created_at', { ascending: false }).limit(1);
+    espDetailStoragePathQuittance = (quittances && quittances[0]) ? quittances[0].storage_path : null;
+    document.getElementById('espDetailBtnQuittance').style.display = espDetailStoragePathQuittance ? 'block' : 'none';
+
+    document.getElementById('modalDetailLoyerLocataire').style.display = 'flex';
+  }
+
+  function fermerDetailLoyerLocataire() {
+    document.getElementById('modalDetailLoyerLocataire').style.display = 'none';
+  }
+
+  function ouvrirSignalementLocataire() {
+    document.getElementById('signalementDescription').value = '';
+    document.getElementById('signalementPhoto').value = '';
+    document.getElementById('msgSignalement').textContent = '';
+    document.getElementById('modalSignalementLocataire').style.display = 'flex';
+  }
+
+  function fermerSignalementLocataire() {
+    document.getElementById('modalSignalementLocataire').style.display = 'none';
+  }
+
+  async function envoyerSignalementLocataire() {
+    const type = document.getElementById('signalementType').value;
+    const description = document.getElementById('signalementDescription').value.trim();
+    const fichier = document.getElementById('signalementPhoto').files[0];
+    const msgDiv = document.getElementById('msgSignalement');
+    if (!description) { msgDiv.textContent = 'Décris le problème.'; return; }
+    if (!fichier) { msgDiv.textContent = 'Ajoute au moins une photo.'; return; }
+    if (!currentLocataireIdEsp) { msgDiv.textContent = 'Erreur : session invalide.'; return; }
+    const erreurValidation = validerFichier(fichier);
+    if (erreurValidation) { msgDiv.textContent = erreurValidation; return; }
+
+    const { data: locataireInfo, error: errInfo } = await supabaseClient.from('locataires').select('structure_id').eq('id', currentLocataireIdEsp).single();
+    if (errInfo || !locataireInfo) { msgDiv.textContent = 'Erreur : impossible de récupérer ta fiche.'; return; }
+    const structureId = locataireInfo.structure_id;
+
+    const labelsType = { fuite: 'Fuite', panne: 'Panne', autre: 'Autre' };
+    const nomDocument = (labelsType[type] || 'Signalement') + ' — ' + description.slice(0, 60);
+
+    const cheminFichier = `${structureId}/locataire/${currentLocataireIdEsp}/${nomStorageAleatoire(fichier.name)}`;
+    const { error: errUpload } = await supabaseClient.storage.from('documents').upload(cheminFichier, fichier);
+    if (errUpload) { msgDiv.textContent = 'Erreur d\u2019envoi : ' + errUpload.message; return; }
+
+    const { error: errInsert } = await supabaseClient.from('documents').insert({
+      structure_id: structureId, entity_type: 'locataire', entity_id: currentLocataireIdEsp,
+      nom: nomDocument, storage_path: cheminFichier, taille_octets: fichier.size, categorie: 'travaux'
+    });
+    if (errInsert) { await nettoyerFichierOrphelin(cheminFichier); msgDiv.textContent = 'Erreur : ' + errInsert.message; return; }
+
+    fermerSignalementLocataire();
+    alert('Signalement envoyé au propriétaire.');
+  }
+
 
   // Si l'utilisateur arrive depuis le lien reçu par email, ne pas ouvrir l'app directement —
   // le laisser sur l'écran de réinitialisation même si Supabase a déjà créé une session temporaire.
@@ -2213,8 +2503,7 @@
     document.getElementById('dashboardContenuNormal').style.display = 'block';
 
     if (!structures || !structures.length) {
-      document.getElementById('dashMessagePrincipal').textContent = 'Ajoute ton premier bien pour commencer';
-      document.getElementById('dashCashflow').textContent = '—';
+      ['dashAttendu','dashCashflow','dashOccupation','dashValeur','dashDette'].forEach(id => document.getElementById(id).textContent = '—');
       document.getElementById('dashChartCashflow').innerHTML = '<div class="empty-state">—</div>';
       document.getElementById('dashAlertes').innerHTML = '<div class="empty-state">—</div>';
       return;
@@ -2223,12 +2512,13 @@
     const dernierJourMoisDash = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()).padStart(2, '0');
     const finMois = dateLocale(new Date(now.getFullYear(), now.getMonth() + 1, 0));
 
-    // Ces 3 requêtes ne dépendent pas les unes des autres — parties en même temps plutôt que
+    // Ces 4 requêtes ne dépendent pas les unes des autres — parties en même temps plutôt que
     // les unes après les autres, pour réduire le temps de chargement perçu au minimum nécessaire.
-    const [{ data: bauxActifsBruts }, { data: paiements }, { data: depenses }] = await Promise.all([
+    const [{ data: bauxActifsBruts }, { data: paiements }, { data: depenses }, { data: immeubles }] = await Promise.all([
       supabaseClient.from('baux').select('id, loyer, charges, date_debut, date_fin').eq('statut', 'actif').lte('date_debut', dernierJourMoisDash),
       supabaseClient.from('paiements').select('bail_id, statut').eq('mois', moisDate),
-      supabaseClient.from('transactions').select('montant').eq('type', 'depense').in('structure_id', structIds).gte('date', moisDate).lte('date', finMois)
+      supabaseClient.from('transactions').select('montant').eq('type', 'depense').in('structure_id', structIds).gte('date', moisDate).lte('date', finMois),
+      supabaseClient.from('immeubles').select('id, valeur_estimee, dette_restante').in('structure_id', structIds)
     ]);
 
     const bauxActifsMois = (bauxActifsBruts || []).filter(b => !b.date_fin || b.date_fin >= moisDate);
@@ -2248,29 +2538,33 @@
     });
 
     const totalCharges = (depenses || []).reduce((a, t) => a + Number(t.montant), 0);
+    const valeurPatrimoine = (immeubles || []).reduce((a, i) => a + Number(i.valeur_estimee || 0), 0);
+    const dette = (immeubles || []).reduce((a, i) => a + Number(i.dette_restante || 0), 0);
 
+    const immeubleIds = (immeubles || []).map(i => i.id);
+    let tauxOccupation = 0;
+    if (immeubleIds.length) {
+      const { data: lots } = await supabaseClient.from('lots').select('statut').in('immeuble_id', immeubleIds);
+      if (lots && lots.length) {
+        const occupes = lots.filter(l => ['occupe', 'proprietaire', 'agence'].includes(l.statut)).length;
+        tauxOccupation = Math.round((occupes / lots.length) * 100);
+      }
+    }
+
+    document.getElementById('dashAttendu').textContent = formatMoney(attendu);
     const cashflow = encaisse - totalCharges;
     document.getElementById('dashCashflow').textContent = (cashflow >= 0 ? '+' : '') + formatMoney(cashflow) + ' ce mois';
+    document.getElementById('dashOccupation').textContent = tauxOccupation + ' %';
+    document.getElementById('dashOccupationLabel').textContent = tauxOccupation + ' % occupé';
+    document.getElementById('dashOccupationBarre').style.width = tauxOccupation + '%';
+    document.getElementById('dashValeur').textContent = formatMoney(valeurPatrimoine);
+    document.getElementById('dashDette').textContent = formatMoney(dette);
 
     // Le graphique et les alertes ne dépendent pas non plus l'un de l'autre — même principe.
-    // chargerAlertesDashboard détermine aussi le message principal ("Tout va bien" ou le vrai
-    // problème le plus urgent) et la prochaine échéance, à partir des mêmes signaux déjà calculés.
     await Promise.all([
       dessinerCashflow12Mois(structIds),
       chargerAlertesDashboard(structIds, retardCount)
     ]);
-
-    // Support des liens profonds pour les futures notifications push (iPhone) — le jour où
-    // l'app native enverra une notification, elle ouvrira l'app sur #notification, et cette
-    // page mettra automatiquement en avant la carte "À faire" plutôt que de laisser deviner.
-    if (window.location.hash.includes('notification')) {
-      const carte = document.getElementById('cardAFaireDashboard');
-      if (carte) {
-        carte.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        carte.style.outline = '2px solid var(--accent)';
-        setTimeout(() => { carte.style.outline = 'none'; }, 3000);
-      }
-    }
   }
 
   async function dessinerCashflow12Mois(structIds) {
@@ -2385,46 +2679,6 @@
       html += `<div class="alert-row row-click" onclick="telechargerDocument('${d.storage_path}')"><span class="alert-dot med"></span><span style="flex:1;">${echapper(d.nom)} — ${jours < 0 ? 'expiré' : 'expire dans ' + jours + ' j'}</span></div>`;
     });
     div.innerHTML = html || '<div class="empty-state">Rien à signaler pour le moment. 👍</div>';
-
-    // Message principal : le problème le plus urgent s'il y en a un, sinon "tout va bien".
-    // Prochaine échéance : le plus proche dans le temps parmi tout ce qui expire bientôt,
-    // toutes catégories confondues (DPE, bail, document, assurance).
-    const messagePrincipal = document.getElementById('dashMessagePrincipal');
-    const sousMessage = document.getElementById('dashSousMessage');
-    if (retardCount > 0) {
-      messagePrincipal.textContent = `${retardCount} loyer${retardCount > 1 ? 's' : ''} en retard`;
-      messagePrincipal.style.color = 'var(--red)';
-      sousMessage.textContent = 'Va voir Loyers pour relancer.';
-    } else if (tachesEnRetard && tachesEnRetard.length) {
-      messagePrincipal.textContent = `${tachesEnRetard.length} tâche${tachesEnRetard.length > 1 ? 's' : ''} en retard`;
-      messagePrincipal.style.color = 'var(--amber)';
-      sousMessage.textContent = 'Va voir À faire pour les traiter.';
-    } else {
-      messagePrincipal.textContent = 'Tout va bien aujourd\u2019hui';
-      messagePrincipal.style.color = 'var(--green)';
-      sousMessage.textContent = 'Aucune action urgente pour le moment.';
-    }
-
-    const echeances = [];
-    (immeublesDpe || []).forEach(im => echeances.push({ date: im.dpe_date_expiration, titre: 'DPE', detail: im.adresse, onclick: `ouvrirFicheImmeuble('${im.id}')` }));
-    bauxFiltres.forEach(b => echeances.push({ date: b.date_fin, titre: 'Bail se termine', detail: b.lots.nom || b.lots.type, onclick: `ouvrirFicheLot('${b.lot_id}')` }));
-    (documentsExpirantsDash || []).forEach(d => echeances.push({ date: d.expiration_date, titre: echapper(d.nom), detail: '', onclick: `telechargerDocument('${d.storage_path}')` }));
-    (locatairesAssurance || []).forEach(l => echeances.push({ date: l.assurance_expiration, titre: 'Assurance locataire', detail: l.nom, onclick: `ouvrirFicheLocataire('${l.id}', 'liste')` }));
-    echeances.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-    const carteEcheance = document.getElementById('cardProchaineEcheance');
-    const carteRien = document.getElementById('cardRienASignaler');
-    if (echeances.length) {
-      const jours = Math.ceil((new Date(echeances[0].date) - new Date()) / (1000 * 60 * 60 * 24));
-      document.getElementById('dashEcheanceTitre').textContent = `${echeances[0].titre} — ${jours <= 0 ? 'expiré' : jours + ' j'}`;
-      document.getElementById('dashEcheanceDetail').textContent = echeances[0].detail;
-      carteEcheance.setAttribute('onclick', echeances[0].onclick);
-      carteEcheance.style.display = 'block';
-      carteRien.style.display = 'none';
-    } else {
-      carteEcheance.style.display = 'none';
-      carteRien.style.display = 'block';
-    }
   }
 
   // ---------- STRUCTURES ----------
@@ -2897,6 +3151,8 @@
       <span class="badge-outline">Immeuble</span>
       ${im.annee_construction ? `<span class="badge-outline">Construit en ${im.annee_construction}</span>` : ''}
     `;
+    document.getElementById('immValeur').textContent = im.valeur_estimee ? Number(im.valeur_estimee).toLocaleString('fr-FR') + ' €' : '—';
+    document.getElementById('immDette').textContent = im.dette_restante ? Number(im.dette_restante).toLocaleString('fr-FR') + ' €' : '—';
     const equity = (Number(im.valeur_estimee) || 0) - (Number(im.dette_restante) || 0);
     document.getElementById('immEquity').textContent = (im.valeur_estimee || im.dette_restante) ? equity.toLocaleString('fr-FR') + ' €' : '—';
 
@@ -2904,6 +3160,7 @@
     const ilYA1An = new Date(); ilYA1An.setFullYear(ilYA1An.getFullYear() - 1);
     const { data: depenses } = await supabaseClient.from('transactions').select('montant').eq('immeuble_id', id).eq('type', 'depense').gte('date', dateLocale(ilYA1An));
     const chargesAnnuelles = (depenses || []).reduce((a, t) => a + Number(t.montant), 0);
+    document.getElementById('immCharges').textContent = chargesAnnuelles.toLocaleString('fr-FR') + ' €';
 
     // Loyers annuels + occupation = lots et baux actifs de cet immeuble
     const { data: lotsIm } = await supabaseClient.from('lots').select('id, statut').eq('immeuble_id', id);
@@ -2919,23 +3176,12 @@
       const { data: bauxActifs } = await supabaseClient.from('baux').select('loyer, charges').in('lot_id', lotIds).eq('statut', 'actif');
       loyersAnnuels = (bauxActifs || []).reduce((a, b) => a + (Number(b.loyer) + Number(b.charges)) * 12, 0);
     }
+    document.getElementById('immLoyerAnnuel').textContent = loyersAnnuels.toLocaleString('fr-FR') + ' €';
     const cashflowAnnuel = loyersAnnuels - chargesAnnuelles;
     document.getElementById('immCashflow').textContent = (cashflowAnnuel >= 0 ? '+' : '') + cashflowAnnuel.toLocaleString('fr-FR') + ' €';
 
     const rendement = im.valeur_estimee && Number(im.valeur_estimee) > 0 ? (loyersAnnuels / Number(im.valeur_estimee) * 100).toFixed(1) : null;
     document.getElementById('immRendement').textContent = rendement !== null ? rendement + ' %' : '—';
-
-    // Barre proportionnelle valeur nette / dette, même langage visuel que Patrimoine
-    const valeurTotaleImm = Number(im.valeur_estimee) || 0;
-    if (valeurTotaleImm > 0) {
-      const pctNetteImm = Math.max(0, Math.round(equity / valeurTotaleImm * 100));
-      const pctDetteImm = 100 - pctNetteImm;
-      document.getElementById('immBarreActifPassif').innerHTML = `<div style="width:${pctNetteImm}%; background:var(--green);"></div><div style="width:${pctDetteImm}%; background:var(--red);"></div>`;
-      document.getElementById('immLabelsActifPassif').innerHTML = `<span>${pctNetteImm}% valeur nette</span><span>${pctDetteImm}% dette</span>`;
-    } else {
-      document.getElementById('immBarreActifPassif').innerHTML = '';
-      document.getElementById('immLabelsActifPassif').innerHTML = '<span>Aucune valeur renseignée</span>';
-    }
 
     switchTabImmeuble('vue');
     chargerASurveillerImmeuble(id, lotIds);
@@ -3319,7 +3565,7 @@
     const edition = document.getElementById('loyerHautEdition');
     const enEdition = edition.style.display === 'block';
     edition.style.display = enEdition ? 'none' : 'block';
-    affichage.style.display = enEdition ? 'block' : 'none';
+    affichage.style.display = enEdition ? 'grid' : 'none';
   }
 
   async function enregistrerLoyerHaut() {
@@ -3463,55 +3709,13 @@
     document.getElementById('formValeurLot').style.display = 'none';
     document.getElementById('btnModifierValeurLot').style.display = 'inline-flex';
 
-    const { data: bauxActifs } = await supabaseClient.from('baux').select('id, loyer, charges, depot_garantie, date_debut').eq('lot_id', id).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
+    const { data: bauxActifs } = await supabaseClient.from('baux').select('id, loyer, charges, depot_garantie').eq('lot_id', id).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
     const bail = bauxActifs && bauxActifs[0];
     bailActuelPourLoyerHaut = bail || null;
 
-    const iconeHero = document.getElementById('iconeStatutLotHero');
-    const messageHero = document.getElementById('messageStatutLotHero');
-    const sousMessageHero = document.getElementById('sousMessageStatutLotHero');
-
-    if (bail) {
-      const { data: rattachementsHero } = await supabaseClient.from('bail_locataires').select('locataire_id').eq('bail_id', bail.id);
-      const idsHero = (rattachementsHero || []).map(r => r.locataire_id);
-      let nomsHero = 'un locataire';
-      if (idsHero.length) {
-        const { data: locatairesHero } = await supabaseClient.from('locataires').select('id, nom').in('id', idsHero);
-        if (locatairesHero && locatairesHero.length) {
-          nomsHero = locatairesHero.map(l => `<a href="#" onclick="event.stopPropagation(); ouvrirFicheLocataire('${l.id}', 'lot'); return false;" style="color:inherit; text-decoration:underline;">${echapper(l.nom)}</a>`).join(' et ');
-        }
-      }
-      iconeHero.style.background = 'rgba(34,197,94,0.15)';
-      messageHero.style.color = 'var(--green)';
-      iconeHero.textContent = '🏠';
-      messageHero.innerHTML = `Loué à ${nomsHero}`;
-      const total = Number(bail.loyer) + Number(bail.charges);
-      sousMessageHero.textContent = `${total.toLocaleString('fr-FR')} € / mois · depuis le ${formatDate(bail.date_debut)}`;
-    } else if (lot.statut === 'travaux') {
-      iconeHero.style.background = 'rgba(239,68,68,0.15)';
-      messageHero.style.color = 'var(--red)';
-      iconeHero.textContent = '🔧';
-      messageHero.textContent = 'En travaux';
-      sousMessageHero.textContent = '';
-    } else if (lot.statut === 'proprietaire') {
-      iconeHero.style.background = 'rgba(96,165,250,0.15)';
-      messageHero.style.color = 'var(--accent)';
-      iconeHero.textContent = '🏠';
-      messageHero.textContent = 'Occupé par toi-même';
-      sousMessageHero.textContent = '';
-    } else if (lot.statut === 'agence') {
-      iconeHero.style.background = 'rgba(96,165,250,0.15)';
-      messageHero.style.color = 'var(--accent)';
-      iconeHero.textContent = '🏢';
-      messageHero.textContent = 'Géré par une agence';
-      sousMessageHero.textContent = '';
-    } else {
-      iconeHero.style.background = 'var(--panel-2)';
-      messageHero.style.color = 'var(--amber)';
-      iconeHero.textContent = '🏠';
-      messageHero.textContent = 'Vacant';
-      sousMessageHero.textContent = (lot.loyer !== null && lot.loyer !== undefined) ? `Loyer visé : ${Number(lot.loyer).toLocaleString('fr-FR')} €` : 'Aucun loyer visé renseigné';
-    }
+    document.getElementById('lotLoyer').textContent = bail ? Number(bail.loyer).toLocaleString('fr-FR') + ' €' : (lot.loyer ? Number(lot.loyer).toLocaleString('fr-FR') + ' €' : '—');
+    document.getElementById('lotCharges').textContent = bail ? Number(bail.charges).toLocaleString('fr-FR') + ' €' : '—';
+    document.getElementById('lotDepot').textContent = bail && bail.depot_garantie ? Number(bail.depot_garantie).toLocaleString('fr-FR') + ' €' : '—';
 
     // Champs d'édition : loyer toujours modifiable (bail si loué, référence du lot sinon).
     // Charges/dépôt n'ont de sens qu'avec un vrai bail — masqués sur un logement vacant.
@@ -3521,7 +3725,7 @@
     document.getElementById('labelChargesHaut').parentElement.style.display = bail ? 'block' : 'none';
     document.getElementById('zoneDepotHaut').style.display = bail ? 'block' : 'none';
 
-    document.getElementById('loyerHautAffichage').style.display = 'block';
+    document.getElementById('loyerHautAffichage').style.display = 'grid';
     document.getElementById('loyerHautEdition').style.display = 'none';
 
     switchTabLot('resume');
@@ -4351,8 +4555,8 @@
     document.getElementById('btnModifierInfosLoc').style.display = 'inline-flex';
 
     document.getElementById('locContactIcons').innerHTML = `
-      ${locataire.telephone ? `<a href="tel:${echapper(locataire.telephone)}" style="color:var(--accent); font-size:0.9rem;">📞 Appeler</a>` : ''}
-      ${locataire.email ? `<a href="mailto:${echapper(locataire.email)}" style="color:var(--accent); font-size:0.9rem;">✉️ Email</a>` : ''}
+      ${locataire.email ? `<a class="icon-btn-round" href="mailto:${echapper(locataire.email)}" title="${echapper(locataire.email)}" aria-label="Envoyer un email">✉️</a>` : ''}
+      ${locataire.telephone ? `<a class="icon-btn-round" href="tel:${echapper(locataire.telephone)}" title="${echapper(locataire.telephone)}" aria-label="Appeler">📞</a>` : ''}
     `;
 
     switchTabLocataire('bail');
@@ -4527,8 +4731,8 @@
     const initiales = nom.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
     document.getElementById('locAvatar').textContent = initiales;
     document.getElementById('locContactIcons').innerHTML = `
-      ${telephone ? `<a href="tel:${echapper(telephone)}" style="color:var(--accent); font-size:0.9rem;">📞 Appeler</a>` : ''}
-      ${email ? `<a href="mailto:${echapper(email)}" style="color:var(--accent); font-size:0.9rem;">✉️ Email</a>` : ''}
+      ${email ? `<a class="icon-btn-round" href="mailto:${echapper(email)}" title="${echapper(email)}" aria-label="Envoyer un email">✉️</a>` : ''}
+      ${telephone ? `<a class="icon-btn-round" href="tel:${echapper(telephone)}" title="${echapper(telephone)}" aria-label="Appeler">📞</a>` : ''}
     `;
     document.getElementById('lectureInfosLocataire').innerHTML = `
       <div class="row"><span class="small">Nom</span><span>${echapper(nom)}</span></div>
@@ -4762,19 +4966,18 @@
     if (!items.length) { div.innerHTML = '<div class="empty-state">Aucun locataire ne correspond.</div>'; return; }
 
     div.innerHTML = `<div class="locataires-grid">` + items.slice(0, nbAffichesLocataires).map(l => {
-      const badgeStatut = l.statut === 'en_retard'
-        ? '<span class="badge-pill" style="background:rgba(239,68,68,0.15); color:var(--red); flex-shrink:0;">En retard</span>'
-        : l.statut === 'a_jour' ? '<span class="badge-pill" style="background:rgba(34,197,94,0.15); color:var(--green); flex-shrink:0;">À jour</span>' : '';
+      const classeStatut = l.statut === 'en_retard' ? 'statut-retard' : l.statut === 'a_jour' ? 'statut-ajour' : '';
+      const texteStatut = l.statut === 'en_retard'
+        ? '<span class="locataire-carte-statut-texte" style="color:var(--red);">En retard</span>'
+        : l.statut === 'a_jour' ? '<span class="locataire-carte-statut-texte" style="color:var(--green);">À jour</span>' : '';
       return `
-        <div class="locataire-carte" onclick="ouvrirFicheLocataire('${l.id}', 'liste')">
-          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
-            <div>
-              <div class="locataire-carte-nom">${echapper(l.nom)}</div>
-              <div class="locataire-carte-souttitre">${l.lotId ? `<a href="#" onclick="event.stopPropagation(); ouvrirFicheLot('${l.lotId}'); return false;" style="color:inherit;">${echapper(l.sousTitre)}</a>` : echapper(l.sousTitre)}</div>
-            </div>
-            ${badgeStatut}
+        <div class="locataire-carte ${classeStatut}" onclick="ouvrirFicheLocataire('${l.id}', 'liste')">
+          <div class="locataire-carte-nom">${echapper(l.nom)}</div>
+          <div class="locataire-carte-souttitre">${l.lotId ? `<a href="#" onclick="event.stopPropagation(); ouvrirFicheLot('${l.lotId}'); return false;" style="color:inherit;">${echapper(l.sousTitre)}</a>` : echapper(l.sousTitre)}</div>
+          <div class="locataire-carte-bas">
+            ${l.loyer !== null ? `<div class="locataire-carte-loyer">${l.loyer.toLocaleString('fr-FR')} € <span class="unite">/ mois</span></div>` : '<div></div>'}
+            ${texteStatut}
           </div>
-          ${l.loyer !== null ? `<div class="locataire-carte-loyer" style="margin-top:10px;">${l.loyer.toLocaleString('fr-FR')} € <span class="unite">/ mois</span></div>` : ''}
           ${(l.email || l.telephone) ? `<div class="locataire-carte-icons" onclick="event.stopPropagation()">
             ${l.email ? `<a class="icon-btn-round" href="mailto:${echapper(l.email)}" title="${echapper(l.email)}" aria-label="Envoyer un email">✉️</a>` : ''}
             ${l.telephone ? `<a class="icon-btn-round" href="tel:${echapper(l.telephone)}" title="${echapper(l.telephone)}" aria-label="Appeler">📞</a>` : ''}
@@ -5472,6 +5675,14 @@ Le bailleur donne quittance au locataire pour le paiement ci-dessus et lui donne
     alert('Nom enregistré.');
   }
 
+  function envoyerSupportParEmail() {
+    const sujet = document.getElementById('supportSujet').value.trim();
+    const message = document.getElementById('supportMessage').value.trim();
+    if (!sujet || !message) return alert('Sujet et message sont requis.');
+    const lien = `mailto:support@myinvesta.fr?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(message)}`;
+    window.location.href = lien;
+  }
+
   async function chargerQuotaStockage() {
     const { data: utilise, error } = await supabaseClient.rpc('stockage_utilise_compte');
     if (error) { document.getElementById('stockageLabel').textContent = 'Erreur de calcul.'; return; }
@@ -6072,78 +6283,23 @@ Durée : du {{date_debut}} au {{date_fin}}
     const { data: txs } = await supabaseClient.from('transactions').select('type, montant').eq('structure_id', currentStructureFiscaliteId).gte('date', debut).lte('date', fin);
     const resultatTotal = (txs || []).filter(t => t.type === 'recette').reduce((a, t) => a + Number(t.montant), 0) - (txs || []).filter(t => t.type === 'depense').reduce((a, t) => a + Number(t.montant), 0);
 
-    const { data: associes, error } = await supabaseClient.from('associes').select('id, nom, quote_part').eq('structure_id', currentStructureFiscaliteId).order('created_at');
+    const { data: associes, error } = await supabaseClient.from('associes').select('nom, quote_part').eq('structure_id', currentStructureFiscaliteId).order('created_at');
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
     if (!associes || !associes.length) { div.innerHTML = '<div class="empty-state">Aucun associé renseigné.</div>'; return; }
 
-    cacheAssociesActuels = associes;
     div.innerHTML = associes.map(a => {
       const part = resultatTotal * (Number(a.quote_part) / 100);
-      return `
-      <div class="fisc-assoc-row" id="assoc-affichage-${a.id}">
+      return `<div class="fisc-assoc-row">
         <span>${echapper(a.nom)}</span><span>${a.quote_part} %</span><span>${part.toLocaleString('fr-FR')} €</span>
-        <span>
-          <a href="#" onclick="ouvrirEditionAssocie('${a.id}'); return false;" aria-label="Modifier">✏️</a>
-          <a href="#" onclick="supprimerAssocie('${a.id}'); return false;" style="color:var(--red); margin-left:8px;" aria-label="Supprimer">✕</a>
-        </span>
-      </div>
-      <div id="assoc-edition-${a.id}" style="display:none; padding:10px 4px; border-bottom:1px solid var(--border);">
-        <div style="display:flex; gap:8px;">
-          <input id="editNomAssocie-${a.id}" value="${echapper(a.nom)}" style="flex:2;">
-          <input id="editQuotePartAssocie-${a.id}" type="number" min="0" max="100" value="${a.quote_part}" style="flex:1;">
-          <button class="btn-primary" style="width:auto; padding:8px 14px;" onclick="enregistrerModifAssocie('${a.id}')">OK</button>
-          <button class="btn-secondary" style="width:auto; padding:8px 14px;" onclick="ouvrirEditionAssocie('${a.id}')">Annuler</button>
-        </div>
+        <span class="small">À déclarer</span>
       </div>`;
     }).join('');
-  }
-
-  let cacheAssociesActuels = [];
-
-  function ouvrirEditionAssocie(id) {
-    const affichage = document.getElementById('assoc-affichage-' + id);
-    const edition = document.getElementById('assoc-edition-' + id);
-    const enEdition = edition.style.display === 'block';
-    edition.style.display = enEdition ? 'none' : 'block';
-    affichage.style.display = enEdition ? 'grid' : 'none';
-  }
-
-  async function enregistrerModifAssocie(id) {
-    const nom = document.getElementById('editNomAssocie-' + id).value;
-    const quotePart = document.getElementById('editQuotePartAssocie-' + id).value;
-    if (!nom || !quotePart) return alert('Nom et quote-part requis');
-
-    const totalAutres = cacheAssociesActuels.filter(a => a.id !== id).reduce((a, ass) => a + Number(ass.quote_part), 0);
-    if (totalAutres + parseFloat(quotePart) > 100) {
-      return alert(`Impossible : ${totalAutres}% sont déjà répartis entre les autres associés. Cette part (${quotePart}%) ferait dépasser 100%.`);
-    }
-
-    const { error } = await supabaseClient.from('associes').update({ nom, quote_part: parseFloat(quotePart) }).eq('id', id);
-    if (error) return alert('Erreur : ' + error.message);
-    chargerAssocies();
-  }
-
-  async function supprimerAssocie(id) {
-    if (!confirm('Supprimer cet associé ?')) return;
-    const { error } = await supabaseClient.from('associes').delete().eq('id', id);
-    if (error) return alert('Erreur : ' + error.message);
-    chargerAssocies();
   }
 
   async function ajouterAssocie() {
     const nom = document.getElementById('nomAssocie').value;
     const quotePart = document.getElementById('quotePartAssocie').value;
     if (!nom || !quotePart) return alert('Nom et quote-part requis');
-
-    // Une SCI ne peut jamais avoir plus de 100% de parts réparties au total — vérifié ici pour
-    // un retour immédiat, mais la vraie protection vit dans un déclencheur côté base (sprint 68),
-    // jamais uniquement côté client.
-    const { data: associesExistants } = await supabaseClient.from('associes').select('quote_part').eq('structure_id', currentStructureFiscaliteId);
-    const totalActuel = (associesExistants || []).reduce((a, ass) => a + Number(ass.quote_part), 0);
-    if (totalActuel + parseFloat(quotePart) > 100) {
-      return alert(`Impossible : ${totalActuel}% sont déjà répartis entre les associés existants. Cette part (${quotePart}%) ferait dépasser 100%.`);
-    }
-
     const { error } = await supabaseClient.from('associes').insert({ structure_id: currentStructureFiscaliteId, nom, quote_part: parseFloat(quotePart) });
     if (error) return alert('Erreur : ' + error.message);
     document.getElementById('nomAssocie').value = '';
