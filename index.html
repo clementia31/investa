@@ -91,8 +91,17 @@
   .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 16px; }
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   @media (max-width: 700px) { .grid-2 { grid-template-columns: 1fr; } }
-  .btn-menu-mobile { display: none; position: fixed; top: 14px; left: 14px; z-index: 220; background: linear-gradient(180deg, #202c48, #171f36); border: 1px solid var(--border); border-radius: 8px; width: 42px; height: 42px; align-items: center; justify-content: center; font-size: 1.3rem; color: var(--text); cursor: pointer; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 0 #0d1425, 0 3px 8px rgba(0,0,0,0.25); transition: transform 0.08s ease, box-shadow 0.08s ease; }
+  .btn-menu-mobile { display: none; position: fixed; top: calc(14px + env(safe-area-inset-top)); left: 14px; z-index: 220; background: linear-gradient(180deg, #202c48, #171f36); border: 1px solid var(--border); border-radius: 8px; width: 42px; height: 42px; align-items: center; justify-content: center; font-size: 1.3rem; color: var(--text); cursor: pointer; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 0 #0d1425, 0 3px 8px rgba(0,0,0,0.25); transition: transform 0.08s ease, box-shadow 0.08s ease; }
   .btn-menu-mobile:active { transform: translateY(2px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 0 0 #0d1425; }
+
+  .esp-tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--panel); border-top: 1px solid var(--border); display: flex; padding: 9px 4px calc(12px + env(safe-area-inset-bottom)); z-index: 140; }
+  .esp-tabbar-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--text-dim); font-size: 0.68rem; cursor: pointer; }
+  .esp-tabbar-item.active { color: var(--accent); }
+  .esp-tabbar-item .ic { font-size: 1.2rem; }
+  @media (min-width: 700px) {
+    .esp-tabbar { max-width: 420px; left: 50%; right: auto; transform: translateX(-50%); border-radius: 16px 16px 0 0; border-left: 1px solid var(--border); border-right: 1px solid var(--border); box-shadow: 0 -4px 20px rgba(0,0,0,0.3); }
+    #espFabSignalement { right: auto; left: calc(50% + 210px - 74px); }
+  }
   @media (max-width: 900px) {
     .grid-4 { grid-template-columns: repeat(2, 1fr); }
     .grid-3 { grid-template-columns: repeat(2, 1fr); }
@@ -396,7 +405,7 @@
 
 <!-- Modal partagé pour modifier une transaction, réutilisé depuis Fiche Lot (Charges) et Fiche Immeuble (Finances) -->
 <div id="modalEditTransaction" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
-  <div class="card" style="max-width:420px; width:90%;">
+  <div class="card" style="max-width:420px; width:90%; max-height:85vh; overflow-y:auto;">
     <h3 style="margin-top:0;">Modifier la transaction</h3>
     <input id="editTxMontant" type="number" min="0" placeholder="Montant (€)">
     <input id="editTxDate" type="date">
@@ -413,7 +422,7 @@
 </div>
 
 <div id="modalEditCharge" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
-  <div class="card" style="max-width:420px; width:90%;">
+  <div class="card" style="max-width:420px; width:90%; max-height:85vh; overflow-y:auto;">
     <h3 style="margin-top:0;">Modifier la charge récurrente</h3>
     <select id="editChargeType">
       <option value="copropriete">Charges de copropriété</option>
@@ -438,7 +447,7 @@
 </div>
 
 <div id="modalEditDocument" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
-  <div class="card" style="max-width:420px; width:90%;">
+  <div class="card" style="max-width:420px; width:90%; max-height:85vh; overflow-y:auto;">
     <h3 style="margin-top:0;">Modifier le document</h3>
     <input id="editDocNom" placeholder="Nom du document">
     <select id="editDocCategorie">
@@ -447,6 +456,7 @@
       <option value="diagnostic">Diagnostic</option>
       <option value="assurance">Assurance</option>
       <option value="travaux">Travaux</option>
+      <option value="preavis">Préavis de départ</option>
       <option value="revision_loyer">Révision de loyer</option>
       <option value="autre">Autre</option>
     </select>
@@ -1240,6 +1250,10 @@
             </div>
           </div>
           <div class="card">
+            <h3>Signalements &amp; préavis</h3>
+            <div id="listeSignalementsProprietaire">Chargement...</div>
+          </div>
+          <div class="card">
             <div class="section-header-ajout">
               <h3>Notes</h3>
               <button class="btn-secondary btn-ajout-inline" id="btnAjoutNoteLoc" onclick="toggleFormulaire('formAjoutNoteLoc','btnAjoutNoteLoc')">+ Ajouter</button>
@@ -1353,6 +1367,8 @@
           <div class="progress-bar-track"><div class="progress-bar-fill" id="loyersProgressionBarre" style="width:0%;"></div></div>
         </div>
 
+        <button class="btn-secondary" id="btnPreparerRelances" style="display:none; width:100%; margin-bottom:14px;" onclick="ouvrirRelances()">✉️ Préparer les relances</button>
+
         <div style="display:flex; gap:6px; align-items:center; margin-bottom:14px; flex-wrap:wrap;">
           <span class="filtre-pill active" id="fpTous" onclick="filtrerStatutLoyers('tous')">Tous</span>
           <span class="filtre-pill" id="fpPayes" onclick="filtrerStatutLoyers('paye')">Payés</span>
@@ -1392,6 +1408,18 @@
             <button class="btn-primary" style="flex:1;" onclick="confirmerStatutPaiement('paye')">✓ Payé</button>
             <button class="btn-secondary" style="flex:1;" onclick="confirmerStatutPaiement('en_retard')">En retard</button>
             <button class="btn-secondary" style="flex:1;" onclick="confirmerStatutPaiement('a_venir')">À venir</button>
+          </div>
+        </div>
+
+        <!-- Modal Relances -->
+        <div id="modalRelances" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center; padding:20px;">
+          <div class="card" style="max-width:480px; width:100%; max-height:80vh; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <h3 style="margin:0;">Relances</h3>
+              <button class="icon-btn-round" onclick="fermerRelances()" aria-label="Fermer">✕</button>
+            </div>
+            <p class="small" style="margin:0 0 14px;">Un message par locataire — modifie-le si besoin avant d'envoyer.</p>
+            <div id="listeRelances"></div>
           </div>
         </div>
 
@@ -1737,7 +1765,7 @@
             <h3>Modèle de bail</h3>
             <p class="small" style="margin:0 0 10px; color:var(--amber);">⚠️ Modèle provisoire — à remplacer par un texte validé par un avocat avant tout usage réel.</p>
             <p class="small" style="margin:0 0 10px;">Variables disponibles : <code>{{locataire}}</code>, <code>{{bailleur}}</code>, <code>{{bien}}</code>, <code>{{loyer}}</code>, <code>{{charges}}</code>, <code>{{depot_garantie}}</code>, <code>{{date_debut}}</code>, <code>{{date_fin}}</code>, <code>{{date_emission}}</code>.</p>
-            <textarea id="modeleBailTexte" rows="14" style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; font-size:0.88rem; resize:vertical;"></textarea>
+            <textarea id="modeleBailTexte" rows="14" style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; font-size:1rem; resize:vertical;"></textarea>
             <button class="btn-primary" style="width:auto; padding:10px 20px; margin-top:10px;" onclick="enregistrerModeleBail()">Enregistrer le modèle</button>
             <button class="btn-secondary" style="width:auto; padding:10px 20px; margin-top:10px; margin-left:8px;" onclick="reinitialiserModeleBail()">Revenir au modèle par défaut</button>
           </div>
@@ -1751,7 +1779,7 @@
           <div class="card" id="cardModeleNotifIrl" style="display:none;">
             <h3>Modèle de notification de révision de loyer</h3>
             <p class="small" style="margin:0 0 10px;">Généré automatiquement à chaque révision annuelle de loyer appliquée depuis la fiche d'un lot. Variables disponibles : <code>{{locataire}}</code>, <code>{{bailleur}}</code>, <code>{{bien}}</code>, <code>{{trimestre}}</code>, <code>{{ancien_loyer}}</code>, <code>{{nouveau_loyer}}</code>, <code>{{date_emission}}</code>.</p>
-            <textarea id="modeleNotifIrlTexte" rows="14" style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; font-size:0.88rem; resize:vertical;"></textarea>
+            <textarea id="modeleNotifIrlTexte" rows="14" style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; font-size:1rem; resize:vertical;"></textarea>
             <button class="btn-primary" style="width:auto; padding:10px 20px; margin-top:10px;" onclick="enregistrerModeleNotifIrl()">Enregistrer le modèle</button>
             <button class="btn-secondary" style="width:auto; padding:10px 20px; margin-top:10px; margin-left:8px;" onclick="reinitialiserModeleNotifIrl()">Revenir au modèle par défaut</button>
           </div>
@@ -1763,7 +1791,7 @@
           <div class="card" id="cardModeleQuittance" style="display:none;">
             <h3>Modèle de quittance</h3>
             <p class="small" style="margin:0 0 10px;">Ce texte sera utilisé pour générer chaque quittance automatiquement. Variables disponibles : <code>{{locataire}}</code>, <code>{{bailleur}}</code>, <code>{{bien}}</code>, <code>{{periode}}</code>, <code>{{loyer}}</code>, <code>{{charges}}</code>, <code>{{total}}</code>, <code>{{date_emission}}</code>.</p>
-            <textarea id="modeleQuittanceTexte" rows="14" style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; font-size:0.88rem; resize:vertical;"></textarea>
+            <textarea id="modeleQuittanceTexte" rows="14" style="width:100%; padding:12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; font-size:1rem; resize:vertical;"></textarea>
             <button class="btn-primary" style="width:auto; padding:10px 20px; margin-top:10px;" onclick="enregistrerModeleQuittance()">Enregistrer le modèle</button>
             <button class="btn-secondary" style="width:auto; padding:10px 20px; margin-top:10px; margin-left:8px;" onclick="reinitialiserModeleQuittance()">Revenir au modèle par défaut</button>
           </div>
@@ -1847,45 +1875,57 @@
 
 <!-- ============ ESPACE LOCATAIRE ============ -->
 <div id="app-locataire" style="display:none;">
-  <div class="auth-wrap" style="max-width:420px;">
+  <div class="auth-wrap" style="max-width:420px; padding-bottom:calc(90px + env(safe-area-inset-bottom));">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
       <div id="locHeaderNomBonjour" style="font-weight:600; font-size:1.05rem;">Bonjour</div>
       <a href="#" onclick="seDeconnecter(); return false;" class="icon-btn-round" aria-label="Déconnexion">→</a>
     </div>
 
-    <div class="card" id="cardLogementLocataireEsp" style="margin-bottom:12px;">
-      <div class="small" style="text-transform:uppercase; letter-spacing:0.03em; margin-bottom:4px;">Ton logement</div>
-      <div id="espLogementNom" style="font-weight:600;">—</div>
-      <div id="espLogementAdresse" class="small" style="margin-top:1px;">—</div>
-    </div>
+    <!-- ===== Onglet Accueil ===== -->
+    <div id="esp-tab-accueil">
+      <div class="card" id="cardLogementLocataireEsp" style="margin-bottom:12px;">
+        <div class="small" style="text-transform:uppercase; letter-spacing:0.03em; margin-bottom:4px;">Ton logement</div>
+        <div id="espLogementNom" style="font-weight:600;">—</div>
+        <div id="espLogementAdresse" class="small" style="margin-top:1px;">—</div>
+      </div>
 
-    <div class="card row-click" id="cardLoyerLocataireEsp" style="margin-bottom:12px; display:none;" onclick="ouvrirDetailLoyerLocataire()">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div>
-          <div class="small" style="text-transform:uppercase; letter-spacing:0.03em; margin-bottom:4px;" id="espLoyerLabel">Loyer</div>
-          <div id="espLoyerMontant" style="font-weight:600; font-size:1.1rem;">—</div>
+      <div class="card row-click" id="cardLoyerLocataireEsp" style="margin-bottom:12px; display:none;" onclick="ouvrirDetailLoyerLocataire()">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div class="small" style="text-transform:uppercase; letter-spacing:0.03em; margin-bottom:4px;" id="espLoyerLabel">Loyer</div>
+            <div id="espLoyerMontant" style="font-weight:600; font-size:1.1rem;">—</div>
+          </div>
+          <span class="badge-pill" id="espLoyerStatut"></span>
         </div>
-        <span class="badge-pill" id="espLoyerStatut"></span>
+      </div>
+
+      <div class="card row-click" id="cardBailLocataireEsp" style="margin-bottom:12px; display:none;" onclick="telechargerDocument(bailPdfPathLocataireEsp)">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div class="small" style="text-transform:uppercase; letter-spacing:0.03em; margin-bottom:4px;">Bail</div>
+            <div id="espBailDates" style="font-weight:600;">—</div>
+          </div>
+          <span style="color:var(--accent);">📄</span>
+        </div>
       </div>
     </div>
 
-    <div class="card row-click" id="cardBailLocataireEsp" style="margin-bottom:12px; display:none;" onclick="telechargerDocument(bailPdfPathLocataireEsp)">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div>
-          <div class="small" style="text-transform:uppercase; letter-spacing:0.03em; margin-bottom:4px;">Bail</div>
-          <div id="espBailDates" style="font-weight:600;">—</div>
-        </div>
-        <span style="color:var(--accent);">📄</span>
-      </div>
+    <!-- ===== Onglet Quittances ===== -->
+    <div id="esp-tab-quittances" style="display:none;">
+      <h3 style="margin:0 0 8px; font-size:0.95rem;">Quittances</h3>
+      <div class="card"><div id="espListeQuittances">Chargement...</div></div>
     </div>
 
-    <h3 style="margin:16px 0 8px; font-size:0.95rem;">Quittances</h3>
-    <div class="card"><div id="espListeQuittances">Chargement...</div></div>
+    <!-- ===== Onglet Signalements ===== -->
+    <div id="esp-tab-signalements" style="display:none;">
+      <h3 style="margin:0 0 8px; font-size:0.95rem;">Signalements</h3>
+      <div id="espListeSignalements">Chargement...</div>
+    </div>
   </div>
 
   <!-- Panneau détail du loyer (remonte du bas) -->
   <div id="modalDetailLoyerLocataire" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:flex-end; justify-content:center;">
-    <div class="card" style="max-width:420px; width:100%; margin:0; border-radius:16px 16px 0 0;">
+    <div class="card" style="max-width:420px; width:100%; margin:0; border-radius:16px 16px 0 0; max-height:80vh; overflow-y:auto;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
         <h3 style="margin:0;" id="espDetailMoisTitre">—</h3>
         <span class="badge-pill" id="espDetailStatut"></span>
@@ -1899,20 +1939,43 @@
     </div>
   </div>
 
-  <!-- Bouton flottant "+" -->
-  <button class="icon-btn-round" style="position:fixed; bottom:24px; right:24px; width:56px; height:56px; font-size:1.5rem; background:var(--accent); color:white; border:none; box-shadow:0 4px 14px rgba(59,130,246,0.4);" onclick="ouvrirSignalementLocataire()" aria-label="Signaler un problème">+</button>
+  <!-- Bouton flottant "+" — visible seulement sur l'onglet Signalements -->
+  <button id="espFabSignalement" class="icon-btn-round" style="display:none; position:fixed; bottom:calc(78px + env(safe-area-inset-bottom)); right:20px; width:54px; height:54px; font-size:1.5rem; background:var(--accent); color:white; border:none; box-shadow:0 4px 14px rgba(59,130,246,0.4); z-index:150;" onclick="ouvrirSignalementLocataire()" aria-label="Nouveau message">+</button>
 
-  <!-- Modal signalement -->
+  <!-- Barre de navigation du bas -->
+  <div class="esp-tabbar">
+    <div class="esp-tabbar-item active" id="espTabNav-accueil" onclick="switchEspTab('accueil')"><span class="ic">🏠</span>Accueil</div>
+    <div class="esp-tabbar-item" id="espTabNav-quittances" onclick="switchEspTab('quittances')"><span class="ic">📄</span>Quittances</div>
+    <div class="esp-tabbar-item" id="espTabNav-signalements" onclick="switchEspTab('signalements')"><span class="ic">🔧</span>Signalements</div>
+  </div>
+
+  <!-- Modal nouveau message (signalement ou préavis) -->
   <div id="modalSignalementLocataire" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
-    <div class="card" style="max-width:420px; width:90%;">
-      <h3 style="margin-top:0;">Signaler un problème</h3>
-      <select id="signalementType">
-        <option value="fuite">Fuite</option>
-        <option value="panne">Panne</option>
-        <option value="autre">Autre</option>
-      </select>
-      <textarea id="signalementDescription" rows="3" placeholder="Décris le problème" style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; resize:vertical; margin:5px 0;"></textarea>
-      <input type="file" id="signalementPhoto" accept="image/*">
+    <div class="card" style="max-width:420px; width:90%; max-height:85vh; overflow-y:auto;">
+      <h3 style="margin-top:0;">Nouveau message</h3>
+      <div class="quick-add-tabs">
+        <div class="quick-tab active" id="typeSigTab-travaux" onclick="choisirTypeSignalementLocataire('travaux')">🔧 Signaler un problème</div>
+        <div class="quick-tab" id="typeSigTab-preavis" onclick="choisirTypeSignalementLocataire('preavis')">📋 Préavis de départ</div>
+      </div>
+
+      <div id="champsSignalementTravaux">
+        <select id="signalementType">
+          <option value="fuite">Fuite</option>
+          <option value="panne">Panne</option>
+          <option value="autre">Autre</option>
+        </select>
+        <textarea id="signalementDescription" rows="3" placeholder="Décris le problème" style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; resize:vertical; margin:5px 0;"></textarea>
+        <label class="small" style="display:block; margin:6px 0 4px;">Photos (optionnel)</label>
+        <input type="file" id="signalementPhoto" accept="image/*">
+      </div>
+
+      <div id="champsSignalementPreavis" style="display:none;">
+        <label class="small" style="display:block; margin:6px 0 4px;">Date de départ souhaitée</label>
+        <input type="date" id="preavisDateDepart">
+        <textarea id="preavisMessage" rows="3" placeholder="Message (optionnel)" style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; resize:vertical; margin:5px 0;"></textarea>
+        <p class="small" style="margin:4px 0 0;">Le propriétaire recevra une notification immédiate et devra confirmer la date de fin de bail de son côté.</p>
+      </div>
+
       <div style="display:flex; gap:8px; margin-top:10px;">
         <button class="btn-primary" style="flex:1;" onclick="envoyerSignalementLocataire()">Envoyer au propriétaire</button>
         <button class="btn-secondary" style="flex:1;" onclick="fermerSignalementLocataire()">Annuler</button>
@@ -2162,7 +2225,16 @@
   function afficherAppLocataire() {
     document.getElementById('app').style.display = 'none';
     document.getElementById('app-locataire').style.display = 'block';
+    switchEspTab('accueil');
     chargerEspaceLocataire();
+  }
+
+  function switchEspTab(tab) {
+    ['accueil', 'quittances', 'signalements'].forEach(t => {
+      document.getElementById('esp-tab-' + t).style.display = t === tab ? 'block' : 'none';
+      document.getElementById('espTabNav-' + t).classList.toggle('active', t === tab);
+    });
+    document.getElementById('espFabSignalement').style.display = tab === 'signalements' ? 'flex' : 'none';
   }
 
   function switchAuthTab(role) {
@@ -2243,6 +2315,32 @@
         <span>${echapper(q.nom)}</span><span style="color:var(--accent);">↓</span>
       </div>
     `).join('') : '<div class="empty-state">Aucune quittance pour l\u2019instant.</div>';
+
+    chargerSignalementsLocataire();
+  }
+
+  async function chargerSignalementsLocataire() {
+    const div = document.getElementById('espListeSignalements');
+    const { data: signalements } = await supabaseClient.from('documents')
+      .select('id, nom, categorie, document_date, reponse_proprietaire, reponse_le, created_at')
+      .eq('entity_type', 'locataire').eq('entity_id', currentLocataireIdEsp)
+      .in('categorie', ['travaux', 'preavis']).order('created_at', { ascending: false });
+    if (!signalements || !signalements.length) { div.innerHTML = '<div class="empty-state">Aucun signalement pour l\u2019instant.</div>'; return; }
+
+    div.innerHTML = signalements.map(s => {
+      const traite = !!s.reponse_proprietaire;
+      const icone = s.categorie === 'preavis' ? '📋' : '🔧';
+      return `
+        <div class="card" style="margin-bottom:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <span style="font-weight:600; font-size:0.88rem;">${icone} ${echapper(s.nom)}</span>
+            <span class="badge-pill ${traite ? 'badge-vert' : 'badge-orange'}">${traite ? 'Traité' : 'En attente'}</span>
+          </div>
+          <div class="small" style="margin-bottom:6px;">Envoyé le ${formatDate(s.created_at)}${s.categorie === 'preavis' && s.document_date ? ' · Départ souhaité le ' + formatDate(s.document_date) : ''}</div>
+          ${traite ? `<div style="background:var(--panel-2); border-radius:8px; padding:8px 10px; font-size:0.8rem;"><div class="small" style="color:var(--accent); font-weight:600; margin-bottom:2px;">Réponse du propriétaire</div>${echapper(s.reponse_proprietaire)}</div>` : ''}
+        </div>
+      `;
+    }).join('');
   }
 
   async function ouvrirDetailLoyerLocataire() {
@@ -2270,10 +2368,24 @@
     document.getElementById('modalDetailLoyerLocataire').style.display = 'none';
   }
 
+  let typeSignalementActuel = 'travaux';
+
+  function choisirTypeSignalementLocataire(type) {
+    typeSignalementActuel = type;
+    document.getElementById('typeSigTab-travaux').classList.toggle('active', type === 'travaux');
+    document.getElementById('typeSigTab-preavis').classList.toggle('active', type === 'preavis');
+    document.getElementById('champsSignalementTravaux').style.display = type === 'travaux' ? 'block' : 'none';
+    document.getElementById('champsSignalementPreavis').style.display = type === 'preavis' ? 'block' : 'none';
+    document.getElementById('msgSignalement').textContent = '';
+  }
+
   function ouvrirSignalementLocataire() {
     document.getElementById('signalementDescription').value = '';
     document.getElementById('signalementPhoto').value = '';
+    document.getElementById('preavisDateDepart').value = '';
+    document.getElementById('preavisMessage').value = '';
     document.getElementById('msgSignalement').textContent = '';
+    choisirTypeSignalementLocataire('travaux');
     document.getElementById('modalSignalementLocataire').style.display = 'flex';
   }
 
@@ -2282,36 +2394,58 @@
   }
 
   async function envoyerSignalementLocataire() {
-    const type = document.getElementById('signalementType').value;
-    const description = document.getElementById('signalementDescription').value.trim();
-    const fichier = document.getElementById('signalementPhoto').files[0];
     const msgDiv = document.getElementById('msgSignalement');
-    if (!description) { msgDiv.textContent = 'Décris le problème.'; return; }
-    if (!fichier) { msgDiv.textContent = 'Ajoute au moins une photo.'; return; }
     if (!currentLocataireIdEsp) { msgDiv.textContent = 'Erreur : session invalide.'; return; }
-    const erreurValidation = validerFichier(fichier);
-    if (erreurValidation) { msgDiv.textContent = erreurValidation; return; }
+
+    let categorie, nomDocument, dateEvenement = null, fichier = null;
+
+    if (typeSignalementActuel === 'preavis') {
+      const dateDepart = document.getElementById('preavisDateDepart').value;
+      const message = document.getElementById('preavisMessage').value.trim();
+      if (!dateDepart) { msgDiv.textContent = 'Indique la date de départ souhaitée.'; return; }
+      categorie = 'preavis';
+      dateEvenement = dateDepart;
+      nomDocument = 'Préavis de départ' + (message ? ' — ' + message.slice(0, 60) : '');
+    } else {
+      const type = document.getElementById('signalementType').value;
+      const description = document.getElementById('signalementDescription').value.trim();
+      fichier = document.getElementById('signalementPhoto').files[0] || null;
+      if (!description) { msgDiv.textContent = 'Décris le problème.'; return; }
+      if (fichier) {
+        const erreurValidation = validerFichier(fichier);
+        if (erreurValidation) { msgDiv.textContent = erreurValidation; return; }
+      }
+      const labelsType = { fuite: 'Fuite', panne: 'Panne', autre: 'Autre' };
+      categorie = 'travaux';
+      nomDocument = (labelsType[type] || 'Signalement') + ' — ' + description.slice(0, 60);
+    }
 
     const { data: locataireInfo, error: errInfo } = await supabaseClient.from('locataires').select('structure_id').eq('id', currentLocataireIdEsp).single();
     if (errInfo || !locataireInfo) { msgDiv.textContent = 'Erreur : impossible de récupérer ta fiche.'; return; }
     const structureId = locataireInfo.structure_id;
 
-    const labelsType = { fuite: 'Fuite', panne: 'Panne', autre: 'Autre' };
-    const nomDocument = (labelsType[type] || 'Signalement') + ' — ' + description.slice(0, 60);
-
-    const cheminFichier = `${structureId}/locataire/${currentLocataireIdEsp}/${nomStorageAleatoire(fichier.name)}`;
-    const { error: errUpload } = await supabaseClient.storage.from('documents').upload(cheminFichier, fichier);
-    if (errUpload) { msgDiv.textContent = 'Erreur d\u2019envoi : ' + errUpload.message; return; }
+    let cheminFichier = null;
+    if (fichier) {
+      cheminFichier = `${structureId}/locataire/${currentLocataireIdEsp}/${nomStorageAleatoire(fichier.name)}`;
+      const { error: errUpload } = await supabaseClient.storage.from('documents').upload(cheminFichier, fichier);
+      if (errUpload) { msgDiv.textContent = 'Erreur d\u2019envoi : ' + errUpload.message; return; }
+    }
 
     const { error: errInsert } = await supabaseClient.from('documents').insert({
       structure_id: structureId, entity_type: 'locataire', entity_id: currentLocataireIdEsp,
-      nom: nomDocument, storage_path: cheminFichier, taille_octets: fichier.size, categorie: 'travaux'
+      nom: nomDocument, storage_path: cheminFichier, taille_octets: fichier ? fichier.size : null,
+      categorie: categorie, document_date: dateEvenement
     });
-    if (errInsert) { await nettoyerFichierOrphelin(cheminFichier); msgDiv.textContent = 'Erreur : ' + errInsert.message; return; }
+    if (errInsert) {
+      if (cheminFichier) await nettoyerFichierOrphelin(cheminFichier);
+      msgDiv.textContent = 'Erreur : ' + errInsert.message;
+      return;
+    }
 
     fermerSignalementLocataire();
-    alert('Signalement envoyé au propriétaire.');
+    chargerSignalementsLocataire();
   }
+
 
 
   // Si l'utilisateur arrive depuis le lien reçu par email, ne pas ouvrir l'app directement —
@@ -2575,10 +2709,13 @@
     document.getElementById('dashDette').textContent = formatMoney(dette);
 
     // Le graphique et les alertes ne dépendent pas non plus l'un de l'autre — même principe.
-    await Promise.all([
+    // collecterAlertes() est désormais la source UNIQUE des alertes, réutilisée aussi par
+    // l'onglet À faire — garantit que le même chiffre apparaît partout, jamais deux comptes différents.
+    const [, itemsAlertes] = await Promise.all([
       dessinerCashflow12Mois(structIds),
-      chargerAlertesDashboard(structIds, retardCount)
+      collecterAlertes()
     ]);
+    await chargerAlertesDashboard(itemsAlertes);
   }
 
   async function dessinerCashflow12Mois(structIds) {
@@ -2633,64 +2770,44 @@
     `).join('')}</div>`;
   }
 
-  async function chargerAlertesDashboard(structIds, retardCount) {
+  // Sépare les items en "urgent" (fait vraiment monter une alerte rouge sur le Dashboard :
+  // loyers en retard, tâches réellement en retard) et le reste (échéances à venir, tâches en
+  // attente sans urgence — dont les signalements locataires tout frais, qui ne doivent pas
+  // faire paniquer le Dashboard le jour même, mais doivent quand même être comptés quelque part).
+  function scinderAlertesParUrgence(items) {
+    const urgent = items.filter(i => (i.titre === 'Loyer en retard' || i.titre === 'Tâche en retard'));
+    const reste = items.filter(i => !(i.titre === 'Loyer en retard' || i.titre === 'Tâche en retard'));
+    return { urgent, reste };
+  }
+
+  async function chargerAlertesDashboard(items) {
     const div = document.getElementById('dashAlertes');
-    const dans30jours = new Date(); dans30jours.setDate(dans30jours.getDate() + 30);
-    const dans60jours = new Date(); dans60jours.setDate(dans60jours.getDate() + 60);
-    const aujourdhui = dateLocale(new Date());
-
-    // Ces 7 requêtes ne dépendent pas les unes des autres — parties toutes en même temps
-    // plutôt qu'à la queue leu leu (c'était la vraie cause de la lenteur du Dashboard).
-    const [
-      { data: retards }, { data: baux }, { data: tachesEnRetard },
-      { data: immeublesDpe }, { data: tousBauxActifsDash },
-      { data: locatairesAssurance }, { data: documentsExpirantsDash }
-    ] = await Promise.all([
-      supabaseClient.from('paiements').select('mois, montant_loyer, montant_charges, baux(lot_id, lots(nom, type, immeuble_id, immeubles(adresse, structure_id)))').eq('statut', 'en_retard'),
-      supabaseClient.from('baux').select('date_debut, date_fin, lot_id, lots(nom, type, immeubles(adresse, structure_id))').eq('statut', 'actif').not('date_fin', 'is', null).lte('date_fin', dateLocale(dans30jours)).gte('date_fin', aujourdhui),
-      supabaseClient.from('taches').select('id').in('structure_id', structIds).eq('fait', false).not('date_echeance', 'is', null).lt('date_echeance', aujourdhui),
-      supabaseClient.from('immeubles').select('id, adresse, dpe_date_expiration').in('structure_id', structIds).not('dpe_date_expiration', 'is', null).lte('dpe_date_expiration', dateLocale(dans60jours)),
-      supabaseClient.from('baux').select('date_debut, date_fin, lot_id, lots(nom, type, immeuble_id, immeubles(adresse, structure_id))').eq('statut', 'actif'),
-      supabaseClient.from('locataires').select('id, nom, assurance_expiration').in('structure_id', structIds).not('assurance_expiration', 'is', null).lte('assurance_expiration', dateLocale(dans60jours)),
-      supabaseClient.from('documents').select('id, nom, storage_path, expiration_date').in('structure_id', structIds).not('expiration_date', 'is', null).lte('expiration_date', dateLocale(dans60jours)).order('expiration_date').limit(2)
-    ]);
-
-    const retardsFiltres = (retards || []).filter(p => p.baux && p.baux.lots && p.baux.lots.immeubles && structIds.includes(p.baux.lots.immeubles.structure_id));
-    const bauxFiltres = (baux || []).filter(b => b.lots && b.lots.immeubles && structIds.includes(b.lots.immeubles.structure_id));
-
-    // Bail révisable : date anniversaire de signature dans les 60 prochains jours
-    const bauxRevisables = (tousBauxActifsDash || []).filter(b => {
-      if (!b.lots || !b.lots.immeubles || !structIds.includes(b.lots.immeubles.structure_id)) return false;
-      const debut = new Date(b.date_debut);
-      const maintenant = new Date();
-      let anniversaire = new Date(maintenant.getFullYear(), debut.getMonth(), debut.getDate());
-      if (anniversaire < maintenant) anniversaire.setFullYear(anniversaire.getFullYear() + 1);
-      const joursAvant = Math.ceil((anniversaire - maintenant) / (1000 * 60 * 60 * 24));
-      return joursAvant >= 0 && joursAvant <= 60;
-    });
+    const retardsLoyer = items.filter(i => i.titre === 'Loyer en retard');
+    const tachesEnRetard = items.filter(i => i.titre === 'Tâche en retard');
+    const retardCount = retardsLoyer.length;
 
     let html = '';
     if (retardCount > 0) html += `<div class="alert-row row-click" onclick="allerLoyers()"><span class="alert-dot high"></span><span style="flex:1;">${retardCount} loyer${retardCount > 1 ? 's' : ''} en retard</span><span class="small">→</span></div>`;
-    if (tachesEnRetard && tachesEnRetard.length) html += `<div class="alert-row row-click" onclick="allerAlertes()"><span class="alert-dot med"></span><span style="flex:1;">${tachesEnRetard.length} tâche${tachesEnRetard.length > 1 ? 's' : ''} en retard</span><span class="small">→</span></div>`;
-    (immeublesDpe || []).slice(0, 2).forEach(im => {
-      html += `<div class="alert-row row-click" onclick="ouvrirFicheImmeuble('${im.id}')"><span class="alert-dot med"></span><span style="flex:1;">DPE expire le ${im.dpe_date_expiration} — ${echapper(im.adresse)}</span></div>`;
+    if (tachesEnRetard.length) html += `<div class="alert-row row-click" onclick="allerAlertes()"><span class="alert-dot med"></span><span style="flex:1;">${tachesEnRetard.length} tâche${tachesEnRetard.length > 1 ? 's' : ''} en retard</span><span class="small">→</span></div>`;
+    const tachesAFaire = items.filter(i => i.titre === 'Tâche à faire');
+    if (tachesAFaire.length) html += `<div class="alert-row row-click" onclick="allerAlertes()"><span class="alert-dot med"></span><span style="flex:1;">${tachesAFaire.length} tâche${tachesAFaire.length > 1 ? 's' : ''} à faire</span><span class="small">→</span></div>`;
+    items.filter(i => i.titre === 'DPE arrivant à expiration').slice(0, 2).forEach(it => {
+      html += `<div class="alert-row row-click" onclick="naviguerVersLien(${JSON.stringify(it.lien).replace(/"/g, '&quot;')})"><span class="alert-dot med"></span><span style="flex:1;">${echapper(it.detail)}</span></div>`;
     });
-    retardsFiltres.slice(0, 2).forEach(p => {
-      const montant = Number(p.montant_loyer) + Number(p.montant_charges);
-      html += `<div class="alert-row row-click" onclick="allerLoyers()"><span class="alert-dot high"></span><span style="flex:1;">${echapper(p.baux.lots.nom || p.baux.lots.type)}, ${echapper(p.baux.lots.immeubles.adresse)}</span><span class="badge-pill badge-rouge">${montant.toLocaleString('fr-FR')} €</span></div>`;
+    retardsLoyer.slice(0, 2).forEach(it => {
+      html += `<div class="alert-row row-click" onclick="naviguerVersLien(${JSON.stringify(it.lien).replace(/"/g, '&quot;')})"><span class="alert-dot high"></span><span style="flex:1;">${echapper(it.detail)}</span><span class="badge-pill badge-rouge">${Number(it.montant).toLocaleString('fr-FR')} €</span></div>`;
     });
-    bauxFiltres.slice(0, 2).forEach(b => {
-      html += `<div class="alert-row row-click" onclick="ouvrirFicheLot('${b.lot_id}')"><span class="alert-dot med"></span><span style="flex:1;">Bail expire le ${b.date_fin} — ${echapper(b.lots.nom || b.lots.type)}</span></div>`;
+    items.filter(i => i.titre === 'Bail arrivant à échéance').slice(0, 2).forEach(it => {
+      html += `<div class="alert-row row-click" onclick="naviguerVersLien(${JSON.stringify(it.lien).replace(/"/g, '&quot;')})"><span class="alert-dot med"></span><span style="flex:1;">${echapper(it.detail)}</span></div>`;
     });
-    bauxRevisables.slice(0, 2).forEach(b => {
-      html += `<div class="alert-row row-click" onclick="ouvrirFicheLot('${b.lot_id}')"><span class="alert-dot med"></span><span style="flex:1;">Révision annuelle du loyer possible — ${echapper(b.lots.nom || b.lots.type)}</span></div>`;
+    items.filter(i => i.titre === 'Révision annuelle du loyer possible').slice(0, 2).forEach(it => {
+      html += `<div class="alert-row row-click" onclick="naviguerVersLien(${JSON.stringify(it.lien).replace(/"/g, '&quot;')})"><span class="alert-dot med"></span><span style="flex:1;">${echapper(it.detail)}</span></div>`;
     });
-    (locatairesAssurance || []).slice(0, 2).forEach(l => {
-      html += `<div class="alert-row row-click" onclick="ouvrirFicheLocataire('${l.id}', 'liste')"><span class="alert-dot med"></span><span style="flex:1;">Assurance à renouveler — ${echapper(l.nom)} (${l.assurance_expiration})</span></div>`;
+    items.filter(i => i.titre === 'Assurance locataire à renouveler').slice(0, 2).forEach(it => {
+      html += `<div class="alert-row row-click" onclick="naviguerVersLien(${JSON.stringify(it.lien).replace(/"/g, '&quot;')})"><span class="alert-dot med"></span><span style="flex:1;">${echapper(it.detail)}</span></div>`;
     });
-    (documentsExpirantsDash || []).forEach(d => {
-      const jours = Math.ceil((new Date(d.expiration_date) - new Date()) / (1000 * 60 * 60 * 24));
-      html += `<div class="alert-row row-click" onclick="telechargerDocument('${d.storage_path}')"><span class="alert-dot med"></span><span style="flex:1;">${echapper(d.nom)} — ${jours < 0 ? 'expiré' : 'expire dans ' + jours + ' j'}</span></div>`;
+    items.filter(i => i.lien && i.lien.type === 'document').forEach(it => {
+      html += `<div class="alert-row row-click" onclick="naviguerVersLien(${JSON.stringify(it.lien).replace(/"/g, '&quot;')})"><span class="alert-dot med"></span><span style="flex:1;">${echapper(it.titre)}</span></div>`;
     });
     div.innerHTML = html || '<div class="empty-state">Rien à signaler pour le moment. 👍</div>';
   }
@@ -2997,7 +3114,7 @@
     if (errDonnees) { logErreur('charger_donnees_patrimoine', errDonnees); div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
 
     const structureIds = donnees.structure_ids || [];
-    if (!structureIds.length) { div.innerHTML = '<div class="empty-state">Aucune structure pour le moment.</div>'; document.getElementById('arbreTotal').innerHTML = ''; return; }
+    if (!structureIds.length) { div.innerHTML = '<div class="empty-state">Aucune structure pour le moment.</div>'; return; }
 
     const tousImmeubles = donnees.immeubles || [];
     const tousLots = donnees.lots || [];
@@ -4138,6 +4255,47 @@
     chargerContacts(entityType, entityId, targetDivId);
   }
 
+  async function chargerSignalementsProprietaire(locataireId) {
+    const div = document.getElementById('listeSignalementsProprietaire');
+    const { data: signalements, error } = await supabaseClient.from('documents')
+      .select('id, nom, categorie, document_date, storage_path, reponse_proprietaire, created_at')
+      .eq('entity_type', 'locataire').eq('entity_id', locataireId)
+      .in('categorie', ['travaux', 'preavis']).order('created_at', { ascending: false });
+    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
+    if (!signalements || !signalements.length) { div.innerHTML = '<div class="empty-state">Aucun signalement ou préavis pour l\u2019instant.</div>'; return; }
+
+    div.innerHTML = signalements.map(s => {
+      const icone = s.categorie === 'preavis' ? '📋' : '🔧';
+      const traite = !!s.reponse_proprietaire;
+      return `
+        <div class="row" style="flex-direction:column; align-items:stretch;">
+          <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+            <span style="font-weight:600;">${icone} ${echapper(s.nom)}</span>
+            ${s.storage_path ? `<a href="#" onclick="telechargerDocument('${s.storage_path}'); return false;" class="small">Voir la photo</a>` : ''}
+          </div>
+          <div class="small" style="margin:2px 0 6px;">Reçu le ${formatDate(s.created_at)}${s.categorie === 'preavis' && s.document_date ? ' · Départ souhaité le ' + formatDate(s.document_date) : ''}</div>
+          ${traite
+            ? `<div style="background:var(--panel-2); border-radius:8px; padding:8px 10px; font-size:0.85rem;"><span class="small" style="color:var(--accent); font-weight:600;">Ta réponse</span><br>${echapper(s.reponse_proprietaire)}</div>`
+            : `<div id="reponseForm-${s.id}" style="display:none; margin-top:4px;">
+                 <textarea id="reponseTexte-${s.id}" rows="2" placeholder="Ta réponse au locataire..." style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; resize:vertical;"></textarea>
+                 <button class="btn-primary" style="margin-top:6px; padding:6px 14px; font-size:0.82rem;" onclick="envoyerReponseSignalement('${s.id}', '${locataireId}')">Envoyer la réponse</button>
+               </div>
+               <button class="btn-secondary btn-ajout-inline" style="margin-top:4px;" onclick="document.getElementById('reponseForm-${s.id}').style.display='block'; this.style.display='none';">+ Répondre</button>`}
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function envoyerReponseSignalement(documentId, locataireId) {
+    const texte = document.getElementById('reponseTexte-' + documentId).value.trim();
+    if (!texte) return alert('Écris une réponse avant d\u2019envoyer.');
+    const { error } = await supabaseClient.from('documents').update({
+      reponse_proprietaire: texte, reponse_le: new Date().toISOString()
+    }).eq('id', documentId);
+    if (error) { logErreur('repondre_signalement', error); return alert('Erreur : ' + error.message); }
+    chargerSignalementsProprietaire(locataireId);
+  }
+
   async function chargerNotes(entityType, entityId, targetDivId) {
     const div = document.getElementById(targetDivId);
     const { data: notes, error } = await supabaseClient.from('notes').select('id, contenu, created_at').eq('entity_type', entityType).eq('entity_id', entityId).order('created_at', { ascending: false });
@@ -4681,6 +4839,7 @@
 
     chargerHistoriquePaiementsLocataire(bailIds);
     chargerNotes('locataire', currentLocataireId, 'listeNotesLoc');
+    chargerSignalementsProprietaire(currentLocataireId);
   }
 
   let offsetPaiementsLocataire = 0;
@@ -5154,6 +5313,7 @@
     document.getElementById('cardKpiRetard').classList.toggle('green', enRetard === 0);
     document.getElementById('loyersProgressionLabel').textContent = pourcentage + ' % encaissé';
     document.getElementById('loyersProgressionBarre').style.width = pourcentage + '%';
+    document.getElementById('btnPreparerRelances').style.display = items.some(it => it.paiement.statut === 'en_retard') ? 'block' : 'none';
   }
 
   let filtreStatutLoyersActif = 'tous';
@@ -5255,6 +5415,56 @@
   function fermerDetailPaiement() {
     document.getElementById('panelPaiementDetail').style.display = 'none';
     paiementDetailCourantId = null;
+  }
+
+  // ---------- RELANCES (v1 : mailto individuel, en attente d'un vrai envoi automatique via Resend/SMTP) ----------
+  async function ouvrirRelances() {
+    const enRetard = donneesItemsCalendrier.filter(it => it.paiement.statut === 'en_retard');
+    if (!enRetard.length) return;
+
+    const idsLocataires = [...new Set(enRetard.filter(it => it.locataireId).map(it => it.locataireId))];
+    let emailsParId = {};
+    if (idsLocataires.length) {
+      const { data: locs } = await supabaseClient.from('locataires').select('id, email').in('id', idsLocataires);
+      (locs || []).forEach(l => emailsParId[l.id] = l.email);
+    }
+
+    const div = document.getElementById('listeRelances');
+    div.innerHTML = enRetard.map((it, idx) => {
+      const email = it.locataireId ? emailsParId[it.locataireId] : null;
+      const message = construireMessageRelance(it);
+      return `
+        <div class="card" style="margin-bottom:10px;">
+          <div style="font-weight:600; margin-bottom:2px;">${echapper(it.nomLocataire)} — ${echapper(it.lotNom)}</div>
+          <div class="small" style="margin-bottom:8px;">${it.montant.toLocaleString('fr-FR')} € en retard</div>
+          <textarea id="relanceTexte-${idx}" rows="5" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; resize:vertical; font-size:1rem;">${echapper(message)}</textarea>
+          ${email
+            ? `<button class="btn-primary" style="margin-top:8px; padding:8px 14px; font-size:0.85rem; width:auto;" onclick="envoyerRelanceIndividuelle(${idx}, '${echapperPourOnclick(email)}')">Envoyer par email →</button>`
+            : `<p class="small" style="color:var(--amber); margin-top:8px;">Aucun email renseigné pour ce locataire — impossible d\u2019envoyer directement.</p>`}
+        </div>
+      `;
+    }).join('');
+    document.getElementById('modalRelances').style.display = 'flex';
+  }
+
+  function construireMessageRelance(it) {
+    return `Bonjour ${it.nomLocataire},
+
+Je me permets de vous relancer concernant le loyer de ${it.lotNom} (${it.adresse}), d'un montant de ${it.montant.toLocaleString('fr-FR')} €, actuellement en retard.
+
+Merci de bien vouloir régulariser cette situation dans les meilleurs délais.
+
+Cordialement`;
+  }
+
+  function envoyerRelanceIndividuelle(idx, email) {
+    const texte = document.getElementById('relanceTexte-' + idx).value;
+    const lien = `mailto:${email}?subject=${encodeURIComponent('Relance de loyer')}&body=${encodeURIComponent(texte)}`;
+    window.location.href = lien;
+  }
+
+  function fermerRelances() {
+    document.getElementById('modalRelances').style.display = 'none';
   }
 
   let confirmationPaiementEnCours = false;
@@ -6028,27 +6238,42 @@ Durée : du {{date_debut}} au {{date_fin}}
 
   async function collecterAlertes() {
     const items = [];
-    const { data: paiements } = await supabaseClient.from('paiements').select('mois, baux(lot_id, lots(nom, type, immeuble_id, immeubles(adresse)))').eq('statut', 'en_retard').order('mois');
+    const { data: paiements } = await supabaseClient.from('paiements').select('mois, montant_loyer, montant_charges, baux(lot_id, lots(nom, type, immeuble_id, immeubles(adresse)))').eq('statut', 'en_retard').order('mois');
     (paiements || []).forEach(p => {
       const lot = p.baux && p.baux.lots ? p.baux.lots : null;
       const immeuble = lot && lot.immeubles ? lot.immeubles.adresse : '';
-      items.push({ severite: 'haute', titre: 'Loyer en retard', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (${p.mois})`, lien: p.baux ? { type: 'lot', id: p.baux.lot_id } : null });
+      items.push({ severite: 'haute', titre: 'Loyer en retard', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (${p.mois})`, lien: p.baux ? { type: 'lot', id: p.baux.lot_id } : null, montant: Number(p.montant_loyer) + Number(p.montant_charges) });
+    });
+
+    // Tâches non terminées — TOUTES, pas seulement celles en retard. Une tâche créée
+    // automatiquement par un signalement locataire n'a aucune date d'échéance (NULL) : si on
+    // ne comptait que les tâches en retard, un signalement tout frais ne remonterait jamais
+    // nulle part (ni ici, ni dans la pastille de la barre du bas, ni sur le Dashboard).
+    const today = dateLocale(new Date());
+    const { data: tachesNonFaites } = await supabaseClient.from('taches').select('id, titre, date_echeance').eq('fait', false);
+    (tachesNonFaites || []).forEach(t => {
+      const enRetard = t.date_echeance && t.date_echeance < today;
+      items.push({
+        severite: enRetard ? 'haute' : 'moyenne',
+        titre: enRetard ? 'Tâche en retard' : 'Tâche à faire',
+        detail: t.titre + (t.date_echeance ? ` (échéance ${formatDate(t.date_echeance)})` : ''),
+        lien: { type: 'taches' }
+      });
     });
 
     const dansSoixanteJours = new Date(); dansSoixanteJours.setDate(dansSoixanteJours.getDate() + 60);
-    const today = dateLocale(new Date());
     const { data: baux } = await supabaseClient.from('baux').select('date_fin, lots(id, nom, type, immeubles(adresse))').eq('statut', 'actif').not('date_fin', 'is', null).gte('date_fin', today).lte('date_fin', dateLocale(dansSoixanteJours)).order('date_fin');
     (baux || []).forEach(b => {
       const lot = b.lots;
       const immeuble = lot && lot.immeubles ? lot.immeubles.adresse : '';
       const joursRestants = Math.ceil((new Date(b.date_fin) - new Date()) / (1000 * 60 * 60 * 24));
-      items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'Bail arrivant à échéance', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (dans ${joursRestants} j)`, lien: lot ? { type: 'lot', id: lot.id } : null });
+      items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'Bail arrivant à échéance', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (dans ${joursRestants} j)`, lien: lot ? { type: 'lot', id: lot.id } : null, jours: joursRestants });
     });
 
     const { data: immeublesDpe } = await supabaseClient.from('immeubles').select('id, adresse, dpe_date_expiration').not('dpe_date_expiration', 'is', null).lte('dpe_date_expiration', dateLocale(dansSoixanteJours));
     (immeublesDpe || []).forEach(im => {
       const joursRestants = Math.ceil((new Date(im.dpe_date_expiration) - new Date()) / (1000 * 60 * 60 * 24));
-      items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'DPE arrivant à expiration', detail: `${im.adresse} (dans ${joursRestants} j)`, lien: { type: 'immeuble', id: im.id } });
+      items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'DPE arrivant à expiration', detail: `${im.adresse} (dans ${joursRestants} j)`, lien: { type: 'immeuble', id: im.id }, jours: joursRestants });
     });
 
     // Bail révisable : date anniversaire de signature dans les 60 prochains jours (moment légal de révision IRL)
@@ -6062,7 +6287,7 @@ Durée : du {{date_debut}} au {{date_fin}}
       if (joursAvant >= 0 && joursAvant <= 60) {
         const lot = b.lots;
         const immeuble = lot && lot.immeubles ? lot.immeubles.adresse : '';
-        items.push({ severite: joursAvant <= 15 ? 'haute' : 'moyenne', titre: 'Révision annuelle du loyer possible', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (dans ${joursAvant} j)`, lien: lot ? { type: 'lot', id: lot.id } : null });
+        items.push({ severite: joursAvant <= 15 ? 'haute' : 'moyenne', titre: 'Révision annuelle du loyer possible', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (dans ${joursAvant} j)`, lien: lot ? { type: 'lot', id: lot.id } : null, jours: joursAvant });
       }
     });
 
@@ -6070,7 +6295,7 @@ Durée : du {{date_debut}} au {{date_fin}}
     const { data: locatairesAssurancePourAlerte } = await supabaseClient.from('locataires').select('id, nom, assurance_expiration').not('assurance_expiration', 'is', null).lte('assurance_expiration', dateLocale(dansSoixanteJours));
     (locatairesAssurancePourAlerte || []).forEach(l => {
       const joursRestants = Math.ceil((new Date(l.assurance_expiration) - new Date()) / (1000 * 60 * 60 * 24));
-      items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'Assurance locataire à renouveler', detail: `${l.nom} (dans ${joursRestants} j)`, lien: { type: 'locataire', id: l.id } });
+      items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'Assurance locataire à renouveler', detail: `${l.nom} (dans ${joursRestants} j)`, lien: { type: 'locataire', id: l.id }, jours: joursRestants });
     });
 
     // Documents à échéance générique (assurance PNO, contrats, garanties... — hors DPE/assurance locataire déjà gérés ci-dessus)
@@ -6102,7 +6327,7 @@ Durée : du {{date_debut}} au {{date_fin}}
         let detail = d.entity_type === 'immeuble' ? (nomImmPourDoc[d.entity_id] || '') : d.entity_type === 'lot' ? (nomLotPourDoc[d.entity_id] || '') : (nomLocPourDoc[d.entity_id] || '');
         const contactLie = contactParEntite[d.entity_type + '-' + d.entity_id];
         if (contactLie) detail += ` · ${contactLie.nom}${contactLie.telephone ? ' · ' + contactLie.telephone : ''}`;
-        items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: `${d.nom} — ${joursRestants < 0 ? 'expiré' : 'expire dans ' + joursRestants + ' j'}`, detail, lien: { type: 'document', storagePath: d.storage_path } });
+        items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: `${d.nom} — ${joursRestants < 0 ? 'expiré' : 'expire dans ' + joursRestants + ' j'}`, detail, lien: { type: 'document', storagePath: d.storage_path }, jours: joursRestants });
       });
     }
 
@@ -6115,6 +6340,7 @@ Durée : du {{date_debut}} au {{date_fin}}
     else if (lien.type === 'immeuble') ouvrirFicheImmeuble(lien.id);
     else if (lien.type === 'locataire') ouvrirFicheLocataire(lien.id, 'liste');
     else if (lien.type === 'document') telechargerDocument(lien.storagePath);
+    else if (lien.type === 'taches') allerAlertes();
   }
 
 
@@ -6769,7 +6995,7 @@ Durée : du {{date_debut}} au {{date_fin}}
     const items = donneesDocumentsGlobal.filter(d => !filtre || d.nom.toLowerCase().includes(filtre) || d.nomEntite.toLowerCase().includes(filtre));
     if (!items.length) { div.innerHTML = '<div class="empty-state">Aucun document trouvé sur cette page (essaie une autre page ou une autre recherche).</div>'; return; }
 
-    const labelsCat = { bail: 'Bail', quittance: 'Quittance', diagnostic: 'Diagnostic', assurance: 'Assurance', travaux: 'Travaux', revision_loyer: 'Révision loyer', autre: 'Autre' };
+    const labelsCat = { bail: 'Bail', quittance: 'Quittance', diagnostic: 'Diagnostic', assurance: 'Assurance', travaux: 'Travaux', preavis: 'Préavis de départ', revision_loyer: 'Révision loyer', autre: 'Autre' };
     div.innerHTML = items.map(d => `
       <div class="row doc-row" style="display:grid; align-items:center;">
         <span onclick="telechargerDocument('${d.storage_path}')" style="cursor:pointer; color:var(--accent);">📎 ${echapper(d.nom)} ${badgeEcheanceDocument(d.expiration_date)}</span>
