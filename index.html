@@ -5652,7 +5652,7 @@ Cordialement`;
 
   // ---------- FINANCES ----------
   async function allerFinances() {
-    setActiveNav('nav-finances'); hideAllPages();
+    hideAllPages();
     document.getElementById('page-finances').style.display = 'block';
     const sel = document.getElementById('structureFinances');
     if (!sel.options.length) {
@@ -5736,7 +5736,7 @@ Cordialement`;
 
   // ---------- PRÊTS ----------
   async function allerPrets() {
-    setActiveNav('nav-prets'); hideAllPages();
+    hideAllPages();
     document.getElementById('page-prets').style.display = 'block';
     const sel = document.getElementById('immeublePrets');
     if (!sel.options.length) {
@@ -5903,7 +5903,7 @@ Le bailleur donne quittance au locataire pour le paiement ci-dessus et lui donne
     const sujet = document.getElementById('supportSujet').value.trim();
     const message = document.getElementById('supportMessage').value.trim();
     if (!sujet || !message) return alert('Sujet et message sont requis.');
-    const lien = `mailto:support@myinvesta.fr?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(message)}`;
+    const lien = `mailto:contact@myinvesta.fr?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(message)}`;
     window.location.href = lien;
   }
 
@@ -6549,7 +6549,7 @@ Durée : du {{date_debut}} au {{date_fin}}
 
   // ---------- RAPPORTS ----------
   async function allerRapports() {
-    setActiveNav('nav-rapports'); hideAllPages();
+    hideAllPages();
     document.getElementById('page-rapports').style.display = 'block';
     const sel = document.getElementById('structureRapports');
     if (!sel.options.length) {
