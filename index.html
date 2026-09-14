@@ -98,6 +98,13 @@
   .esp-tabbar-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--text-dim); font-size: 0.68rem; cursor: pointer; }
   .esp-tabbar-item.active { color: var(--accent); }
   .esp-tabbar-item .ic { font-size: 1.2rem; }
+
+  .owner-tabbar { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--panel); border-top: 1px solid var(--border); padding: 9px 4px calc(12px + env(safe-area-inset-bottom)); z-index: 140; }
+  .owner-tabbar-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--text-dim); font-size: 0.64rem; cursor: pointer; }
+  .owner-tabbar-item.active { color: var(--accent); }
+  .owner-tabbar-item .ic-wrap { position: relative; display: inline-block; }
+  .owner-tabbar-item .ic { font-size: 1.2rem; }
+  .owner-tabbar-badge { position: absolute; top: -4px; right: -9px; background: var(--red); color: white; font-size: 0.6rem; font-weight: 700; min-width: 15px; height: 15px; border-radius: 8px; padding: 0 3px; display: none; align-items: center; justify-content: center; border: 1.5px solid var(--panel); }
   @media (min-width: 700px) {
     .esp-tabbar { max-width: 420px; left: 50%; right: auto; transform: translateX(-50%); border-radius: 16px 16px 0 0; border-left: 1px solid var(--border); border-right: 1px solid var(--border); box-shadow: 0 -4px 20px rgba(0,0,0,0.3); }
     #espFabSignalement { right: auto; left: calc(50% + 210px - 74px); }
@@ -108,6 +115,8 @@
     .sidebar { position: fixed; top: 0; left: 0; height: 100vh; z-index: 210; transform: translateX(-100%); transition: transform 0.2s; }
     .sidebar.ouverte { transform: translateX(0); }
     .btn-menu-mobile { display: flex; }
+    .owner-tabbar { display: flex; }
+    .main { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
   }
   .overlay-menu-mobile { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; }
   .overlay-menu-mobile.ouverte { display: block; }
@@ -1871,6 +1880,25 @@
 
     </div>
   </div>
+
+  <!-- Barre de navigation du bas (téléphone uniquement, <900px) -->
+  <div class="owner-tabbar">
+    <div class="owner-tabbar-item active" id="tabNav-dashboard" onclick="allerDashboard()">
+      <span class="ic-wrap"><span class="ic">◈</span></span>Dashboard
+    </div>
+    <div class="owner-tabbar-item" id="tabNav-loyers" onclick="allerLoyers()">
+      <span class="ic-wrap"><span class="ic">📅</span></span>Loyers
+    </div>
+    <div class="owner-tabbar-item" id="tabNav-locataires" onclick="allerLocataires()">
+      <span class="ic-wrap"><span class="ic">👤</span></span>Locataires
+    </div>
+    <div class="owner-tabbar-item" id="tabNav-alertes" onclick="allerAlertes()">
+      <span class="ic-wrap"><span class="ic">🔔</span><span class="owner-tabbar-badge" id="badgeAFaire"></span></span>À faire
+    </div>
+    <div class="owner-tabbar-item" id="tabNav-plus" onclick="toggleMenuMobile()">
+      <span class="ic-wrap"><span class="ic">⋯</span></span>Plus
+    </div>
+  </div>
 </div>
 
 <!-- ============ ESPACE LOCATAIRE ============ -->
@@ -2606,11 +2634,34 @@
   });
 
 
+  const OWNER_TABBAR_MAP = { 'nav-dashboard': 'tabNav-dashboard', 'nav-loyers': 'tabNav-loyers', 'nav-locataires': 'tabNav-locataires', 'nav-alertes': 'tabNav-alertes' };
+
   function setActiveNav(id) {
     NAV_IDS.forEach(n => document.getElementById(n).classList.remove('active'));
     if (id) document.getElementById(id).classList.add('active');
     document.querySelector('.sidebar').classList.remove('ouverte');
     document.querySelector('.overlay-menu-mobile').classList.remove('ouverte');
+
+    // Même principe pour la barre du bas (téléphone) — reste synchronisée avec la sidebar,
+    // qu'on navigue depuis l'une ou l'autre. Les pages accessibles seulement via "Plus"
+    // (Patrimoine, Documents, Fiscalité, Paramètres) ne mettent aucun onglet en surbrillance.
+    Object.values(OWNER_TABBAR_MAP).forEach(tid => { const el = document.getElementById(tid); if (el) el.classList.remove('active'); });
+    const tabId = OWNER_TABBAR_MAP[id];
+    if (tabId) { const el = document.getElementById(tabId); if (el) el.classList.add('active'); }
+  }
+
+  // Pastille de notification sur "À faire" — un seul chiffre, alimenté par la même
+  // collecterAlertes() unifiée que le Dashboard et l'onglet À faire, jamais un calcul séparé.
+  function mettreAJourBadgeAFaire(items) {
+    const badge = document.getElementById('badgeAFaire');
+    if (!badge) return;
+    const total = items.length;
+    if (total > 0) {
+      badge.textContent = total > 99 ? '99+' : String(total);
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
   }
 
   async function allerDashboard() {
@@ -2716,6 +2767,7 @@
       collecterAlertes()
     ]);
     await chargerAlertesDashboard(itemsAlertes);
+    mettreAJourBadgeAFaire(itemsAlertes);
   }
 
   async function dessinerCashflow12Mois(structIds) {
@@ -6349,6 +6401,7 @@ Durée : du {{date_debut}} au {{date_fin}}
     const div = document.getElementById(idDiv);
     div.textContent = 'Chargement...';
     const items = await collecterAlertes();
+    mettreAJourBadgeAFaire(items);
     if (!items.length) { div.innerHTML = '<div class="empty-state">Aucune alerte pour le moment. 👍</div>'; return; }
     div.innerHTML = items.map(it => `
       <div class="row ${it.lien ? 'row-click' : ''}" ${it.lien ? `onclick="naviguerVersLien(${JSON.stringify(it.lien).replace(/"/g, '&quot;')})"` : ''}><div><strong>${echapper(it.titre)}</strong><br><span class="small">${echapper(it.detail)}</span></div><span class="severite ${it.severite}">${it.severite === 'haute' ? 'Élevée' : 'Moyenne'}</span></div>
