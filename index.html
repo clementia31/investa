@@ -1668,6 +1668,51 @@
             <button class="btn-primary" style="width:auto; padding:10px 16px;" onclick="ajouterAssocie()">Ajouter</button>
           </div>
         </div>
+
+        <!-- Modal : question posée une fois par structure -->
+        <div id="modalOnboardingDeficit" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center; padding:20px;">
+          <div class="card" style="max-width:420px; width:100%; max-height:85vh; overflow-y:auto;">
+            <div id="onboardingDeficitEtape1">
+              <h3 style="margin-top:0;">Déficits fonciers en cours ?</h3>
+              <p class="small">As-tu déjà des déficits fonciers en cours de report (issus d'années précédentes, hors Investa) pour <strong id="onboardingDeficitNomStructure"></strong> ?</p>
+              <div style="display:flex; gap:8px; margin-top:14px;">
+                <button class="btn-secondary" style="flex:1;" onclick="choisirOnboardingDeficit(false)">Non</button>
+                <button class="btn-primary" style="flex:1;" onclick="choisirOnboardingDeficit(true)">Oui</button>
+              </div>
+            </div>
+            <div id="onboardingDeficitEtape2" style="display:none;">
+              <h3 style="margin-top:0;">Ajoute tes déficits en cours</h3>
+              <p class="small">Un déficit se reporte 10 ans maximum. Ajoute une ligne par année d'origine encore active.</p>
+              <div id="listeDeficitsSaisis" style="margin-bottom:10px;"></div>
+              <div class="grid-2" style="margin-bottom:0;">
+                <input id="onbDeficitAnnee" type="number" placeholder="Année d'origine (ex: 2023)">
+                <input id="onbDeficitMontant" type="number" min="0" placeholder="Montant restant (€)">
+              </div>
+              <select id="onbDeficitOrigine" style="margin-top:8px;">
+                <option value="hors_interets">Part hors intérêts (issue de travaux, charges...)</option>
+                <option value="interets">Part issue des intérêts d'emprunt</option>
+              </select>
+              <button class="btn-secondary" style="width:100%; margin-top:8px;" onclick="ajouterDeficitHistorique()">+ Ajouter cette ligne</button>
+              <button class="btn-primary" style="width:100%; margin-top:14px;" onclick="terminerOnboardingDeficit()">Terminer</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panneau de détail fiscal 2044 -->
+        <div class="card" id="cardDetailFiscal2044" style="display:none;">
+          <div class="section-header-ajout">
+            <h3>Détail 2044 — <span id="nomStructureDetailFiscal"></span></h3>
+            <button class="icon-btn-round" onclick="document.getElementById('cardDetailFiscal2044').style.display='none';" aria-label="Fermer">✕</button>
+          </div>
+          <p class="small" style="color:var(--amber); margin:0 0 12px;">⚠️ Estimation indicative — à vérifier avec un comptable avant toute déclaration réelle. Frais de gestion (ligne 221) et forfait annuel (ligne 222) ne sont pas comptés automatiquement : à ajouter toi-même.</p>
+          <div id="ligne2044Contenu">Chargement...</div>
+          <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
+            <h4 style="margin:0 0 6px; font-size:0.9rem;">Déficits reportables en cours</h4>
+            <div id="listeDeficitsReportables" class="small">Chargement...</div>
+          </div>
+          <button class="btn-primary" style="width:100%; margin-top:14px;" id="btnClotureAnnee" onclick="clotureAnneeFiscale()">Clôturer cette année et ventiler le résultat</button>
+          <p class="small" style="margin-top:6px;">Irréversible pour cette année — n'utilise ce bouton que si tu es sûr que toutes les données de l'année sont complètes.</p>
+        </div>
       </div>
 
       <!-- ===== RAPPORTS ===== -->
@@ -6530,7 +6575,7 @@ Durée : du {{date_debut}} au {{date_fin}}
     const div = document.getElementById('fiscGrid');
     div.textContent = 'Chargement...';
 
-    const { data: structures, error } = await supabaseClient.from('structures').select('id, nom, type').order('created_at');
+    const { data: structures, error } = await supabaseClient.from('structures').select('id, nom, type, deficit_onboarding_fait').order('created_at');
     if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
     if (!structures || !structures.length) { div.innerHTML = '<div class="empty-state">Aucune structure pour le moment.</div>'; return; }
 
@@ -6556,15 +6601,130 @@ Durée : du {{date_debut}} au {{date_fin}}
       const revenus = revenusParStructure[s.id] || 0;
       const charges = chargesParStructure[s.id] || 0;
       const resultat = revenus - charges;
-      html += `<div class="fisc-card" onclick="ouvrirAssociesStructure('${s.id}', '${echapperPourOnclick(s.nom)}')">
-        <h4>${echapper(s.nom)}</h4>
-        <div class="regime">${labelsRegime[s.type] || s.type}</div>
-        <div class="fisc-line"><span>Revenus (loyers + charges encaissés)</span><span>${revenus.toLocaleString('fr-FR')} €</span></div>
-        <div class="fisc-line"><span>Charges déductibles enregistrées</span><span>${charges.toLocaleString('fr-FR')} €</span></div>
-        <div class="fisc-line"><span>${s.type === 'sci_is' ? 'Résultat (avant IS)' : 'Résultat foncier estimé'}</span><span>${resultat.toLocaleString('fr-FR')} €</span></div>
+      html += `<div class="fisc-card">
+        <div onclick="ouvrirAssociesStructure('${s.id}', '${echapperPourOnclick(s.nom)}')">
+          <h4>${echapper(s.nom)}</h4>
+          <div class="regime">${labelsRegime[s.type] || s.type}</div>
+          <div class="fisc-line"><span>Revenus (loyers + charges encaissés)</span><span>${revenus.toLocaleString('fr-FR')} €</span></div>
+          <div class="fisc-line"><span>Charges déductibles enregistrées</span><span>${charges.toLocaleString('fr-FR')} €</span></div>
+          <div class="fisc-line"><span>${s.type === 'sci_is' ? 'Résultat (avant IS)' : 'Résultat foncier estimé'}</span><span>${resultat.toLocaleString('fr-FR')} €</span></div>
+        </div>
+        <button class="btn-secondary" style="width:auto; padding:8px 14px; font-size:0.82rem; margin-top:8px;" onclick="ouvrirDetailFiscal2044('${s.id}', '${echapperPourOnclick(s.nom)}', ${!!s.deficit_onboarding_fait})">Voir le détail 2044 →</button>
       </div>`;
     });
     div.innerHTML = html;
+  }
+
+  // ---------- DÉTAIL FISCAL 2044 & DÉFICITS REPORTABLES ----------
+  let currentStructureDetailFiscalId = null;
+  let currentStructureDetailFiscalNom = null;
+
+  function ouvrirDetailFiscal2044(structureId, nom, onboardingFait) {
+    currentStructureDetailFiscalId = structureId;
+    currentStructureDetailFiscalNom = nom;
+    if (!onboardingFait) {
+      document.getElementById('onboardingDeficitNomStructure').textContent = nom;
+      document.getElementById('onboardingDeficitEtape1').style.display = 'block';
+      document.getElementById('onboardingDeficitEtape2').style.display = 'none';
+      document.getElementById('modalOnboardingDeficit').style.display = 'flex';
+      return;
+    }
+    afficherDetailFiscal2044();
+  }
+
+  async function choisirOnboardingDeficit(aDesDeficits) {
+    if (!aDesDeficits) {
+      const { error } = await supabaseClient.from('structures').update({ deficit_onboarding_fait: true }).eq('id', currentStructureDetailFiscalId);
+      if (error) { logErreur('onboarding_deficit_non', error); return alert('Erreur : ' + error.message); }
+      document.getElementById('modalOnboardingDeficit').style.display = 'none';
+      afficherDetailFiscal2044();
+      return;
+    }
+    document.getElementById('onboardingDeficitEtape1').style.display = 'none';
+    document.getElementById('onboardingDeficitEtape2').style.display = 'block';
+    chargerListeDeficitsSaisis();
+  }
+
+  async function chargerListeDeficitsSaisis() {
+    const { data } = await supabaseClient.from('deficits_fonciers_reportables').select('annee_origine, montant_restant, origine').eq('structure_id', currentStructureDetailFiscalId).eq('saisie_manuelle', true).order('annee_origine');
+    const div = document.getElementById('listeDeficitsSaisis');
+    div.innerHTML = (data && data.length) ? data.map(d => `<div class="row"><span class="small">${d.annee_origine} — ${d.origine === 'interets' ? 'Intérêts' : 'Hors intérêts'}</span><span>${Number(d.montant_restant).toLocaleString('fr-FR')} €</span></div>`).join('') : '<div class="empty-state">Aucune ligne ajoutée pour l\u2019instant.</div>';
+  }
+
+  async function ajouterDeficitHistorique() {
+    const annee = document.getElementById('onbDeficitAnnee').value;
+    const montant = document.getElementById('onbDeficitMontant').value;
+    const origine = document.getElementById('onbDeficitOrigine').value;
+    if (!annee || !montant) return alert('Année et montant requis.');
+    const { error } = await supabaseClient.from('deficits_fonciers_reportables').insert({
+      structure_id: currentStructureDetailFiscalId, annee_origine: parseInt(annee),
+      montant_initial: parseFloat(montant), montant_restant: parseFloat(montant),
+      origine, saisie_manuelle: true
+    });
+    if (error) { logErreur('ajouter_deficit_historique', error); return alert('Erreur : ' + error.message); }
+    document.getElementById('onbDeficitAnnee').value = '';
+    document.getElementById('onbDeficitMontant').value = '';
+    chargerListeDeficitsSaisis();
+  }
+
+  async function terminerOnboardingDeficit() {
+    const { error } = await supabaseClient.from('structures').update({ deficit_onboarding_fait: true }).eq('id', currentStructureDetailFiscalId);
+    if (error) { logErreur('terminer_onboarding_deficit', error); return alert('Erreur : ' + error.message); }
+    document.getElementById('modalOnboardingDeficit').style.display = 'none';
+    afficherDetailFiscal2044();
+  }
+
+  async function afficherDetailFiscal2044() {
+    document.getElementById('nomStructureDetailFiscal').textContent = currentStructureDetailFiscalNom;
+    document.getElementById('cardDetailFiscal2044').style.display = 'block';
+    document.getElementById('cardDetailFiscal2044').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    const annee = document.getElementById('anneeFiscalite').value;
+
+    const contenuDiv = document.getElementById('ligne2044Contenu');
+    contenuDiv.textContent = 'Chargement...';
+    const { data: detail, error } = await supabaseClient.rpc('calculer_resultat_foncier_detaille', { p_structure_id: currentStructureDetailFiscalId, p_annee: parseInt(annee) });
+    if (error) { logErreur('calculer_resultat_foncier_detaille', error); contenuDiv.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
+
+    contenuDiv.innerHTML = `
+      <div class="row"><span class="small">Loyers bruts encaissés (ligne 211)</span><span>${Number(detail.loyers_211).toLocaleString('fr-FR')} €</span></div>
+      <div class="row"><span class="small">Travaux (ligne 224)</span><span>${Number(detail.travaux_224).toLocaleString('fr-FR')} €</span></div>
+      <div class="row"><span class="small">Taxe foncière (ligne 227)</span><span>${Number(detail.taxe_fonciere_227).toLocaleString('fr-FR')} €</span></div>
+      <div class="row"><span class="small">Assurance (ligne 223)</span><span>${Number(detail.assurance_223).toLocaleString('fr-FR')} €</span></div>
+      <div class="row"><span class="small">Copropriété (lignes 229/230)</span><span>${Number(detail.copropriete_229_230).toLocaleString('fr-FR')} €</span></div>
+      <div class="row"><span class="small">Intérêts d'emprunt (ligne 250)</span><span>${Number(detail.interets_emprunt_250).toLocaleString('fr-FR')} €</span></div>
+      <div class="row" style="font-weight:600;"><span>Résultat foncier (ligne 420)</span><span>${Number(detail.resultat_420).toLocaleString('fr-FR')} €</span></div>
+    `;
+
+    const { data: clotureExistante } = await supabaseClient.from('clotures_fiscales_annuelles').select('annee').eq('structure_id', currentStructureDetailFiscalId).eq('annee', parseInt(annee)).maybeSingle();
+    const btnCloture = document.getElementById('btnClotureAnnee');
+    if (clotureExistante) { btnCloture.disabled = true; btnCloture.textContent = 'Année déjà clôturée'; }
+    else { btnCloture.disabled = false; btnCloture.textContent = 'Clôturer cette année et ventiler le résultat'; }
+
+    chargerDeficitsReportables();
+  }
+
+  async function chargerDeficitsReportables() {
+    const div = document.getElementById('listeDeficitsReportables');
+    const { data } = await supabaseClient.from('deficits_fonciers_reportables').select('annee_origine, montant_restant, origine').eq('structure_id', currentStructureDetailFiscalId).gt('montant_restant', 0).order('annee_origine');
+    if (!data || !data.length) { div.innerHTML = '<div class="empty-state">Aucun déficit en cours de report.</div>'; return; }
+    div.innerHTML = data.map(d => `<div class="row"><span>${d.annee_origine} — ${d.origine === 'interets' ? 'Part intérêts' : 'Part hors intérêts'}</span><span>${Number(d.montant_restant).toLocaleString('fr-FR')} €</span></div>`).join('');
+  }
+
+  async function clotureAnneeFiscale() {
+    const annee = document.getElementById('anneeFiscalite').value;
+    if (!confirm(`Clôturer définitivement l\u2019année ${annee} pour ${currentStructureDetailFiscalNom} ? Cette action est irréversible.`)) return;
+    const { data, error } = await supabaseClient.rpc('ventiler_deficit_foncier', { p_structure_id: currentStructureDetailFiscalId, p_annee: parseInt(annee) });
+    if (error) { logErreur('cloture_annee_fiscale', error); return alert('Erreur : ' + error.message); }
+
+    if (data.resultat === 'benefice') {
+      alert(`Année clôturée : revenu foncier net imposable (case 4BA) = ${Number(data.revenu_foncier_net_4BA).toLocaleString('fr-FR')} €` + (data.deficits_anterieurs_absorbes > 0 ? `\net ${Number(data.deficits_anterieurs_absorbes).toLocaleString('fr-FR')} € de déficits antérieurs ont été absorbés.` : '.'));
+    } else {
+      alert(`Année clôturée :\n— Déficit imputable sur le revenu global (case 4BC) = ${Number(data.imputable_revenu_global_4BC).toLocaleString('fr-FR')} €\n— Déficit reportable sur les revenus fonciers futurs (case 4BB) = ${Number(data.reportable_4BB).toLocaleString('fr-FR')} €`);
+    }
+
+    document.getElementById('btnClotureAnnee').disabled = true;
+    document.getElementById('btnClotureAnnee').textContent = 'Année déjà clôturée';
+    chargerDeficitsReportables();
   }
 
   async function ouvrirAssociesStructure(structureId, nom) {
