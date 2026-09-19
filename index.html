@@ -2365,7 +2365,7 @@
             <span class="badge-pill ${traite ? 'badge-vert' : 'badge-orange'}">${traite ? 'Traité' : 'En attente'}</span>
           </div>
           <div class="small" style="margin-bottom:6px;">Envoyé le ${formatDate(s.created_at)}${s.categorie === 'preavis' && s.document_date ? ' · Départ souhaité le ' + formatDate(s.document_date) : ''}</div>
-          ${traite ? `<div style="background:var(--panel-2); border-radius:8px; padding:8px 10px; font-size:0.8rem;"><div class="small" style="color:var(--accent); font-weight:600; margin-bottom:2px;">Réponse du propriétaire</div>${echapper(s.reponse_proprietaire)}</div>` : ''}
+          ${traite ? `<div style="background:var(--panel-2); border-radius:8px; padding:8px 10px; font-size:0.8rem;"><div class="small" style="color:var(--accent); font-weight:600; margin-bottom:2px;">Réponse du propriétaire${s.reponse_le ? ' · ' + formatDate(s.reponse_le) : ''}</div>${echapper(s.reponse_proprietaire)}</div>` : ''}
         </div>
       `;
     }).join('');
@@ -4341,10 +4341,19 @@
   async function envoyerReponseSignalement(documentId, locataireId) {
     const texte = document.getElementById('reponseTexte-' + documentId).value.trim();
     if (!texte) return alert('Écris une réponse avant d\u2019envoyer.');
-    const { error } = await supabaseClient.from('documents').update({
+    const { data: docMisAJour, error } = await supabaseClient.from('documents').update({
       reponse_proprietaire: texte, reponse_le: new Date().toISOString()
-    }).eq('id', documentId);
+    }).eq('id', documentId).select('tache_id').single();
     if (error) { logErreur('repondre_signalement', error); return alert('Erreur : ' + error.message); }
+
+    // Ferme automatiquement la tâche "À faire" liée à ce signalement, si elle existe —
+    // sinon elle resterait ouverte indéfiniment même une fois traitée, et fausserait la
+    // pastille de notification.
+    if (docMisAJour && docMisAJour.tache_id) {
+      const { error: errTache } = await supabaseClient.from('taches').update({ fait: true }).eq('id', docMisAJour.tache_id);
+      if (errTache) logErreur('cloturer_tache_signalement', errTache);
+    }
+
     chargerSignalementsProprietaire(locataireId);
   }
 
