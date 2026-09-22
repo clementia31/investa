@@ -573,6 +573,7 @@
       <div class="nav-item" id="nav-loyers" onclick="allerLoyers()"><span class="ic">📅</span> Loyers</div>
       <div class="nav-item" id="nav-documents" onclick="allerDocuments()"><span class="ic">📄</span> Documents</div>
       <div class="nav-item" id="nav-fiscalite" onclick="allerFiscalite()"><span class="ic">📊</span> Fiscalité</div>
+      <div class="nav-item" id="nav-rapports" onclick="allerRapports()"><span class="ic">📈</span> Rapports</div>
       <div class="nav-item" id="nav-alertes" onclick="allerAlertes()"><span class="ic">🔔</span> À faire</div>
       <div class="nav-item" id="nav-parametres" onclick="allerParametres()"><span class="ic">⚙️</span> Paramètres</div>
 
@@ -2554,7 +2555,7 @@
 
   // ---------- NAVIGATION ----------
   const PAGES = ['dashboard', 'patrimoine', 'locataires', 'loyers', 'finances', 'prets', 'parametres', 'alertes', 'fiscalite', 'rapports', 'documents', 'fiche-immeuble', 'fiche-lot', 'fiche-locataire', 'mentions-legales'];
-  const NAV_IDS = ['nav-dashboard', 'nav-patrimoine', 'nav-locataires', 'nav-loyers', 'nav-fiscalite', 'nav-parametres', 'nav-alertes', 'nav-documents'];
+  const NAV_IDS = ['nav-dashboard', 'nav-patrimoine', 'nav-locataires', 'nav-loyers', 'nav-fiscalite', 'nav-rapports', 'nav-parametres', 'nav-alertes', 'nav-documents'];
 
   function hideAllPages() {
     PAGES.forEach(p => { const el = document.getElementById('page-' + p); if (el) el.style.display = 'none'; });
@@ -6771,7 +6772,7 @@ Durée : du {{date_debut}} au {{date_fin}}
 
   // ---------- RAPPORTS ----------
   async function allerRapports() {
-    hideAllPages();
+    setActiveNav('nav-rapports'); hideAllPages();
     document.getElementById('page-rapports').style.display = 'block';
     const sel = document.getElementById('structureRapports');
     if (!sel.options.length) {
