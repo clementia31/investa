@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Investa — Espace locataire</title>
+<script>
+  // Applique le thème avant le premier affichage, pour éviter un flash clair/sombre.
+  (function () {
+    var pref = 'auto';
+    try { var v = localStorage.getItem('investa-theme'); pref = (v === 'light' || v === 'clair') ? 'clair' : ((v === 'dark' || v === 'sombre') ? 'sombre' : 'auto'); } catch (e) {}
+    var sombre = pref === 'sombre' || (pref === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.setAttribute('data-theme', sombre ? 'sombre' : 'clair');
+  })();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous"></script>
+<style>
+  * { box-sizing: border-box; }
+  :root[data-theme="sombre"] {
+    color-scheme: dark;
+    --bg: #0b1120; --panel: #141d33; --panel-2: #1a2540; --ligne: #24304d;
+    --text: #e8ecf5; --dim: #8b96b3; --accent: #3b82f6; --accent-solid: #2563eb; --accent-text: #60a5fa;
+    --shadow: none; --radius: 14px; --bord: 1px solid var(--ligne);
+    --hero-bg: transparent; --hero-text: var(--text); --hero-sub: var(--dim);
+    --nav-bg: #141d33; --btn-sec: #1a2540;
+    --vert: #22c55e; --orange: #f59e0b; --rouge: #f87171;
+    --vert-bg: rgba(34,197,94,.15); --orange-bg: rgba(245,158,11,.15); --rouge-bg: rgba(239,68,68,.15);
+  }
+  :root[data-theme="clair"] {
+    color-scheme: light;
+    --bg: linear-gradient(180deg, #e8f1ff 0%, #f3f8ff 40%, #f8fbff 100%); --panel: #ffffff; --panel-2: #eef3fc; --ligne: #d9e3f3;
+    --text: #1a2742; --dim: #4f5f80; --accent: #2563eb; --accent-solid: #2563eb; --accent-text: #1d4ed8;
+    --shadow: 0 6px 20px rgba(60,100,180,.12); --radius: 18px; --bord: 1px solid transparent;
+    --hero-bg: linear-gradient(135deg, #1a4fc0, #2f6ae0); --hero-text: #ffffff; --hero-sub: #ffffff;
+    --nav-bg: rgba(255,255,255,.94); --btn-sec: #eef3fc;
+    --vert: #166534; --orange: #92400e; --rouge: #b91c1c;
+    --vert-bg: #e3f3e9; --orange-bg: #fdf0df; --rouge-bg: #fde8e8;
+  }
+  html { background: #0b1120; }
+  body { margin: 0; min-height: 100vh; font-family: -apple-system, "Segoe UI", system-ui, sans-serif; background: var(--bg); background-attachment: fixed; color: var(--text); }
+  [hidden] { display: none !important; }
+  button { font-family: inherit; cursor: pointer; }
+  .centre { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .boite { width: 100%; max-width: 380px; background: var(--panel); border: var(--bord); border-radius: var(--radius); box-shadow: var(--shadow); padding: 26px 22px; }
+  .boite h1 { font-size: 1.15rem; margin: 0 0 6px; }
+  .boite p { font-size: .84rem; color: var(--dim); line-height: 1.5; margin: 0 0 14px; }
+  input[type="email"], input[type="search"] { width: 100%; padding: 12px 14px; font-size: 1rem; border-radius: 12px; border: 1px solid var(--ligne); background: var(--panel-2); color: var(--text); font-family: inherit; }
+  .btn { display: block; width: 100%; padding: 12px; font-size: .92rem; font-weight: 600; border: none; border-radius: 12px; background: var(--accent-solid); color: #fff; margin-top: 12px; }
+  .btn:disabled { opacity: .6; cursor: default; }
+  .btn.sec { background: var(--btn-sec); color: var(--text); }
+  .msg { font-size: .82rem; margin: 10px 0 0; min-height: 1.2em; color: var(--dim); }
+  .msg.erreur { color: var(--rouge); }
+
+  .nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; display: flex; background: var(--nav-bg); border-top: 1px solid var(--ligne); padding: 8px 4px calc(10px + env(safe-area-inset-bottom)); backdrop-filter: blur(8px); }
+  .nav button { flex: 1; background: none; border: none; color: var(--dim); font-size: .72rem; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 0; }
+  .nav button .ic { font-size: 1.25rem; }
+  .nav button.actif { color: var(--accent); font-weight: 600; }
+
+  .contenu { padding: 0 16px calc(96px + env(safe-area-inset-bottom)); max-width: 640px; margin: 0 auto; }
+  .hero { margin: 0 -16px 18px; padding: calc(24px + env(safe-area-inset-top)) 20px 26px; background: var(--hero-bg); color: var(--hero-text); border-radius: 0 0 28px 28px; position: relative; overflow: hidden; }
+  :root[data-theme="sombre"] .hero { border-radius: 0; padding-bottom: 10px; }
+  :root[data-theme="clair"] .hero::before { content: ""; position: absolute; right: -30px; top: -30px; width: 130px; height: 130px; border-radius: 50%; background: rgba(255,255,255,.18); }
+  :root[data-theme="clair"] .hero::after { content: ""; position: absolute; right: 50px; top: 26px; width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,.14); }
+  .hero .salut { font-size: 1.25rem; font-weight: 700; position: relative; }
+  .hero .sous { font-size: .8rem; margin-top: 3px; color: var(--hero-sub); position: relative; }
+
+  .carte { background: var(--panel); border: var(--bord); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; margin-bottom: 14px; }
+  .lbl { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--dim); margin-bottom: 6px; }
+  .ligne { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .gros { font-size: 1.4rem; font-weight: 700; }
+  .petit { font-size: .76rem; color: var(--dim); }
+  .puce { font-size: .72rem; font-weight: 700; padding: 4px 10px; border-radius: 12px; white-space: nowrap; }
+  .puce.vert { background: var(--vert-bg); color: var(--vert); }
+  .puce.orange { background: var(--orange-bg); color: var(--orange); }
+  .puce.rouge { background: var(--rouge-bg); color: var(--rouge); }
+  .titre-section { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--dim); margin: 20px 2px 8px; }
+  .tuiles { display: flex; gap: 10px; margin-bottom: 14px; }
+  .tuile { flex: 1; background: var(--panel); border: var(--bord); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px 8px; text-align: center; font-size: .74rem; color: var(--text); }
+  .tuile .ic { display: block; font-size: 1.5rem; margin-bottom: 6px; }
+
+  .puces-filtre { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 4px; }
+  .puces-filtre button { font-size: .8rem; padding: 12px 16px; border-radius: 16px; border: 1px solid var(--ligne); background: var(--panel); color: var(--dim); box-shadow: var(--shadow); }
+  .puces-filtre button.actif { background: var(--accent-solid); border-color: var(--accent-solid); color: #fff; }
+  .annee { font-size: .78rem; font-weight: 700; color: var(--dim); margin: 16px 2px 8px; grid-column: 1 / -1; }
+  .liste-docs { display: block; }
+  .doc { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-bottom: 8px; background: var(--panel); border: var(--bord); border-radius: calc(var(--radius) - 2px); box-shadow: var(--shadow); cursor: pointer; }
+  .doc .ic { font-size: 1.4rem; }
+  .doc .nom { font-size: .88rem; font-weight: 600; word-break: break-word; }
+  .doc .corps { flex: 1; min-width: 0; }
+  .doc .tel { background: var(--btn-sec); border: none; border-radius: 10px; width: 44px; height: 44px; font-size: 1rem; color: var(--accent-text); flex: none; }
+  .vide { text-align: center; color: var(--dim); font-size: .86rem; padding: 28px 10px; }
+
+  .seg { display: flex; gap: 6px; }
+  .seg button { flex: 1; padding: 14px 4px; font-size: .82rem; border-radius: 12px; border: 1px solid var(--ligne); background: var(--btn-sec); color: var(--text); }
+  .seg button.actif { background: var(--accent-solid); border-color: var(--accent-solid); color: #fff; font-weight: 600; }
+
+  #toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(86px + env(safe-area-inset-bottom)); background: #111827; color: #fff; font-size: .82rem; padding: 10px 16px; border-radius: 12px; z-index: 80; max-width: 90%; text-align: center; }
+
+  @media (min-width: 900px) {
+    .nav { top: 0; bottom: 0; right: auto; width: 220px; flex-direction: column; justify-content: flex-start; gap: 4px; padding: 28px 12px; border-top: none; border-right: 1px solid var(--ligne); }
+    .nav button { flex: none; flex-direction: row; gap: 12px; font-size: .9rem; padding: 12px 14px; border-radius: 12px; justify-content: flex-start; }
+    .nav button.actif { background: var(--panel-2); }
+    .contenu { margin: 0 0 0 220px; max-width: 980px; padding: 0 36px 40px; }
+    .hero { margin: 24px 0 20px; border-radius: 24px !important; padding-top: 26px; }
+    .liste-docs { display: grid; grid-template-columns: 1fr 1fr; column-gap: 12px; }
+    #toast { bottom: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Connexion -->
+<div class="centre" id="vueConnexion" hidden>
+  <div class="boite">
+    <h1>Espace locataire</h1>
+    <p>Entre l'adresse email que ton propriétaire a renseignée. Tu recevras un lien de connexion, sans mot de passe à retenir.</p>
+    <form id="formConnexion" novalidate>
+      <input type="email" id="champEmail" placeholder="ton@email.fr" autocomplete="email" inputmode="email" aria-label="Adresse email">
+      <button class="btn" id="btnLien" type="submit">Recevoir mon lien de connexion</button>
+    </form>
+    <p class="msg" id="msgConnexion" role="status"></p>
+  </div>
+</div>
+
+<!-- Message (aucun espace associé, erreur de chargement) -->
+<div class="centre" id="vueMessage" hidden>
+  <div class="boite">
+    <h1 id="messageTitre"></h1>
+    <p id="messageTexte"></p>
+    <button class="btn sec" data-action="deconnexion" type="button">Se déconnecter</button>
+  </div>
+</div>
+
+<!-- Application -->
+<div id="vueApp" hidden>
+  <nav class="nav" aria-label="Navigation">
+    <button data-onglet="accueil" class="actif" type="button"><span class="ic">🏠</span>Accueil</button>
+    <button data-onglet="documents" type="button"><span class="ic">🗂️</span>Documents</button>
+    <button data-onglet="reglages" type="button"><span class="ic">⚙️</span>Réglages</button>
+  </nav>
+  <main class="contenu">
+    <header class="hero">
+      <div class="salut" id="heroSalut"></div>
+      <div class="sous" id="heroLogement"></div>
+    </header>
+
+    <section id="onglet-accueil"></section>
+
+    <section id="onglet-documents" hidden>
+      <input type="search" id="champRecherche" placeholder="Rechercher un document" aria-label="Rechercher un document">
+      <div class="puces-filtre" id="puces"></div>
+      <div id="listeDocs" class="liste-docs"></div>
+      <button class="btn sec" id="btnZip" data-action="zip" type="button" hidden>Tout télécharger (ZIP)</button>
+    </section>
+
+    <section id="onglet-reglages" hidden>
+      <div class="carte">
+        <div class="lbl">Apparence</div>
+        <div class="seg" id="segTheme">
+          <button data-theme-choix="clair" type="button">Clair</button>
+          <button data-theme-choix="sombre" type="button">Sombre</button>
+          <button data-theme-choix="auto" type="button">Automatique</button>
+        </div>
+        <p class="petit" style="margin:10px 0 0;">« Automatique » suit le réglage de ton téléphone ou de ton ordinateur. Ton choix est mémorisé sur cet appareil.</p>
+      </div>
+      <div class="carte">
+        <div class="lbl">Mon compte</div>
+        <div id="infosCompte"></div>
+        <button class="btn sec" data-action="deconnexion" type="button">Se déconnecter</button>
+      </div>
+    </section>
+  </main>
+</div>
+<div id="toast" role="status" hidden></div>
+
+<script>
+  'use strict';
+  const SUPABASE_URL = 'https://rhpjttobvyofpauccbrj.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_GKzraD5eOxGYVB9SXWXY5g_UMXbw-Zz';
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const CLE_THEME = 'investa-theme'; // partagée avec l'app propriétaire
+  const BUCKET = 'documents';
+  const LIMITE_ZIP = 60;
+
+  const CATEGORIES = {
+    quittance:      { label: 'Quittance',        icone: '📄', filtre: 'quittance' },
+    bail:           { label: 'Bail',             icone: '📑', filtre: 'bail' },
+    assurance:      { label: 'Assurance',        icone: '🛡️', filtre: 'assurance' },
+    diagnostic:     { label: 'Diagnostic',       icone: '🔎', filtre: 'autres' },
+    revision_loyer: { label: 'Révision de loyer', icone: '📈', filtre: 'autres' },
+    autre:          { label: 'Autre',            icone: '📎', filtre: 'autres' }
+  };
+  const FILTRES = [
+    { id: 'tous', label: 'Tous' }, { id: 'quittance', label: 'Quittances' }, { id: 'bail', label: 'Bail' },
+    { id: 'assurance', label: 'Assurance' }, { id: 'autres', label: 'Autres' }
+  ];
+
+  const etat = { user: null, locataire: null, bailActif: null, bailIds: [], paiement: null, documents: [], filtre: 'tous', recherche: '', charge: false, enCours: false };
+
+  const $ = (id) => document.getElementById(id);
+  function esc(t) { const d = document.createElement('div'); d.textContent = t == null ? '' : String(t); return d.innerHTML; }
+
+  /* ---------- Thème ---------- */
+  function lirePrefTheme() { try { const v = localStorage.getItem(CLE_THEME); return (v === 'light' || v === 'clair') ? 'clair' : ((v === 'dark' || v === 'sombre') ? 'sombre' : 'auto'); } catch (e) { return 'auto'; } }
+  function themeEffectif(pref) {
+    if (pref === 'sombre') return 'sombre';
+    if (pref === 'clair') return 'clair';
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'sombre' : 'clair';
+  }
+  function appliquerTheme(pref) {
+    document.documentElement.setAttribute('data-theme', themeEffectif(pref));
+    document.querySelectorAll('[data-theme-choix]').forEach(b => b.classList.toggle('actif', b.getAttribute('data-theme-choix') === pref));
+  }
+  function choisirTheme(pref) {
+    try { localStorage.setItem(CLE_THEME, pref); } catch (e) {}
+    appliquerTheme(pref);
+  }
+  if (window.matchMedia) {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const surChangement = () => { if (lirePrefTheme() === 'auto') appliquerTheme('auto'); };
+    if (mq.addEventListener) mq.addEventListener('change', surChangement); else if (mq.addListener) mq.addListener(surChangement);
+  }
+
+  /* ---------- Utilitaires ---------- */
+  function parseDate(s) {
+    if (!s) return null;
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s).slice(0, 10));
+    if (m && String(s).length <= 10) return new Date(+m[1], +m[2] - 1, +m[3]);
+    const d = new Date(s); return isNaN(d) ? null : d;
+  }
+  function formatDate(s) { const d = parseDate(s); return d ? d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : ''; }
+  function formatEuro(n) { return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(Number(n) || 0); }
+  function cleDate(doc) { return doc.document_date || doc.created_at || ''; }
+  function notifier(texte) {
+    const t = $('toast'); t.textContent = texte; t.hidden = false;
+    clearTimeout(notifier.minuteur); notifier.minuteur = setTimeout(() => { t.hidden = true; }, 3500);
+  }
+  function nomFichier(doc) {
+    const base = String(doc.nom || 'document').replace(/[\\/:*?"<>|]/g, '_');
+    const ext = (/\.([A-Za-z0-9]{2,5})$/.exec(doc.storage_path || '') || [])[1];
+    return ext && !new RegExp('\\.' + ext + '$', 'i').test(base) ? base + '.' + ext : base;
+  }
+
+  /* ---------- Vues ---------- */
+  function montrer(vue) {
+    ['vueConnexion', 'vueMessage', 'vueApp'].forEach(id => { $(id).hidden = id !== vue; });
+  }
+  function afficherConnexion() { etat.charge = false; montrer('vueConnexion'); }
+  function afficherMessage(titre, texte) { $('messageTitre').textContent = titre; $('messageTexte').textContent = texte; montrer('vueMessage'); }
+
+  function allerOnglet(nom) {
+    ['accueil', 'documents', 'reglages'].forEach(o => { $('onglet-' + o).hidden = o !== nom; });
+    document.querySelectorAll('[data-onglet]').forEach(b => b.classList.toggle('actif', b.getAttribute('data-onglet') === nom));
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------- Connexion ---------- */
+  async function envoyerLien(e) {
+    e.preventDefault();
+    const email = $('champEmail').value.trim();
+    const msg = $('msgConnexion');
+    msg.className = 'msg';
+    if (!email || email.indexOf('@') < 1) { msg.textContent = 'Indique une adresse email valide.'; msg.className = 'msg erreur'; return; }
+    $('btnLien').disabled = true; msg.textContent = 'Envoi en cours…';
+    const { error } = await supabaseClient.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin + window.location.pathname } });
+    $('btnLien').disabled = false;
+    if (error) {
+      msg.textContent = /rate|too many|seconds/i.test(error.message || '') ? 'Trop de demandes. Patiente une minute avant de réessayer.' : 'Impossible d\u2019envoyer le lien pour le moment. Réessaie dans un instant.';
+      msg.className = 'msg erreur';
+      return;
+    }
+    msg.textContent = 'Lien envoyé. Ouvre l\u2019email reçu (pense à regarder les spams) et clique dessus.';
+  }
+
+  async function deconnexion() {
+    await supabaseClient.auth.signOut();
+    Object.assign(etat, { user: null, locataire: null, bailActif: null, bailIds: [], paiement: null, documents: [], filtre: 'tous', recherche: '', charge: false });
+    $('champRecherche').value = '';
+    afficherConnexion();
+  }
+
+  /* ---------- Chargement des données ---------- */
+  async function chargerEspace(user) {
+    if (etat.enCours) return;
+    etat.enCours = true;
+    try {
+      etat.user = user;
+      const motif = String(user.email || '').replace(/[\\%_]/g, '\\$&');
+      const { data: fiches, error: errFiche } = await supabaseClient.from('locataires').select('id, nom, assurance_expiration').ilike('email', motif).limit(1);
+      if (errFiche) { afficherMessage('Chargement impossible', 'Ton espace n\u2019a pas pu être chargé. Réessaie dans un instant.'); return; }
+      if (!fiches || !fiches.length) {
+        afficherMessage('Aucun espace trouvé', 'Aucun espace locataire n\u2019est associé à l\u2019adresse ' + (user.email || '') + '. Vérifie auprès de ton propriétaire que c\u2019est bien l\u2019adresse qu\u2019il a renseignée.');
+        return;
+      }
+      etat.locataire = fiches[0];
+
+      const { data: rattach } = await supabaseClient.from('bail_locataires').select('bail_id').eq('locataire_id', etat.locataire.id);
+      etat.bailIds = (rattach || []).map(r => r.bail_id);
+      etat.bailActif = null; etat.paiement = null;
+      if (etat.bailIds.length) {
+        const { data: baux } = await supabaseClient.from('baux').select('id, loyer, charges, date_debut, date_fin, lots(nom, type, immeubles(adresse, ville))').in('id', etat.bailIds).eq('statut', 'actif').limit(1);
+        etat.bailActif = baux && baux.length ? baux[0] : null;
+      }
+      if (etat.bailActif) {
+        const n = new Date();
+        const mois = n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-01';
+        const { data: p } = await supabaseClient.from('paiements').select('id, statut, montant_loyer, montant_charges, date_paiement').eq('bail_id', etat.bailActif.id).eq('mois', mois).maybeSingle();
+        etat.paiement = p || null;
+      }
+
+      const colonnes = 'id, nom, categorie, storage_path, document_date, created_at';
+      const categoriesCoffre = Object.keys(CATEGORIES);
+      const requetes = [supabaseClient.from('documents').select(colonnes).eq('entity_type', 'locataire').eq('entity_id', etat.locataire.id).in('categorie', categoriesCoffre).not('storage_path', 'is', null)];
+      if (etat.bailIds.length) requetes.push(supabaseClient.from('documents').select(colonnes).eq('entity_type', 'bail').in('entity_id', etat.bailIds).not('storage_path', 'is', null));
+      const resultats = await Promise.all(requetes);
+      const vus = new Set(); const docs = [];
+      resultats.forEach(r => (r.data || []).forEach(d => { if (!vus.has(d.id)) { vus.add(d.id); docs.push(d); } }));
+      docs.sort((a, b) => cleDate(b).localeCompare(cleDate(a)));
+      etat.documents = docs;
+
+      if (window.location.hash && /access_token|error/.test(window.location.hash)) history.replaceState(null, '', window.location.pathname + window.location.search);
+      etat.charge = true;
+      afficherEspace();
+    } finally { etat.enCours = false; }
+  }
+
+  /* ---------- Rendu ---------- */
+  function afficherEspace() {
+    const prenom = String(etat.locataire.nom || '').trim().split(/\s+/)[0] || '';
+    $('heroSalut').textContent = prenom ? 'Bonjour ' + prenom : 'Bonjour';
+    const lot = etat.bailActif && etat.bailActif.lots;
+    const adresse = lot && lot.immeubles ? [lot.immeubles.adresse, lot.immeubles.ville].filter(Boolean).join(', ') : '';
+    $('heroLogement').textContent = lot ? [lot.nom || lot.type, adresse].filter(Boolean).join(' · ') : 'Ton espace locataire';
+    rendreAccueil(); rendreDocuments(); rendreReglages();
+    appliquerTheme(lirePrefTheme());
+    montrer('vueApp'); allerOnglet('accueil');
+  }
+
+  function rendreAccueil() {
+    let html = '';
+    const b = etat.bailActif;
+    if (b) {
+      const n = new Date();
+      const mois = n.toLocaleDateString('fr-FR', { month: 'long' });
+      const elision = /^[aeiouhéèêàâîïôûù]/i.test(mois) ? 'd\u2019' : 'de ';
+      const p = etat.paiement;
+      const montant = p ? (Number(p.montant_loyer) || 0) + (Number(p.montant_charges) || 0) : (Number(b.loyer) || 0) + (Number(b.charges) || 0);
+      let puce = '<span class="puce orange">À venir</span>';
+      if (p && p.statut === 'paye') puce = '<span class="puce vert">Payé</span>';
+      else if (p && p.statut === 'en_retard') puce = '<span class="puce rouge">En retard</span>';
+      let echeance = '';
+      const debut = parseDate(b.date_debut);
+      if (debut) {
+        const dernierJour = new Date(n.getFullYear(), n.getMonth() + 1, 0).getDate();
+        echeance = '<div class="petit" style="margin-top:8px;">Échéance le ' + Math.min(debut.getDate(), dernierJour) + '</div>';
+      }
+      html += '<div class="carte"><div class="lbl">Loyer ' + elision + esc(mois) + '</div><div class="ligne"><span class="gros">' + esc(formatEuro(montant)) + '</span>' + puce + '</div>' + echeance + '</div>';
+    } else {
+      html += '<div class="carte"><div class="vide" style="padding:6px 0;">Aucun bail actif pour le moment.</div></div>';
+    }
+
+    const quittance = etat.documents.find(d => d.categorie === 'quittance');
+    const bail = etat.documents.find(d => d.categorie === 'bail');
+    if (quittance || bail) {
+      html += '<div class="titre-section">Accès rapide</div><div class="tuiles">';
+      if (quittance) html += '<button class="tuile" data-action="ouvrir" data-id="' + esc(quittance.id) + '" type="button"><span class="ic">📄</span>Dernière quittance</button>';
+      if (bail) html += '<button class="tuile" data-action="ouvrir" data-id="' + esc(bail.id) + '" type="button"><span class="ic">📑</span>Mon bail</button>';
+      html += '</div>';
+    }
+
+    const exp = parseDate(etat.locataire.assurance_expiration);
+    if (exp) {
+      const jours = Math.ceil((exp - new Date()) / 86400000);
+      const classe = jours < 0 ? 'rouge' : (jours <= 60 ? 'orange' : 'vert');
+      const libelle = jours < 0 ? 'Expirée' : (jours <= 60 ? 'Bientôt expirée' : 'À jour');
+      html += '<div class="carte"><div class="lbl">Assurance habitation</div><div class="ligne"><span>Expire le ' + esc(formatDate(etat.locataire.assurance_expiration)) + '</span><span class="puce ' + classe + '">' + libelle + '</span></div></div>';
+    }
+    $('onglet-accueil').innerHTML = html;
+  }
+
+  function documentsFiltres() {
+    const q = etat.recherche.trim().toLowerCase();
+    return etat.documents.filter(d => {
+      const cat = CATEGORIES[d.categorie] || CATEGORIES.autre;
+      if (etat.filtre !== 'tous' && cat.filtre !== etat.filtre) return false;
+      return !q || String(d.nom || '').toLowerCase().indexOf(q) !== -1;
+    });
+  }
+
+  function rendreDocuments() {
+    $('puces').innerHTML = FILTRES.map(f => '<button type="button" data-filtre="' + f.id + '" class="' + (etat.filtre === f.id ? 'actif' : '') + '">' + esc(f.label) + '</button>').join('');
+    const liste = documentsFiltres();
+    const zone = $('listeDocs');
+    if (!etat.documents.length) { zone.innerHTML = '<div class="vide">Aucun document pour l\u2019instant. Ton propriétaire peut t\u2019en envoyer depuis Investa.</div>'; $('btnZip').hidden = true; return; }
+    if (!liste.length) { zone.innerHTML = '<div class="vide">Aucun document ne correspond.</div>'; $('btnZip').hidden = true; return; }
+    let html = ''; let anneeCourante = '';
+    liste.forEach(d => {
+      const annee = cleDate(d).slice(0, 4) || 'Sans date';
+      if (annee !== anneeCourante) { html += '<div class="annee">' + esc(annee) + '</div>'; anneeCourante = annee; }
+      const cat = CATEGORIES[d.categorie] || CATEGORIES.autre;
+      const quand = formatDate(cleDate(d));
+      html += '<div class="doc" data-action="ouvrir" data-id="' + esc(d.id) + '"><span class="ic">' + cat.icone + '</span><div class="corps"><div class="nom">' + esc(d.nom) + '</div><div class="petit">' + esc(cat.label) + (quand ? ' · ' + esc(quand) : '') + '</div></div><button class="tel" data-action="telecharger" data-id="' + esc(d.id) + '" type="button" aria-label="Télécharger ' + esc(d.nom) + '">⬇</button></div>';
+    });
+    zone.innerHTML = html;
+    $('btnZip').hidden = !window.JSZip;
+  }
+
+  function rendreReglages() {
+    $('infosCompte').innerHTML = '<div class="petit" style="margin-bottom:4px;">' + esc(etat.locataire.nom || '') + '</div><div class="petit">' + esc((etat.user && etat.user.email) || '') + '</div>';
+    appliquerTheme(lirePrefTheme());
+  }
+
+  /* ---------- Documents : ouvrir, télécharger, ZIP ---------- */
+  async function ouvrirDocument(id) {
+    const doc = etat.documents.find(d => d.id === id); if (!doc) return;
+    const fenetre = window.open('', '_blank'); // ouverte tout de suite pour ne pas être bloquée par le navigateur
+    const { data, error } = await supabaseClient.storage.from(BUCKET).createSignedUrl(doc.storage_path, 120);
+    if (error || !data) { if (fenetre) fenetre.close(); notifier('Impossible d\u2019ouvrir ce document.'); return; }
+    if (fenetre) fenetre.location.href = data.signedUrl; else window.location.href = data.signedUrl;
+  }
+  async function telechargerDocument(id) {
+    const doc = etat.documents.find(d => d.id === id); if (!doc) return;
+    const { data, error } = await supabaseClient.storage.from(BUCKET).createSignedUrl(doc.storage_path, 120, { download: nomFichier(doc) });
+    if (error || !data) { notifier('Téléchargement impossible pour le moment.'); return; }
+    window.location.href = data.signedUrl;
+  }
+  function nomUnique(nom, utilises) {
+    let candidat = nom, i = 2;
+    while (utilises.has(candidat)) { const point = nom.lastIndexOf('.'); candidat = point > 0 ? nom.slice(0, point) + ' (' + i + ')' + nom.slice(point) : nom + ' (' + i + ')'; i++; }
+    utilises.add(candidat); return candidat;
+  }
+  async function telechargerZip() {
+    if (!window.JSZip) { notifier('Le téléchargement groupé n\u2019est pas disponible sur cet appareil.'); return; }
+    const liste = documentsFiltres();
+    if (!liste.length) return;
+    if (liste.length > LIMITE_ZIP) { notifier('Trop de documents à la fois (' + LIMITE_ZIP + ' maximum). Utilise les filtres.'); return; }
+    const bouton = $('btnZip'); const texteInitial = bouton.textContent;
+    bouton.disabled = true; bouton.textContent = 'Préparation de l\u2019archive…';
+    try {
+      const { data: liens, error } = await supabaseClient.storage.from(BUCKET).createSignedUrls(liste.map(d => d.storage_path), 300);
+      if (error || !liens) throw new Error('liens');
+      const parChemin = {}; liens.forEach(l => { if (l && l.signedUrl) parChemin[l.path] = l.signedUrl; });
+      const zip = new window.JSZip(); const utilises = new Set(); let ajoutes = 0;
+      for (const d of liste) {
+        const url = parChemin[d.storage_path]; if (!url) continue;
+        const rep = await fetch(url); if (!rep.ok) continue;
+        zip.file(nomUnique(nomFichier(d), utilises), await rep.blob()); ajoutes++;
+      }
+      if (!ajoutes) throw new Error('vide');
+      const contenu = await zip.generateAsync({ type: 'blob' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(contenu); a.download = 'Mes-documents-Investa.zip';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+    } catch (e) { notifier('L\u2019archive n\u2019a pas pu être créée. Réessaie, ou télécharge les documents un par un.'); }
+    finally { bouton.disabled = false; bouton.textContent = texteInitial; }
+  }
+
+  /* ---------- Événements ---------- */
+  document.addEventListener('click', (e) => {
+    const onglet = e.target.closest('[data-onglet]');
+    if (onglet) { allerOnglet(onglet.getAttribute('data-onglet')); return; }
+    const choixTheme = e.target.closest('[data-theme-choix]');
+    if (choixTheme) { choisirTheme(choixTheme.getAttribute('data-theme-choix')); return; }
+    const filtre = e.target.closest('[data-filtre]');
+    if (filtre) { etat.filtre = filtre.getAttribute('data-filtre'); rendreDocuments(); return; }
+    const action = e.target.closest('[data-action]');
+    if (!action) return;
+    const id = action.getAttribute('data-id');
+    switch (action.getAttribute('data-action')) {
+      case 'telecharger': e.stopPropagation(); telechargerDocument(id); break;
+      case 'ouvrir': ouvrirDocument(id); break;
+      case 'zip': telechargerZip(); break;
+      case 'deconnexion': deconnexion(); break;
+    }
+  });
+  $('champRecherche').addEventListener('input', (e) => { etat.recherche = e.target.value; rendreDocuments(); });
+  $('formConnexion').addEventListener('submit', envoyerLien);
+
+  supabaseClient.auth.onAuthStateChange((evenement, session) => {
+    if (evenement === 'SIGNED_OUT') { afficherConnexion(); return; }
+    if (evenement === 'SIGNED_IN' && session && !etat.charge && !etat.enCours) chargerEspace(session.user);
+  });
+
+  (async function demarrer() {
+    appliquerTheme(lirePrefTheme());
+    const { data } = await supabaseClient.auth.getSession();
+    if (data && data.session) await chargerEspace(data.session.user); else afficherConnexion();
+  })();
+</script>
+</body>
+</html>
