@@ -465,6 +465,8 @@
     .page-header input[style], .page-header select[style] { width: auto !important; flex: 1 1 150px; min-width: 0; }
   }
   :root[data-theme="clair"] .locataire-carte { box-shadow: var(--shadow); }
+  .bandeau-hors-ligne { position: fixed; top: 0; left: 0; right: 0; z-index: 300; background: var(--panel-2); color: var(--amber); border-bottom: 1px solid var(--amber); font-size: 0.82rem; text-align: center; padding: calc(8px + env(safe-area-inset-top)) 14px 8px; }
+  .bandeau-hors-ligne[hidden] { display: none; }
 </style>
 </head>
 <body>
@@ -607,6 +609,7 @@
 
 <!-- ============ APP ============ -->
 <div id="app">
+  <div id="bandeauHorsLigne" class="bandeau-hors-ligne" role="status" hidden>Hors connexion — les données affichées peuvent être anciennes.</div>
   <div class="shell">
 
     <button class="btn-menu-mobile" onclick="toggleMenuMobile()" aria-label="Ouvrir le menu">☰</button>
@@ -697,8 +700,8 @@
           <div class="bandeau-patrimoine">
             <div class="row-click" onclick="allerPatrimoine()"><span class="lbl">Valeur du patrimoine</span><span class="val" id="dashValeur">—</span></div>
             <div class="row-click" onclick="allerLoyers()"><span class="lbl">Loyers attendus</span><span class="val" id="dashAttendu">—</span></div>
-            <div><span class="lbl">Taux d'occupation</span><span class="val" id="dashOccupation">—</span></div>
-            <div><span class="lbl">Dette restante</span><span class="val" id="dashDette">—</span></div>
+            <div class="row-click" onclick="allerPatrimoine()"><span class="lbl">Taux d'occupation</span><span class="val" id="dashOccupation">—</span></div>
+            <div class="row-click" onclick="allerPatrimoine()"><span class="lbl">Dette restante</span><span class="val" id="dashDette">—</span></div>
           </div>
           <div style="margin-bottom:16px;">
             <div class="small" style="margin-bottom:5px;" id="dashOccupationLabel">— % occupé</div>
@@ -726,9 +729,9 @@
 
         <div class="bandeau-patrimoine">
           <div><span class="lbl">Valeur du patrimoine</span><span class="val" id="patValeur">—</span></div>
-          <div><span class="lbl">Loyers attendus</span><span class="val" id="patAttendu">—</span></div>
-          <div><span class="lbl">Taux d'occupation</span><span class="val" id="patOccupation">—</span></div>
-          <div><span class="lbl">Dette restante</span><span class="val" id="patDette">—</span></div>
+          <div class="row-click" onclick="allerLoyers()"><span class="lbl">Loyers attendus</span><span class="val" id="patAttendu">—</span></div>
+          <div class="row-click" onclick="filtrerParOccupation('vacants')"><span class="lbl">Taux d'occupation</span><span class="val" id="patOccupation">—</span></div>
+          <div class="row-click" onclick="var c = document.getElementById('cardDetteParBien'); if (c && c.style.display !== 'none') c.scrollIntoView({ behavior: 'smooth', block: 'start' });"><span class="lbl">Dette restante</span><span class="val" id="patDette">—</span></div>
         </div>
 
         <div class="card">
@@ -1435,9 +1438,9 @@
         </div>
 
         <div class="grid-3" style="margin-bottom:12px;">
-          <div class="stat-card"><div class="lbl">Attendus</div><div class="val" id="loyersKpiAttendus">—</div></div>
-          <div class="stat-card green"><div class="lbl">Encaissés</div><div class="val" id="loyersKpiEncaisses">—</div></div>
-          <div class="stat-card" id="cardKpiRetard"><div class="lbl">En retard</div><div class="val" id="loyersKpiRetard">—</div></div>
+          <div class="stat-card row-click" onclick="filtrerStatutLoyers('tous')"><div class="lbl">Attendus</div><div class="val" id="loyersKpiAttendus">—</div></div>
+          <div class="stat-card green row-click" onclick="filtrerStatutLoyers('paye')"><div class="lbl">Encaissés</div><div class="val" id="loyersKpiEncaisses">—</div></div>
+          <div class="stat-card row-click" id="cardKpiRetard" onclick="filtrerStatutLoyers('en_retard')"><div class="lbl">En retard</div><div class="val" id="loyersKpiRetard">—</div></div>
         </div>
 
         <div style="margin-bottom:16px;">
@@ -2625,6 +2628,30 @@
   const PAGES = ['dashboard', 'patrimoine', 'locataires', 'loyers', 'finances', 'prets', 'parametres', 'alertes', 'fiscalite', 'rapports', 'documents', 'fiche-immeuble', 'fiche-lot', 'fiche-locataire', 'mentions-legales'];
   const NAV_IDS = ['nav-dashboard', 'nav-patrimoine', 'nav-locataires', 'nav-loyers', 'nav-fiscalite', 'nav-rapports', 'nav-parametres', 'nav-alertes', 'nav-documents'];
 
+  // Connexion : bandeau « hors ligne » et rechargement de l'écran affiché quand le réseau revient
+  function majBandeauHorsLigne() { const b = document.getElementById('bandeauHorsLigne'); if (b) b.hidden = navigator.onLine !== false; }
+  function rechargerPageCourante() {
+    const app = document.getElementById('app'); if (!app || app.style.display === 'none') return;
+    const a = document.activeElement; if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return; // ne jamais écraser une saisie en cours
+    const visible = PAGES.find(p => { const el = document.getElementById('page-' + p); return el && el.style.display === 'block'; });
+    const rechargeurs = {
+      dashboard: () => allerDashboard(), patrimoine: () => allerPatrimoine(), loyers: () => allerLoyers(), locataires: () => allerLocataires(),
+      alertes: () => allerAlertes(), fiscalite: () => allerFiscalite(), rapports: () => allerRapports(), documents: () => allerDocuments(),
+      'fiche-immeuble': () => currentImmeubleId && ouvrirFicheImmeuble(currentImmeubleId),
+      'fiche-lot': () => currentLotId && ouvrirFicheLot(currentLotId),
+      'fiche-locataire': () => currentLocataireId && ouvrirFicheLocataire(currentLocataireId, 'liste')
+    };
+    if (rechargeurs[visible]) rechargeurs[visible]();
+  }
+  window.addEventListener('offline', majBandeauHorsLigne);
+  window.addEventListener('online', () => { majBandeauHorsLigne(); rechargerPageCourante(); });
+  document.addEventListener('DOMContentLoaded', majBandeauHorsLigne);
+
+  function echecChargementFiche(retour) {
+    alert('Cette fiche n\u2019a pas pu être chargée. Vérifie ta connexion puis réessaie.');
+    retour();
+  }
+
   function hideAllPages() {
     PAGES.forEach(p => { const el = document.getElementById('page-' + p); if (el) el.style.display = 'none'; });
   }
@@ -2766,10 +2793,15 @@
 
   // Pastille de notification sur "À faire" — un seul chiffre, alimenté par la même
   // collecterAlertes() unifiée que le Dashboard et l'onglet À faire, jamais un calcul séparé.
+  function avertissementAlertesIncompletes(items, actionJs) {
+    return items.incomplet ? '<div class="small" style="color:var(--amber); margin-bottom:10px;">⚠️ Certaines alertes n\u2019ont pas pu être chargées. <a href="#" onclick="' + actionJs + '; return false;" style="color:inherit; text-decoration:underline;">Réessayer</a></div>' : '';
+  }
+
   function mettreAJourBadgeAFaire(items) {
     const badge = document.getElementById('badgeAFaire');
     if (!badge) return;
     const total = items.length;
+    if (items.incomplet && total === 0) return; // chargement échoué : ne pas faire croire qu'il n'y a rien
     if (total > 0) {
       badge.textContent = total > 99 ? '99+' : String(total);
       badge.style.display = 'flex';
@@ -2818,7 +2850,7 @@
     if (!structures || !structures.length) {
       ['dashAttendu','dashCashflow','dashOccupation','dashValeur','dashDette'].forEach(id => document.getElementById(id).textContent = '—');
       document.getElementById('dashChartCashflow').innerHTML = '<div class="empty-state">—</div>';
-      document.getElementById('dashAlertes').innerHTML = '<div class="empty-state">—</div>';
+      document.getElementById('dashAlertes').innerHTML = problemeReseau ? '<div class="empty-state">Impossible de charger les données. <a href="#" onclick="allerDashboard(); return false;" style="color:inherit; text-decoration:underline;">Réessayer</a></div>' : '<div class="empty-state">—</div>';
       return;
     }
 
@@ -2936,16 +2968,6 @@
     `).join('')}</div>`;
   }
 
-  // Sépare les items en "urgent" (fait vraiment monter une alerte rouge sur le Dashboard :
-  // loyers en retard, tâches réellement en retard) et le reste (échéances à venir, tâches en
-  // attente sans urgence — dont les signalements locataires tout frais, qui ne doivent pas
-  // faire paniquer le Dashboard le jour même, mais doivent quand même être comptés quelque part).
-  function scinderAlertesParUrgence(items) {
-    const urgent = items.filter(i => (i.titre === 'Loyer en retard' || i.titre === 'Tâche en retard'));
-    const reste = items.filter(i => !(i.titre === 'Loyer en retard' || i.titre === 'Tâche en retard'));
-    return { urgent, reste };
-  }
-
   async function chargerAlertesDashboard(items) {
     const div = document.getElementById('dashAlertes');
     const retardsLoyer = items.filter(i => i.titre === 'Loyer en retard');
@@ -2975,7 +2997,8 @@
     items.filter(i => i.lien && i.lien.type === 'document').forEach(it => {
       html += `<div class="alert-row row-click" onclick="naviguerVersLien(${JSON.stringify(it.lien).replace(/"/g, '&quot;')})"><span class="alert-dot med"></span><span style="flex:1;">${echapper(it.titre)}</span></div>`;
     });
-    div.innerHTML = html || '<div class="empty-state">Rien à signaler pour le moment. 👍</div>';
+    const noteIncomplete = avertissementAlertesIncompletes(items, 'allerDashboard()');
+    div.innerHTML = html ? noteIncomplete + html : (items.incomplet ? noteIncomplete : '<div class="empty-state">Rien à signaler pour le moment. 👍</div>');
   }
 
   // ---------- STRUCTURES ----------
@@ -3436,6 +3459,7 @@
     document.getElementById('page-fiche-immeuble').style.display = 'block';
 
     const { data: im } = await supabaseClient.from('immeubles').select('id, adresse, ville, code_postal, annee_construction, valeur_estimee, dette_restante, taxe_fonciere_annuelle, dpe_date_expiration, structure_id, created_at').eq('id', id).single();
+    if (!im) { echecChargementFiche(allerPatrimoine); return; }
     currentImmeubleData = im;
 
     document.getElementById('immTitre').textContent = im.adresse;
@@ -3536,7 +3560,7 @@
       const dette = Number(im.dette_restante || 0);
       const pct = Math.min(100, Math.round(dette / valeur * 100));
       return `
-        <div style="margin-bottom:12px;">
+        <div class="row-click" style="margin-bottom:6px; padding:6px 0;" onclick="ouvrirFicheImmeuble('${im.id}')">
           <div style="display:flex; justify-content:space-between; margin-bottom:5px;" class="small">
             <span style="color:var(--text);">${echapper(im.adresse)}</span>
             <span>${formatMoney(dette)} / ${formatMoney(valeur)}</span>
@@ -3961,6 +3985,7 @@
     hideAllPages();
     document.getElementById('page-fiche-lot').style.display = 'block';
     const { data: lot } = await supabaseClient.from('lots').select('id, nom, type, surface, statut, loyer, chauffage_montant, eau_montant, valeur_estimee, dette_restante, taxe_fonciere_annuelle, immeuble_id, immeubles(structure_id, adresse)').eq('id', id).single();
+    if (!lot) { echecChargementFiche(allerPatrimoine); return; }
     currentLotStructureId = lot.immeubles.structure_id;
 
     document.getElementById('lotTitre').textContent = lot.nom || lot.type;
@@ -4883,6 +4908,7 @@
     document.getElementById('page-fiche-locataire').style.display = 'block';
 
     const { data: locataire } = await supabaseClient.from('locataires').select('id, structure_id, nom, email, telephone, garantie').eq('id', locataireId).single();
+    if (!locataire) { echecChargementFiche(allerLocataires); return; }
     currentLocataireStructureId = locataire.structure_id;
     const initiales = locataire.nom.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
     document.getElementById('locAvatar').textContent = initiales;
@@ -6426,7 +6452,9 @@ Durée : du {{date_debut}} au {{date_fin}}
 
   async function collecterAlertes() {
     const items = [];
-    const { data: paiements } = await supabaseClient.from('paiements').select('mois, montant_loyer, montant_charges, baux(lot_id, lots(nom, type, immeuble_id, immeubles(adresse)))').eq('statut', 'en_retard').order('mois');
+    let incomplet = false;
+    const noter = (e) => { if (e) incomplet = true; };
+    const { data: paiements, error: ePaiements } = await supabaseClient.from('paiements').select('mois, montant_loyer, montant_charges, baux(lot_id, lots(nom, type, immeuble_id, immeubles(adresse)))').eq('statut', 'en_retard').order('mois');
     (paiements || []).forEach(p => {
       const lot = p.baux && p.baux.lots ? p.baux.lots : null;
       const immeuble = lot && lot.immeubles ? lot.immeubles.adresse : '';
@@ -6438,7 +6466,7 @@ Durée : du {{date_debut}} au {{date_fin}}
     // ne comptait que les tâches en retard, un signalement tout frais ne remonterait jamais
     // nulle part (ni ici, ni dans la pastille de la barre du bas, ni sur le Dashboard).
     const today = dateLocale(new Date());
-    const { data: tachesNonFaites } = await supabaseClient.from('taches').select('id, titre, date_echeance').eq('fait', false);
+    const { data: tachesNonFaites, error: eTaches } = await supabaseClient.from('taches').select('id, titre, date_echeance').eq('fait', false);
     (tachesNonFaites || []).forEach(t => {
       const enRetard = t.date_echeance && t.date_echeance < today;
       items.push({
@@ -6450,7 +6478,7 @@ Durée : du {{date_debut}} au {{date_fin}}
     });
 
     const dansSoixanteJours = new Date(); dansSoixanteJours.setDate(dansSoixanteJours.getDate() + 60);
-    const { data: baux } = await supabaseClient.from('baux').select('date_fin, lots(id, nom, type, immeubles(adresse))').eq('statut', 'actif').not('date_fin', 'is', null).gte('date_fin', today).lte('date_fin', dateLocale(dansSoixanteJours)).order('date_fin');
+    const { data: baux, error: eBaux } = await supabaseClient.from('baux').select('date_fin, lots(id, nom, type, immeubles(adresse))').eq('statut', 'actif').not('date_fin', 'is', null).gte('date_fin', today).lte('date_fin', dateLocale(dansSoixanteJours)).order('date_fin');
     (baux || []).forEach(b => {
       const lot = b.lots;
       const immeuble = lot && lot.immeubles ? lot.immeubles.adresse : '';
@@ -6458,14 +6486,14 @@ Durée : du {{date_debut}} au {{date_fin}}
       items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'Bail arrivant à échéance', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (dans ${joursRestants} j)`, lien: lot ? { type: 'lot', id: lot.id } : null, jours: joursRestants });
     });
 
-    const { data: immeublesDpe } = await supabaseClient.from('immeubles').select('id, adresse, dpe_date_expiration').not('dpe_date_expiration', 'is', null).lte('dpe_date_expiration', dateLocale(dansSoixanteJours));
+    const { data: immeublesDpe, error: eDpe } = await supabaseClient.from('immeubles').select('id, adresse, dpe_date_expiration').not('dpe_date_expiration', 'is', null).lte('dpe_date_expiration', dateLocale(dansSoixanteJours));
     (immeublesDpe || []).forEach(im => {
       const joursRestants = Math.ceil((new Date(im.dpe_date_expiration) - new Date()) / (1000 * 60 * 60 * 24));
       items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'DPE arrivant à expiration', detail: `${im.adresse} (dans ${joursRestants} j)`, lien: { type: 'immeuble', id: im.id }, jours: joursRestants });
     });
 
     // Bail révisable : date anniversaire de signature dans les 60 prochains jours (moment légal de révision IRL)
-    const { data: bauxPourRevision } = await supabaseClient.from('baux').select('date_debut, lots(id, nom, type, immeubles(adresse))').eq('statut', 'actif');
+    const { data: bauxPourRevision, error: eRevision } = await supabaseClient.from('baux').select('date_debut, lots(id, nom, type, immeubles(adresse))').eq('statut', 'actif');
     (bauxPourRevision || []).forEach(b => {
       const debut = new Date(b.date_debut);
       const maintenant = new Date();
@@ -6480,23 +6508,24 @@ Durée : du {{date_debut}} au {{date_fin}}
     });
 
     // Assurance locataire arrivant à expiration
-    const { data: locatairesAssurancePourAlerte } = await supabaseClient.from('locataires').select('id, nom, assurance_expiration').not('assurance_expiration', 'is', null).lte('assurance_expiration', dateLocale(dansSoixanteJours));
+    const { data: locatairesAssurancePourAlerte, error: eAssurance } = await supabaseClient.from('locataires').select('id, nom, assurance_expiration').not('assurance_expiration', 'is', null).lte('assurance_expiration', dateLocale(dansSoixanteJours));
     (locatairesAssurancePourAlerte || []).forEach(l => {
       const joursRestants = Math.ceil((new Date(l.assurance_expiration) - new Date()) / (1000 * 60 * 60 * 24));
       items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'Assurance locataire à renouveler', detail: `${l.nom} (dans ${joursRestants} j)`, lien: { type: 'locataire', id: l.id }, jours: joursRestants });
     });
 
     // Documents à échéance générique (assurance PNO, contrats, garanties... — hors DPE/assurance locataire déjà gérés ci-dessus)
-    const { data: documentsExpirants } = await supabaseClient.from('documents').select('id, nom, storage_path, entity_type, entity_id, expiration_date').not('expiration_date', 'is', null).lte('expiration_date', dateLocale(dansSoixanteJours));
+    const { data: documentsExpirants, error: eDocs } = await supabaseClient.from('documents').select('id, nom, storage_path, entity_type, entity_id, expiration_date').not('expiration_date', 'is', null).lte('expiration_date', dateLocale(dansSoixanteJours));
     if (documentsExpirants && documentsExpirants.length) {
       const immIds = documentsExpirants.filter(d => d.entity_type === 'immeuble').map(d => d.entity_id);
       const lotIds = documentsExpirants.filter(d => d.entity_type === 'lot').map(d => d.entity_id);
       const locIds = documentsExpirants.filter(d => d.entity_type === 'locataire').map(d => d.entity_id);
-      const [{ data: immsPourDoc }, { data: lotsPourDoc }, { data: locsPourDoc }] = await Promise.all([
+      const [{ data: immsPourDoc, error: eImm }, { data: lotsPourDoc, error: eLot }, { data: locsPourDoc, error: eLoc }] = await Promise.all([
         immIds.length ? supabaseClient.from('immeubles').select('id, adresse').in('id', immIds) : Promise.resolve({ data: [] }),
         lotIds.length ? supabaseClient.from('lots').select('id, nom, type, immeubles(adresse)').in('id', lotIds) : Promise.resolve({ data: [] }),
         locIds.length ? supabaseClient.from('locataires').select('id, nom').in('id', locIds) : Promise.resolve({ data: [] })
       ]);
+      noter(eImm || eLot || eLoc);
       const nomImmPourDoc = {}; (immsPourDoc || []).forEach(i => nomImmPourDoc[i.id] = i.adresse);
       const nomLotPourDoc = {}; (lotsPourDoc || []).forEach(l => nomLotPourDoc[l.id] = (l.nom || l.type) + (l.immeubles ? ' — ' + l.immeubles.adresse : ''));
       const nomLocPourDoc = {}; (locsPourDoc || []).forEach(l => nomLocPourDoc[l.id] = l.nom);
@@ -6505,8 +6534,9 @@ Durée : du {{date_debut}} au {{date_fin}}
       const entitesAvecContactPossible = documentsExpirants.filter(d => d.entity_type === 'immeuble' || d.entity_type === 'lot');
       const contactParEntite = {};
       if (entitesAvecContactPossible.length) {
-        const { data: liensContact } = await supabaseClient.from('contact_links').select('entity_type, entity_id, contacts(nom, telephone)')
+        const { data: liensContact, error: eContacts } = await supabaseClient.from('contact_links').select('entity_type, entity_id, contacts(nom, telephone)')
           .in('entity_id', entitesAvecContactPossible.map(d => d.entity_id));
+        noter(eContacts);
         (liensContact || []).forEach(l => { if (l.contacts) contactParEntite[l.entity_type + '-' + l.entity_id] = l.contacts; });
       }
 
@@ -6519,6 +6549,8 @@ Durée : du {{date_debut}} au {{date_fin}}
       });
     }
 
+    noter(ePaiements || eTaches || eBaux || eDpe || eRevision || eAssurance || eDocs);
+    items.incomplet = incomplet;
     return items;
   }
 
@@ -6538,8 +6570,9 @@ Durée : du {{date_debut}} au {{date_fin}}
     div.textContent = 'Chargement...';
     const items = await collecterAlertes();
     mettreAJourBadgeAFaire(items);
-    if (!items.length) { div.innerHTML = '<div class="empty-state">Aucune alerte pour le moment. 👍</div>'; return; }
-    div.innerHTML = items.map(it => `
+    const actionReessai = "chargerToutesAlertes('" + tab + "')";
+    if (!items.length) { div.innerHTML = items.incomplet ? avertissementAlertesIncompletes(items, actionReessai) : '<div class="empty-state">Aucune alerte pour le moment. 👍</div>'; return; }
+    div.innerHTML = avertissementAlertesIncompletes(items, actionReessai) + items.map(it => `
       <div class="row ${it.lien ? 'row-click' : ''}" ${it.lien ? `onclick="naviguerVersLien(${JSON.stringify(it.lien).replace(/"/g, '&quot;')})"` : ''}><div><strong>${echapper(it.titre)}</strong><br><span class="small">${echapper(it.detail)}</span></div><span class="severite ${it.severite}">${it.severite === 'haute' ? 'Élevée' : 'Moyenne'}</span></div>
     `).join('');
   }
@@ -6765,7 +6798,7 @@ Durée : du {{date_debut}} au {{date_fin}}
     const contenuDiv = document.getElementById('ligne2044Contenu');
     contenuDiv.textContent = 'Chargement...';
     const { data: detail, error } = await supabaseClient.rpc('calculer_resultat_foncier_detaille', { p_structure_id: currentStructureDetailFiscalId, p_annee: parseInt(annee) });
-    if (error) { logErreur('calculer_resultat_foncier_detaille', error); contenuDiv.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
+    if (error || !detail) { logErreur('calculer_resultat_foncier_detaille', error || { message: 'résultat vide' }); contenuDiv.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
 
     contenuDiv.innerHTML = `
       <div class="row"><span class="small">Loyers bruts encaissés (ligne 211)</span><span>${Number(detail.loyers_211).toLocaleString('fr-FR')} €</span></div>
