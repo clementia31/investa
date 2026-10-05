@@ -96,9 +96,21 @@
   .seg button { flex: 1; padding: 14px 4px; font-size: .82rem; border-radius: 12px; border: 1px solid var(--ligne); background: var(--btn-sec); color: var(--text); }
   .seg button.actif { background: var(--accent-solid); border-color: var(--accent-solid); color: #fff; font-weight: 600; }
 
-  #toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(86px + env(safe-area-inset-bottom)); background: #111827; color: #fff; font-size: .82rem; padding: 10px 16px; border-radius: 12px; z-index: 80; max-width: 90%; text-align: center; }
+  .bandeau-hors-ligne { position: fixed; top: 0; left: 0; right: 0; z-index: 300; background: var(--panel-2); color: var(--orange); border-bottom: 1px solid var(--orange); font-size: .82rem; text-align: center; padding: calc(8px + env(safe-area-inset-top)) 14px 8px; }
+  .feuille-fond { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,.55); display: flex; align-items: flex-end; justify-content: center; }
+  .feuille { width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; background: var(--panel); border: var(--bord); border-radius: var(--radius) var(--radius) 0 0; box-shadow: var(--shadow); padding: 20px 18px calc(20px + env(safe-area-inset-bottom)); }
+  .feuille h2 { font-size: 1.1rem; margin: 0 0 14px; }
+  .feuille label { display: block; font-size: .8rem; color: var(--dim); margin: 14px 0 6px; }
+  .feuille select, .feuille textarea, .feuille input[type="date"], .feuille input[type="file"] { width: 100%; padding: 12px 14px; font-size: 1rem; border-radius: 12px; border: 1px solid var(--ligne); background: var(--panel-2); color: var(--text); font-family: inherit; }
+  .feuille textarea { resize: vertical; }
+  .nom-demande { font-weight: 600; font-size: .9rem; word-break: break-word; }
+  .reponse { background: var(--panel-2); border-radius: 12px; padding: 10px 12px; margin-top: 10px; font-size: .88rem; word-break: break-word; }
+  .reponse .lbl { color: var(--accent-text); font-weight: 600; text-transform: none; letter-spacing: 0; margin-bottom: 4px; }
+  #toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(86px + env(safe-area-inset-bottom)); background: #111827; color: #fff; font-size: .82rem; padding: 10px 16px; border-radius: 12px; z-index: 120; max-width: 90%; text-align: center; }
 
   @media (min-width: 900px) {
+    .feuille-fond { align-items: center; }
+    .feuille { border-radius: var(--radius); }
     .nav { top: 0; bottom: 0; right: auto; width: 220px; flex-direction: column; justify-content: flex-start; gap: 4px; padding: 28px 12px; border-top: none; border-right: 1px solid var(--ligne); }
     .nav button { flex: none; flex-direction: row; gap: 12px; font-size: .9rem; padding: 12px 14px; border-radius: 12px; justify-content: flex-start; }
     .nav button.actif { background: var(--panel-2); }
@@ -110,6 +122,8 @@
 </style>
 </head>
 <body>
+
+<div id="bandeauHorsLigne" class="bandeau-hors-ligne" role="status" hidden>Hors connexion — les informations affichées peuvent être anciennes.</div>
 
 <!-- Connexion -->
 <div class="centre" id="vueConnexion" hidden>
@@ -129,6 +143,7 @@
   <div class="boite">
     <h1 id="messageTitre"></h1>
     <p id="messageTexte"></p>
+    <button class="btn" id="btnReessayer" data-action="recharger" type="button" hidden>Réessayer</button>
     <button class="btn sec" data-action="deconnexion" type="button">Se déconnecter</button>
   </div>
 </div>
@@ -138,6 +153,7 @@
   <nav class="nav" aria-label="Navigation">
     <button data-onglet="accueil" class="actif" type="button"><span class="ic">🏠</span>Accueil</button>
     <button data-onglet="documents" type="button"><span class="ic">🗂️</span>Documents</button>
+    <button data-onglet="demandes" type="button"><span class="ic">🔧</span>Demandes</button>
     <button data-onglet="reglages" type="button"><span class="ic">⚙️</span>Réglages</button>
   </nav>
   <main class="contenu">
@@ -153,6 +169,11 @@
       <div class="puces-filtre" id="puces"></div>
       <div id="listeDocs" class="liste-docs"></div>
       <button class="btn sec" id="btnZip" data-action="zip" type="button" hidden>Tout télécharger (ZIP)</button>
+    </section>
+
+    <section id="onglet-demandes" hidden>
+      <button class="btn" data-action="nouvelle-demande" type="button" style="margin-top:0;">+ Nouvelle demande</button>
+      <div id="listeDemandes" style="margin-top:16px;"></div>
     </section>
 
     <section id="onglet-reglages" hidden>
@@ -172,6 +193,34 @@
       </div>
     </section>
   </main>
+</div>
+<!-- Formulaire de demande (problème ou préavis) -->
+<div class="feuille-fond" id="feuille" hidden>
+  <div class="feuille" role="dialog" aria-modal="true" aria-labelledby="feuilleTitre">
+    <h2 id="feuilleTitre">Nouvelle demande</h2>
+    <div class="seg" id="segDemande">
+      <button data-action="type-demande" data-type="travaux" class="actif" type="button">🔧 Problème</button>
+      <button data-action="type-demande" data-type="preavis" type="button">📋 Préavis</button>
+    </div>
+    <div id="champsTravaux">
+      <label for="dmType">Type de problème</label>
+      <select id="dmType"><option value="fuite">Fuite</option><option value="panne">Panne</option><option value="autre">Autre</option></select>
+      <label for="dmDescription">Description</label>
+      <textarea id="dmDescription" rows="4" maxlength="500" placeholder="Décris le problème"></textarea>
+      <label for="dmPhoto">Photo (facultatif)</label>
+      <input type="file" id="dmPhoto" accept="image/jpeg,image/png,image/webp">
+    </div>
+    <div id="champsPreavis" hidden>
+      <label for="dmDate">Date de départ souhaitée</label>
+      <input type="date" id="dmDate">
+      <label for="dmMessage">Message (facultatif)</label>
+      <textarea id="dmMessage" rows="3" maxlength="300" placeholder="Un mot pour ton propriétaire"></textarea>
+      <p class="petit" style="margin:10px 0 0;">Ton propriétaire reçoit une notification et confirme lui-même la date de fin de bail. Selon ton bail, un préavis doit généralement être envoyé par lettre recommandée ou remis en main propre contre récépissé : ce message le prévient, mais ne remplace pas cette formalité.</p>
+    </div>
+    <p class="msg" id="msgDemande" role="status"></p>
+    <button class="btn" id="btnEnvoyerDemande" data-action="envoyer-demande" type="button">Envoyer au propriétaire</button>
+    <button class="btn sec" data-action="fermer-feuille" type="button">Annuler</button>
+  </div>
 </div>
 <div id="toast" role="status" hidden></div>
 
@@ -197,7 +246,7 @@
     { id: 'assurance', label: 'Assurance' }, { id: 'autres', label: 'Autres' }
   ];
 
-  const etat = { user: null, locataire: null, bailActif: null, bailIds: [], paiement: null, documents: [], filtre: 'tous', recherche: '', charge: false, enCours: false };
+  const etat = { user: null, locataire: null, bailActif: null, bailIds: [], paiement: null, documents: [], demandes: [], typeDemande: 'travaux', envoiDemande: false, filtre: 'tous', recherche: '', charge: false, enCours: false };
 
   const $ = (id) => document.getElementById(id);
   function esc(t) { const d = document.createElement('div'); d.textContent = t == null ? '' : String(t); return d.innerHTML; }
@@ -248,10 +297,10 @@
     ['vueConnexion', 'vueMessage', 'vueApp'].forEach(id => { $(id).hidden = id !== vue; });
   }
   function afficherConnexion() { etat.charge = false; montrer('vueConnexion'); }
-  function afficherMessage(titre, texte) { $('messageTitre').textContent = titre; $('messageTexte').textContent = texte; montrer('vueMessage'); }
+  function afficherMessage(titre, texte, reessayer) { $('messageTitre').textContent = titre; $('messageTexte').textContent = texte; $('btnReessayer').hidden = !reessayer; montrer('vueMessage'); }
 
   function allerOnglet(nom) {
-    ['accueil', 'documents', 'reglages'].forEach(o => { $('onglet-' + o).hidden = o !== nom; });
+    ['accueil', 'documents', 'demandes', 'reglages'].forEach(o => { $('onglet-' + o).hidden = o !== nom; });
     document.querySelectorAll('[data-onglet]').forEach(b => b.classList.toggle('actif', b.getAttribute('data-onglet') === nom));
     window.scrollTo(0, 0);
   }
@@ -276,66 +325,77 @@
 
   async function deconnexion() {
     await supabaseClient.auth.signOut();
-    Object.assign(etat, { user: null, locataire: null, bailActif: null, bailIds: [], paiement: null, documents: [], filtre: 'tous', recherche: '', charge: false });
+    Object.assign(etat, { user: null, locataire: null, bailActif: null, bailIds: [], paiement: null, documents: [], demandes: [], filtre: 'tous', recherche: '', charge: false });
     $('champRecherche').value = '';
     afficherConnexion();
   }
 
   /* ---------- Chargement des données ---------- */
-  async function chargerEspace(user) {
+  async function chargerEspace(user, silencieux) {
     if (etat.enCours) return;
     etat.enCours = true;
     try {
       etat.user = user;
       const motif = String(user.email || '').replace(/[\\%_]/g, '\\$&');
-      const { data: fiches, error: errFiche } = await supabaseClient.from('locataires').select('id, nom, assurance_expiration').ilike('email', motif).limit(1);
-      if (errFiche) { afficherMessage('Chargement impossible', 'Ton espace n\u2019a pas pu être chargé. Réessaie dans un instant.'); return; }
+      const { data: fiches, error: errFiche } = await supabaseClient.from('locataires').select('id, nom, structure_id, assurance_expiration').ilike('email', motif).limit(1);
+      if (errFiche) { if (!silencieux) afficherMessage('Chargement impossible', 'Ton espace n\u2019a pas pu être chargé. Vérifie ta connexion puis réessaie.', true); return; }
       if (!fiches || !fiches.length) {
         afficherMessage('Aucun espace trouvé', 'Aucun espace locataire n\u2019est associé à l\u2019adresse ' + (user.email || '') + '. Vérifie auprès de ton propriétaire que c\u2019est bien l\u2019adresse qu\u2019il a renseignée.');
         return;
       }
       etat.locataire = fiches[0];
 
-      const { data: rattach } = await supabaseClient.from('bail_locataires').select('bail_id').eq('locataire_id', etat.locataire.id);
-      etat.bailIds = (rattach || []).map(r => r.bail_id);
-      etat.bailActif = null; etat.paiement = null;
-      if (etat.bailIds.length) {
-        const { data: baux } = await supabaseClient.from('baux').select('id, loyer, charges, date_debut, date_fin, lots(nom, type, immeubles(adresse, ville))').in('id', etat.bailIds).eq('statut', 'actif').limit(1);
-        etat.bailActif = baux && baux.length ? baux[0] : null;
+      // Une erreur réseau ne doit jamais se transformer en « Aucun bail » ou « Aucun document » :
+      // on calcule tout dans des variables locales et on n'écrase l'affichage qu'en cas de succès complet.
+      let echec = false;
+      const { data: rattach, error: errRattach } = await supabaseClient.from('bail_locataires').select('bail_id').eq('locataire_id', etat.locataire.id);
+      if (errRattach) echec = true;
+      const bailIds = (rattach || []).map(r => r.bail_id);
+      let bailActif = null, paiement = null;
+      if (bailIds.length) {
+        const { data: baux, error: errBaux } = await supabaseClient.from('baux').select('id, loyer, charges, date_debut, date_fin, lots(nom, type, immeubles(adresse, ville))').in('id', bailIds).eq('statut', 'actif').limit(1);
+        if (errBaux) echec = true;
+        bailActif = baux && baux.length ? baux[0] : null;
       }
-      if (etat.bailActif) {
+      if (bailActif) {
         const n = new Date();
         const mois = n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-01';
-        const { data: p } = await supabaseClient.from('paiements').select('id, statut, montant_loyer, montant_charges, date_paiement').eq('bail_id', etat.bailActif.id).eq('mois', mois).maybeSingle();
-        etat.paiement = p || null;
+        const { data: p, error: errPaiement } = await supabaseClient.from('paiements').select('id, statut, montant_loyer, montant_charges, date_paiement').eq('bail_id', bailActif.id).eq('mois', mois).maybeSingle();
+        if (errPaiement) echec = true;
+        paiement = p || null;
       }
 
       const colonnes = 'id, nom, categorie, storage_path, document_date, created_at';
       const categoriesCoffre = Object.keys(CATEGORIES);
       const requetes = [supabaseClient.from('documents').select(colonnes).eq('entity_type', 'locataire').eq('entity_id', etat.locataire.id).in('categorie', categoriesCoffre).not('storage_path', 'is', null)];
-      if (etat.bailIds.length) requetes.push(supabaseClient.from('documents').select(colonnes).eq('entity_type', 'bail').in('entity_id', etat.bailIds).not('storage_path', 'is', null));
+      if (bailIds.length) requetes.push(supabaseClient.from('documents').select(colonnes).eq('entity_type', 'bail').in('entity_id', bailIds).not('storage_path', 'is', null));
       const resultats = await Promise.all(requetes);
       const vus = new Set(); const docs = [];
-      resultats.forEach(r => (r.data || []).forEach(d => { if (!vus.has(d.id)) { vus.add(d.id); docs.push(d); } }));
+      resultats.forEach(r => { if (r.error) echec = true; (r.data || []).forEach(d => { if (!vus.has(d.id)) { vus.add(d.id); docs.push(d); } }); });
+      if (echec) {
+        if (!silencieux) afficherMessage('Chargement impossible', 'Ton espace n\u2019a pas pu être entièrement chargé. Vérifie ta connexion puis réessaie.', true);
+        return;
+      }
       docs.sort((a, b) => cleDate(b).localeCompare(cleDate(a)));
-      etat.documents = docs;
+      etat.bailIds = bailIds; etat.bailActif = bailActif; etat.paiement = paiement; etat.documents = docs;
+      await chargerDemandes();
 
       if (window.location.hash && /access_token|error/.test(window.location.hash)) history.replaceState(null, '', window.location.pathname + window.location.search);
-      etat.charge = true;
-      afficherEspace();
+      etat.charge = true; etat.derniereCharge = Date.now();
+      afficherEspace(silencieux);
     } finally { etat.enCours = false; }
   }
 
   /* ---------- Rendu ---------- */
-  function afficherEspace() {
+  function afficherEspace(garderOnglet) {
     const prenom = String(etat.locataire.nom || '').trim().split(/\s+/)[0] || '';
     $('heroSalut').textContent = prenom ? 'Bonjour ' + prenom : 'Bonjour';
     const lot = etat.bailActif && etat.bailActif.lots;
     const adresse = lot && lot.immeubles ? [lot.immeubles.adresse, lot.immeubles.ville].filter(Boolean).join(', ') : '';
     $('heroLogement').textContent = lot ? [lot.nom || lot.type, adresse].filter(Boolean).join(' · ') : 'Ton espace locataire';
-    rendreAccueil(); rendreDocuments(); rendreReglages();
+    rendreAccueil(); rendreDocuments(); rendreDemandes(); rendreReglages();
     appliquerTheme(lirePrefTheme());
-    montrer('vueApp'); allerOnglet('accueil');
+    montrer('vueApp'); if (!garderOnglet) allerOnglet('accueil');
   }
 
   function rendreAccueil() {
@@ -363,12 +423,10 @@
 
     const quittance = etat.documents.find(d => d.categorie === 'quittance');
     const bail = etat.documents.find(d => d.categorie === 'bail');
-    if (quittance || bail) {
-      html += '<div class="titre-section">Accès rapide</div><div class="tuiles">';
-      if (quittance) html += '<button class="tuile" data-action="ouvrir" data-id="' + esc(quittance.id) + '" type="button"><span class="ic">📄</span>Dernière quittance</button>';
-      if (bail) html += '<button class="tuile" data-action="ouvrir" data-id="' + esc(bail.id) + '" type="button"><span class="ic">📑</span>Mon bail</button>';
-      html += '</div>';
-    }
+    html += '<div class="titre-section">Accès rapide</div><div class="tuiles">';
+    if (quittance) html += '<button class="tuile" data-action="ouvrir" data-id="' + esc(quittance.id) + '" type="button"><span class="ic">📄</span>Dernière quittance</button>';
+    if (bail) html += '<button class="tuile" data-action="ouvrir" data-id="' + esc(bail.id) + '" type="button"><span class="ic">📑</span>Mon bail</button>';
+    html += '<button class="tuile" data-action="nouvelle-demande" type="button"><span class="ic">🔧</span>Faire une demande</button></div>';
 
     const exp = parseDate(etat.locataire.assurance_expiration);
     if (exp) {
@@ -457,8 +515,106 @@
     finally { bouton.disabled = false; bouton.textContent = texteInitial; }
   }
 
+  /* ---------- Demandes (signalements et préavis) ---------- */
+  const LIMITE_PHOTO = 10 * 1024 * 1024;
+  const EXT_PHOTO = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp' };
+  const LABELS_PROBLEME = { fuite: 'Fuite', panne: 'Panne', autre: 'Autre' };
+
+  function nomAleatoire(mime) {
+    const id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now() + '-' + Math.random().toString(16).slice(2));
+    return id + (EXT_PHOTO[mime] || '');
+  }
+  function dateDuJour() { const n = new Date(); return n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-' + String(n.getDate()).padStart(2, '0'); }
+
+  async function chargerDemandes() {
+    const { data, error } = await supabaseClient.from('documents')
+      .select('id, nom, categorie, document_date, reponse_proprietaire, reponse_le, created_at')
+      .eq('entity_type', 'locataire').eq('entity_id', etat.locataire.id)
+      .in('categorie', ['travaux', 'preavis']).order('created_at', { ascending: false });
+    etat.erreurDemandes = !!error;
+    if (!error) etat.demandes = data || [];
+    rendreDemandes();
+  }
+
+  function rendreDemandes() {
+    const zone = $('listeDemandes');
+    if (etat.erreurDemandes) { zone.innerHTML = '<div class="vide">Impossible de charger tes demandes pour le moment.</div>'; return; }
+    if (!etat.demandes.length) { zone.innerHTML = '<div class="vide">Aucune demande pour l\u2019instant. Signale un problème ou annonce ton départ avec le bouton ci-dessus.</div>'; return; }
+    zone.innerHTML = etat.demandes.map(d => {
+      const traitee = !!d.reponse_proprietaire;
+      const icone = d.categorie === 'preavis' ? '📋' : '🔧';
+      const depart = (d.categorie === 'preavis' && d.document_date) ? ' · Départ souhaité le ' + formatDate(d.document_date) : '';
+      return '<div class="carte"><div class="ligne"><span class="nom-demande">' + icone + ' ' + esc(d.nom) + '</span><span class="puce ' + (traitee ? 'vert' : 'orange') + '">' + (traitee ? 'Traité' : 'En attente') + '</span></div>'
+        + '<div class="petit" style="margin-top:6px;">Envoyé le ' + esc(formatDate(d.created_at) + depart) + '</div>'
+        + (traitee ? '<div class="reponse"><div class="lbl">Réponse du propriétaire' + (d.reponse_le ? ' · ' + esc(formatDate(d.reponse_le)) : '') + '</div>' + esc(d.reponse_proprietaire) + '</div>' : '')
+        + '</div>';
+    }).join('');
+  }
+
+  function choisirTypeDemande(type) {
+    etat.typeDemande = type === 'preavis' ? 'preavis' : 'travaux';
+    document.querySelectorAll('#segDemande button').forEach(b => b.classList.toggle('actif', b.getAttribute('data-type') === etat.typeDemande));
+    $('champsTravaux').hidden = etat.typeDemande !== 'travaux';
+    $('champsPreavis').hidden = etat.typeDemande !== 'preavis';
+    $('msgDemande').textContent = ''; $('msgDemande').className = 'msg';
+  }
+  function ouvrirFeuille(type) {
+    ['dmDescription', 'dmMessage', 'dmDate'].forEach(id => { $(id).value = ''; });
+    $('dmPhoto').value = ''; $('dmType').value = 'fuite'; $('dmDate').min = dateDuJour();
+    choisirTypeDemande(type || 'travaux');
+    $('btnEnvoyerDemande').disabled = false;
+    $('feuille').hidden = false; document.body.style.overflow = 'hidden';
+  }
+  function fermerFeuille() { $('feuille').hidden = true; document.body.style.overflow = ''; }
+
+  async function envoyerDemande() {
+    if (etat.envoiDemande) return;
+    const msg = $('msgDemande'); const l = etat.locataire;
+    const erreur = (texte) => { msg.textContent = texte; msg.className = 'msg erreur'; };
+    msg.className = 'msg';
+    if (!l || !l.structure_id) { erreur('Ton espace n\u2019est pas entièrement chargé. Recharge la page.'); return; }
+
+    let categorie, nom, dateEvenement = null, fichier = null;
+    if (etat.typeDemande === 'preavis') {
+      const date = $('dmDate').value; const message = $('dmMessage').value.trim();
+      if (!date) { erreur('Indique la date de départ souhaitée.'); return; }
+      if (date < dateDuJour()) { erreur('La date de départ doit être aujourd\u2019hui ou plus tard.'); return; }
+      categorie = 'preavis'; dateEvenement = date;
+      nom = 'Préavis de départ' + (message ? ' — ' + message : '');
+    } else {
+      const description = $('dmDescription').value.trim(); fichier = $('dmPhoto').files[0] || null;
+      if (!description) { erreur('Décris le problème.'); return; }
+      if (fichier && (fichier.size > LIMITE_PHOTO || !EXT_PHOTO[fichier.type])) { erreur('Photo refusée : JPG, PNG ou WEBP, 10 Mo maximum.'); return; }
+      categorie = 'travaux'; nom = (LABELS_PROBLEME[$('dmType').value] || 'Signalement') + ' — ' + description;
+    }
+
+    etat.envoiDemande = true; $('btnEnvoyerDemande').disabled = true; msg.textContent = 'Envoi en cours…';
+    let chemin = null;
+    try {
+      if (fichier) {
+        chemin = l.structure_id + '/locataire/' + l.id + '/' + nomAleatoire(fichier.type);
+        const { error: errUpload } = await supabaseClient.storage.from(BUCKET).upload(chemin, fichier, { contentType: fichier.type });
+        if (errUpload) { chemin = null; throw new Error('upload'); }
+      }
+      const { error: errInsert } = await supabaseClient.from('documents').insert({
+        structure_id: l.structure_id, entity_type: 'locataire', entity_id: l.id,
+        nom, storage_path: chemin, taille_octets: fichier ? fichier.size : null, categorie, document_date: dateEvenement
+      });
+      if (errInsert) { if (chemin) await supabaseClient.storage.from(BUCKET).remove([chemin]); throw new Error('insert'); }
+    } catch (e) {
+      erreur('L\u2019envoi a échoué. Réessaie dans un instant.');
+      $('btnEnvoyerDemande').disabled = false; etat.envoiDemande = false; return;
+    }
+    etat.envoiDemande = false;
+    fermerFeuille();
+    await chargerDemandes();
+    allerOnglet('demandes');
+    notifier('Demande envoyée. Ton propriétaire est prévenu.');
+  }
+
   /* ---------- Événements ---------- */
   document.addEventListener('click', (e) => {
+    if (e.target.id === 'feuille') { fermerFeuille(); return; }
     const onglet = e.target.closest('[data-onglet]');
     if (onglet) { allerOnglet(onglet.getAttribute('data-onglet')); return; }
     const choixTheme = e.target.closest('[data-theme-choix]');
@@ -472,9 +628,28 @@
       case 'telecharger': e.stopPropagation(); telechargerDocument(id); break;
       case 'ouvrir': ouvrirDocument(id); break;
       case 'zip': telechargerZip(); break;
+      case 'nouvelle-demande': ouvrirFeuille('travaux'); break;
+      case 'type-demande': choisirTypeDemande(action.getAttribute('data-type')); break;
+      case 'envoyer-demande': envoyerDemande(); break;
+      case 'fermer-feuille': fermerFeuille(); break;
+      case 'recharger': if (etat.user) chargerEspace(etat.user); else afficherConnexion(); break;
       case 'deconnexion': deconnexion(); break;
     }
   });
+  // Connexion : bandeau « hors ligne », rechargement au retour du réseau, rafraîchissement discret au retour sur la page
+  function majBandeauHorsLigne() { $('bandeauHorsLigne').hidden = navigator.onLine !== false; }
+  function rafraichirSilencieusement() {
+    if (!etat.charge || etat.enCours || !etat.user || !$('feuille').hidden) return;
+    if (Date.now() - (etat.derniereCharge || 0) < 60000) return;
+    chargerEspace(etat.user, true);
+  }
+  window.addEventListener('offline', majBandeauHorsLigne);
+  window.addEventListener('online', () => {
+    majBandeauHorsLigne();
+    if (etat.charge) { if ($('feuille').hidden) chargerEspace(etat.user, true); } else if (!$('vueMessage').hidden && etat.user) chargerEspace(etat.user);
+  });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') rafraichirSilencieusement(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('feuille').hidden) fermerFeuille(); });
   $('champRecherche').addEventListener('input', (e) => { etat.recherche = e.target.value; rendreDocuments(); });
   $('formConnexion').addEventListener('submit', envoyerLien);
 
@@ -485,6 +660,7 @@
 
   (async function demarrer() {
     appliquerTheme(lirePrefTheme());
+    majBandeauHorsLigne();
     const { data } = await supabaseClient.auth.getSession();
     if (data && data.session) await chargerEspace(data.session.user); else afficherConnexion();
   })();
