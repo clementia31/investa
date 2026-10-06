@@ -131,10 +131,6 @@
   .btn-menu-mobile { display: none; position: fixed; top: calc(14px + env(safe-area-inset-top)); left: 14px; z-index: 220; background: linear-gradient(180deg, var(--btn2-top), var(--btn2-bot)); border: 1px solid var(--border); border-radius: 8px; width: 42px; height: 42px; align-items: center; justify-content: center; font-size: 1.3rem; color: var(--text); cursor: pointer; box-shadow: inset 0 1px 0 var(--btn2-hi), 0 2px 0 var(--btn2-edge), 0 3px 8px rgba(0,0,0,0.25); transition: transform 0.08s ease, box-shadow 0.08s ease; }
   .btn-menu-mobile:active { transform: translateY(2px); box-shadow: inset 0 1px 0 var(--btn2-hi), 0 0 0 var(--btn2-edge); }
 
-  .esp-tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--panel); border-top: 1px solid var(--border); display: flex; padding: 9px 4px calc(12px + env(safe-area-inset-bottom)); z-index: 140; }
-  .esp-tabbar-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--text-dim); font-size: 0.68rem; cursor: pointer; }
-  .esp-tabbar-item.active { color: var(--accent); }
-  .esp-tabbar-item .ic { font-size: 1.2rem; }
 
   .owner-tabbar { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--panel); border-top: 1px solid var(--border); padding: 9px 4px calc(12px + env(safe-area-inset-bottom)); z-index: 140; }
   .owner-tabbar-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--text-dim); font-size: 0.7rem; cursor: pointer; }
@@ -142,10 +138,6 @@
   .owner-tabbar-item .ic-wrap { position: relative; display: inline-block; }
   .owner-tabbar-item .ic { font-size: 1.2rem; }
   .owner-tabbar-badge { position: absolute; top: -4px; right: -9px; background: #dc2626; color: white; font-size: 0.6rem; font-weight: 700; min-width: 15px; height: 15px; border-radius: 8px; padding: 0 3px; display: none; align-items: center; justify-content: center; border: 1.5px solid var(--panel); }
-  @media (min-width: 700px) {
-    .esp-tabbar { max-width: 420px; left: 50%; right: auto; transform: translateX(-50%); border-radius: 16px 16px 0 0; border-left: 1px solid var(--border); border-right: 1px solid var(--border); box-shadow: 0 -4px 20px rgba(0,0,0,0.3); }
-    #espFabSignalement { right: auto; left: calc(50% + 210px - 74px); }
-  }
   @media (max-width: 900px) {
     .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -183,7 +175,7 @@
   .toggle-vue-option { padding: 6px 14px; color: var(--text-dim); cursor: pointer; }
   .toggle-vue-option.active { background: var(--accent-solid); color: white; font-weight: 600; }
 
-  .loyer-item-row { display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); cursor: pointer; border-left: 3px solid var(--border); }
+  .loyer-item-row { display: flex; flex-wrap: wrap; align-items: center; padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); cursor: pointer; border-left: 3px solid var(--border); }
   .loyer-item-row:last-child { border-bottom: none; }
   .loyer-item-row:hover { background: var(--panel-2); }
   .loyer-item-row.statut-paye { border-left-color: var(--green); }
@@ -465,6 +457,28 @@
     .page-header input[style], .page-header select[style] { width: auto !important; flex: 1 1 150px; min-width: 0; }
   }
   :root[data-theme="clair"] .locataire-carte { box-shadow: var(--shadow); }
+  .loyer-actions { flex-basis: 100%; display: flex; gap: 8px; margin-top: 10px; }
+  .loyer-actions button { flex: 1; width: auto; padding: 8px 6px; font-size: 0.8rem; white-space: nowrap; }
+  .zone-notifications { position: fixed; left: 50%; transform: translateX(-50%); bottom: 24px; z-index: 1100; width: min(460px, calc(100% - 24px)); display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+  .notification { pointer-events: auto; display: flex; align-items: flex-start; gap: 10px; background: var(--panel); color: var(--text); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.25); padding: 12px 10px 12px 14px; font-size: 0.9rem; line-height: 1.45; }
+  .notification.erreur { border-left-color: var(--red); }
+  .notification.succes { border-left-color: var(--green); }
+  .notification-texte { flex: 1; white-space: pre-line; word-break: break-word; padding-top: 2px; }
+  .notification-fermer { background: none; border: none; color: var(--text-dim); font-size: 0.9rem; font-weight: 700; cursor: pointer; padding: 4px 6px; min-width: 32px; min-height: 32px; }
+  .fenetre-fond { position: fixed; inset: 0; z-index: 1200; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .fenetre { background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 12px 32px rgba(0,0,0,0.35); padding: 20px; width: 100%; max-width: 420px; max-height: 85vh; overflow-y: auto; }
+  .fenetre-texte { white-space: pre-line; font-size: 0.95rem; line-height: 1.5; margin-bottom: 18px; }
+  .fenetre-titre { font-weight: 700; font-size: 1rem; margin-bottom: 12px; }
+  .fenetre-liste { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .fenetre-liste button { width: 100%; text-align: left; }
+  .fenetre-boutons { display: flex; gap: 10px; }
+  .fenetre-boutons button { flex: 1; width: auto; }
+  .btn-danger { background: #dc2626; color: #fff; border: 1px solid #b91c1c; border-radius: 8px; padding: 10px 16px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+  @media (max-width: 900px) {
+    .zone-notifications { bottom: calc(84px + env(safe-area-inset-bottom)); }
+    .btn-danger { min-height: 44px; }
+    .notification-fermer { min-width: 44px; min-height: 44px; }
+  }
   .bandeau-hors-ligne { position: fixed; top: 0; left: 0; right: 0; z-index: 300; background: var(--panel-2); color: var(--amber); border-bottom: 1px solid var(--amber); font-size: 0.82rem; text-align: center; padding: calc(8px + env(safe-area-inset-top)) 14px 8px; }
   .bandeau-hors-ligne[hidden] { display: none; }
 </style>
@@ -565,10 +579,6 @@
       <div class="logo-login-baseline">Gestion immobilière</div>
     </div>
   </div>
-  <div class="quick-add-tabs">
-    <div class="quick-tab active" id="atOnglet-proprietaire" onclick="switchAuthTab('proprietaire')">Propriétaire</div>
-    <div class="quick-tab" id="atOnglet-locataire" onclick="switchAuthTab('locataire')">Locataire</div>
-  </div>
   <div id="formAuthProprietaire">
     <input id="email" type="email" placeholder="Email">
     <input id="password" type="password" placeholder="Mot de passe">
@@ -576,11 +586,7 @@
     <button class="btn-secondary" onclick="sInscrire()">Créer un compte</button>
     <p style="text-align:center; margin-top:10px;"><a href="#" onclick="demanderReinitialisationMdp(); return false;" class="small">Mot de passe oublié ?</a></p>
   </div>
-  <div id="formAuthLocataire" style="display:none;">
-    <input id="emailLocataire" type="email" placeholder="Email">
-    <button class="btn-primary" onclick="envoyerLienLocataire()">Recevoir un lien de connexion</button>
-    <p class="small" style="text-align:center; margin-top:10px;">Aucun mot de passe requis — un lien te sera envoyé par email.</p>
-  </div>
+  <p class="small" style="text-align:center; margin-top:16px;">Tu es locataire ? <a href="https://myinvesta.fr/locataire.html" target="_blank" rel="noopener">Accède à ton espace locataire →</a></p>
   <p id="msg"></p>
 </div>
 
@@ -601,9 +607,10 @@
     <svg class="logo-symbol-lg" viewBox="0 0 200 500"><use href="#investa-symbol"></use></svg>
     <div class="logo-login-texte"><div class="logo-login-nom">INVESTA</div></div>
   </div>
-  <p class="small" style="text-align:center; margin:0 0 16px;">Tu es à la fois propriétaire et locataire. Comment veux-tu te connecter ?</p>
-  <button class="btn-secondary" onclick="choisirRole('proprietaire')">Comme propriétaire</button>
-  <button class="btn-secondary" onclick="choisirRole('locataire')">Comme locataire</button>
+  <p class="small" id="selecteurRoleTexte" style="text-align:center; margin:0 0 16px;">Tu es à la fois propriétaire et locataire. Comment veux-tu continuer ?</p>
+  <button class="btn-secondary" id="btnRoleProprietaire" onclick="choisirRole('proprietaire')">Comme propriétaire</button>
+  <a class="btn-secondary" href="https://myinvesta.fr/locataire.html" target="_blank" rel="noopener" style="display:block; text-align:center; text-decoration:none; margin-top:10px;">Ouvrir mon espace locataire</a>
+  <button class="btn-secondary" id="btnRoleDeconnexion" onclick="seDeconnecter()" style="display:none; margin-top:10px;">Se déconnecter</button>
 </div>
 
 
@@ -1365,6 +1372,7 @@
           <div class="card">
             <h3>Historique des quittances</h3>
             <p class="small" style="margin:0 0 10px;">Chaque quittance générée automatiquement (loyer marqué payé) ou envoyée depuis Documents apparaît ici.</p>
+            <button class="btn-secondary" style="width:auto; margin-bottom:12px;" onclick="genererAttestationLoyer(currentLocataireId)">📄 Générer une attestation de loyer (PDF)</button>
             <div id="listeQuittancesLocataire">Chargement...</div>
           </div>
         </div>
@@ -1490,6 +1498,7 @@
             <button class="btn-secondary" style="flex:1;" onclick="confirmerStatutPaiement('en_retard')">En retard</button>
             <button class="btn-secondary" style="flex:1;" onclick="confirmerStatutPaiement('a_venir')">À venir</button>
           </div>
+          <button class="btn-secondary" id="btnAvisEcheance" style="width:100%; margin-top:10px;" onclick="genererAvisEcheance(paiementDetailCourantId)">📄 Générer l’avis d’échéance (PDF)</button>
         </div>
 
         <!-- Modal Relances -->
@@ -2012,119 +2021,71 @@
   </div>
 </div>
 
-<!-- ============ ESPACE LOCATAIRE ============ -->
-<div id="app-locataire" style="display:none;">
-  <div class="auth-wrap" style="max-width:420px; padding-bottom:calc(90px + env(safe-area-inset-bottom));">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
-      <div id="locHeaderNomBonjour" style="font-weight:600; font-size:1.05rem;">Bonjour</div>
-      <a href="#" onclick="seDeconnecter(); return false;" class="icon-btn-round" aria-label="Déconnexion">→</a>
-    </div>
-
-    <!-- ===== Onglet Accueil ===== -->
-    <div id="esp-tab-accueil">
-      <div class="card" id="cardLogementLocataireEsp" style="margin-bottom:12px;">
-        <div class="small" style="text-transform:uppercase; letter-spacing:0.03em; margin-bottom:4px;">Ton logement</div>
-        <div id="espLogementNom" style="font-weight:600;">—</div>
-        <div id="espLogementAdresse" class="small" style="margin-top:1px;">—</div>
-      </div>
-
-      <div class="card row-click" id="cardLoyerLocataireEsp" style="margin-bottom:12px; display:none;" onclick="ouvrirDetailLoyerLocataire()">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <div class="small" style="text-transform:uppercase; letter-spacing:0.03em; margin-bottom:4px;" id="espLoyerLabel">Loyer</div>
-            <div id="espLoyerMontant" style="font-weight:600; font-size:1.1rem;">—</div>
-          </div>
-          <span class="badge-pill" id="espLoyerStatut"></span>
-        </div>
-      </div>
-
-      <div class="card row-click" id="cardBailLocataireEsp" style="margin-bottom:12px; display:none;" onclick="telechargerDocument(bailPdfPathLocataireEsp)">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <div class="small" style="text-transform:uppercase; letter-spacing:0.03em; margin-bottom:4px;">Bail</div>
-            <div id="espBailDates" style="font-weight:600;">—</div>
-          </div>
-          <span style="color:var(--accent);">📄</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== Onglet Quittances ===== -->
-    <div id="esp-tab-quittances" style="display:none;">
-      <h3 style="margin:0 0 8px; font-size:0.95rem;">Quittances</h3>
-      <div class="card"><div id="espListeQuittances">Chargement...</div></div>
-    </div>
-
-    <!-- ===== Onglet Signalements ===== -->
-    <div id="esp-tab-signalements" style="display:none;">
-      <h3 style="margin:0 0 8px; font-size:0.95rem;">Signalements</h3>
-      <div id="espListeSignalements">Chargement...</div>
-    </div>
-  </div>
-
-  <!-- Panneau détail du loyer (remonte du bas) -->
-  <div id="modalDetailLoyerLocataire" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:flex-end; justify-content:center;">
-    <div class="card" style="max-width:420px; width:100%; margin:0; border-radius:16px 16px 0 0; max-height:80vh; overflow-y:auto;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <h3 style="margin:0;" id="espDetailMoisTitre">—</h3>
-        <span class="badge-pill" id="espDetailStatut"></span>
-      </div>
-      <p class="small" id="espDetailDatePaiement" style="margin:0 0 14px;"></p>
-      <div class="row"><span class="small">Loyer hors charges</span><span id="espDetailLoyerHC">—</span></div>
-      <div class="row"><span class="small">Charges</span><span id="espDetailCharges">—</span></div>
-      <div class="row" style="font-weight:600;"><span>Total payé</span><span id="espDetailTotal">—</span></div>
-      <button class="btn-secondary" style="width:100%; margin-top:14px;" id="espDetailBtnQuittance" onclick="telechargerDocument(espDetailStoragePathQuittance)">Télécharger la quittance</button>
-      <button class="btn-secondary" style="width:100%; margin-top:8px;" onclick="fermerDetailLoyerLocataire()">Fermer</button>
-    </div>
-  </div>
-
-  <!-- Bouton flottant "+" — visible seulement sur l'onglet Signalements -->
-  <button id="espFabSignalement" class="icon-btn-round" style="display:none; position:fixed; bottom:calc(78px + env(safe-area-inset-bottom)); right:20px; width:54px; height:54px; font-size:1.5rem; background:var(--accent); color:white; border:none; box-shadow:0 4px 14px rgba(59,130,246,0.4); z-index:150;" onclick="ouvrirSignalementLocataire()" aria-label="Nouveau message">+</button>
-
-  <!-- Barre de navigation du bas -->
-  <div class="esp-tabbar">
-    <div class="esp-tabbar-item active" id="espTabNav-accueil" onclick="switchEspTab('accueil')"><span class="ic">🏠</span>Accueil</div>
-    <div class="esp-tabbar-item" id="espTabNav-quittances" onclick="switchEspTab('quittances')"><span class="ic">📄</span>Quittances</div>
-    <div class="esp-tabbar-item" id="espTabNav-signalements" onclick="switchEspTab('signalements')"><span class="ic">🔧</span>Signalements</div>
-  </div>
-
-  <!-- Modal nouveau message (signalement ou préavis) -->
-  <div id="modalSignalementLocataire" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
-    <div class="card" style="max-width:420px; width:90%; max-height:85vh; overflow-y:auto;">
-      <h3 style="margin-top:0;">Nouveau message</h3>
-      <div class="quick-add-tabs">
-        <div class="quick-tab active" id="typeSigTab-travaux" onclick="choisirTypeSignalementLocataire('travaux')">🔧 Signaler un problème</div>
-        <div class="quick-tab" id="typeSigTab-preavis" onclick="choisirTypeSignalementLocataire('preavis')">📋 Préavis de départ</div>
-      </div>
-
-      <div id="champsSignalementTravaux">
-        <select id="signalementType">
-          <option value="fuite">Fuite</option>
-          <option value="panne">Panne</option>
-          <option value="autre">Autre</option>
-        </select>
-        <textarea id="signalementDescription" rows="3" placeholder="Décris le problème" style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; resize:vertical; margin:5px 0;"></textarea>
-        <label class="small" style="display:block; margin:6px 0 4px;">Photos (optionnel)</label>
-        <input type="file" id="signalementPhoto" accept="image/*">
-      </div>
-
-      <div id="champsSignalementPreavis" style="display:none;">
-        <label class="small" style="display:block; margin:6px 0 4px;">Date de départ souhaitée</label>
-        <input type="date" id="preavisDateDepart">
-        <textarea id="preavisMessage" rows="3" placeholder="Message (optionnel)" style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; resize:vertical; margin:5px 0;"></textarea>
-        <p class="small" style="margin:4px 0 0;">Le propriétaire recevra une notification immédiate et devra confirmer la date de fin de bail de son côté.</p>
-      </div>
-
-      <div style="display:flex; gap:8px; margin-top:10px;">
-        <button class="btn-primary" style="flex:1;" onclick="envoyerSignalementLocataire()">Envoyer au propriétaire</button>
-        <button class="btn-secondary" style="flex:1;" onclick="fermerSignalementLocataire()">Annuler</button>
-      </div>
-      <p id="msgSignalement" class="small" style="margin-top:8px;"></p>
-    </div>
-  </div>
-</div>
-
 <script>
+  // ---------- MESSAGES INTÉGRÉS (remplacent les fenêtres natives alert / confirm / prompt) ----------
+  // Les fenêtres natives bloquent l'écran, ignorent le thème clair/sombre et sont peu lisibles sur téléphone.
+  // alert() est redirigé vers une notification intégrée ; confirm() et prompt() sont remplacés par
+  // confirmer() et choisirDansListe(), qui renvoient une promesse (à utiliser avec await).
+  function zoneNotifications() {
+    let z = document.getElementById('zoneNotifications');
+    if (!z) { z = document.createElement('div'); z.id = 'zoneNotifications'; z.className = 'zone-notifications'; document.body.appendChild(z); }
+    return z;
+  }
+  function afficherNotification(texte) {
+    texte = String(texte == null ? '' : texte);
+    const z = zoneNotifications();
+    const estErreur = /^(erreur|impossible|échec|attention)|n.a pas pu|invalide|refus/i.test(texte);
+    const estSucces = !estErreur && /(enregistr|ajouté|créé|envoyé|généré|classé|terminé|supprimé|mis à jour|copié|clôtur|appliqué)/i.test(texte);
+    const longue = texte.length > 110 || texte.includes('\n');
+    const n = document.createElement('div');
+    n.className = 'notification' + (estErreur ? ' erreur' : (estSucces ? ' succes' : ''));
+    n.setAttribute('role', estErreur ? 'alert' : 'status');
+    const corps = document.createElement('div'); corps.className = 'notification-texte'; corps.textContent = texte;
+    const fermer = document.createElement('button'); fermer.type = 'button'; fermer.className = 'notification-fermer';
+    fermer.setAttribute('aria-label', 'Fermer'); fermer.textContent = longue ? 'OK' : '✕';
+    fermer.onclick = () => n.remove();
+    n.append(corps, fermer); z.appendChild(n);
+    while (z.children.length > 3) z.firstChild.remove();
+    if (!longue) setTimeout(() => n.remove(), 4500); // un message long ou important reste jusqu'à « OK »
+  }
+  window.alert = afficherNotification;
+
+  function confirmer(texte, options) {
+    options = options || {};
+    return new Promise(resolve => {
+      const t = String(texte || '');
+      const libelle = options.libelle || (/^Dernière confirmation/.test(t) ? 'Supprimer définitivement' : /^Supprimer/.test(t) ? 'Supprimer'
+        : /^Retirer/.test(t) ? 'Retirer' : /^Terminer/.test(t) ? 'Terminer le bail' : /^Clôturer/.test(t) ? 'Clôturer'
+        : /^Marquer/.test(t) ? 'Marquer payé' : /^Passer le loyer/.test(t) ? 'Appliquer' : 'Confirmer');
+      const danger = options.danger !== undefined ? options.danger : /supprim|définitiv|terminer|clôturer|retirer/i.test(t);
+      const fond = document.createElement('div'); fond.className = 'fenetre-fond';
+      fond.innerHTML = '<div class="fenetre" role="dialog" aria-modal="true"><div class="fenetre-texte"></div><div class="fenetre-boutons"><button type="button" class="btn-secondary" data-r="0">Annuler</button><button type="button" class="' + (danger ? 'btn-danger' : 'btn-primary') + '" data-r="1"></button></div></div>';
+      fond.querySelector('.fenetre-texte').textContent = t;
+      fond.querySelector('[data-r="1"]').textContent = libelle;
+      const clavier = (e) => { if (e.key === 'Escape') finir(false); };
+      const finir = (v) => { document.removeEventListener('keydown', clavier); fond.remove(); resolve(v); };
+      fond.addEventListener('click', (e) => { if (e.target === fond) return finir(false); const b = e.target.closest('[data-r]'); if (b) finir(b.getAttribute('data-r') === '1'); });
+      document.addEventListener('keydown', clavier);
+      document.body.appendChild(fond);
+      fond.querySelector(danger ? '[data-r="0"]' : '[data-r="1"]').focus(); // action destructrice : le focus est sur « Annuler »
+    });
+  }
+
+  function choisirDansListe(titre, libelles) {
+    return new Promise(resolve => {
+      const fond = document.createElement('div'); fond.className = 'fenetre-fond';
+      fond.innerHTML = '<div class="fenetre" role="dialog" aria-modal="true"><div class="fenetre-titre"></div><div class="fenetre-liste"></div><div class="fenetre-boutons"><button type="button" class="btn-secondary" data-annuler="1">Annuler</button></div></div>';
+      fond.querySelector('.fenetre-titre').textContent = titre;
+      const liste = fond.querySelector('.fenetre-liste');
+      libelles.forEach((l, i) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn-secondary'; b.textContent = l; b.setAttribute('data-i', String(i)); liste.appendChild(b); });
+      const clavier = (e) => { if (e.key === 'Escape') finir(null); };
+      const finir = (v) => { document.removeEventListener('keydown', clavier); fond.remove(); resolve(v); };
+      fond.addEventListener('click', (e) => { if (e.target === fond || e.target.closest('[data-annuler]')) return finir(null); const b = e.target.closest('[data-i]'); if (b) finir(parseInt(b.getAttribute('data-i'), 10)); });
+      document.addEventListener('keydown', clavier);
+      document.body.appendChild(fond);
+    });
+  }
+
   const SUPABASE_URL = 'https://rhpjttobvyofpauccbrj.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_GKzraD5eOxGYVB9SXWXY5g_UMXbw-Zz';
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -2325,7 +2286,6 @@
   async function seDeconnecter() {
     await supabaseClient.auth.signOut();
     document.getElementById('app').style.display = 'none';
-    document.getElementById('app-locataire').style.display = 'none';
     document.getElementById('selecteurRole').style.display = 'none';
     document.getElementById('auth').style.display = 'block';
   }
@@ -2350,248 +2310,28 @@
       document.getElementById('selecteurRole').style.display = 'block';
       return;
     }
-    if (estLocataire) { afficherAppLocataire(); return; }
+    if (estLocataire) {
+      // Compte uniquement locataire : son espace est désormais la page web dédiée, pas l'application.
+      document.getElementById('selecteurRoleTexte').textContent = 'Ce compte est un compte locataire. Ton espace se trouve sur myinvesta.fr.';
+      document.getElementById('btnRoleProprietaire').style.display = 'none';
+      document.getElementById('btnRoleDeconnexion').style.display = 'block';
+      document.getElementById('selecteurRole').style.display = 'block';
+      return;
+    }
     afficherAppProprietaire();
   }
 
   function choisirRole(role) {
     document.getElementById('selecteurRole').style.display = 'none';
-    if (role === 'locataire') afficherAppLocataire(); else afficherAppProprietaire();
+    afficherAppProprietaire();
   }
 
   async function afficherAppProprietaire() {
-    document.getElementById('app-locataire').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     const { data: { user } } = await supabaseClient.auth.getUser();
     document.getElementById('userEmail').textContent = user.email;
     allerDashboard();
   }
-
-  function afficherAppLocataire() {
-    document.getElementById('app').style.display = 'none';
-    document.getElementById('app-locataire').style.display = 'block';
-    switchEspTab('accueil');
-    chargerEspaceLocataire();
-  }
-
-  function switchEspTab(tab) {
-    ['accueil', 'quittances', 'signalements'].forEach(t => {
-      document.getElementById('esp-tab-' + t).style.display = t === tab ? 'block' : 'none';
-      document.getElementById('espTabNav-' + t).classList.toggle('active', t === tab);
-    });
-    document.getElementById('espFabSignalement').style.display = tab === 'signalements' ? 'flex' : 'none';
-  }
-
-  function switchAuthTab(role) {
-    document.getElementById('atOnglet-proprietaire').classList.toggle('active', role === 'proprietaire');
-    document.getElementById('atOnglet-locataire').classList.toggle('active', role === 'locataire');
-    document.getElementById('formAuthProprietaire').style.display = role === 'proprietaire' ? 'block' : 'none';
-    document.getElementById('formAuthLocataire').style.display = role === 'locataire' ? 'block' : 'none';
-    document.getElementById('msg').textContent = '';
-  }
-
-  async function envoyerLienLocataire() {
-    const email = document.getElementById('emailLocataire').value.trim();
-    const msgDiv = document.getElementById('msg');
-    if (!email) { msgDiv.textContent = 'Email requis.'; return; }
-    const { error } = await supabaseClient.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin } });
-    if (error) { msgDiv.textContent = traduireErreurAuth(error); return; }
-    msgDiv.textContent = 'Lien envoyé — vérifie ta boîte mail (et les spams).';
-  }
-
-  // ---------- ESPACE LOCATAIRE ----------
-  let currentLocataireIdEsp = null;
-  let bailPdfPathLocataireEsp = null;
-  let paiementMoisCourantEsp = null;
-  let espDetailStoragePathQuittance = null;
-
-  async function chargerEspaceLocataire() {
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    const { data: locataire, error } = await supabaseClient.from('locataires').select('id, nom, structure_id').ilike('email', user.email).limit(1).maybeSingle();
-    if (error || !locataire) { alert('Impossible de charger ton espace.'); return; }
-    currentLocataireIdEsp = locataire.id;
-    document.getElementById('locHeaderNomBonjour').textContent = 'Bonjour ' + (locataire.nom || '').split(' ')[0];
-
-    document.getElementById('cardLoyerLocataireEsp').style.display = 'none';
-    document.getElementById('cardBailLocataireEsp').style.display = 'none';
-
-    const { data: rattachements } = await supabaseClient.from('bail_locataires').select('bail_id').eq('locataire_id', locataire.id);
-    const bailIds = (rattachements || []).map(r => r.bail_id);
-    let bailActif = null;
-    if (bailIds.length) {
-      const { data: baux } = await supabaseClient.from('baux').select('id, loyer, charges, date_debut, date_fin, lot_id, lots(nom, type, immeuble_id, immeubles(adresse, ville))').in('id', bailIds).eq('statut', 'actif').limit(1);
-      bailActif = baux && baux[0];
-    }
-
-    if (bailActif) {
-      document.getElementById('espLogementNom').textContent = bailActif.lots.nom || bailActif.lots.type;
-      document.getElementById('espLogementAdresse').textContent = [bailActif.lots.immeubles.adresse, bailActif.lots.immeubles.ville].filter(Boolean).join(', ');
-      document.getElementById('espBailDates').textContent = 'Du ' + formatDate(bailActif.date_debut) + (bailActif.date_fin ? ' au ' + formatDate(bailActif.date_fin) : ' — sans fin');
-
-      const { data: docBail } = await supabaseClient.from('documents').select('storage_path').eq('entity_type', 'bail').eq('entity_id', bailActif.id).eq('categorie', 'bail').order('created_at', { ascending: false }).limit(1).maybeSingle();
-      bailPdfPathLocataireEsp = docBail ? docBail.storage_path : null;
-      document.getElementById('cardBailLocataireEsp').style.display = bailPdfPathLocataireEsp ? 'block' : 'none';
-
-      const now = new Date();
-      const moisDate = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-01';
-      const { data: paiementMois } = await supabaseClient.from('paiements').select('id, statut, montant_loyer, montant_charges, date_paiement').eq('bail_id', bailActif.id).eq('mois', moisDate).maybeSingle();
-      if (paiementMois) {
-        paiementMoisCourantEsp = paiementMois;
-        const total = Number(paiementMois.montant_loyer) + Number(paiementMois.montant_charges);
-        const labelsStatut = { paye: ['Payé', 'badge-vert'], en_retard: ['En retard', 'badge-rouge'], a_venir: ['À venir', 'badge-orange'] };
-        const [texte, classe] = labelsStatut[paiementMois.statut] || ['—', 'badge-gris'];
-        document.getElementById('espLoyerLabel').textContent = 'Loyer de ' + now.toLocaleDateString('fr-FR', { month: 'long' });
-        document.getElementById('espLoyerMontant').textContent = total.toLocaleString('fr-FR') + ' €';
-        document.getElementById('espLoyerStatut').className = 'badge-pill ' + classe;
-        document.getElementById('espLoyerStatut').textContent = texte;
-        document.getElementById('cardLoyerLocataireEsp').style.display = 'block';
-      } else {
-        paiementMoisCourantEsp = null;
-      }
-    } else {
-      document.getElementById('espLogementNom').textContent = 'Aucun bail actif';
-      document.getElementById('espLogementAdresse').textContent = '';
-    }
-
-    const { data: quittances } = await supabaseClient.from('documents').select('nom, storage_path').eq('entity_type', 'locataire').eq('entity_id', locataire.id).eq('categorie', 'quittance').order('created_at', { ascending: false });
-    const div = document.getElementById('espListeQuittances');
-    div.innerHTML = (quittances && quittances.length) ? quittances.map(q => `
-      <div class="row row-click" onclick="telechargerDocument('${q.storage_path}')">
-        <span>${echapper(q.nom)}</span><span style="color:var(--accent);">↓</span>
-      </div>
-    `).join('') : '<div class="empty-state">Aucune quittance pour l\u2019instant.</div>';
-
-    chargerSignalementsLocataire();
-  }
-
-  async function chargerSignalementsLocataire() {
-    const div = document.getElementById('espListeSignalements');
-    const { data: signalements } = await supabaseClient.from('documents')
-      .select('id, nom, categorie, document_date, reponse_proprietaire, reponse_le, created_at')
-      .eq('entity_type', 'locataire').eq('entity_id', currentLocataireIdEsp)
-      .in('categorie', ['travaux', 'preavis']).order('created_at', { ascending: false });
-    if (!signalements || !signalements.length) { div.innerHTML = '<div class="empty-state">Aucun signalement pour l\u2019instant.</div>'; return; }
-
-    div.innerHTML = signalements.map(s => {
-      const traite = !!s.reponse_proprietaire;
-      const icone = s.categorie === 'preavis' ? '📋' : '🔧';
-      return `
-        <div class="card" style="margin-bottom:10px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-            <span style="font-weight:600; font-size:0.88rem;">${icone} ${echapper(s.nom)}</span>
-            <span class="badge-pill ${traite ? 'badge-vert' : 'badge-orange'}">${traite ? 'Traité' : 'En attente'}</span>
-          </div>
-          <div class="small" style="margin-bottom:6px;">Envoyé le ${formatDate(s.created_at)}${s.categorie === 'preavis' && s.document_date ? ' · Départ souhaité le ' + formatDate(s.document_date) : ''}</div>
-          ${traite ? `<div style="background:var(--panel-2); border-radius:8px; padding:8px 10px; font-size:0.8rem;"><div class="small" style="color:var(--accent); font-weight:600; margin-bottom:2px;">Réponse du propriétaire${s.reponse_le ? ' · ' + formatDate(s.reponse_le) : ''}</div>${echapper(s.reponse_proprietaire)}</div>` : ''}
-        </div>
-      `;
-    }).join('');
-  }
-
-  async function ouvrirDetailLoyerLocataire() {
-    if (!paiementMoisCourantEsp) return;
-    const p = paiementMoisCourantEsp;
-    const now = new Date();
-    document.getElementById('espDetailMoisTitre').textContent = now.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-    const labelsStatut = { paye: ['Payé', 'badge-vert'], en_retard: ['En retard', 'badge-rouge'], a_venir: ['À venir', 'badge-orange'] };
-    const [texte, classe] = labelsStatut[p.statut] || ['—', 'badge-gris'];
-    document.getElementById('espDetailStatut').className = 'badge-pill ' + classe;
-    document.getElementById('espDetailStatut').textContent = texte;
-    document.getElementById('espDetailDatePaiement').textContent = p.date_paiement ? 'Payé le ' + formatDate(p.date_paiement) : '';
-    document.getElementById('espDetailLoyerHC').textContent = Number(p.montant_loyer).toLocaleString('fr-FR') + ' €';
-    document.getElementById('espDetailCharges').textContent = Number(p.montant_charges).toLocaleString('fr-FR') + ' €';
-    document.getElementById('espDetailTotal').textContent = (Number(p.montant_loyer) + Number(p.montant_charges)).toLocaleString('fr-FR') + ' €';
-
-    const { data: quittances } = await supabaseClient.from('documents').select('storage_path').eq('entity_type', 'locataire').eq('entity_id', currentLocataireIdEsp).eq('categorie', 'quittance').order('created_at', { ascending: false }).limit(1);
-    espDetailStoragePathQuittance = (quittances && quittances[0]) ? quittances[0].storage_path : null;
-    document.getElementById('espDetailBtnQuittance').style.display = espDetailStoragePathQuittance ? 'block' : 'none';
-
-    document.getElementById('modalDetailLoyerLocataire').style.display = 'flex';
-  }
-
-  function fermerDetailLoyerLocataire() {
-    document.getElementById('modalDetailLoyerLocataire').style.display = 'none';
-  }
-
-  let typeSignalementActuel = 'travaux';
-
-  function choisirTypeSignalementLocataire(type) {
-    typeSignalementActuel = type;
-    document.getElementById('typeSigTab-travaux').classList.toggle('active', type === 'travaux');
-    document.getElementById('typeSigTab-preavis').classList.toggle('active', type === 'preavis');
-    document.getElementById('champsSignalementTravaux').style.display = type === 'travaux' ? 'block' : 'none';
-    document.getElementById('champsSignalementPreavis').style.display = type === 'preavis' ? 'block' : 'none';
-    document.getElementById('msgSignalement').textContent = '';
-  }
-
-  function ouvrirSignalementLocataire() {
-    document.getElementById('signalementDescription').value = '';
-    document.getElementById('signalementPhoto').value = '';
-    document.getElementById('preavisDateDepart').value = '';
-    document.getElementById('preavisMessage').value = '';
-    document.getElementById('msgSignalement').textContent = '';
-    choisirTypeSignalementLocataire('travaux');
-    document.getElementById('modalSignalementLocataire').style.display = 'flex';
-  }
-
-  function fermerSignalementLocataire() {
-    document.getElementById('modalSignalementLocataire').style.display = 'none';
-  }
-
-  async function envoyerSignalementLocataire() {
-    const msgDiv = document.getElementById('msgSignalement');
-    if (!currentLocataireIdEsp) { msgDiv.textContent = 'Erreur : session invalide.'; return; }
-
-    let categorie, nomDocument, dateEvenement = null, fichier = null;
-
-    if (typeSignalementActuel === 'preavis') {
-      const dateDepart = document.getElementById('preavisDateDepart').value;
-      const message = document.getElementById('preavisMessage').value.trim();
-      if (!dateDepart) { msgDiv.textContent = 'Indique la date de départ souhaitée.'; return; }
-      categorie = 'preavis';
-      dateEvenement = dateDepart;
-      nomDocument = 'Préavis de départ' + (message ? ' — ' + message.slice(0, 60) : '');
-    } else {
-      const type = document.getElementById('signalementType').value;
-      const description = document.getElementById('signalementDescription').value.trim();
-      fichier = document.getElementById('signalementPhoto').files[0] || null;
-      if (!description) { msgDiv.textContent = 'Décris le problème.'; return; }
-      if (fichier) {
-        const erreurValidation = validerFichier(fichier);
-        if (erreurValidation) { msgDiv.textContent = erreurValidation; return; }
-      }
-      const labelsType = { fuite: 'Fuite', panne: 'Panne', autre: 'Autre' };
-      categorie = 'travaux';
-      nomDocument = (labelsType[type] || 'Signalement') + ' — ' + description.slice(0, 60);
-    }
-
-    const { data: locataireInfo, error: errInfo } = await supabaseClient.from('locataires').select('structure_id').eq('id', currentLocataireIdEsp).single();
-    if (errInfo || !locataireInfo) { msgDiv.textContent = 'Erreur : impossible de récupérer ta fiche.'; return; }
-    const structureId = locataireInfo.structure_id;
-
-    let cheminFichier = null;
-    if (fichier) {
-      cheminFichier = `${structureId}/locataire/${currentLocataireIdEsp}/${nomStorageAleatoire(fichier.name)}`;
-      const { error: errUpload } = await supabaseClient.storage.from('documents').upload(cheminFichier, fichier);
-      if (errUpload) { msgDiv.textContent = 'Erreur d\u2019envoi : ' + errUpload.message; return; }
-    }
-
-    const { error: errInsert } = await supabaseClient.from('documents').insert({
-      structure_id: structureId, entity_type: 'locataire', entity_id: currentLocataireIdEsp,
-      nom: nomDocument, storage_path: cheminFichier, taille_octets: fichier ? fichier.size : null,
-      categorie: categorie, document_date: dateEvenement
-    });
-    if (errInsert) {
-      if (cheminFichier) await nettoyerFichierOrphelin(cheminFichier);
-      msgDiv.textContent = 'Erreur : ' + errInsert.message;
-      return;
-    }
-
-    fermerSignalementLocataire();
-    chargerSignalementsLocataire();
-  }
-
-
 
   // Si l'utilisateur arrive depuis le lien reçu par email, ne pas ouvrir l'app directement —
   // le laisser sur l'écran de réinitialisation même si Supabase a déjà créé une session temporaire.
@@ -2649,6 +2389,7 @@
 
   function echecChargementFiche(retour) {
     alert('Cette fiche n\u2019a pas pu être chargée. Vérifie ta connexion puis réessaie.');
+    window.__remplacerProchainEcran = true; // la fiche ratée ne reste pas dans l'historique du bouton Retour
     retour();
   }
 
@@ -2823,6 +2564,9 @@
   }
 
   async function chargerDashboard() {
+    // Les alertes ne dépendent d'aucun autre chiffre de l'écran : on les calcule dès l'ouverture, en parallèle.
+    const promesseAlertes = collecterAlertes();
+    promesseAlertes.catch(() => {}); // évite une alerte « promesse non gérée » si l'écran s'arrête avant de l'utiliser
     const now = new Date();
     const moisDate = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-01';
     document.getElementById('dashPeriode').textContent = now.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
@@ -2830,6 +2574,9 @@
     const { data: structures, error: errStructures } = await avecRetry(() => supabaseClient.from('structures').select('id').order('created_at'));
     if (errStructures) logErreur('chargement_structures_dashboard', errStructures);
     const structIds = (structures || []).map(s => s.id);
+    // Le graphique ne dépend que des structures : il se calcule pendant que le reste de l'écran se charge.
+    const promesseCashflow = structIds.length ? dessinerCashflow12Mois(structIds) : Promise.resolve();
+    promesseCashflow.catch(() => {});
     const { data: immeublesExistants, error: errImmeubles } = structIds.length
       ? await supabaseClient.from('immeubles').select('id').in('structure_id', structIds).limit(1)
       : { data: [], error: null };
@@ -2909,8 +2656,8 @@
     // collecterAlertes() est désormais la source UNIQUE des alertes, réutilisée aussi par
     // l'onglet À faire — garantit que le même chiffre apparaît partout, jamais deux comptes différents.
     const [, itemsAlertes] = await Promise.all([
-      dessinerCashflow12Mois(structIds),
-      collecterAlertes()
+      promesseCashflow,
+      promesseAlertes
     ]);
     await chargerAlertesDashboard(itemsAlertes);
     mettreAJourBadgeAFaire(itemsAlertes);
@@ -3458,6 +3205,11 @@
     setActiveNav('nav-patrimoine'); hideAllPages();
     document.getElementById('page-fiche-immeuble').style.display = 'block';
 
+    // L'immeuble, ses dépenses de l'année et ses logements ne dépendent que de l'identifiant : chargés en même temps.
+    const ilYA1An = new Date(); ilYA1An.setFullYear(ilYA1An.getFullYear() - 1);
+    const promesseDepenses = Promise.resolve(supabaseClient.from('transactions').select('montant').eq('immeuble_id', id).eq('type', 'depense').gte('date', dateLocale(ilYA1An)));
+    const promesseLotsIm = Promise.resolve(supabaseClient.from('lots').select('id, statut').eq('immeuble_id', id));
+    promesseDepenses.catch(() => {}); promesseLotsIm.catch(() => {});
     const { data: im } = await supabaseClient.from('immeubles').select('id, adresse, ville, code_postal, annee_construction, valeur_estimee, dette_restante, taxe_fonciere_annuelle, dpe_date_expiration, structure_id, created_at').eq('id', id).single();
     if (!im) { echecChargementFiche(allerPatrimoine); return; }
     currentImmeubleData = im;
@@ -3478,13 +3230,12 @@
     document.getElementById('immEquity').textContent = (im.valeur_estimee || im.dette_restante) ? equity.toLocaleString('fr-FR') + ' €' : '—';
 
     // Charges annuelles = dépenses des 12 derniers mois pour cet immeuble
-    const ilYA1An = new Date(); ilYA1An.setFullYear(ilYA1An.getFullYear() - 1);
-    const { data: depenses } = await supabaseClient.from('transactions').select('montant').eq('immeuble_id', id).eq('type', 'depense').gte('date', dateLocale(ilYA1An));
+    const { data: depenses } = await promesseDepenses;
     const chargesAnnuelles = (depenses || []).reduce((a, t) => a + Number(t.montant), 0);
     document.getElementById('immCharges').textContent = chargesAnnuelles.toLocaleString('fr-FR') + ' €';
 
     // Loyers annuels + occupation = lots et baux actifs de cet immeuble
-    const { data: lotsIm } = await supabaseClient.from('lots').select('id, statut').eq('immeuble_id', id);
+    const { data: lotsIm } = await promesseLotsIm;
     const lotIds = (lotsIm || []).map(l => l.id);
     const nbOccupes = (lotsIm || []).filter(l => ['occupe', 'proprietaire', 'agence'].includes(l.statut)).length;
     document.getElementById('immOccupation').textContent = lotsIm && lotsIm.length ? `${nbOccupes}/${lotsIm.length}` : '—';
@@ -3513,10 +3264,16 @@
   }
 
   async function chargerASurveillerImmeuble(immeubleId, lotIds) {
+    // Logements, baux arrivant à échéance et baux actifs : chargés en même temps.
+    const promesseLotsSurveiller = Promise.resolve(supabaseClient.from('lots').select('id, nom, type, statut').eq('immeuble_id', immeubleId));
+    const promesseBauxEcheance = lotIds.length ? Promise.resolve(supabaseClient.from('baux').select('id, lot_id, date_fin, lots(nom, type)').in('lot_id', lotIds).eq('statut', 'actif').not('date_fin', 'is', null)) : null;
+    const promesseBauxTousActifs = lotIds.length ? Promise.resolve(supabaseClient.from('baux').select('id, lot_id, lots(nom, type)').in('lot_id', lotIds).eq('statut', 'actif')) : null;
+    [promesseLotsSurveiller, promesseBauxEcheance, promesseBauxTousActifs].forEach(p => p && p.catch(() => {}));
+    let incomplet = false; // une requête échouée ne doit jamais devenir « Rien à signaler »
     const div = document.getElementById('immASurveiller');
     const items = [];
 
-    const { data: lots } = await supabaseClient.from('lots').select('id, nom, type, statut').eq('immeuble_id', immeubleId);
+    const { data: lots, error: eLots } = await promesseLotsSurveiller; if (eLots) incomplet = true;
     (lots || []).filter(l => l.statut === 'vacant').forEach(l => {
       items.push({ severite: 'moyenne', texte: `${echapper(l.nom || l.type)} vacant`, onclick: `ouvrirFicheLot('${l.id}')` });
     });
@@ -3527,17 +3284,17 @@
     }
 
     if (lotIds.length) {
-      const { data: baux } = await supabaseClient.from('baux').select('id, lot_id, date_fin, lots(nom, type)').in('lot_id', lotIds).eq('statut', 'actif').not('date_fin', 'is', null);
+      const { data: baux, error: eBaux } = await promesseBauxEcheance; if (eBaux) incomplet = true;
       (baux || []).forEach(b => {
         const jours = Math.ceil((new Date(b.date_fin) - new Date()) / (1000 * 60 * 60 * 24));
         if (jours >= 0 && jours <= 60) items.push({ severite: jours <= 30 ? 'haute' : 'moyenne', texte: `Bail ${echapper(b.lots.nom || b.lots.type)} expire dans ${jours} j`, onclick: `ouvrirFicheLot('${b.lot_id}')` });
       });
 
       const bailIds = (baux || []).map(b => b.id);
-      const { data: bauxTousActifs } = await supabaseClient.from('baux').select('id, lot_id, lots(nom, type)').in('lot_id', lotIds).eq('statut', 'actif');
+      const { data: bauxTousActifs, error: eBauxTousActifs } = await promesseBauxTousActifs; if (eBauxTousActifs) incomplet = true;
       const tousLesBailIds = (bauxTousActifs || []).map(b => b.id);
       if (tousLesBailIds.length) {
-        const { data: retards } = await supabaseClient.from('paiements').select('bail_id').in('bail_id', tousLesBailIds).eq('statut', 'en_retard');
+        const { data: retards, error: eRetards } = await supabaseClient.from('paiements').select('bail_id').in('bail_id', tousLesBailIds).eq('statut', 'en_retard'); if (eRetards) incomplet = true;
         const bailIdsEnRetard = new Set((retards || []).map(r => r.bail_id));
         (bauxTousActifs || []).filter(b => bailIdsEnRetard.has(b.id)).forEach(b => {
           items.push({ severite: 'haute', texte: `Loyer en retard — ${echapper(b.lots.nom || b.lots.type)}`, onclick: `ouvrirFicheLot('${b.lot_id}')` });
@@ -3545,9 +3302,10 @@
       }
     }
 
-    div.innerHTML = items.length
+    const avertImm = incomplet ? '<div class="small" style="color:var(--amber); margin-bottom:8px;">⚠️ Certaines informations n\u2019ont pas pu être vérifiées. <a href="#" onclick="ouvrirFicheImmeuble(\'' + immeubleId + '\'); return false;" style="color:inherit; text-decoration:underline;">Réessayer</a></div>' : '';
+    div.innerHTML = avertImm + (items.length
       ? items.map(it => `<div class="alert-row row-click" onclick="${it.onclick}"><span class="alert-dot ${it.severite === 'haute' ? 'high' : 'med'}"></span> ${it.texte}</div>`).join('')
-      : '<div class="empty-state">Rien à signaler. 👍</div>';
+      : (incomplet ? '' : '<div class="empty-state">Rien à signaler. 👍</div>'));
   }
 
   let bufferDetteParBien = [];
@@ -3586,11 +3344,18 @@
   let nbAffichesHistoriqueBien = 8;
 
   async function chargerActiviteRecenteImmeuble(immeubleId, lotIds) {
+    // Tout ce qui ne dépend que de l'immeuble et de ses logements part en même temps, dès l'ouverture.
+    const sansErreur = (p) => { p.catch(() => {}); return p; };
+    const promesseTransactions = sansErreur(Promise.resolve(supabaseClient.from('transactions').select('date, type, description, categorie, montant').eq('immeuble_id', immeubleId).order('date', { ascending: false }).limit(15)));
+    const promesseLots = lotIds.length ? sansErreur(Promise.resolve(supabaseClient.from('lots').select('id, nom, type').in('id', lotIds))) : null;
+    const promesseBaux = lotIds.length ? sansErreur(Promise.resolve(supabaseClient.from('baux').select('id, lots(nom, type)').in('lot_id', lotIds))) : null;
+    const promesseDocuments = sansErreur(Promise.resolve(supabaseClient.from('documents').select('entity_type, entity_id, categorie, created_at, storage_path').in('entity_id', [immeubleId, ...lotIds]).not('categorie', 'in', '(quittance,revision_loyer)').order('created_at', { ascending: false }).limit(15)));
+    let promessePaiements = null, promesseRevisions = null;
     const div = document.getElementById('immActiviteRecente');
     const evenements = [];
 
     // Transactions (dépenses/recettes) — clic → onglet Finances de ce même bien
-    const { data: transactions } = await supabaseClient.from('transactions').select('date, type, description, categorie, montant').eq('immeuble_id', immeubleId).order('date', { ascending: false }).limit(15);
+    const { data: transactions } = await promesseTransactions;
     (transactions || []).forEach(t => {
       evenements.push({
         date: t.date, icone: t.type === 'recette' ? '💰' : '🔧',
@@ -3604,16 +3369,20 @@
     let lotParId = {};
     let bailParId = {};
     if (lotIds.length) {
-      const { data: lots } = await supabaseClient.from('lots').select('id, nom, type').in('id', lotIds);
+      const { data: lots } = await promesseLots;
       (lots || []).forEach(l => lotParId[l.id] = l);
 
-      const { data: baux } = await supabaseClient.from('baux').select('id, lots(nom, type)').in('lot_id', lotIds);
+      const { data: baux } = await promesseBaux;
       (baux || []).forEach(b => bailParId[b.id] = b);
       const bailIds = (baux || []).map(b => b.id);
+      if (bailIds.length) {
+        promessePaiements = sansErreur(Promise.resolve(supabaseClient.from('paiements').select('bail_id, date_paiement, montant_loyer, montant_charges').in('bail_id', bailIds).eq('statut', 'paye').not('date_paiement', 'is', null).order('date_paiement', { ascending: false }).limit(15)));
+        promesseRevisions = sansErreur(Promise.resolve(supabaseClient.from('revisions_loyer').select('bail_id, date_application, ancien_loyer, nouveau_loyer').in('bail_id', bailIds).order('date_application', { ascending: false }).limit(15)));
+      }
 
       // Paiements — clic → fiche du lot concerné
       if (bailIds.length) {
-        const { data: paiements } = await supabaseClient.from('paiements').select('bail_id, date_paiement, montant_loyer, montant_charges').in('bail_id', bailIds).eq('statut', 'paye').not('date_paiement', 'is', null).order('date_paiement', { ascending: false }).limit(15);
+        const { data: paiements } = await promessePaiements;
         (paiements || []).forEach(p => {
           const bail = bailParId[p.bail_id];
           const lotNom = bail ? echapper(bail.lots.nom || bail.lots.type) : '';
@@ -3636,7 +3405,7 @@
 
       // Révisions de loyer — clic → fiche du lot
       if (bailIds.length) {
-        const { data: revisions } = await supabaseClient.from('revisions_loyer').select('bail_id, date_application, ancien_loyer, nouveau_loyer').in('bail_id', bailIds).order('date_application', { ascending: false }).limit(15);
+        const { data: revisions } = await promesseRevisions;
         (revisions || []).forEach(r => {
           const bail = bailParId[r.bail_id];
           const lotNom = bail ? echapper(bail.lots.nom || bail.lots.type) : '';
@@ -3651,7 +3420,7 @@
 
     // Documents importants (jamais quittance/révision — déjà représentés par leurs propres événements ci-dessus)
     const idsEntites = [immeubleId, ...lotIds];
-    const { data: documents } = await supabaseClient.from('documents').select('entity_type, entity_id, categorie, created_at, storage_path').in('entity_id', idsEntites).not('categorie', 'in', '(quittance,revision_loyer)').order('created_at', { ascending: false }).limit(15);
+    const { data: documents } = await promesseDocuments;
     const labelsDoc = { bail: 'Bail ajouté', diagnostic: 'DPE / diagnostic ajouté', assurance: 'Assurance ajoutée', travaux: 'Facture travaux ajoutée', autre: 'Document ajouté' };
     (documents || []).forEach(d => {
       const lotNom = d.entity_type === 'lot' && lotParId[d.entity_id] ? echapper(lotParId[d.entity_id].nom || lotParId[d.entity_id].type) : '';
@@ -3789,7 +3558,7 @@
   }
 
   async function supprimerImmeuble() {
-    if (!confirm('Supprimer définitivement cet immeuble ? Tous ses lots, baux, paiements et documents seront supprimés. Cette action est irréversible.')) return;
+    if (!await confirmer('Supprimer définitivement cet immeuble ? Tous ses lots, baux, paiements et documents seront supprimés. Cette action est irréversible.')) return;
 
     // Nettoyage complet (documents, notes, contacts) pour l'immeuble, chacun de ses lots,
     // ET chacun des baux de ces lots (les documents de bail — ex: le PDF généré — sont
@@ -3937,7 +3706,7 @@
   }
 
   async function supprimerLot() {
-    if (!confirm('Supprimer définitivement ce lot ? Son bail, ses paiements et ses documents seront supprimés. Cette action est irréversible.')) return;
+    if (!await confirmer('Supprimer définitivement ce lot ? Son bail, ses paiements et ses documents seront supprimés. Cette action est irréversible.')) return;
 
     await nettoyerDonneesEntite('lot', currentLotId);
     const { data: bauxDuLot } = await supabaseClient.from('baux').select('id').eq('lot_id', currentLotId);
@@ -3984,6 +3753,9 @@
     currentLotId = id;
     hideAllPages();
     document.getElementById('page-fiche-lot').style.display = 'block';
+    // Le logement et son bail actif ne dépendent que de l'identifiant : chargés en même temps.
+    const promesseBauxActifsLot = Promise.resolve(supabaseClient.from('baux').select('id, loyer, charges, depot_garantie').eq('lot_id', id).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1));
+    promesseBauxActifsLot.catch(() => {});
     const { data: lot } = await supabaseClient.from('lots').select('id, nom, type, surface, statut, loyer, chauffage_montant, eau_montant, valeur_estimee, dette_restante, taxe_fonciere_annuelle, immeuble_id, immeubles(structure_id, adresse)').eq('id', id).single();
     if (!lot) { echecChargementFiche(allerPatrimoine); return; }
     currentLotStructureId = lot.immeubles.structure_id;
@@ -4031,7 +3803,7 @@
     document.getElementById('formValeurLot').style.display = 'none';
     document.getElementById('btnModifierValeurLot').style.display = 'inline-flex';
 
-    const { data: bauxActifs } = await supabaseClient.from('baux').select('id, loyer, charges, depot_garantie').eq('lot_id', id).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
+    const { data: bauxActifs } = await promesseBauxActifsLot;
     const bail = bauxActifs && bauxActifs[0];
     bailActuelPourLoyerHaut = bail || null;
 
@@ -4114,7 +3886,7 @@
   async function appliquerRevisionIrl(bailId, lotId) {
     const trimestreChoisi = document.getElementById('irlNouveauTrimestre').value;
     if (nouveauLoyerCalcule === null || !trimestreChoisi) return;
-    if (!confirm(`Passer le loyer à ${nouveauLoyerCalcule} € (référence ${trimestreChoisi}) ?`)) return;
+    if (!await confirmer(`Passer le loyer à ${nouveauLoyerCalcule} € (référence ${trimestreChoisi}) ?`)) return;
 
     const { data: bailAvant } = await supabaseClient.from('baux').select('loyer').eq('id', bailId).single();
     const ancienLoyer = bailAvant ? Number(bailAvant.loyer) : null;
@@ -4227,7 +3999,7 @@
 
   async function terminerBail(bailId, lotId) {
     const dateSortie = document.getElementById('dateSortieBail').value || dateLocale(new Date());
-    if (!confirm('Terminer ce bail au ' + dateSortie + ' ? Le locataire restera consultable dans l\u2019historique du lot.')) return;
+    if (!await confirmer('Terminer ce bail au ' + dateSortie + ' ? Le locataire restera consultable dans l\u2019historique du lot.')) return;
 
     const champDepot = document.getElementById('depotRestitueBail');
     const champMotif = document.getElementById('motifRetenueBail');
@@ -4259,21 +4031,27 @@
     const debutAnnee = annee + '-01-01';
     const finAnnee = annee + '-12-31';
 
-    const { data: lotInfo } = await supabaseClient.from('lots').select('immeuble_id').eq('id', lotId).single();
-    const immeubleId = lotInfo.immeuble_id;
+    const echec = () => { div.innerHTML = `<div class="small" style="color:var(--amber);">⚠️ Calcul impossible pour le moment : aucun montant n\u2019est affiché plutôt qu\u2019un montant faux. <a href="#" onclick="calculerRegularisationCharges('${lotId}'); return false;" style="color:inherit; text-decoration:underline;">Réessayer</a></div>`; };
 
-    const { count: nbLotsImmeuble } = await supabaseClient.from('lots').select('id', { count: 'exact', head: true }).eq('immeuble_id', immeubleId);
-    const { data: depensesRecuperables } = await supabaseClient.from('transactions').select('montant').eq('immeuble_id', immeubleId).eq('type', 'depense').eq('recuperable', true).gte('date', debutAnnee).lte('date', finAnnee);
+    // Étape 1 : le logement (pour connaître son immeuble) et ses baux, en même temps.
+    const [{ data: lotInfo, error: eLot }, { data: baux, error: eBaux }] = await Promise.all([
+      supabaseClient.from('lots').select('immeuble_id').eq('id', lotId).single(),
+      supabaseClient.from('baux').select('id').eq('lot_id', lotId)
+    ]);
+    if (eLot || eBaux || !lotInfo) return echec();
+    const immeubleId = lotInfo.immeuble_id;
+    const bailIds = (baux || []).map(b => b.id);
+
+    // Étape 2 : nombre de lots, dépenses récupérables et provisions encaissées, en même temps.
+    const [{ count: nbLotsImmeuble, error: eNb }, { data: depensesRecuperables, error: eDep }, { data: paiements, error: ePai }] = await Promise.all([
+      supabaseClient.from('lots').select('id', { count: 'exact', head: true }).eq('immeuble_id', immeubleId),
+      supabaseClient.from('transactions').select('montant').eq('immeuble_id', immeubleId).eq('type', 'depense').eq('recuperable', true).gte('date', debutAnnee).lte('date', finAnnee),
+      bailIds.length ? supabaseClient.from('paiements').select('montant_charges').in('bail_id', bailIds).eq('statut', 'paye').gte('mois', debutAnnee).lte('mois', finAnnee) : Promise.resolve({ data: [] })
+    ]);
+    if (eNb || eDep || ePai) return echec(); // un montant partiel serait faux : on n'affiche rien
     const totalDepensesRecuperables = (depensesRecuperables || []).reduce((a, t) => a + Number(t.montant), 0);
     const partParLot = nbLotsImmeuble > 0 ? totalDepensesRecuperables / nbLotsImmeuble : 0;
-
-    const { data: baux } = await supabaseClient.from('baux').select('id').eq('lot_id', lotId);
-    const bailIds = (baux || []).map(b => b.id);
-    let provisionsEncaissees = 0;
-    if (bailIds.length) {
-      const { data: paiements } = await supabaseClient.from('paiements').select('montant_charges').in('bail_id', bailIds).eq('statut', 'paye').gte('mois', debutAnnee).lte('mois', finAnnee);
-      provisionsEncaissees = (paiements || []).reduce((a, p) => a + Number(p.montant_charges), 0);
-    }
+    const provisionsEncaissees = (paiements || []).reduce((a, p) => a + Number(p.montant_charges), 0);
 
     const ecart = provisionsEncaissees - partParLot;
     div.innerHTML = `
@@ -4440,7 +4218,7 @@
   }
 
   async function delierContact(linkId, entityType, entityId, targetDivId) {
-    if (!confirm('Retirer ce contact de cette fiche ? (Le contact reste disponible sur tes autres biens s\u2019il y est li\u00e9.)')) return;
+    if (!await confirmer('Retirer ce contact de cette fiche ? (Le contact reste disponible sur tes autres biens s\u2019il y est li\u00e9.)')) return;
     const { error } = await supabaseClient.from('contact_links').delete().eq('id', linkId);
     if (error) { logErreur('delier_contact', error); return alert('Erreur : ' + error.message); }
     chargerContacts(entityType, entityId, targetDivId);
@@ -4548,7 +4326,7 @@
   }
 
   async function supprimerNote(id, entityType, entityId, targetDivId) {
-    if (!confirm('Supprimer cette note ?')) return;
+    if (!await confirmer('Supprimer cette note ?')) return;
     const { error } = await supabaseClient.from('notes').delete().eq('id', id);
     if (error) { logErreur('supprimer_note', error); return alert('Erreur : ' + error.message); }
     chargerNotes(entityType, entityId, targetDivId);
@@ -4630,21 +4408,24 @@
   }
 
   async function supprimerChargeRecurrente(id, entityType, entityId, targetDivId) {
-    if (!confirm('Supprimer cette charge récurrente ?')) return;
+    if (!await confirmer('Supprimer cette charge récurrente ?')) return;
     const { error } = await supabaseClient.from('charges_recurrentes').delete().eq('id', id);
     if (error) { logErreur('supprimer_charge_recurrente', error); return alert('Erreur : ' + error.message); }
     chargerChargesRecurrentes(entityType, entityId, targetDivId);
   }
 
   async function chargerEcheancesLot(lotId) {
+    let incomplet = false; // une requête échouée ne doit jamais devenir « Rien à signaler »
     const div = document.getElementById('lotEcheances');
     div.textContent = 'Chargement...';
-    const { data: bauxActifs } = await supabaseClient.from('baux').select('id, date_fin').eq('lot_id', lotId).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
+    const { data: bauxActifs, error: eBauxActifs } = await supabaseClient.from('baux').select('id, date_fin').eq('lot_id', lotId).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1); if (eBauxActifs) incomplet = true;
+    if (eBauxActifs) { div.innerHTML = '<div class="small" style="color:var(--amber);">⚠️ Échéances impossibles à vérifier pour le moment. <a href="#" onclick="ouvrirFicheLot(\'' + lotId + '\'); return false;" style="color:inherit; text-decoration:underline;">Réessayer</a></div>'; return; }
     if (!bauxActifs || !bauxActifs.length) { div.innerHTML = '<div class="empty-state">Aucun bail actif.</div>'; return; }
     const bail = bauxActifs[0];
 
     const items = [];
-    const { data: prochain } = await supabaseClient.from('paiements').select('statut, mois, montant_loyer, montant_charges').eq('bail_id', bail.id).in('statut', ['a_venir', 'en_retard']).order('mois').limit(1);
+    const promesseRetards = Promise.resolve(supabaseClient.from('paiements').select('montant_loyer, montant_charges').eq('bail_id', bail.id).eq('statut', 'en_retard')); promesseRetards.catch(() => {});
+    const { data: prochain, error: eProchain } = await supabaseClient.from('paiements').select('statut, mois, montant_loyer, montant_charges').eq('bail_id', bail.id).in('statut', ['a_venir', 'en_retard']).order('mois').limit(1); if (eProchain) incomplet = true;
     if (prochain && prochain.length) {
       const p = prochain[0];
       const montant = (Number(p.montant_loyer) + Number(p.montant_charges)).toLocaleString('fr-FR');
@@ -4653,7 +4434,7 @@
         : `<div class="row"><span class="small">Prochain paiement</span><span>${montant} € — ${p.mois}</span></div>`);
     }
 
-    const { data: retards } = await supabaseClient.from('paiements').select('montant_loyer, montant_charges').eq('bail_id', bail.id).eq('statut', 'en_retard');
+    const { data: retards, error: eRetards } = await promesseRetards; if (eRetards) incomplet = true;
     if (retards && retards.length > 1) {
       const solde = retards.reduce((a, p) => a + Number(p.montant_loyer) + Number(p.montant_charges), 0);
       items.push(`<div class="row"><span class="small">Solde impayé</span><span style="color:var(--red); font-weight:600;">${solde.toLocaleString('fr-FR')} €</span></div>`);
@@ -4664,7 +4445,8 @@
       if (jours >= 0 && jours <= 60) items.push(`<div class="row"><span class="small">Bail expire</span><span style="color:var(--amber); font-weight:600;">dans ${jours} j (${bail.date_fin})</span></div>`);
     }
 
-    div.innerHTML = items.length ? items.join('') : '<div class="empty-state">Rien à signaler. 👍</div>';
+    const avertLot = incomplet ? '<div class="small" style="color:var(--amber); margin-bottom:8px;">⚠️ Certaines informations n\u2019ont pas pu être vérifiées. <a href="#" onclick="ouvrirFicheLot(\'' + lotId + '\'); return false;" style="color:inherit; text-decoration:underline;">Réessayer</a></div>' : '';
+    div.innerHTML = avertLot + (items.length ? items.join('') : (incomplet ? '' : '<div class="empty-state">Rien à signaler. 👍</div>'));
   }
 
   const PAGE_SIZE_HISTORIQUES = 50;
@@ -4865,7 +4647,7 @@
 
   // ---------- FICHE LOCATAIRE ----------
   async function supprimerLocataire() {
-    if (!confirm('Supprimer définitivement ce locataire ? Ses documents seront supprimés et il sera retiré de son bail. Cette action est irréversible.')) return;
+    if (!await confirmer('Supprimer définitivement ce locataire ? Ses documents seront supprimés et il sera retiré de son bail. Cette action est irréversible.')) return;
 
     await nettoyerDonneesEntite('locataire', currentLocataireId);
 
@@ -4907,6 +4689,9 @@
     hideAllPages();
     document.getElementById('page-fiche-locataire').style.display = 'block';
 
+    // La fiche et les baux rattachés ne dépendent que de l'identifiant : chargés en même temps.
+    const promesseRattachements = Promise.resolve(supabaseClient.from('bail_locataires').select('bail_id, nom_chambre, loyer_part').eq('locataire_id', locataireId));
+    promesseRattachements.catch(() => {});
     const { data: locataire } = await supabaseClient.from('locataires').select('id, structure_id, nom, email, telephone, garantie').eq('id', locataireId).single();
     if (!locataire) { echecChargementFiche(allerLocataires); return; }
     currentLocataireStructureId = locataire.structure_id;
@@ -4934,13 +4719,21 @@
 
     switchTabLocataire('bail');
 
-    const { data: rattachements } = await supabaseClient.from('bail_locataires').select('bail_id, nom_chambre, loyer_part').eq('locataire_id', locataireId);
+    const { data: rattachements } = await promesseRattachements;
     const bailIds = (rattachements || []).map(r => r.bail_id);
+    // Ce qui ne dépend que du locataire et de ses baux part tout de suite, en parallèle du reste de la fiche.
+    const promesseAutresRattachements = bailIds.length ? Promise.resolve(supabaseClient.from('bail_locataires').select('locataire_id').in('bail_id', bailIds).neq('locataire_id', locataireId)) : null;
+    if (promesseAutresRattachements) promesseAutresRattachements.catch(() => {});
+    chargerDocuments('locataire', locataireId, 'listeQuittancesLocataire', 'quittance');
+    chargerHistoriquePaiementsLocataire(bailIds);
+    chargerNotes('locataire', currentLocataireId, 'listeNotesLoc');
+    chargerSignalementsProprietaire(currentLocataireId);
 
     let colocataires = [];
     let bailActuel = null;
     let monRattachement = null;
     let bailEstAncien = false;
+    let documentsBailLances = false;
     if (bailIds.length) {
       const { data: bauxDetails } = await supabaseClient.from('baux').select('id, type, loyer, charges, depot_garantie, date_debut, date_fin, lot_id, lots(nom, type, immeuble_id, immeubles(adresse))').in('id', bailIds).eq('statut', 'actif').order('created_at', { ascending: false }).limit(1);
       bailActuel = bauxDetails && bauxDetails[0];
@@ -4954,7 +4747,10 @@
         if (bailActuel) { bailEstAncien = true; monRattachement = rattachements.find(r => r.bail_id === bailActuel.id); }
       }
 
-      const { data: autresRattachements } = await supabaseClient.from('bail_locataires').select('locataire_id').in('bail_id', bailIds).neq('locataire_id', locataireId);
+      // Les documents du bail n'attendent pas la liste des colocataires.
+      chargerDocuments('locataire', locataireId, 'listeDocumentsLocataire', null, bailActuel ? bailActuel.id : null);
+      documentsBailLances = true;
+      const { data: autresRattachements } = await promesseAutresRattachements;
       const autresIds = [...new Set((autresRattachements || []).map(r => r.locataire_id))];
       if (autresIds.length) {
         const { data } = await supabaseClient.from('locataires').select('id, nom').in('id', autresIds);
@@ -4964,8 +4760,7 @@
 
     // Le bail rattaché (ex: le PDF du bail signé) reste visible ici aussi, en plus des
     // documents propres au locataire — sans ça, il "disparaîtrait" du point de vue du locataire.
-    chargerDocuments('locataire', locataireId, 'listeDocumentsLocataire', null, bailActuel ? bailActuel.id : null);
-    chargerDocuments('locataire', locataireId, 'listeQuittancesLocataire', 'quittance');
+    if (!documentsBailLances) chargerDocuments('locataire', locataireId, 'listeDocumentsLocataire', null, null);
 
     document.getElementById('locSousTitre').innerHTML = bailActuel
       ? `<a href="#" onclick="ouvrirFicheLot('${bailActuel.lot_id}'); return false;" style="color:inherit;">${echapper(bailActuel.lots.nom || bailActuel.lots.type)} · ${echapper(bailActuel.lots.immeubles.adresse)}</a>${bailEstAncien ? ` <span class="small">(ancien locataire — bail terminé le ${bailActuel.date_fin})</span>` : ''}`
@@ -5038,9 +4833,6 @@
     }
     document.getElementById('locBailEditionInline').style.display = 'none';
 
-    chargerHistoriquePaiementsLocataire(bailIds);
-    chargerNotes('locataire', currentLocataireId, 'listeNotesLoc');
-    chargerSignalementsProprietaire(currentLocataireId);
   }
 
   let offsetPaiementsLocataire = 0;
@@ -5404,6 +5196,19 @@
     chargerCalendrierLoyers();
   }
 
+  // Historique des relances : 3 colonnes ajoutées par SQL. Tant qu'elles n'existent pas, l'écran Loyers
+  // fonctionne exactement comme avant (simplement sans historique) — aucun risque si le SQL arrive après le code.
+  const COLONNES_PAIEMENT_MOIS = 'id, bail_id, statut, date_paiement, montant_loyer, montant_charges';
+  let historiqueRelancesDisponible = true;
+  async function lirePaiementsDuMois(bailIds, moisDate) {
+    if (historiqueRelancesDisponible) {
+      const r = await supabaseClient.from('paiements').select(COLONNES_PAIEMENT_MOIS + ', nb_relances, derniere_relance_le, dernier_niveau_relance').in('bail_id', bailIds).eq('mois', moisDate);
+      if (!r.error || !/nb_relances|derniere_relance|dernier_niveau|column/i.test(r.error.message || '')) return r;
+      historiqueRelancesDisponible = false;
+    }
+    return supabaseClient.from('paiements').select(COLONNES_PAIEMENT_MOIS).in('bail_id', bailIds).eq('mois', moisDate);
+  }
+
   async function chargerCalendrierLoyers() {
     const immeubleFiltre = document.getElementById('immeubleFiltreLoyers').value;
     document.getElementById('moisLoyersLabel').textContent = moisLoyersCourant.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
@@ -5437,7 +5242,7 @@
     const bailIds = bauxStructure.map(b => b.id);
 
     // 1 requête groupée : tous les paiements déjà existants pour ce mois, pour tous les baux d'un coup
-    const { data: paiementsExistants } = await supabaseClient.from('paiements').select('id, bail_id, statut, date_paiement, montant_loyer, montant_charges').in('bail_id', bailIds).eq('mois', moisDate);
+    const { data: paiementsExistants } = await lirePaiementsDuMois(bailIds, moisDate);
     const paiementParBail = {};
     (paiementsExistants || []).forEach(p => paiementParBail[p.bail_id] = p);
 
@@ -5449,9 +5254,18 @@
       const nouvellesLignes = bauxSansPaiement.map(b => ({
         bail_id: b.id, mois: moisDate, montant_loyer: b.loyer, montant_charges: b.charges, statut: 'paye', date_paiement: moisDate
       }));
-      const { data: inseres, error: errInsertPaiements } = await supabaseClient.from('paiements').insert(nouvellesLignes).select();
+      // La base refuse les doublons bail + mois : si un autre chargement du même mois vient de créer
+      // certaines lignes, on les ignore au lieu de faire échouer tout le lot…
+      const { data: inseres, error: errInsertPaiements } = await supabaseClient.from('paiements')
+        .upsert(nouvellesLignes, { onConflict: 'bail_id,mois', ignoreDuplicates: true }).select();
       if (errInsertPaiements) logErreur('creation_auto_paiements_mois', errInsertPaiements);
       (inseres || []).forEach(p => paiementParBail[p.bail_id] = p);
+      // …puis on relit celles qui manquent encore (créées entre-temps par l'autre chargement).
+      const toujoursSansPaiement = bauxSansPaiement.filter(b => !paiementParBail[b.id]).map(b => b.id);
+      if (toujoursSansPaiement.length) {
+        const { data: relus } = await lirePaiementsDuMois(toujoursSansPaiement, moisDate);
+        (relus || []).forEach(p => paiementParBail[p.bail_id] = p);
+      }
     }
 
     // Noms des locataires par bail (absent des données du calendrier jusqu'ici, nécessaire pour la liste)
@@ -5476,7 +5290,11 @@
     const moisDateActuel = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-01';
     const moisAfficheEstPasse = moisDate < moisDateActuel;
 
-    const items = bauxStructure.map(bail => {
+    // Un bail sans paiement en mémoire (échec réseau persistant) ne doit jamais faire planter l'écran :
+    // on l'écarte de ce rendu et on prévient l'utilisateur sous la liste.
+    const bauxAffiches = bauxStructure.filter(b => paiementParBail[b.id]);
+    const nbLoyersNonCharges = bauxStructure.length - bauxAffiches.length;
+    const items = bauxAffiches.map(bail => {
       const paiement = paiementParBail[bail.id];
       const jourEcheance = Math.min(new Date(bail.date_debut).getDate(), nbJoursMois);
       const idsLocataires = idsParBail[bail.id] || [];
@@ -5499,6 +5317,9 @@
     dessinerCalendrier(annee, moisIdx, items);
     remplirListesLaterales(items);
     rendreListeLoyers();
+    if (nbLoyersNonCharges > 0) {
+      document.getElementById('listeLoyersMois').insertAdjacentHTML('afterbegin', `<div class="small" style="color:var(--amber); margin-bottom:10px;">⚠️ ${nbLoyersNonCharges} loyer${nbLoyersNonCharges > 1 ? 's n\u2019ont' : ' n\u2019a'} pas pu être chargé${nbLoyersNonCharges > 1 ? 's' : ''}. <a href="#" onclick="chargerCalendrierLoyers(); return false;" style="color:inherit; text-decoration:underline;">Réessayer</a></div>`);
+    }
   }
 
   function calculerKpiLoyers(items) {
@@ -5553,9 +5374,14 @@
           <div class="loyer-item-infos">
             <div class="loyer-item-nom${it.locataireId ? ' row-click' : ''}"${it.locataireId ? ` onclick="event.stopPropagation(); ouvrirFicheLocataire('${it.locataireId}', 'liste')"` : ''}>${echapper(it.nomLocataire)}</div>
             <div class="loyer-item-souttitre"><a href="#" onclick="event.stopPropagation(); ouvrirFicheLot('${it.lotId}'); return false;" style="color:inherit;">${echapper(it.lotNom)} · ${echapper(it.adresse)}</a></div>
+            ${it.paiement.nb_relances ? `<div class="small" style="margin-top:2px;">Relancé ${it.paiement.nb_relances}× · dernière le ${formatDate(it.paiement.derniere_relance_le)}</div>` : ''}
           </div>
           <div class="loyer-item-montant">${it.montant.toLocaleString('fr-FR')} €</div>
           <span class="badge-pill ${classeStatut}">${texteStatut}</span>
+          ${it.paiement.statut === 'en_retard' ? `<div class="loyer-actions">
+            <button class="btn-secondary" onclick="event.stopPropagation(); marquerPayeDirect('${it.paiement.id}', 'loyers')">✓ Marquer payé</button>
+            <button class="btn-secondary" onclick="event.stopPropagation(); ouvrirRelances('${it.paiement.id}')">✉️ Relancer</button>
+          </div>` : ''}
         </div>
       `;
     }).join('');
@@ -5609,6 +5435,7 @@
     document.getElementById('detailPaiementSousTitre').textContent = item.adresse;
     document.getElementById('detailPaiementMontant').textContent = item.montant.toLocaleString('fr-FR') + ' €';
     document.getElementById('detailPaiementDate').value = item.paiement.date_paiement || dateLocale(new Date());
+    document.getElementById('btnAvisEcheance').style.display = item.paiement.statut === 'paye' ? 'none' : 'block'; // un loyer payé a déjà sa quittance
     document.getElementById('panelPaiementDetail').style.display = 'block';
     document.getElementById('panelPaiementDetail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
@@ -5619,8 +5446,9 @@
   }
 
   // ---------- RELANCES (v1 : mailto individuel, en attente d'un vrai envoi automatique via Resend/SMTP) ----------
-  async function ouvrirRelances() {
-    const enRetard = donneesItemsCalendrier.filter(it => it.paiement.statut === 'en_retard');
+  async function ouvrirRelances(paiementIdSeul) {
+    // Sans paramètre : tous les retards du mois. Avec un identifiant : uniquement ce loyer (bouton « Relancer » d'une ligne).
+    const enRetard = donneesItemsCalendrier.filter(it => it.paiement.statut === 'en_retard' && (!paiementIdSeul || it.paiement.id === paiementIdSeul));
     if (!enRetard.length) return;
 
     const idsLocataires = [...new Set(enRetard.filter(it => it.locataireId).map(it => it.locataireId))];
@@ -5630,38 +5458,103 @@
       (locs || []).forEach(l => emailsParId[l.id] = l.email);
     }
 
+    relancesCourantes = enRetard;
     const div = document.getElementById('listeRelances');
     div.innerHTML = enRetard.map((it, idx) => {
       const email = it.locataireId ? emailsParId[it.locataireId] : null;
-      const message = construireMessageRelance(it);
+      const niveau = niveauRelanceSuggere(it);
+      const message = construireMessageRelance(it, niveau);
+      const p = it.paiement;
+      const historique = p.nb_relances ? `<div class="small" style="margin-bottom:8px; color:var(--amber);">Déjà relancé ${p.nb_relances} fois — dernière relance le ${formatDate(p.derniere_relance_le)}${p.dernier_niveau_relance && LIBELLES_NIVEAU_RELANCE[p.dernier_niveau_relance] ? ' (' + LIBELLES_NIVEAU_RELANCE[p.dernier_niveau_relance].toLowerCase() + ')' : ''}</div>` : '';
       return `
         <div class="card" style="margin-bottom:10px;">
           <div style="font-weight:600; margin-bottom:2px;">${echapper(it.nomLocataire)} — ${echapper(it.lotNom)}</div>
           <div class="small" style="margin-bottom:8px;">${it.montant.toLocaleString('fr-FR')} € en retard</div>
+          ${historique}
+          <select id="relanceNiveau-${idx}" onchange="changerNiveauRelance(${idx})" style="margin-bottom:8px;">
+            ${Object.entries(LIBELLES_NIVEAU_RELANCE).map(([k, l]) => `<option value="${k}"${k === niveau ? ' selected' : ''}>${l}</option>`).join('')}
+          </select>
           <textarea id="relanceTexte-${idx}" rows="5" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text); font-family:inherit; resize:vertical; font-size:1rem;">${echapper(message)}</textarea>
           ${email
             ? `<button class="btn-primary" style="margin-top:8px; padding:8px 14px; font-size:0.85rem; width:auto;" onclick="envoyerRelanceIndividuelle(${idx}, '${echapperPourOnclick(email)}')">Envoyer par email →</button>`
             : `<p class="small" style="color:var(--amber); margin-top:8px;">Aucun email renseigné pour ce locataire — impossible d\u2019envoyer directement.</p>`}
+          <button class="btn-secondary" style="margin-top:8px; padding:8px 14px; font-size:0.85rem; width:auto;" onclick="copierRelance(${idx})">Copier le texte</button>
         </div>
       `;
     }).join('');
     document.getElementById('modalRelances').style.display = 'flex';
   }
 
-  function construireMessageRelance(it) {
+  // ---------- Relances graduées (amiable → ferme → dernier rappel) ----------
+  // Textes proposés à titre indicatif : à faire relire par un professionnel avant un usage réel.
+  const LIBELLES_NIVEAU_RELANCE = { amiable: 'Rappel amiable', ferme: 'Relance ferme', dernier_rappel: 'Dernier rappel' };
+  const OBJETS_RELANCE = { amiable: 'Rappel : loyer en attente', ferme: 'Relance : loyer impayé', dernier_rappel: 'Dernier rappel avant mise en demeure' };
+  let relancesCourantes = [];
+
+  function niveauRelanceSuggere(it) {
+    const n = (it.paiement && it.paiement.nb_relances) || 0;
+    return n === 0 ? 'amiable' : (n === 1 ? 'ferme' : 'dernier_rappel');
+  }
+
+  function construireMessageRelance(it, niveau) {
+    const periode = ((document.getElementById('moisLoyersLabel') || {}).textContent || '').trim() || 'la période en cours';
+    const objet = `le loyer du logement « ${it.lotNom} » (${it.adresse}) pour ${periode}, d'un montant de ${it.montant.toLocaleString('fr-FR')} €`;
+    if (niveau === 'ferme') return `Bonjour ${it.nomLocataire},
+
+Malgré ma précédente relance, ${objet} reste impayé à ce jour.
+
+Je vous demande de régulariser cette situation sous 8 jours. Sans règlement de votre part, je serai contraint d'engager les démarches prévues par le bail.
+
+Cordialement`;
+    if (niveau === 'dernier_rappel') return `Bonjour ${it.nomLocataire},
+
+Je constate que ${objet} demeure impayé malgré mes relances.
+
+À défaut de règlement sous 8 jours, je vous adresserai une mise en demeure par lettre recommandée avec accusé de réception, préalable à toute procédure.
+
+Si vous rencontrez une difficulté, je reste disponible pour convenir d'un échéancier.
+
+Cordialement`;
     return `Bonjour ${it.nomLocataire},
 
-Je me permets de vous relancer concernant le loyer de ${it.lotNom} (${it.adresse}), d'un montant de ${it.montant.toLocaleString('fr-FR')} €, actuellement en retard.
+Sauf erreur de ma part, je n'ai pas encore reçu ${objet}.
 
-Merci de bien vouloir régulariser cette situation dans les meilleurs délais.
+Il s'agit peut-être d'un simple oubli : pourriez-vous procéder au règlement dès que possible ?
 
 Cordialement`;
   }
 
-  function envoyerRelanceIndividuelle(idx, email) {
+  function changerNiveauRelance(idx) {
+    const it = relancesCourantes[idx]; if (!it) return;
+    document.getElementById('relanceTexte-' + idx).value = construireMessageRelance(it, document.getElementById('relanceNiveau-' + idx).value);
+  }
+
+  // Note la relance sur le paiement (nombre, date, niveau) pour suggérer le niveau suivant la prochaine fois.
+  async function enregistrerRelance(idx) {
+    const it = relancesCourantes[idx];
+    if (!it || !historiqueRelancesDisponible) return;
+    const niveau = document.getElementById('relanceNiveau-' + idx).value;
+    const nb = (it.paiement.nb_relances || 0) + 1;
+    const maintenant = new Date().toISOString();
+    const { error } = await supabaseClient.from('paiements').update({ nb_relances: nb, derniere_relance_le: maintenant, dernier_niveau_relance: niveau }).eq('id', it.paiement.id);
+    if (error) { logErreur('historique_relance', error); return; }
+    Object.assign(it.paiement, { nb_relances: nb, derniere_relance_le: maintenant, dernier_niveau_relance: niveau });
+    rendreListeLoyers();
+  }
+
+  async function envoyerRelanceIndividuelle(idx, email) {
+    const niveau = document.getElementById('relanceNiveau-' + idx).value;
     const texte = document.getElementById('relanceTexte-' + idx).value;
-    const lien = `mailto:${email}?subject=${encodeURIComponent('Relance de loyer')}&body=${encodeURIComponent(texte)}`;
+    const lien = `mailto:${email}?subject=${encodeURIComponent(OBJETS_RELANCE[niveau] || 'Relance de loyer')}&body=${encodeURIComponent(texte)}`;
+    await enregistrerRelance(idx);
     window.location.href = lien;
+  }
+
+  async function copierRelance(idx) {
+    const zone = document.getElementById('relanceTexte-' + idx);
+    try { await navigator.clipboard.writeText(zone.value); } catch (e) { zone.select(); try { document.execCommand('copy'); } catch (e2) {} }
+    await enregistrerRelance(idx);
+    alert('Texte copié : colle-le dans un SMS ou un message.');
   }
 
   function fermerRelances() {
@@ -5669,6 +5562,14 @@ Cordialement`;
   }
 
   let confirmationPaiementEnCours = false;
+
+  async function marquerPayeDirect(paiementId, origine) {
+    if (!await confirmer('Marquer ce loyer comme payé aujourd\u2019hui ? La quittance sera générée automatiquement.')) return;
+    const { error } = await supabaseClient.from('paiements').update({ statut: 'paye', date_paiement: dateLocale(new Date()) }).eq('id', paiementId);
+    if (error) { logErreur('marquer_paye_direct', error); return alert('Erreur : ' + error.message); }
+    genererQuittanceAuto(paiementId).catch(e => console.error('Génération quittance échouée :', e));
+    if (origine === 'alertes') allerAlertes(); else chargerCalendrierLoyers();
+  }
 
   async function confirmerStatutPaiement(statut) {
     if (!paiementDetailCourantId || confirmationPaiementEnCours) return;
@@ -5734,7 +5635,7 @@ Cordialement`;
   }
 
   async function supprimerTransaction(txId, contexteType, contexteId) {
-    if (!confirm('Supprimer cette transaction définitivement ?')) return;
+    if (!await confirmer('Supprimer cette transaction définitivement ?')) return;
     const { error } = await supabaseClient.from('transactions').delete().eq('id', txId);
     if (error) { logErreur('supprimer_transaction', error); return alert('Erreur : ' + error.message); }
     rafraichirListeTransactions({ type: contexteType, id: contexteId });
@@ -5794,6 +5695,116 @@ Cordialement`;
   // Génère automatiquement une quittance PDF et la classe dans Documents, sur chaque locataire du bail.
   // L'ENVOI PAR EMAIL n'est pas encore branché — dès que la clé API Resend sera configurée,
   // il suffira d'appeler envoyerQuittanceParEmail(...) juste après l'upload ci-dessous (voir le TODO).
+  // ---------- Avis d'échéance et attestation de loyer (PDF) ----------
+  // Modèles proposés à titre indicatif : à faire relire par un professionnel avant un usage réel.
+  const MODELE_AVIS_ECHEANCE_DEFAUT = `AVIS D'ÉCHÉANCE
+
+Bailleur : {{bailleur}}
+Locataire(s) : {{locataire}}
+Logement : {{bien}}
+
+Période : {{periode}}
+Date d'échéance : {{date_echeance}}
+
+Loyer hors charges : {{loyer}} €
+Provision sur charges : {{charges}} €
+Total à régler : {{total}} €
+
+Cet avis d'échéance ne vaut pas quittance.
+
+Fait le {{date_emission}}`;
+
+  const MODELE_ATTESTATION_LOYER_DEFAUT = `ATTESTATION DE LOYER
+
+Je soussigné(e), {{bailleur}}, bailleur du logement situé {{bien}}, atteste que {{locataire}} occupe ce logement en qualité de locataire depuis le {{date_debut}}.
+
+Loyer mensuel hors charges : {{loyer}} €
+Charges mensuelles : {{charges}} €
+Total mensuel : {{total}} €
+
+{{situation}}
+
+Attestation établie pour servir et valoir ce que de droit.
+
+Fait le {{date_emission}}`;
+
+  function pdfDepuisTexte(texte) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(11);
+    doc.text(doc.splitTextToSize(texte, 170), 20, 20);
+    return doc.output('blob');
+  }
+
+  async function genererAvisEcheance(paiementId) {
+    if (!paiementId) return;
+    const item = donneesItemsCalendrier.find(it => it.paiement.id === paiementId);
+    const { data: paiement, error } = await supabaseClient.from('paiements').select('montant_loyer, montant_charges, mois, baux(id, loyer, charges, lots(nom, type, immeubles(adresse, ville, structure_id, structures(nom))))').eq('id', paiementId).single();
+    if (error || !paiement || !paiement.baux) return alert('Erreur : impossible de charger ce loyer.');
+    const bail = paiement.baux, lot = bail.lots, immeuble = lot.immeubles;
+    const { data: ratt, error: errRatt } = await supabaseClient.from('bail_locataires').select('locataire_id').eq('bail_id', bail.id);
+    const locataireIds = (ratt || []).map(r => r.locataire_id);
+    if (errRatt || !locataireIds.length) return alert('Erreur : aucun locataire rattaché à ce bail.');
+    const { data: locs } = await supabaseClient.from('locataires').select('nom').in('id', locataireIds);
+    // Montant : celui du paiement s'il est renseigné, sinon celui du bail
+    const loyer = Number(paiement.montant_loyer) || Number(bail.loyer) || 0;
+    const charges = Number(paiement.montant_charges) || Number(bail.charges) || 0;
+    const mois = new Date(paiement.mois);
+    const periode = mois.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    const jour = item ? item.jour : 1;
+    const texte = MODELE_AVIS_ECHEANCE_DEFAUT
+      .replaceAll('{{bailleur}}', (immeuble.structures && immeuble.structures.nom) || 'Propriétaire')
+      .replaceAll('{{locataire}}', (locs || []).map(l => l.nom).join(' et '))
+      .replaceAll('{{bien}}', `${lot.nom || lot.type} — ${immeuble.adresse}${immeuble.ville ? ', ' + immeuble.ville : ''}`)
+      .replaceAll('{{periode}}', periode)
+      .replaceAll('{{date_echeance}}', new Date(mois.getFullYear(), mois.getMonth(), jour).toLocaleDateString('fr-FR'))
+      .replaceAll('{{loyer}}', loyer.toLocaleString('fr-FR'))
+      .replaceAll('{{charges}}', charges.toLocaleString('fr-FR'))
+      .replaceAll('{{total}}', (loyer + charges).toLocaleString('fr-FR'))
+      .replaceAll('{{date_emission}}', new Date().toLocaleDateString('fr-FR'));
+    const pdf = pdfDepuisTexte(texte);
+    for (const locataireId of locataireIds) {
+      const { error: e } = await genererEtEnregistrerPdf(pdf, `Avis_echeance_${periode.replace(' ', '_')}.pdf`, immeuble.structure_id, 'locataire', locataireId, 'autre', 'avis_echeance');
+      if (e) return alert('Erreur : l\u2019avis d\u2019échéance n\u2019a pas pu être enregistré.');
+    }
+    alert('Avis d\u2019échéance généré : il est enregistré dans les documents du locataire et visible dans son espace.');
+  }
+
+  async function genererAttestationLoyer(locataireId) {
+    if (!locataireId) return;
+    const { data: loc, error: e1 } = await supabaseClient.from('locataires').select('nom, structure_id').eq('id', locataireId).single();
+    if (e1 || !loc) return alert('Erreur : impossible de charger ce locataire.');
+    const { data: ratt, error: e2 } = await supabaseClient.from('bail_locataires').select('bail_id').eq('locataire_id', locataireId);
+    if (e2) return alert('Erreur : impossible de charger le bail.');
+    const bailIds = (ratt || []).map(r => r.bail_id);
+    if (!bailIds.length) return alert('Ce locataire n\u2019a aucun bail : attestation impossible.');
+    const { data: baux, error: e3 } = await supabaseClient.from('baux').select('id, loyer, charges, date_debut, lots(nom, type, immeubles(adresse, ville, structures(nom)))').in('id', bailIds).eq('statut', 'actif').limit(1);
+    if (e3) return alert('Erreur : impossible de charger le bail.');
+    const bail = baux && baux[0];
+    if (!bail) return alert('Aucun bail actif pour ce locataire : attestation impossible.');
+    const { data: retards, error: e4 } = await supabaseClient.from('paiements').select('id').eq('bail_id', bail.id).eq('statut', 'en_retard');
+    if (e4) return alert('Erreur : impossible de vérifier les paiements.');
+    const nbRetards = (retards || []).length;
+    if (nbRetards && !await confirmer(`Ce locataire a ${nbRetards} loyer${nbRetards > 1 ? 's' : ''} en retard. L\u2019attestation indiquera qu\u2019il n\u2019est pas à jour. Continuer ?`, { libelle: 'Générer', danger: false })) return;
+    const lot = bail.lots, immeuble = lot.immeubles;
+    const loyer = Number(bail.loyer) || 0, charges = Number(bail.charges) || 0;
+    const aujourdhui = new Date().toLocaleDateString('fr-FR');
+    const texte = MODELE_ATTESTATION_LOYER_DEFAUT
+      .replaceAll('{{bailleur}}', (immeuble.structures && immeuble.structures.nom) || 'le bailleur')
+      .replaceAll('{{bien}}', `${lot.nom || lot.type}, ${immeuble.adresse}${immeuble.ville ? ', ' + immeuble.ville : ''}`)
+      .replaceAll('{{locataire}}', loc.nom)
+      .replaceAll('{{date_debut}}', new Date(bail.date_debut).toLocaleDateString('fr-FR'))
+      .replaceAll('{{loyer}}', loyer.toLocaleString('fr-FR'))
+      .replaceAll('{{charges}}', charges.toLocaleString('fr-FR'))
+      .replaceAll('{{total}}', (loyer + charges).toLocaleString('fr-FR'))
+      .replaceAll('{{situation}}', nbRetards ? `À la date du ${aujourdhui}, ${nbRetards} échéance${nbRetards > 1 ? 's restent impayées' : ' reste impayée'}.` : `À la date du ${aujourdhui}, le locataire est à jour du paiement de ses loyers et charges.`)
+      .replaceAll('{{date_emission}}', aujourdhui);
+    const { error } = await genererEtEnregistrerPdf(pdfDepuisTexte(texte), `Attestation_de_loyer_${dateLocale(new Date())}.pdf`, loc.structure_id, 'locataire', locataireId, 'autre', 'attestation_loyer');
+    if (error) return alert('Erreur : l\u2019attestation n\u2019a pas pu être enregistrée.');
+    alert('Attestation de loyer générée : elle est enregistrée dans les documents du locataire et visible dans son espace.');
+    if (typeof chargerDocuments === 'function') chargerDocuments('locataire', locataireId, 'listeDocumentsLocataire', null, bail.id);
+  }
+
   async function genererQuittanceAuto(paiementId) {
     const { data: paiement } = await supabaseClient.from('paiements').select('montant_loyer, montant_charges, mois, baux(id, lots(nom, type, immeubles(adresse, ville, structure_id, structures(nom))))').eq('id', paiementId).single();
     if (!paiement || !paiement.baux) return;
@@ -6184,7 +6195,7 @@ Le bailleur donne quittance au locataire pour le paiement ci-dessus et lui donne
 
   async function supprimerToutesMesDonnees() {
     if (document.getElementById('confirmationSuppressionDonnees').value !== 'SUPPRIMER') return alert('Tape exactement SUPPRIMER pour confirmer.');
-    if (!confirm('Dernière confirmation : toutes tes données seront supprimées définitivement. Continuer ?')) return;
+    if (!await confirmer('Dernière confirmation : toutes tes données seront supprimées définitivement. Continuer ?')) return;
 
     const { data: structuresCheck } = await supabaseClient.from('structures').select('id').limit(1);
     if (!structuresCheck || !structuresCheck.length) return alert('Aucune donnée à supprimer.');
@@ -6198,7 +6209,7 @@ Le bailleur donne quittance au locataire pour le paiement ci-dessus et lui donne
 
   async function supprimerMonCompteDefinitivement() {
     if (document.getElementById('confirmationSuppressionCompte').value !== 'SUPPRIMER MON COMPTE') return alert('Tape exactement SUPPRIMER MON COMPTE pour confirmer.');
-    if (!confirm('Dernière confirmation : ton compte et toutes tes données seront supprimés définitivement, sans retour possible. Continuer ?')) return;
+    if (!await confirmer('Dernière confirmation : ton compte et toutes tes données seront supprimés définitivement, sans retour possible. Continuer ?')) return;
 
     const succes = await nettoyerToutesLesDonnees();
     if (!succes) return;
@@ -6394,10 +6405,8 @@ Durée : du {{date_debut}} au {{date_fin}}
     if (!doc) return;
     const { data: locataires } = await supabaseClient.from('locataires').select('id, nom').eq('structure_id', doc.structure_id).order('nom');
     if (!locataires || !locataires.length) return alert('Aucun locataire disponible.');
-    const nomsListe = locataires.map((l, i) => `${i + 1}. ${l.nom}`).join('\n');
-    const choix = prompt('À qui envoyer ce document ?\n\n' + nomsListe + '\n\nTape le numéro :');
-    const index = parseInt(choix) - 1;
-    if (isNaN(index) || !locataires[index]) return;
+    const index = await choisirDansListe('À qui envoyer ce document ?', locataires.map(l => l.nom));
+    if (index === null || !locataires[index]) return;
     const locataireChoisi = locataires[index];
 
     // Le fichier n'est pas dupliqué en stockage — on ajoute juste une référence dans les documents du locataire.
@@ -6454,19 +6463,38 @@ Durée : du {{date_debut}} au {{date_fin}}
     const items = [];
     let incomplet = false;
     const noter = (e) => { if (e) incomplet = true; };
-    const { data: paiements, error: ePaiements } = await supabaseClient.from('paiements').select('mois, montant_loyer, montant_charges, baux(lot_id, lots(nom, type, immeuble_id, immeubles(adresse)))').eq('statut', 'en_retard').order('mois');
+    // Ces 7 requêtes sont indépendantes : on les lance toutes en même temps au lieu de l'une après
+    // l'autre — c'est ce qui accélère le Dashboard et « À faire » sur mobile. Le traitement qui suit
+    // est inchangé (même ordre, mêmes alertes).
+    const today = dateLocale(new Date());
+    const dansSoixanteJours = new Date(); dansSoixanteJours.setDate(dansSoixanteJours.getDate() + 60);
+    const [
+      { data: paiements, error: ePaiements },
+      { data: tachesNonFaites, error: eTaches },
+      { data: baux, error: eBaux },
+      { data: immeublesDpe, error: eDpe },
+      { data: bauxPourRevision, error: eRevision },
+      { data: locatairesAssurancePourAlerte, error: eAssurance },
+      { data: documentsExpirants, error: eDocs }
+    ] = await Promise.all([
+      supabaseClient.from('paiements').select('id, mois, montant_loyer, montant_charges, baux(lot_id, lots(nom, type, immeuble_id, immeubles(adresse)))').eq('statut', 'en_retard').order('mois'),
+      supabaseClient.from('taches').select('id, titre, date_echeance').eq('fait', false),
+      supabaseClient.from('baux').select('date_fin, lots(id, nom, type, immeubles(adresse))').eq('statut', 'actif').not('date_fin', 'is', null).gte('date_fin', today).lte('date_fin', dateLocale(dansSoixanteJours)).order('date_fin'),
+      supabaseClient.from('immeubles').select('id, adresse, dpe_date_expiration').not('dpe_date_expiration', 'is', null).lte('dpe_date_expiration', dateLocale(dansSoixanteJours)),
+      supabaseClient.from('baux').select('date_debut, lots(id, nom, type, immeubles(adresse))').eq('statut', 'actif'),
+      supabaseClient.from('locataires').select('id, nom, assurance_expiration').not('assurance_expiration', 'is', null).lte('assurance_expiration', dateLocale(dansSoixanteJours)),
+      supabaseClient.from('documents').select('id, nom, storage_path, entity_type, entity_id, expiration_date').not('expiration_date', 'is', null).lte('expiration_date', dateLocale(dansSoixanteJours))
+    ]);
     (paiements || []).forEach(p => {
       const lot = p.baux && p.baux.lots ? p.baux.lots : null;
       const immeuble = lot && lot.immeubles ? lot.immeubles.adresse : '';
-      items.push({ severite: 'haute', titre: 'Loyer en retard', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (${p.mois})`, lien: p.baux ? { type: 'lot', id: p.baux.lot_id } : null, montant: Number(p.montant_loyer) + Number(p.montant_charges) });
+      items.push({ severite: 'haute', titre: 'Loyer en retard', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (${p.mois})`, lien: p.baux ? { type: 'lot', id: p.baux.lot_id } : null, montant: Number(p.montant_loyer) + Number(p.montant_charges), paiementId: p.id });
     });
 
     // Tâches non terminées — TOUTES, pas seulement celles en retard. Une tâche créée
     // automatiquement par un signalement locataire n'a aucune date d'échéance (NULL) : si on
     // ne comptait que les tâches en retard, un signalement tout frais ne remonterait jamais
     // nulle part (ni ici, ni dans la pastille de la barre du bas, ni sur le Dashboard).
-    const today = dateLocale(new Date());
-    const { data: tachesNonFaites, error: eTaches } = await supabaseClient.from('taches').select('id, titre, date_echeance').eq('fait', false);
     (tachesNonFaites || []).forEach(t => {
       const enRetard = t.date_echeance && t.date_echeance < today;
       items.push({
@@ -6477,8 +6505,6 @@ Durée : du {{date_debut}} au {{date_fin}}
       });
     });
 
-    const dansSoixanteJours = new Date(); dansSoixanteJours.setDate(dansSoixanteJours.getDate() + 60);
-    const { data: baux, error: eBaux } = await supabaseClient.from('baux').select('date_fin, lots(id, nom, type, immeubles(adresse))').eq('statut', 'actif').not('date_fin', 'is', null).gte('date_fin', today).lte('date_fin', dateLocale(dansSoixanteJours)).order('date_fin');
     (baux || []).forEach(b => {
       const lot = b.lots;
       const immeuble = lot && lot.immeubles ? lot.immeubles.adresse : '';
@@ -6486,14 +6512,12 @@ Durée : du {{date_debut}} au {{date_fin}}
       items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'Bail arrivant à échéance', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (dans ${joursRestants} j)`, lien: lot ? { type: 'lot', id: lot.id } : null, jours: joursRestants });
     });
 
-    const { data: immeublesDpe, error: eDpe } = await supabaseClient.from('immeubles').select('id, adresse, dpe_date_expiration').not('dpe_date_expiration', 'is', null).lte('dpe_date_expiration', dateLocale(dansSoixanteJours));
     (immeublesDpe || []).forEach(im => {
       const joursRestants = Math.ceil((new Date(im.dpe_date_expiration) - new Date()) / (1000 * 60 * 60 * 24));
       items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'DPE arrivant à expiration', detail: `${im.adresse} (dans ${joursRestants} j)`, lien: { type: 'immeuble', id: im.id }, jours: joursRestants });
     });
 
     // Bail révisable : date anniversaire de signature dans les 60 prochains jours (moment légal de révision IRL)
-    const { data: bauxPourRevision, error: eRevision } = await supabaseClient.from('baux').select('date_debut, lots(id, nom, type, immeubles(adresse))').eq('statut', 'actif');
     (bauxPourRevision || []).forEach(b => {
       const debut = new Date(b.date_debut);
       const maintenant = new Date();
@@ -6508,37 +6532,31 @@ Durée : du {{date_debut}} au {{date_fin}}
     });
 
     // Assurance locataire arrivant à expiration
-    const { data: locatairesAssurancePourAlerte, error: eAssurance } = await supabaseClient.from('locataires').select('id, nom, assurance_expiration').not('assurance_expiration', 'is', null).lte('assurance_expiration', dateLocale(dansSoixanteJours));
     (locatairesAssurancePourAlerte || []).forEach(l => {
       const joursRestants = Math.ceil((new Date(l.assurance_expiration) - new Date()) / (1000 * 60 * 60 * 24));
       items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'Assurance locataire à renouveler', detail: `${l.nom} (dans ${joursRestants} j)`, lien: { type: 'locataire', id: l.id }, jours: joursRestants });
     });
 
     // Documents à échéance générique (assurance PNO, contrats, garanties... — hors DPE/assurance locataire déjà gérés ci-dessus)
-    const { data: documentsExpirants, error: eDocs } = await supabaseClient.from('documents').select('id, nom, storage_path, entity_type, entity_id, expiration_date').not('expiration_date', 'is', null).lte('expiration_date', dateLocale(dansSoixanteJours));
     if (documentsExpirants && documentsExpirants.length) {
       const immIds = documentsExpirants.filter(d => d.entity_type === 'immeuble').map(d => d.entity_id);
       const lotIds = documentsExpirants.filter(d => d.entity_type === 'lot').map(d => d.entity_id);
       const locIds = documentsExpirants.filter(d => d.entity_type === 'locataire').map(d => d.entity_id);
-      const [{ data: immsPourDoc, error: eImm }, { data: lotsPourDoc, error: eLot }, { data: locsPourDoc, error: eLoc }] = await Promise.all([
+      // Contact lié à la même entité que le document (ex : assurance PNO expirant → AXA) — cherché en même temps
+      const entitesAvecContactPossible = documentsExpirants.filter(d => d.entity_type === 'immeuble' || d.entity_type === 'lot');
+      const [{ data: immsPourDoc, error: eImm }, { data: lotsPourDoc, error: eLot }, { data: locsPourDoc, error: eLoc }, { data: liensContact, error: eContacts }] = await Promise.all([
         immIds.length ? supabaseClient.from('immeubles').select('id, adresse').in('id', immIds) : Promise.resolve({ data: [] }),
         lotIds.length ? supabaseClient.from('lots').select('id, nom, type, immeubles(adresse)').in('id', lotIds) : Promise.resolve({ data: [] }),
-        locIds.length ? supabaseClient.from('locataires').select('id, nom').in('id', locIds) : Promise.resolve({ data: [] })
+        locIds.length ? supabaseClient.from('locataires').select('id, nom').in('id', locIds) : Promise.resolve({ data: [] }),
+        entitesAvecContactPossible.length ? supabaseClient.from('contact_links').select('entity_type, entity_id, contacts(nom, telephone)').in('entity_id', entitesAvecContactPossible.map(d => d.entity_id)) : Promise.resolve({ data: [] })
       ]);
-      noter(eImm || eLot || eLoc);
+      noter(eImm || eLot || eLoc || eContacts);
       const nomImmPourDoc = {}; (immsPourDoc || []).forEach(i => nomImmPourDoc[i.id] = i.adresse);
       const nomLotPourDoc = {}; (lotsPourDoc || []).forEach(l => nomLotPourDoc[l.id] = (l.nom || l.type) + (l.immeubles ? ' — ' + l.immeubles.adresse : ''));
       const nomLocPourDoc = {}; (locsPourDoc || []).forEach(l => nomLocPourDoc[l.id] = l.nom);
 
-      // Contact lié à la même entité que le document (ex : assurance PNO expirant → AXA)
-      const entitesAvecContactPossible = documentsExpirants.filter(d => d.entity_type === 'immeuble' || d.entity_type === 'lot');
       const contactParEntite = {};
-      if (entitesAvecContactPossible.length) {
-        const { data: liensContact, error: eContacts } = await supabaseClient.from('contact_links').select('entity_type, entity_id, contacts(nom, telephone)')
-          .in('entity_id', entitesAvecContactPossible.map(d => d.entity_id));
-        noter(eContacts);
-        (liensContact || []).forEach(l => { if (l.contacts) contactParEntite[l.entity_type + '-' + l.entity_id] = l.contacts; });
-      }
+      (liensContact || []).forEach(l => { if (l.contacts) contactParEntite[l.entity_type + '-' + l.entity_id] = l.contacts; });
 
       documentsExpirants.forEach(d => {
         const joursRestants = Math.ceil((new Date(d.expiration_date) - new Date()) / (1000 * 60 * 60 * 24));
@@ -6573,7 +6591,7 @@ Durée : du {{date_debut}} au {{date_fin}}
     const actionReessai = "chargerToutesAlertes('" + tab + "')";
     if (!items.length) { div.innerHTML = items.incomplet ? avertissementAlertesIncompletes(items, actionReessai) : '<div class="empty-state">Aucune alerte pour le moment. 👍</div>'; return; }
     div.innerHTML = avertissementAlertesIncompletes(items, actionReessai) + items.map(it => `
-      <div class="row ${it.lien ? 'row-click' : ''}" ${it.lien ? `onclick="naviguerVersLien(${JSON.stringify(it.lien).replace(/"/g, '&quot;')})"` : ''}><div><strong>${echapper(it.titre)}</strong><br><span class="small">${echapper(it.detail)}</span></div><span class="severite ${it.severite}">${it.severite === 'haute' ? 'Élevée' : 'Moyenne'}</span></div>
+      <div class="row ${it.lien ? 'row-click' : ''}" ${it.lien ? `onclick="naviguerVersLien(${JSON.stringify(it.lien).replace(/"/g, '&quot;')})"` : ''}><div><strong>${echapper(it.titre)}</strong><br><span class="small">${echapper(it.detail)}</span></div><span style="display:flex; align-items:center; gap:8px;">${it.paiementId ? `<button class="btn-secondary" style="width:auto; padding:6px 12px;" onclick="event.stopPropagation(); marquerPayeDirect('${it.paiementId}', 'alertes')">✓ Payé</button>` : ''}<span class="severite ${it.severite}">${it.severite === 'haute' ? 'Élevée' : 'Moyenne'}</span></span></div>
     `).join('');
   }
 
@@ -6640,7 +6658,7 @@ Durée : du {{date_debut}} au {{date_fin}}
   }
 
   async function supprimerTache(id) {
-    if (!confirm('Supprimer cette tâche ?')) return;
+    if (!await confirmer('Supprimer cette tâche ?')) return;
     const { error } = await supabaseClient.from('taches').delete().eq('id', id);
     if (error) { logErreur('supprimer_tache', error); return alert('Erreur : ' + error.message); }
     chargerTaches();
@@ -6827,7 +6845,7 @@ Durée : du {{date_debut}} au {{date_fin}}
 
   async function clotureAnneeFiscale() {
     const annee = document.getElementById('anneeFiscalite').value;
-    if (!confirm(`Clôturer définitivement l\u2019année ${annee} pour ${currentStructureDetailFiscalNom} ? Cette action est irréversible.`)) return;
+    if (!await confirmer(`Clôturer définitivement l\u2019année ${annee} pour ${currentStructureDetailFiscalNom} ? Cette action est irréversible.`)) return;
     const { data, error } = await supabaseClient.rpc('ventiler_deficit_foncier', { p_structure_id: currentStructureDetailFiscalId, p_annee: parseInt(annee) });
     if (error) { logErreur('cloture_annee_fiscale', error); return alert('Erreur : ' + error.message); }
 
@@ -7176,7 +7194,7 @@ Durée : du {{date_debut}} au {{date_fin}}
   }
 
   async function supprimerDocument(id, storagePath, entityType, entityId, targetDivId) {
-    if (!confirm('Supprimer ce document ?')) return;
+    if (!await confirmer('Supprimer ce document ?')) return;
     await supabaseClient.storage.from('documents').remove([storagePath]);
     const { error } = await supabaseClient.from('documents').delete().eq('id', id);
     if (error) { logErreur('supprimer_document', error); return alert('Erreur : ' + error.message); }
@@ -7409,6 +7427,65 @@ Durée : du {{date_debut}} au {{date_fin}}
     document.getElementById('cardImportDocument').style.display = 'none';
     chargerDocumentsGlobal();
   }
+
+  // ---------- ANTI DOUBLE CLIC ----------
+  // Un double tap sur téléphone lançait deux fois la même création (deux tâches, deux notes, deux associés…).
+  // Chaque action ci-dessous ne peut plus tourner deux fois EN MÊME TEMPS avec les mêmes paramètres ;
+  // deux créations différentes (ex. notes sur deux fiches) restent possibles en parallèle.
+  (function protegerContreDoubleClic() {
+    const actions = ['creerBienRapide', 'creerImmeubleRapide', 'creerLot', 'appliquerRevisionIrl',
+      'ajouterOuLierContact', 'ajouterNote', 'creerChargeRecurrente', 'enregistrerTravaux', 'creerTransaction', 'creerPret',
+      'envoyerDocumentAUnLocataire', 'creerTache', 'ajouterDeficitHistorique', 'ajouterAssocie', 'uploaderDocument', 'genererQuittanceManuelle', 'marquerPayeDirect', 'genererAvisEcheance', 'genererAttestationLoyer'];
+    const enCours = new Set();
+    actions.forEach(nom => {
+      const original = window[nom];
+      if (typeof original !== 'function') return;
+      window[nom] = async function (...args) {
+        let cle;
+        try { cle = nom + '|' + JSON.stringify(args); } catch (e) { cle = nom; }
+        if (enCours.has(cle)) return;
+        enCours.add(cle);
+        try { return await original.apply(this, args); } finally { enCours.delete(cle); }
+      };
+    });
+  })();
+
+  // ---------- BOUTON RETOUR (historique du navigateur / du téléphone) ----------
+  // Chaque changement d'écran est inscrit dans l'historique : le bouton Retour (ou le geste
+  // retour) revient à l'écran précédent au lieu de quitter l'application.
+  // L'adresse de la page n'est pas modifiée (aucun impact sur la connexion ou le lien de récupération).
+  (function activerBoutonRetour() {
+    const NAVIGATION = ['allerDashboard', 'allerPatrimoine', 'allerLoyers', 'allerLocataires', 'allerAlertes', 'allerFiscalite',
+      'allerRapports', 'allerDocuments', 'allerParametres', 'allerMentionsLegales', 'ouvrirFicheImmeuble', 'ouvrirFicheLot', 'ouvrirFicheLocataire'];
+    let depuisHistorique = false;   // navigation déclenchée par le bouton Retour : ne rien réinscrire
+    let profondeur = 0;             // seule la navigation « extérieure » est inscrite (pas les appels internes)
+    window.__remplacerProchainEcran = false; // utilisé quand une fiche échoue : on ne garde pas l'écran raté dans l'historique
+    NAVIGATION.forEach(nom => {
+      const original = window[nom];
+      if (typeof original !== 'function') return;
+      window[nom] = function (...args) {
+        if (!depuisHistorique && profondeur === 0) {
+          let etat;
+          try { etat = { investa: true, ecran: nom, args: JSON.parse(JSON.stringify(args)) }; } catch (e) { etat = { investa: true, ecran: nom, args: [] }; }
+          const actuel = history.state;
+          const memeEcran = actuel && actuel.investa && actuel.ecran === etat.ecran && JSON.stringify(actuel.args) === JSON.stringify(etat.args);
+          if (!actuel || !actuel.investa || memeEcran || window.__remplacerProchainEcran) history.replaceState(etat, '');
+          else history.pushState(etat, '');
+          window.__remplacerProchainEcran = false;
+        }
+        profondeur++;
+        try { return original.apply(this, args); } finally { profondeur--; }
+      };
+    });
+    window.addEventListener('popstate', (e) => {
+      const etat = e.state;
+      const app = document.getElementById('app');
+      if (!etat || !etat.investa || !app || app.style.display === 'none') return; // pas connecté : on ne fait rien
+      if (typeof window[etat.ecran] !== 'function') return;
+      depuisHistorique = true;
+      try { window[etat.ecran](...(etat.args || [])); } finally { depuisHistorique = false; }
+    });
+  })();
 </script>
 
 </body>
