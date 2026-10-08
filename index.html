@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Investa — Gestion immobilière</title>
 <script>
   // Applique le thème avant le premier affichage (aucun flash). Clé partagée avec l'espace locataire.
@@ -14,7 +14,7 @@
   })();
 </script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 500'%3E%3Cg fill='none' stroke='%234CAF50' stroke-width='18' stroke-linecap='square' stroke-linejoin='miter'%3E%3Cpath d='M33 476 V33 H167 V476'/%3E%3Cpath d='M33 476 H67 V354 L100 324 L133 354 V476 H167'/%3E%3Cpath d='M100 324 V476'/%3E%3C/g%3E%3C/svg%3E">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <style>
@@ -110,6 +110,8 @@
   .nav-item:hover { background: var(--panel); color: var(--text); }
   .nav-item.active { background: var(--panel-2); color: var(--text); font-weight: 600; }
   .nav-item .ic { width: 18px; text-align: center; flex-shrink: 0; }
+  .tuile-nav { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; flex: none; }
+  .tuile-nav svg { width: 17px; height: 17px; }
   .nav-footer { margin-top: auto; padding: 12px 8px; border-top: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim); }
   .nav-footer a { color: var(--text-dim); }
 
@@ -137,6 +139,9 @@
   .owner-tabbar-item.active { color: var(--accent); }
   .owner-tabbar-item .ic-wrap { position: relative; display: inline-block; }
   .owner-tabbar-item .ic { font-size: 1.2rem; }
+  .owner-tabbar-item .ic svg { width: 23px; height: 23px; display: block; }
+  .btn-ic { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  svg.ic-btn { width: 16px; height: 16px; flex: none; }
   .owner-tabbar-badge { position: absolute; top: -4px; right: -9px; background: #dc2626; color: white; font-size: 0.6rem; font-weight: 700; min-width: 15px; height: 15px; border-radius: 8px; padding: 0 3px; display: none; align-items: center; justify-content: center; border: 1.5px solid var(--panel); }
   @media (max-width: 900px) {
     .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -481,6 +486,16 @@
   }
   .bandeau-hors-ligne { position: fixed; top: 0; left: 0; right: 0; z-index: 300; background: var(--panel-2); color: var(--amber); border-bottom: 1px solid var(--amber); font-size: 0.82rem; text-align: center; padding: calc(8px + env(safe-area-inset-top)) 14px 8px; }
   .bandeau-hors-ligne[hidden] { display: none; }
+  /* Sensation d'app sur iPhone : pas de flash gris au toucher, pas de sélection du texte des commandes, pas de zoom au double tap */
+  html { -webkit-tap-highlight-color: transparent; }
+  button, .nav-item, .owner-tabbar-item, .tab, .filtre-pill, .filtre-tab, .theme-btn, .quick-tab, .toggle-vue-option, .icon-btn-round {
+    -webkit-user-select: none; user-select: none; touch-action: manipulation; -webkit-touch-callout: none;
+  }
+  @media (max-width: 900px) {
+    /* Menu tiroir : sous l'encoche, au-dessus de la barre d'accueil, et défilable sur les petits iPhone */
+    .sidebar { height: 100vh; height: 100dvh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      padding-top: calc(20px + env(safe-area-inset-top)); padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
+  }
 </style>
 </head>
 <body>
@@ -645,15 +660,15 @@
         <span>🔍</span><span>Rechercher...</span><span class="cp-kbd">⌘K</span>
       </button>
 
-      <div class="nav-item active" id="nav-dashboard" onclick="allerDashboard()"><span class="ic">◈</span> Dashboard</div>
-      <div class="nav-item" id="nav-patrimoine" onclick="allerPatrimoine()"><span class="ic">🏢</span> Patrimoine</div>
-      <div class="nav-item" id="nav-locataires" onclick="allerLocataires()"><span class="ic">👤</span> Locataires</div>
-      <div class="nav-item" id="nav-loyers" onclick="allerLoyers()"><span class="ic">📅</span> Loyers</div>
-      <div class="nav-item" id="nav-documents" onclick="allerDocuments()"><span class="ic">📄</span> Documents</div>
-      <div class="nav-item" id="nav-fiscalite" onclick="allerFiscalite()"><span class="ic">📊</span> Fiscalité</div>
-      <div class="nav-item" id="nav-rapports" onclick="allerRapports()"><span class="ic">📈</span> Rapports</div>
-      <div class="nav-item" id="nav-alertes" onclick="allerAlertes()"><span class="ic">🔔</span> À faire</div>
-      <div class="nav-item" id="nav-parametres" onclick="allerParametres()"><span class="ic">⚙️</span> Paramètres</div>
+      <div class="nav-item active" id="nav-dashboard" onclick="allerDashboard()"><span class="tuile-nav" style="background:#3b82f6"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.8"/></svg></span>Dashboard</div>
+      <div class="nav-item" id="nav-patrimoine" onclick="allerPatrimoine()"><span class="tuile-nav" style="background:#6366f1"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V5.5A1.5 1.5 0 0 1 6.5 4h7A1.5 1.5 0 0 1 15 5.5V21z"/><path d="M15 9.5h3.5A1.5 1.5 0 0 1 20 11v10h-5z"/><path d="M8 8h1.5M10.5 8H12M8 11.5h1.5M10.5 11.5H12M8 15h1.5M10.5 15H12M3 21h18"/></svg></span>Patrimoine</div>
+      <div class="nav-item" id="nav-locataires" onclick="allerLocataires()"><span class="tuile-nav" style="background:#0284c7"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.2" r="3.8"/><path d="M4.5 20.5c.6-4 3.8-6.5 7.5-6.5s6.9 2.5 7.5 6.5z"/></svg></span>Locataires</div>
+      <div class="nav-item" id="nav-loyers" onclick="allerLoyers()"><span class="tuile-nav" style="background:#15803d"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.2"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14h3M8 17h6"/></svg></span>Loyers</div>
+      <div class="nav-item" id="nav-documents" onclick="allerDocuments()"><span class="tuile-nav" style="background:#64748b"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3.5H7A2 2 0 0 0 5 5.5v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5z"/><path d="M14 3.5v5h5M8.5 13h7M8.5 16.5h5"/></svg></span>Documents</div>
+      <div class="nav-item" id="nav-fiscalite" onclick="allerFiscalite()"><span class="tuile-nav" style="background:#b45309"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5H12z"/><path d="M15 3.8A8.5 8.5 0 0 1 20.2 9H15z"/></svg></span>Fiscalité</div>
+      <div class="nav-item" id="nav-rapports" onclick="allerRapports()"><span class="tuile-nav" style="background:#8b5cf6"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20.5h16"/><rect x="5.5" y="12" width="3" height="6.5" rx=".8"/><rect x="10.5" y="6.5" width="3" height="12" rx=".8"/><rect x="15.5" y="9.5" width="3" height="9" rx=".8"/></svg></span>Rapports</div>
+      <div class="nav-item" id="nav-alertes" onclick="allerAlertes()"><span class="tuile-nav" style="background:#dc2626"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.8 1.8H4.2z"/><path d="M10 20.8a2.2 2.2 0 0 0 4 0"/></svg></span>À faire</div>
+      <div class="nav-item" id="nav-parametres" onclick="allerParametres()"><span class="tuile-nav" style="background:#475569"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M5.5 18.5l1.8-1.8M16.7 7.3l1.8-1.8"/></svg></span>Paramètres</div>
 
       <div class="nav-footer">
         <span id="userEmail"></span><br>
@@ -669,13 +684,12 @@
       <div id="page-dashboard">
         <div class="page-header">
           <div><h2>Bonjour 👋</h2><div class="page-sub">Voici un aperçu de votre patrimoine — <span id="dashPeriode"></span></div></div>
-          <div class="lang-badge">🇫🇷 FR</div>
         </div>
 
         <div class="card" id="cardOnboarding" style="display:none; background:var(--panel); position:relative;">
           <button class="icon-btn-round" onclick="fermerOnboarding()" aria-label="Fermer" style="position:absolute; top:14px; right:14px;">✕</button>
-          <h2 style="margin:0 0 4px; font-size:1.15rem; color:var(--text);">Bienvenue sur Investa 👋</h2>
-          <p class="small" style="margin:0 0 20px;">3 étapes pour prendre en main ton patrimoine.</p>
+          <h2 style="margin:0 0 4px; font-size:1.15rem; color:var(--text); padding-right:52px;">Bienvenue sur Investa 👋</h2>
+          <p class="small" style="margin:0 0 20px; padding-right:52px;">3 étapes pour prendre en main ton patrimoine.</p>
 
           <div style="display:flex; align-items:center; gap:14px; padding:14px; background:var(--panel-2); border:1px solid var(--accent); border-radius:10px; margin-bottom:10px;">
             <div style="width:26px; height:26px; border-radius:50%; background:var(--accent); color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; flex-shrink:0;">1</div>
@@ -1372,7 +1386,7 @@
           <div class="card">
             <h3>Historique des quittances</h3>
             <p class="small" style="margin:0 0 10px;">Chaque quittance générée automatiquement (loyer marqué payé) ou envoyée depuis Documents apparaît ici.</p>
-            <button class="btn-secondary" style="width:auto; margin-bottom:12px;" onclick="genererAttestationLoyer(currentLocataireId)">📄 Générer une attestation de loyer (PDF)</button>
+            <button class="btn-secondary btn-ic" style="width:auto; margin-bottom:12px;" onclick="genererAttestationLoyer(currentLocataireId)"><svg class="ic-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3.5H7A2 2 0 0 0 5 5.5v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5z"/><path d="M14 3.5v5h5M9 14.5l2 2 4-4.5"/></svg> Générer une attestation de loyer (PDF)</button>
             <div id="listeQuittancesLocataire">Chargement...</div>
           </div>
         </div>
@@ -1456,7 +1470,7 @@
           <div class="progress-bar-track"><div class="progress-bar-fill" id="loyersProgressionBarre" style="width:0%;"></div></div>
         </div>
 
-        <button class="btn-secondary" id="btnPreparerRelances" style="display:none; width:100%; margin-bottom:14px;" onclick="ouvrirRelances()">✉️ Préparer les relances</button>
+        <button class="btn-secondary btn-ic" id="btnPreparerRelances" style="display:none; width:100%; margin-bottom:14px;" onclick="ouvrirRelances()"><svg class="ic-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="2.2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg> Préparer les relances</button>
 
         <div style="display:flex; gap:6px; align-items:center; margin-bottom:14px; flex-wrap:wrap;">
           <span class="filtre-pill active" id="fpTous" onclick="filtrerStatutLoyers('tous')">Tous</span>
@@ -1494,11 +1508,11 @@
           <p class="small" style="margin:12px 0 4px;">Date de paiement</p>
           <input id="detailPaiementDate" type="date">
           <div style="display:flex; gap:8px; margin-top:10px;">
-            <button class="btn-primary" style="flex:1;" onclick="confirmerStatutPaiement('paye')">✓ Payé</button>
+            <button class="btn-primary btn-ic" style="flex:1;" onclick="confirmerStatutPaiement('paye')"><svg class="ic-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg> Payé</button>
             <button class="btn-secondary" style="flex:1;" onclick="confirmerStatutPaiement('en_retard')">En retard</button>
             <button class="btn-secondary" style="flex:1;" onclick="confirmerStatutPaiement('a_venir')">À venir</button>
           </div>
-          <button class="btn-secondary" id="btnAvisEcheance" style="width:100%; margin-top:10px;" onclick="genererAvisEcheance(paiementDetailCourantId)">📄 Générer l’avis d’échéance (PDF)</button>
+          <button class="btn-secondary btn-ic" id="btnAvisEcheance" style="width:100%; margin-top:10px;" onclick="genererAvisEcheance(paiementDetailCourantId)"><svg class="ic-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3.5H7A2 2 0 0 0 5 5.5v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5z"/><path d="M14 3.5v5h5M9 14.5l2 2 4-4.5"/></svg> Générer l’avis d’échéance (PDF)</button>
         </div>
 
         <!-- Modal Relances -->
@@ -1537,72 +1551,6 @@
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- ===== FINANCES ===== -->
-      <div id="page-finances" style="display:none;">
-        <div class="page-header">
-          <h2>Finances</h2>
-          <div style="display:flex; gap:10px;">
-            <select id="structureFinances" onchange="chargerFinances()" style="width:auto; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);"></select>
-            <input id="moisFinances" type="month" onchange="chargerFinances()" style="padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--panel-2); color:var(--text);">
-          </div>
-        </div>
-        <div class="grid-2">
-          <div class="stat-card green"><div class="lbl">Recettes</div><div class="val" id="totalRecettes">0 €</div></div>
-          <div class="stat-card red"><div class="lbl">Dépenses</div><div class="val" id="totalDepenses">0 €</div></div>
-        </div>
-        <div class="stat-card" style="margin:14px 0;"><div class="lbl">Résultat</div><div class="val" id="totalResultat">0 €</div></div>
-
-        <div class="tabs">
-          <div class="tab active" id="tabFinFlux" onclick="switchTabFinances('flux')">Flux</div>
-          <div class="tab" id="tabFinDepenses" onclick="switchTabFinances('depenses')">Dépenses</div>
-          <div class="tab" id="tabFinRecettes" onclick="switchTabFinances('recettes')">Recettes</div>
-          <div class="tab" id="tabFinVirements" onclick="switchTabFinances('virements')">Virements</div>
-        </div>
-
-        <button class="btn-ajout-replie" id="btnAjoutTx" onclick="toggleFormulaire('formAjoutTx','btnAjoutTx')">+ Ajouter une transaction</button>
-        <div class="card" id="formAjoutTx" style="display:none;">
-          <select id="typeTx"><option value="recette">Recette</option><option value="depense">Dépense</option></select>
-          <input id="categorieTx" placeholder="Catégorie (ex: loyer, travaux, assurance)">
-          <input id="montantTx" type="number" min="0" placeholder="Montant (€)">
-          <input id="dateTx" type="date">
-          <input id="descriptionTx" placeholder="Description — optionnel">
-          <button class="btn-primary" onclick="creerTransaction()">Ajouter</button>
-        </div>
-
-        <div id="tabcontent-fin-flux" class="card">
-          <h3>Toutes les transactions</h3>
-          <div id="listeTransactions">Chargement...</div>
-        </div>
-        <div id="tabcontent-fin-depenses" class="card" style="display:none;">
-          <h3>Dépenses</h3>
-          <div id="listeDepenses">Chargement...</div>
-        </div>
-        <div id="tabcontent-fin-recettes" class="card" style="display:none;">
-          <h3>Recettes</h3>
-          <div id="listeRecettes">Chargement...</div>
-        </div>
-        <div id="tabcontent-fin-virements" class="card" style="display:none;">
-          <div class="placeholder-box"><div class="ic">🚧</div>Virements entre comptes — bientôt disponible (nécessite la gestion des comptes bancaires)</div>
-        </div>
-      </div>
-
-      <!-- ===== PRÊTS ===== -->
-      <div id="page-prets" style="display:none;">
-        <div class="page-header"><h2>Prêts & Financements</h2></div>
-        <div class="card"><select id="immeublePrets" onchange="chargerPrets()"></select></div>
-        <button class="btn-ajout-replie" id="btnAjoutPret" onclick="toggleFormulaire('formAjoutPret','btnAjoutPret')">+ Ajouter un prêt</button>
-        <div class="card" id="formAjoutPret" style="display:none;">
-          <input id="banquePret" placeholder="Banque (ex: Crédit Agricole)">
-          <input id="capitalInitialPret" type="number" min="0" placeholder="Capital initial (€)">
-          <input id="tauxPret" type="number" min="0" step="0.01" placeholder="Taux (%)">
-          <input id="mensualitePret" type="number" min="0" placeholder="Mensualité (€)">
-          <input id="dateDebutPret" type="date">
-          <input id="dateFinPret" type="date">
-          <button class="btn-primary" onclick="creerPret()">Ajouter</button>
-        </div>
-        <div class="card"><div id="listePrets">Sélectionne un immeuble.</div></div>
       </div>
 
       <!-- ===== PARAMÈTRES ===== -->
@@ -2004,19 +1952,19 @@
   <!-- Barre de navigation du bas (téléphone uniquement, <900px) -->
   <div class="owner-tabbar">
     <div class="owner-tabbar-item active" id="tabNav-dashboard" onclick="allerDashboard()">
-      <span class="ic-wrap"><span class="ic">◈</span></span>Dashboard
+      <span class="ic-wrap"><span class="ic"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.8"/></svg></span></span>Dashboard
     </div>
     <div class="owner-tabbar-item" id="tabNav-loyers" onclick="allerLoyers()">
-      <span class="ic-wrap"><span class="ic">📅</span></span>Loyers
+      <span class="ic-wrap"><span class="ic"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.2"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14h3M8 17h6"/></svg></span></span>Loyers
     </div>
     <div class="owner-tabbar-item" id="tabNav-locataires" onclick="allerLocataires()">
-      <span class="ic-wrap"><span class="ic">👤</span></span>Locataires
+      <span class="ic-wrap"><span class="ic"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.2" r="3.8"/><path d="M4.5 20.5c.6-4 3.8-6.5 7.5-6.5s6.9 2.5 7.5 6.5z"/></svg></span></span>Locataires
     </div>
     <div class="owner-tabbar-item" id="tabNav-alertes" onclick="allerAlertes()">
-      <span class="ic-wrap"><span class="ic">🔔</span><span class="owner-tabbar-badge" id="badgeAFaire"></span></span>À faire
+      <span class="ic-wrap"><span class="ic"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.8 1.8H4.2z"/><path d="M10 20.8a2.2 2.2 0 0 0 4 0"/></svg></span><span class="owner-tabbar-badge" id="badgeAFaire"></span></span>À faire
     </div>
     <div class="owner-tabbar-item" id="tabNav-plus" onclick="toggleMenuMobile()">
-      <span class="ic-wrap"><span class="ic">⋯</span></span>Plus
+      <span class="ic-wrap"><span class="ic"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5.5" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="18.5" cy="12" r="1.6" fill="currentColor"/></svg></span></span>Plus
     </div>
   </div>
 </div>
@@ -2026,6 +1974,14 @@
   // Les fenêtres natives bloquent l'écran, ignorent le thème clair/sombre et sont peu lisibles sur téléphone.
   // alert() est redirigé vers une notification intégrée ; confirm() et prompt() sont remplacés par
   // confirmer() et choisirDansListe(), qui renvoient une promesse (à utiliser avec await).
+  // Icônes des boutons générés par le code (même dessin que le menu et la barre du bas)
+  const ICONES_SVG = {
+    relancer: '<rect x="3" y="5.5" width="18" height="13" rx="2.2"/><path d="M3.5 7l8.5 6 8.5-6"/>',
+    paye: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    pdf: '<path d="M14 3.5H7A2 2 0 0 0 5 5.5v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5z"/><path d="M14 3.5v5h5M9 14.5l2 2 4-4.5"/>'
+  };
+  function icone(nom) { return '<svg class="ic-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONES_SVG[nom] || '') + '</svg>'; }
+
   function zoneNotifications() {
     let z = document.getElementById('zoneNotifications');
     if (!z) { z = document.createElement('div'); z.id = 'zoneNotifications'; z.className = 'zone-notifications'; document.body.appendChild(z); }
@@ -2194,16 +2150,24 @@
     return new Intl.NumberFormat(LOCALE_ACTUELLE, { style: 'currency', currency: DEVISE_ACTUELLE, maximumFractionDigits: 0 }).format(valeurNormalisee);
   }
 
+  // Une date « AAAA-MM-JJ » venant de la base doit être lue à minuit HEURE LOCALE, pas minuit UTC :
+  // sinon elle s'affiche la veille dans les fuseaux en retard sur UTC (Antilles, Guyane, Polynésie…).
+  // Les horodatages complets (« …T10:00:00Z ») et les objets Date passent tels quels.
+  function dateLocaleDepuisIso(valeur) {
+    if (typeof valeur === 'string') { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(valeur); if (m) return new Date(+m[1], +m[2] - 1, +m[3]); }
+    return new Date(valeur);
+  }
+
   function formatDate(dateIso) {
     if (!dateIso) return '—';
-    return new Date(dateIso).toLocaleDateString(LOCALE_ACTUELLE);
+    return dateLocaleDepuisIso(dateIso).toLocaleDateString(LOCALE_ACTUELLE);
   }
 
   // Affichage court d'un mois de paiement (colonne "Mois" des tableaux d'historique) —
   // ex: "2026-09-01" devient "sept. 2026", tient sur une seule ligne même en colonne étroite.
   function formatMoisAnnee(moisIso) {
     if (!moisIso) return '—';
-    return new Date(moisIso).toLocaleDateString(LOCALE_ACTUELLE, { month: 'short', year: 'numeric' });
+    return dateLocaleDepuisIso(moisIso).toLocaleDateString(LOCALE_ACTUELLE, { month: 'short', year: 'numeric' });
   }
 
   // Échappement spécifique pour une valeur injectée À L'INTÉRIEUR d'un attribut onclick="...'${valeur}'..."
@@ -2306,6 +2270,10 @@
 
     document.getElementById('auth').style.display = 'none';
 
+    // Réinitialise le sélecteur : une déconnexion ne recharge pas la page, il ne doit rien garder de la session d'avant.
+    document.getElementById('selecteurRoleTexte').textContent = 'Tu es à la fois propriétaire et locataire. Comment veux-tu continuer ?';
+    document.getElementById('btnRoleProprietaire').style.display = '';
+    document.getElementById('btnRoleDeconnexion').style.display = 'none';
     if (estProprietaire && estLocataire) {
       document.getElementById('selecteurRole').style.display = 'block';
       return;
@@ -2365,7 +2333,7 @@
   supabaseClient.auth.getSession().then(({ data: { session } }) => { if (session && !enFluxRecuperationMdp) afficherApp(); });
 
   // ---------- NAVIGATION ----------
-  const PAGES = ['dashboard', 'patrimoine', 'locataires', 'loyers', 'finances', 'prets', 'parametres', 'alertes', 'fiscalite', 'rapports', 'documents', 'fiche-immeuble', 'fiche-lot', 'fiche-locataire', 'mentions-legales'];
+  const PAGES = ['dashboard', 'patrimoine', 'locataires', 'loyers', 'parametres', 'alertes', 'fiscalite', 'rapports', 'documents', 'fiche-immeuble', 'fiche-lot', 'fiche-locataire', 'mentions-legales'];
   const NAV_IDS = ['nav-dashboard', 'nav-patrimoine', 'nav-locataires', 'nav-loyers', 'nav-fiscalite', 'nav-rapports', 'nav-parametres', 'nav-alertes', 'nav-documents'];
 
   // Connexion : bandeau « hors ligne » et rechargement de l'écran affiché quand le réseau revient
@@ -2691,7 +2659,7 @@
       mois.push({ label: d.toLocaleDateString('fr-FR', { month: 'short' }), annee: d.getFullYear(), moisIdx: d.getMonth(), val: 0 });
     }
     (txs || []).forEach(t => {
-      const d = new Date(t.date);
+      const d = dateLocaleDepuisIso(t.date);
       const m = mois.find(mm => mm.annee === d.getFullYear() && mm.moisIdx === d.getMonth());
       if (m) m.val += (t.type === 'recette' ? 1 : -1) * Number(t.montant);
     });
@@ -3279,14 +3247,14 @@
     });
 
     if (currentImmeubleData.dpe_date_expiration) {
-      const jours = Math.ceil((new Date(currentImmeubleData.dpe_date_expiration) - new Date()) / (1000 * 60 * 60 * 24));
+      const jours = Math.ceil((dateLocaleDepuisIso(currentImmeubleData.dpe_date_expiration) - new Date()) / (1000 * 60 * 60 * 24));
       if (jours <= 60) items.push({ severite: jours <= 30 ? 'haute' : 'moyenne', texte: `DPE ${jours >= 0 ? 'expire dans ' + jours + ' j' : 'expiré'}`, onclick: `switchTabImmeuble('infos')` });
     }
 
     if (lotIds.length) {
       const { data: baux, error: eBaux } = await promesseBauxEcheance; if (eBaux) incomplet = true;
       (baux || []).forEach(b => {
-        const jours = Math.ceil((new Date(b.date_fin) - new Date()) / (1000 * 60 * 60 * 24));
+        const jours = Math.ceil((dateLocaleDepuisIso(b.date_fin) - new Date()) / (1000 * 60 * 60 * 24));
         if (jours >= 0 && jours <= 60) items.push({ severite: jours <= 30 ? 'haute' : 'moyenne', texte: `Bail ${echapper(b.lots.nom || b.lots.type)} expire dans ${jours} j`, onclick: `ouvrirFicheLot('${b.lot_id}')` });
       });
 
@@ -3430,7 +3398,7 @@
       });
     });
 
-    evenements.sort((a, b) => new Date(b.date) - new Date(a.date));
+    evenements.sort((a, b) => dateLocaleDepuisIso(b.date) - dateLocaleDepuisIso(a.date));
     bufferHistoriqueBien = evenements;
     nbAffichesHistoriqueBien = 8;
     rendreHistoriqueBien();
@@ -3961,7 +3929,7 @@
     if (!revisions || !revisions.length) { div.innerHTML = '<div class="empty-state">Aucune révision appliquée pour l\u2019instant.</div>'; return; }
     div.innerHTML = revisions.map(r => `
       <div class="row">
-        <span class="small">${new Date(r.date_application).toLocaleDateString('fr-FR')} · ${r.trimestre_reference}</span>
+        <span class="small">${dateLocaleDepuisIso(r.date_application).toLocaleDateString('fr-FR')} · ${r.trimestre_reference}</span>
         <span>${Number(r.ancien_loyer).toLocaleString('fr-FR')} € → ${Number(r.nouveau_loyer).toLocaleString('fr-FR')} €</span>
       </div>
     `).join('');
@@ -4340,7 +4308,7 @@
       <div class="row">
         <div>
           <div style="font-weight:600;">${echapper(LABELS_TYPE_CHARGE[c.type_charge] || c.type_charge)}</div>
-          <div class="small">Prochaine échéance : ${new Date(c.prochaine_echeance).toLocaleDateString('fr-FR')}</div>
+          <div class="small">Prochaine échéance : ${dateLocaleDepuisIso(c.prochaine_echeance).toLocaleDateString('fr-FR')}</div>
         </div>
         <div style="text-align:right; display:flex; align-items:center; gap:10px;">
           <div>
@@ -4441,7 +4409,7 @@
     }
 
     if (bail.date_fin) {
-      const jours = Math.ceil((new Date(bail.date_fin) - new Date()) / (1000 * 60 * 60 * 24));
+      const jours = Math.ceil((dateLocaleDepuisIso(bail.date_fin) - new Date()) / (1000 * 60 * 60 * 24));
       if (jours >= 0 && jours <= 60) items.push(`<div class="row"><span class="small">Bail expire</span><span style="color:var(--amber); font-weight:600;">dans ${jours} j (${bail.date_fin})</span></div>`);
     }
 
@@ -5296,7 +5264,7 @@
     const nbLoyersNonCharges = bauxStructure.length - bauxAffiches.length;
     const items = bauxAffiches.map(bail => {
       const paiement = paiementParBail[bail.id];
-      const jourEcheance = Math.min(new Date(bail.date_debut).getDate(), nbJoursMois);
+      const jourEcheance = Math.min(dateLocaleDepuisIso(bail.date_debut).getDate(), nbJoursMois);
       const idsLocataires = idsParBail[bail.id] || [];
       // Mois déjà passé → on respecte le montant réellement figé à l'époque (vrai historique).
       // Mois en cours ou futur → on lit le loyer en direct du bail, jamais une copie qui pourrait
@@ -5335,7 +5303,7 @@
     document.getElementById('cardKpiRetard').classList.toggle('green', enRetard === 0);
     document.getElementById('loyersProgressionLabel').textContent = pourcentage + ' % encaissé';
     document.getElementById('loyersProgressionBarre').style.width = pourcentage + '%';
-    document.getElementById('btnPreparerRelances').style.display = items.some(it => it.paiement.statut === 'en_retard') ? 'block' : 'none';
+    document.getElementById('btnPreparerRelances').style.display = items.some(it => it.paiement.statut === 'en_retard') ? 'flex' : 'none';
   }
 
   let filtreStatutLoyersActif = 'tous';
@@ -5379,8 +5347,8 @@
           <div class="loyer-item-montant">${it.montant.toLocaleString('fr-FR')} €</div>
           <span class="badge-pill ${classeStatut}">${texteStatut}</span>
           ${it.paiement.statut === 'en_retard' ? `<div class="loyer-actions">
-            <button class="btn-secondary" onclick="event.stopPropagation(); marquerPayeDirect('${it.paiement.id}', 'loyers')">✓ Marquer payé</button>
-            <button class="btn-secondary" onclick="event.stopPropagation(); ouvrirRelances('${it.paiement.id}')">✉️ Relancer</button>
+            <button class="btn-secondary btn-ic" onclick="event.stopPropagation(); marquerPayeDirect('${it.paiement.id}', 'loyers')">${icone('paye')} Marquer payé</button>
+            <button class="btn-secondary btn-ic" onclick="event.stopPropagation(); ouvrirRelances('${it.paiement.id}')">${icone('relancer')} Relancer</button>
           </div>` : ''}
         </div>
       `;
@@ -5546,7 +5514,7 @@ Cordialement`;
     const niveau = document.getElementById('relanceNiveau-' + idx).value;
     const texte = document.getElementById('relanceTexte-' + idx).value;
     const lien = `mailto:${email}?subject=${encodeURIComponent(OBJETS_RELANCE[niveau] || 'Relance de loyer')}&body=${encodeURIComponent(texte)}`;
-    await enregistrerRelance(idx);
+    enregistrerRelance(idx).catch(() => {}); // noté en arrière-plan : la messagerie s'ouvre sans attendre le réseau
     window.location.href = lien;
   }
 
@@ -5745,11 +5713,12 @@ Fait le {{date_emission}}`;
     const { data: ratt, error: errRatt } = await supabaseClient.from('bail_locataires').select('locataire_id').eq('bail_id', bail.id);
     const locataireIds = (ratt || []).map(r => r.locataire_id);
     if (errRatt || !locataireIds.length) return alert('Erreur : aucun locataire rattaché à ce bail.');
-    const { data: locs } = await supabaseClient.from('locataires').select('nom').in('id', locataireIds);
+    const { data: locs, error: errLocs } = await supabaseClient.from('locataires').select('nom').in('id', locataireIds);
+    if (errLocs) return alert('Erreur : impossible de charger les locataires de ce bail.');
     // Montant : celui du paiement s'il est renseigné, sinon celui du bail
     const loyer = Number(paiement.montant_loyer) || Number(bail.loyer) || 0;
     const charges = Number(paiement.montant_charges) || Number(bail.charges) || 0;
-    const mois = new Date(paiement.mois);
+    const mois = dateLocaleDepuisIso(paiement.mois);
     const periode = mois.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
     const jour = item ? item.jour : 1;
     const texte = MODELE_AVIS_ECHEANCE_DEFAUT
@@ -5793,7 +5762,7 @@ Fait le {{date_emission}}`;
       .replaceAll('{{bailleur}}', (immeuble.structures && immeuble.structures.nom) || 'le bailleur')
       .replaceAll('{{bien}}', `${lot.nom || lot.type}, ${immeuble.adresse}${immeuble.ville ? ', ' + immeuble.ville : ''}`)
       .replaceAll('{{locataire}}', loc.nom)
-      .replaceAll('{{date_debut}}', new Date(bail.date_debut).toLocaleDateString('fr-FR'))
+      .replaceAll('{{date_debut}}', dateLocaleDepuisIso(bail.date_debut).toLocaleDateString('fr-FR'))
       .replaceAll('{{loyer}}', loyer.toLocaleString('fr-FR'))
       .replaceAll('{{charges}}', charges.toLocaleString('fr-FR'))
       .replaceAll('{{total}}', (loyer + charges).toLocaleString('fr-FR'))
@@ -5823,7 +5792,7 @@ Fait le {{date_emission}}`;
     const montantLoyer = Number(paiement.montant_loyer);
     const montantCharges = Number(paiement.montant_charges);
     const total = montantLoyer + montantCharges;
-    const moisLabel = new Date(paiement.mois).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    const moisLabel = dateLocaleDepuisIso(paiement.mois).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
     const dateEmission = new Date().toLocaleDateString('fr-FR');
 
     // Récupère le modèle personnalisé de cette structure, sinon celui par défaut
@@ -5861,212 +5830,6 @@ Fait le {{date_emission}}`;
   // async function envoyerQuittanceParEmail(locataireId, cheminFichierPdf, moisLabel, montant) {
   //   // Appellera une Edge Function Supabase qui utilise la clé Resend côté serveur (jamais côté client).
   // }
-
-  // ---------- FINANCES ----------
-  async function allerFinances() {
-    hideAllPages();
-    document.getElementById('page-finances').style.display = 'block';
-    const sel = document.getElementById('structureFinances');
-    if (!sel.options.length) {
-      const { data: structures } = await supabaseClient.from('structures').select('id, nom').order('created_at');
-      sel.innerHTML = (structures || []).map(s => `<option value="${s.id}">${echapper(s.nom)}</option>`).join('');
-    }
-    const moisInput = document.getElementById('moisFinances');
-    if (!moisInput.value) {
-      const now = new Date();
-      moisInput.value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
-    }
-    switchTabFinances('flux');
-    chargerFinances();
-  }
-
-  function switchTabFinances(tab) {
-    ['flux', 'depenses', 'recettes', 'virements'].forEach(t => {
-      document.getElementById('tabcontent-fin-' + t).style.display = t === tab ? 'block' : 'none';
-      document.getElementById('tabFin' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
-    });
-  }
-
-  async function chargerFinances() {
-    const structureId = document.getElementById('structureFinances').value;
-    const moisStr = document.getElementById('moisFinances').value;
-    if (!structureId) return;
-
-    let query = supabaseClient.from('transactions').select('date, type, categorie, description, montant').eq('structure_id', structureId);
-    if (moisStr) {
-      const debut = moisStr + '-01';
-      const [an, mo] = moisStr.split('-').map(Number);
-      const fin = dateLocale(new Date(an, mo, 0));
-      query = query.gte('date', debut).lte('date', fin);
-    }
-    const { data: txs, error } = await query.order('date', { ascending: false });
-
-    if (error) {
-      ['listeTransactions', 'listeDepenses', 'listeRecettes'].forEach(id => document.getElementById(id).innerHTML = '<div class="empty-state">Erreur de chargement.</div>');
-      return;
-    }
-
-    const recettes = (txs || []).filter(t => t.type === 'recette').reduce((a, t) => a + Number(t.montant), 0);
-    const depenses = (txs || []).filter(t => t.type === 'depense').reduce((a, t) => a + Number(t.montant), 0);
-    document.getElementById('totalRecettes').textContent = recettes.toLocaleString('fr-FR') + ' €';
-    document.getElementById('totalDepenses').textContent = depenses.toLocaleString('fr-FR') + ' €';
-    document.getElementById('totalResultat').textContent = (recettes - depenses).toLocaleString('fr-FR') + ' €';
-
-    const rendreListe = (id, liste) => {
-      const el = document.getElementById(id);
-      el.innerHTML = liste.length ? liste.map(t => `
-        <div class="row">
-          <span>${t.date} — ${echapper(t.categorie)}${t.description ? ' (' + echapper(t.description) + ')' : ''}</span>
-          <span style="color:${t.type === 'depense' ? 'var(--red)' : 'var(--green)'}; font-weight:600;">${t.type === 'depense' ? '-' : '+'}${Number(t.montant).toLocaleString('fr-FR')} €</span>
-        </div>
-      `).join('') : '<div class="empty-state">Aucune transaction.</div>';
-    };
-
-    rendreListe('listeTransactions', txs || []);
-    rendreListe('listeDepenses', (txs || []).filter(t => t.type === 'depense'));
-    rendreListe('listeRecettes', (txs || []).filter(t => t.type === 'recette'));
-  }
-
-  async function creerTransaction() {
-    const structureId = document.getElementById('structureFinances').value;
-    const type = document.getElementById('typeTx').value;
-    const categorie = document.getElementById('categorieTx').value;
-    const montant = document.getElementById('montantTx').value;
-    const date = document.getElementById('dateTx').value;
-    const description = document.getElementById('descriptionTx').value;
-    if (!structureId) return alert('Sélectionne une structure');
-    if (!categorie || !montant || !date) return alert('Catégorie, montant et date sont requis');
-    const { error } = await supabaseClient.from('transactions').insert({
-      structure_id: structureId, type, categorie, montant: parseFloat(montant), date, description: description || null
-    });
-    if (error) return alert('Erreur : ' + error.message);
-    document.getElementById('categorieTx').value = '';
-    document.getElementById('montantTx').value = '';
-    document.getElementById('descriptionTx').value = '';
-    chargerFinances();
-  }
-
-  // ---------- PRÊTS ----------
-  async function allerPrets() {
-    hideAllPages();
-    document.getElementById('page-prets').style.display = 'block';
-    const sel = document.getElementById('immeublePrets');
-    if (!sel.options.length) {
-      const { data: structures } = await supabaseClient.from('structures').select('id, nom');
-      const structIds = (structures || []).map(s => s.id);
-      let immeubles = [];
-      if (structIds.length) {
-        const { data } = await supabaseClient.from('immeubles').select('id, adresse').in('structure_id', structIds).order('created_at');
-        immeubles = data || [];
-      }
-      sel.innerHTML = immeubles.map(i => `<option value="${i.id}">${echapper(i.adresse)}</option>`).join('');
-    }
-    chargerPrets();
-  }
-
-  async function chargerPrets() {
-    const immeubleId = document.getElementById('immeublePrets').value;
-    const div = document.getElementById('listePrets');
-    if (!immeubleId) { div.innerHTML = '<div class="empty-state">Aucun immeuble disponible.</div>'; return; }
-    const { data: prets, error } = await supabaseClient.from('prets').select('id, banque, capital_initial, capital_restant, taux, mensualite, date_debut, date_fin').eq('immeuble_id', immeubleId).order('created_at', { ascending: false });
-    if (error) { div.innerHTML = '<div class="empty-state">Erreur de chargement.</div>'; return; }
-    if (!prets || !prets.length) { div.innerHTML = '<div class="empty-state">Aucun prêt pour cet immeuble.</div>'; return; }
-    div.innerHTML = prets.map(p => {
-      const pct = p.capital_initial > 0 ? Math.round(((p.capital_initial - p.capital_restant) / p.capital_initial) * 100) : 0;
-      return `
-        <div style="padding:14px 0; border-bottom:1px solid var(--border);">
-          <strong>${echapper(p.banque) || 'Prêt'}</strong>
-          <div class="small">Capital initial : ${p.capital_initial.toLocaleString('fr-FR')} € · Restant : ${p.capital_restant.toLocaleString('fr-FR')} €</div>
-          <div class="small">Taux : ${p.taux || '—'} % · Mensualité : ${p.mensualite ? p.mensualite.toLocaleString('fr-FR') + ' €' : '—'}</div>
-          <div class="small">Du ${p.date_debut || '—'} au ${p.date_fin || '—'}</div>
-          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;"></div></div>
-          <div class="small">${pct}% remboursé</div>
-          <a href="#" onclick="toggleAmortissement('${p.id}'); return false;" style="color:var(--accent); font-size:0.85rem; display:inline-block; margin-top:8px;">Voir le tableau d'amortissement</a>
-          <div id="amort-${p.id}" style="display:none; margin-top:10px;"></div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  function calculerAmortissement(pret) {
-    const lignes = [];
-    let restant = Number(pret.capital_initial);
-    const tauxMensuel = pret.taux ? Number(pret.taux) / 100 / 12 : 0;
-    const mensualite = Number(pret.mensualite || 0);
-    if (!mensualite || mensualite <= 0 || !pret.date_debut) return lignes;
-
-    let dateCourante = new Date(pret.date_debut);
-    const dateFin = pret.date_fin ? new Date(pret.date_fin) : null;
-    let securite = 0;
-
-    while (restant > 0.5 && securite < 600) {
-      securite++;
-      const interets = restant * tauxMensuel;
-      let capitalRembourse = mensualite - interets;
-      if (capitalRembourse > restant) capitalRembourse = restant;
-      restant = Math.max(0, restant - capitalRembourse);
-      lignes.push({
-        mois: dateCourante.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' }),
-        mensualite: interets + capitalRembourse,
-        interets, capitalRembourse, restant
-      });
-      dateCourante = new Date(dateCourante.getFullYear(), dateCourante.getMonth() + 1, 1);
-      if (dateFin && dateCourante > dateFin) break;
-    }
-    return lignes;
-  }
-
-  async function toggleAmortissement(pretId) {
-    const zone = document.getElementById('amort-' + pretId);
-    if (zone.style.display === 'block') { zone.style.display = 'none'; return; }
-
-    const { data: pret, error } = await supabaseClient.from('prets').select('capital_initial, mensualite, taux, date_debut, date_fin').eq('id', pretId).single();
-    if (error) return alert('Erreur : ' + error.message);
-
-    const lignes = calculerAmortissement(pret);
-    if (!lignes.length) {
-      zone.innerHTML = '<div class="empty-state">Impossible de calculer (taux, mensualité ou date de début manquants).</div>';
-      zone.style.display = 'block';
-      return;
-    }
-
-    zone.innerHTML = `
-      <div class="table-header-paiements" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr;">
-        <span>Mois</span><span>Mensualité</span><span>Intérêts</span><span>Capital</span><span>Restant</span>
-      </div>
-      <div style="max-height:280px; overflow-y:auto;">
-        ${lignes.map(l => `
-          <div class="row" style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; font-size:0.82rem;">
-            <span>${l.mois}</span><span>${l.mensualite.toFixed(0)} €</span><span class="small">${l.interets.toFixed(0)} €</span><span class="small">${l.capitalRembourse.toFixed(0)} €</span><span>${l.restant.toFixed(0)} €</span>
-          </div>
-        `).join('')}
-      </div>
-    `;
-    zone.style.display = 'block';
-  }
-
-  async function creerPret() {
-    const immeubleId = document.getElementById('immeublePrets').value;
-    const banque = document.getElementById('banquePret').value;
-    const capitalInitial = document.getElementById('capitalInitialPret').value;
-    const taux = document.getElementById('tauxPret').value;
-    const mensualite = document.getElementById('mensualitePret').value;
-    const dateDebut = document.getElementById('dateDebutPret').value;
-    const dateFin = document.getElementById('dateFinPret').value;
-    if (!immeubleId) return alert('Sélectionne un immeuble');
-    if (!capitalInitial) return alert('Capital initial requis');
-    const { error } = await supabaseClient.from('prets').insert({
-      immeuble_id: immeubleId, banque: banque || null, capital_initial: parseFloat(capitalInitial),
-      capital_restant: parseFloat(capitalInitial), taux: taux ? parseFloat(taux) : null,
-      mensualite: mensualite ? parseFloat(mensualite) : null, date_debut: dateDebut || null, date_fin: dateFin || null
-    });
-    if (error) return alert('Erreur : ' + error.message);
-    document.getElementById('banquePret').value = '';
-    document.getElementById('capitalInitialPret').value = '';
-    document.getElementById('tauxPret').value = '';
-    document.getElementById('mensualitePret').value = '';
-    chargerPrets();
-  }
 
   // ---------- PARAMÈTRES ----------
   let currentStructureParamsId = null;
@@ -6488,7 +6251,7 @@ Durée : du {{date_debut}} au {{date_fin}}
     (paiements || []).forEach(p => {
       const lot = p.baux && p.baux.lots ? p.baux.lots : null;
       const immeuble = lot && lot.immeubles ? lot.immeubles.adresse : '';
-      items.push({ severite: 'haute', titre: 'Loyer en retard', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (${p.mois})`, lien: p.baux ? { type: 'lot', id: p.baux.lot_id } : null, montant: Number(p.montant_loyer) + Number(p.montant_charges), paiementId: p.id });
+      items.push({ severite: 'haute', titre: 'Loyer en retard', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (${dateLocaleDepuisIso(p.mois).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })})`, lien: p.baux ? { type: 'lot', id: p.baux.lot_id } : null, montant: Number(p.montant_loyer) + Number(p.montant_charges), paiementId: p.id });
     });
 
     // Tâches non terminées — TOUTES, pas seulement celles en retard. Une tâche créée
@@ -6508,18 +6271,18 @@ Durée : du {{date_debut}} au {{date_fin}}
     (baux || []).forEach(b => {
       const lot = b.lots;
       const immeuble = lot && lot.immeubles ? lot.immeubles.adresse : '';
-      const joursRestants = Math.ceil((new Date(b.date_fin) - new Date()) / (1000 * 60 * 60 * 24));
+      const joursRestants = Math.ceil((dateLocaleDepuisIso(b.date_fin) - new Date()) / (1000 * 60 * 60 * 24));
       items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'Bail arrivant à échéance', detail: `${lot ? (lot.nom || lot.type) : 'Lot inconnu'} — ${immeuble} (dans ${joursRestants} j)`, lien: lot ? { type: 'lot', id: lot.id } : null, jours: joursRestants });
     });
 
     (immeublesDpe || []).forEach(im => {
-      const joursRestants = Math.ceil((new Date(im.dpe_date_expiration) - new Date()) / (1000 * 60 * 60 * 24));
+      const joursRestants = Math.ceil((dateLocaleDepuisIso(im.dpe_date_expiration) - new Date()) / (1000 * 60 * 60 * 24));
       items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'DPE arrivant à expiration', detail: `${im.adresse} (dans ${joursRestants} j)`, lien: { type: 'immeuble', id: im.id }, jours: joursRestants });
     });
 
     // Bail révisable : date anniversaire de signature dans les 60 prochains jours (moment légal de révision IRL)
     (bauxPourRevision || []).forEach(b => {
-      const debut = new Date(b.date_debut);
+      const debut = dateLocaleDepuisIso(b.date_debut);
       const maintenant = new Date();
       let anniversaire = new Date(maintenant.getFullYear(), debut.getMonth(), debut.getDate());
       if (anniversaire < maintenant) anniversaire.setFullYear(anniversaire.getFullYear() + 1);
@@ -6533,7 +6296,7 @@ Durée : du {{date_debut}} au {{date_fin}}
 
     // Assurance locataire arrivant à expiration
     (locatairesAssurancePourAlerte || []).forEach(l => {
-      const joursRestants = Math.ceil((new Date(l.assurance_expiration) - new Date()) / (1000 * 60 * 60 * 24));
+      const joursRestants = Math.ceil((dateLocaleDepuisIso(l.assurance_expiration) - new Date()) / (1000 * 60 * 60 * 24));
       items.push({ severite: joursRestants <= 30 ? 'haute' : 'moyenne', titre: 'Assurance locataire à renouveler', detail: `${l.nom} (dans ${joursRestants} j)`, lien: { type: 'locataire', id: l.id }, jours: joursRestants });
     });
 
@@ -6559,7 +6322,7 @@ Durée : du {{date_debut}} au {{date_fin}}
       (liensContact || []).forEach(l => { if (l.contacts) contactParEntite[l.entity_type + '-' + l.entity_id] = l.contacts; });
 
       documentsExpirants.forEach(d => {
-        const joursRestants = Math.ceil((new Date(d.expiration_date) - new Date()) / (1000 * 60 * 60 * 24));
+        const joursRestants = Math.ceil((dateLocaleDepuisIso(d.expiration_date) - new Date()) / (1000 * 60 * 60 * 24));
         let detail = d.entity_type === 'immeuble' ? (nomImmPourDoc[d.entity_id] || '') : d.entity_type === 'lot' ? (nomLotPourDoc[d.entity_id] || '') : (nomLocPourDoc[d.entity_id] || '');
         const contactLie = contactParEntite[d.entity_type + '-' + d.entity_id];
         if (contactLie) detail += ` · ${contactLie.nom}${contactLie.telephone ? ' · ' + contactLie.telephone : ''}`;
@@ -6591,7 +6354,7 @@ Durée : du {{date_debut}} au {{date_fin}}
     const actionReessai = "chargerToutesAlertes('" + tab + "')";
     if (!items.length) { div.innerHTML = items.incomplet ? avertissementAlertesIncompletes(items, actionReessai) : '<div class="empty-state">Aucune alerte pour le moment. 👍</div>'; return; }
     div.innerHTML = avertissementAlertesIncompletes(items, actionReessai) + items.map(it => `
-      <div class="row ${it.lien ? 'row-click' : ''}" ${it.lien ? `onclick="naviguerVersLien(${JSON.stringify(it.lien).replace(/"/g, '&quot;')})"` : ''}><div><strong>${echapper(it.titre)}</strong><br><span class="small">${echapper(it.detail)}</span></div><span style="display:flex; align-items:center; gap:8px;">${it.paiementId ? `<button class="btn-secondary" style="width:auto; padding:6px 12px;" onclick="event.stopPropagation(); marquerPayeDirect('${it.paiementId}', 'alertes')">✓ Payé</button>` : ''}<span class="severite ${it.severite}">${it.severite === 'haute' ? 'Élevée' : 'Moyenne'}</span></span></div>
+      <div class="row ${it.lien ? 'row-click' : ''}" ${it.lien ? `onclick="naviguerVersLien(${JSON.stringify(it.lien).replace(/"/g, '&quot;')})"` : ''}><div><strong>${echapper(it.titre)}</strong><br><span class="small">${echapper(it.detail)}</span></div><span style="display:flex; align-items:center; gap:8px;">${it.paiementId ? `<button class="btn-secondary btn-ic" style="width:auto; padding:6px 12px;" onclick="event.stopPropagation(); marquerPayeDirect('${it.paiementId}', 'alertes')">${icone('paye')} Payé</button>` : ''}<span class="severite ${it.severite}">${it.severite === 'haute' ? 'Élevée' : 'Moyenne'}</span></span></div>
     `).join('');
   }
 
@@ -7364,7 +7127,7 @@ Durée : du {{date_debut}} au {{date_fin}}
 
   function badgeEcheanceDocument(expirationDate) {
     if (!expirationDate) return '';
-    const jours = Math.ceil((new Date(expirationDate) - new Date()) / (1000 * 60 * 60 * 24));
+    const jours = Math.ceil((dateLocaleDepuisIso(expirationDate) - new Date()) / (1000 * 60 * 60 * 24));
     if (jours > 60) return '';
     if (jours < 0) return `<span class="badge-pill" style="background:rgba(239,68,68,0.15); color:var(--red); margin-left:6px;">Expiré</span>`;
     const couleur = jours <= 30 ? 'var(--red)' : 'var(--amber)';
@@ -7434,8 +7197,8 @@ Durée : du {{date_debut}} au {{date_fin}}
   // deux créations différentes (ex. notes sur deux fiches) restent possibles en parallèle.
   (function protegerContreDoubleClic() {
     const actions = ['creerBienRapide', 'creerImmeubleRapide', 'creerLot', 'appliquerRevisionIrl',
-      'ajouterOuLierContact', 'ajouterNote', 'creerChargeRecurrente', 'enregistrerTravaux', 'creerTransaction', 'creerPret',
-      'envoyerDocumentAUnLocataire', 'creerTache', 'ajouterDeficitHistorique', 'ajouterAssocie', 'uploaderDocument', 'genererQuittanceManuelle', 'marquerPayeDirect', 'genererAvisEcheance', 'genererAttestationLoyer'];
+      'ajouterOuLierContact', 'ajouterNote', 'creerChargeRecurrente', 'enregistrerTravaux',
+      'envoyerDocumentAUnLocataire', 'creerTache', 'ajouterDeficitHistorique', 'ajouterAssocie', 'uploaderDocument', 'genererQuittanceManuelle', 'marquerPayeDirect', 'genererAvisEcheance', 'genererAttestationLoyer', 'enregistrerRelance', 'copierRelance'];
     const enCours = new Set();
     actions.forEach(nom => {
       const original = window[nom];
