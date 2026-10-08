@@ -56,6 +56,11 @@
   .nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; display: flex; background: var(--nav-bg); border-top: 1px solid var(--ligne); padding: 8px 4px calc(10px + env(safe-area-inset-bottom)); backdrop-filter: blur(8px); }
   .nav button { flex: 1; background: none; border: none; color: var(--dim); font-size: .72rem; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 0; }
   .nav button .ic { font-size: 1.25rem; }
+  .nav button .ic svg { width: 24px; height: 24px; display: block; }
+  .pastille-ic { width: 34px; height: 34px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; color: #fff; flex: none; }
+  .pastille-ic svg { width: 19px; height: 19px; }
+  .seg button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  .seg button svg { width: 18px; height: 18px; flex: none; }
   .nav button.actif { color: var(--accent); font-weight: 600; }
 
   .contenu { padding: 0 16px calc(96px + env(safe-area-inset-bottom)); max-width: 640px; margin: 0 auto; }
@@ -78,7 +83,9 @@
   .titre-section { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--dim); margin: 20px 2px 8px; }
   .tuiles { display: flex; gap: 10px; margin-bottom: 14px; }
   .tuile { flex: 1; background: var(--panel); border: var(--bord); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px 8px; text-align: center; font-size: .74rem; color: var(--text); }
-  .tuile .ic { display: block; font-size: 1.5rem; margin-bottom: 6px; }
+  .tuile .ic { display: flex; justify-content: center; margin-bottom: 8px; }
+  .tuile .pastille-ic { width: 40px; height: 40px; border-radius: 12px; }
+  .tuile .pastille-ic svg { width: 22px; height: 22px; }
 
   .puces-filtre { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 4px; }
   .puces-filtre button { font-size: .8rem; padding: 12px 16px; border-radius: 16px; border: 1px solid var(--ligne); background: var(--panel); color: var(--dim); box-shadow: var(--shadow); }
@@ -87,6 +94,9 @@
   .liste-docs { display: block; }
   .doc { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-bottom: 8px; background: var(--panel); border: var(--bord); border-radius: calc(var(--radius) - 2px); box-shadow: var(--shadow); cursor: pointer; }
   .doc .ic { font-size: 1.4rem; }
+  .doc .tel { display: inline-flex; align-items: center; justify-content: center; }
+  .doc .tel svg { width: 20px; height: 20px; }
+  .nom-demande { display: flex; align-items: center; gap: 10px; }
   .doc .nom { font-size: .88rem; font-weight: 600; word-break: break-word; }
   .doc .corps { flex: 1; min-width: 0; }
   .doc .tel { background: var(--btn-sec); border: none; border-radius: 10px; width: 44px; height: 44px; font-size: 1rem; color: var(--accent-text); flex: none; }
@@ -151,10 +161,10 @@
 <!-- Application -->
 <div id="vueApp" hidden>
   <nav class="nav" aria-label="Navigation">
-    <button data-onglet="accueil" class="actif" type="button"><span class="ic">🏠</span>Accueil</button>
-    <button data-onglet="documents" type="button"><span class="ic">🗂️</span>Documents</button>
-    <button data-onglet="demandes" type="button"><span class="ic">🔧</span>Demandes</button>
-    <button data-onglet="reglages" type="button"><span class="ic">⚙️</span>Réglages</button>
+    <button data-onglet="accueil" class="actif" type="button"><span class="ic"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 11L12 4l8.5 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/></svg></span>Accueil</button>
+    <button data-onglet="documents" type="button"><span class="ic"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2.2h7a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/></svg></span>Documents</button>
+    <button data-onglet="demandes" type="button"><span class="ic"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5h16a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10l-4.5 3.5v-3.5H4A1.5 1.5 0 0 1 2.5 16V7A1.5 1.5 0 0 1 4 5.5z"/></svg></span>Demandes</button>
+    <button data-onglet="reglages" type="button"><span class="ic"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M5.5 18.5l1.8-1.8M16.7 7.3l1.8-1.8"/></svg></span>Réglages</button>
   </nav>
   <main class="contenu">
     <header class="hero">
@@ -199,8 +209,8 @@
   <div class="feuille" role="dialog" aria-modal="true" aria-labelledby="feuilleTitre">
     <h2 id="feuilleTitre">Nouvelle demande</h2>
     <div class="seg" id="segDemande">
-      <button data-action="type-demande" data-type="travaux" class="actif" type="button">🔧 Problème</button>
-      <button data-action="type-demande" data-type="preavis" type="button">📋 Préavis</button>
+      <button data-action="type-demande" data-type="travaux" class="actif" type="button"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4.5 4.5 0 0 0-5.9 5.9l-5.3 5.3a1.8 1.8 0 0 0 2.6 2.6l5.3-5.3a4.5 4.5 0 0 0 5.9-5.9l-2.8 2.8-2.6-.4-.4-2.6z"/></svg> Problème</button>
+      <button data-action="type-demande" data-type="preavis" type="button"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h4.5A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5H14"/><path d="M10 16l-4-4 4-4M6 12h9"/></svg> Préavis</button>
     </div>
     <div id="champsTravaux">
       <label for="dmType">Type de problème</label>
@@ -234,13 +244,31 @@
   const LIMITE_ZIP = 60;
 
   const CATEGORIES = {
-    quittance:      { label: 'Quittance',        icone: '📄', filtre: 'quittance' },
-    bail:           { label: 'Bail',             icone: '📑', filtre: 'bail' },
-    assurance:      { label: 'Assurance',        icone: '🛡️', filtre: 'assurance' },
-    diagnostic:     { label: 'Diagnostic',       icone: '🔎', filtre: 'autres' },
-    revision_loyer: { label: 'Révision de loyer', icone: '📈', filtre: 'autres' },
-    autre:          { label: 'Autre',            icone: '📎', filtre: 'autres' }
+    quittance:      { label: 'Quittance',        icone: 'quittance', couleur: '#15803d', filtre: 'quittance' },
+    bail:           { label: 'Bail',             icone: 'bail', couleur: '#6366f1', filtre: 'bail' },
+    assurance:      { label: 'Assurance',        icone: 'assurance', couleur: '#0284c7', filtre: 'assurance' },
+    diagnostic:     { label: 'Diagnostic',       icone: 'diagnostic', couleur: '#b45309', filtre: 'autres' },
+    revision_loyer: { label: 'Révision de loyer', icone: 'revision', couleur: '#8b5cf6', filtre: 'autres' },
+    autre:          { label: 'Autre',            icone: 'autre', couleur: '#64748b', filtre: 'autres' }
   };
+  const ICONES = {
+    accueil: '<path d="M3.5 11L12 4l8.5 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/>',
+    documents: '<path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2.2h7a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/>',
+    demandes: '<path d="M4 5.5h16a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5H10l-4.5 3.5v-3.5H4A1.5 1.5 0 0 1 2.5 16V7A1.5 1.5 0 0 1 4 5.5z"/>',
+    reglages: '<circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M5.5 18.5l1.8-1.8M16.7 7.3l1.8-1.8"/>',
+    quittance: '<path d="M14 3.5H7A2 2 0 0 0 5 5.5v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5z"/><path d="M14 3.5v5h5M9 14.5l2 2 4-4.5"/>',
+    bail: '<path d="M14 3.5H7A2 2 0 0 0 5 5.5v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5z"/><path d="M14 3.5v5h5M8.5 13h7M8.5 16.5h5"/>',
+    assurance: '<path d="M12 3.5l7 2.8v5.2c0 4.3-2.9 7.6-7 9-4.1-1.4-7-4.7-7-9V6.3z"/><path d="M9 12l2 2 4-4.2"/>',
+    diagnostic: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
+    revision: '<path d="M4 17l5.5-5.5 3.5 3.5L20 8"/><path d="M15 8h5v5"/>',
+    autre: '<path d="M15.5 7.5l-6.8 6.8a2 2 0 0 0 2.8 2.8l7.3-7.3a4 4 0 0 0-5.7-5.7L5.8 11.4a6 6 0 0 0 8.5 8.5l5.2-5.2"/>',
+    probleme: '<path d="M14.7 6.3a4.5 4.5 0 0 0-5.9 5.9l-5.3 5.3a1.8 1.8 0 0 0 2.6 2.6l5.3-5.3a4.5 4.5 0 0 0 5.9-5.9l-2.8 2.8-2.6-.4-.4-2.6z"/>',
+    preavis: '<path d="M14 4h4.5A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5H14"/><path d="M10 16l-4-4 4-4M6 12h9"/>',
+    telecharger: '<path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14"/>'
+  };
+  function icone(nom) { return '<svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONES[nom] || '') + '</svg>'; }
+  function pastille(nom, couleur) { return '<span class="pastille-ic" style="background:' + couleur + '">' + icone(nom) + '</span>'; }
+
   const FILTRES = [
     { id: 'tous', label: 'Tous' }, { id: 'quittance', label: 'Quittances' }, { id: 'bail', label: 'Bail' },
     { id: 'assurance', label: 'Assurance' }, { id: 'autres', label: 'Autres' }
@@ -424,9 +452,9 @@
     const quittance = etat.documents.find(d => d.categorie === 'quittance');
     const bail = etat.documents.find(d => d.categorie === 'bail');
     html += '<div class="titre-section">Accès rapide</div><div class="tuiles">';
-    if (quittance) html += '<button class="tuile" data-action="ouvrir" data-id="' + esc(quittance.id) + '" type="button"><span class="ic">📄</span>Dernière quittance</button>';
-    if (bail) html += '<button class="tuile" data-action="ouvrir" data-id="' + esc(bail.id) + '" type="button"><span class="ic">📑</span>Mon bail</button>';
-    html += '<button class="tuile" data-action="nouvelle-demande" type="button"><span class="ic">🔧</span>Faire une demande</button></div>';
+    if (quittance) html += '<button class="tuile" data-action="ouvrir" data-id="' + esc(quittance.id) + '" type="button"><span class="ic">' + pastille('quittance', '#15803d') + '</span>Dernière quittance</button>';
+    if (bail) html += '<button class="tuile" data-action="ouvrir" data-id="' + esc(bail.id) + '" type="button"><span class="ic">' + pastille('bail', '#6366f1') + '</span>Mon bail</button>';
+    html += '<button class="tuile" data-action="nouvelle-demande" type="button"><span class="ic">' + pastille('probleme', '#dc2626') + '</span>Faire une demande</button></div>';
 
     const exp = parseDate(etat.locataire.assurance_expiration);
     if (exp) {
@@ -459,7 +487,7 @@
       if (annee !== anneeCourante) { html += '<div class="annee">' + esc(annee) + '</div>'; anneeCourante = annee; }
       const cat = CATEGORIES[d.categorie] || CATEGORIES.autre;
       const quand = formatDate(cleDate(d));
-      html += '<div class="doc" data-action="ouvrir" data-id="' + esc(d.id) + '"><span class="ic">' + cat.icone + '</span><div class="corps"><div class="nom">' + esc(d.nom) + '</div><div class="petit">' + esc(cat.label) + (quand ? ' · ' + esc(quand) : '') + '</div></div><button class="tel" data-action="telecharger" data-id="' + esc(d.id) + '" type="button" aria-label="Télécharger ' + esc(d.nom) + '">⬇</button></div>';
+      html += '<div class="doc" data-action="ouvrir" data-id="' + esc(d.id) + '">' + pastille(cat.icone, cat.couleur) + '<div class="corps"><div class="nom">' + esc(d.nom) + '</div><div class="petit">' + esc(cat.label) + (quand ? ' · ' + esc(quand) : '') + '</div></div><button class="tel" data-action="telecharger" data-id="' + esc(d.id) + '" type="button" aria-label="Télécharger ' + esc(d.nom) + '">' + icone('telecharger') + '</button></div>';
     });
     zone.innerHTML = html;
     $('btnZip').hidden = !window.JSZip;
@@ -542,7 +570,7 @@
     if (!etat.demandes.length) { zone.innerHTML = '<div class="vide">Aucune demande pour l\u2019instant. Signale un problème ou annonce ton départ avec le bouton ci-dessus.</div>'; return; }
     zone.innerHTML = etat.demandes.map(d => {
       const traitee = !!d.reponse_proprietaire;
-      const icone = d.categorie === 'preavis' ? '📋' : '🔧';
+      const icone = d.categorie === 'preavis' ? pastille('preavis', '#475569') : pastille('probleme', '#dc2626');
       const depart = (d.categorie === 'preavis' && d.document_date) ? ' · Départ souhaité le ' + formatDate(d.document_date) : '';
       return '<div class="carte"><div class="ligne"><span class="nom-demande">' + icone + ' ' + esc(d.nom) + '</span><span class="puce ' + (traitee ? 'vert' : 'orange') + '">' + (traitee ? 'Traité' : 'En attente') + '</span></div>'
         + '<div class="petit" style="margin-top:6px;">Envoyé le ' + esc(formatDate(d.created_at) + depart) + '</div>'
