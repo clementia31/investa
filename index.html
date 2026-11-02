@@ -15,7 +15,7 @@
     try { if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) document.documentElement.classList.add('app-native'); } catch (e) {}
   })();
 </script>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 500'%3E%3Cg fill='none' stroke='%234CAF50' stroke-width='18' stroke-linecap='square' stroke-linejoin='miter'%3E%3Cpath d='M33 476 V33 H167 V476'/%3E%3Cpath d='M33 476 H67 V354 L100 324 L133 354 V476 H167'/%3E%3Cpath d='M100 324 V476'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 156 270'%3E%3Cpath fill='%234CAF50' fill-rule='evenodd' d='M0%200H156V270H117V218.4L105.5%20211H102.5V270H77V168L55%20182V210.5L40.5%20218.4V270H0Z%20M11%2012V258H32V212.4L47%20203.5V180.4L76%20156.5L107%20180.4V201.5L125%20212.4V258H145V12Z'/%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" integrity="sha384-0w2KAL2YHP6wKOkUDzkCDGgVvfmHnj02DHeQ6XcHOgTfFsGyonKOpShMH1x6nk9o" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
@@ -82,10 +82,10 @@
 
   /* ---------- AUTH SCREEN ---------- */
   .auth-wrap { max-width: 400px; margin: 90px auto; padding: 0 24px; }
-  .logo-symbol-sidebar { width: 14.4px; height: 36px; flex-shrink: 0; display: block; }
+  .logo-symbol-sidebar { width: 20.8px; height: 36px; flex-shrink: 0; display: block; }
   .logo-sidebar-texte { font-weight: 800; font-size: 1.05rem; letter-spacing: 0.03em; color: var(--text); }
   .logo-login { display: flex; flex-direction: column; align-items: center; margin-bottom: 24px; }
-  .logo-symbol-lg { width: 36px; height: 90px; }
+  .logo-symbol-lg { width: 52px; height: 90px; }
   .logo-login-texte { text-align: center; margin-top: 10px; }
   .logo-login-nom { font-size: 1.6rem; font-weight: 800; letter-spacing: 0.04em; color: var(--text); }
   .logo-login-baseline { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); margin-top: 2px; }
@@ -546,14 +546,10 @@ h1 { letter-spacing: -0.02em; }
 </head>
 <body>
 
-<!-- Symbole officiel Investa — chemins exacts fournis, ne pas modifier -->
+<!-- Symbole officiel Investa — redessiné d'après la charte graphique (logo principal), ne pas modifier -->
 <svg width="0" height="0" style="position:absolute;">
-  <symbol id="investa-symbol" viewBox="0 0 200 500">
-    <g fill="none" stroke="#4CAF50" stroke-width="18" stroke-linecap="square" stroke-linejoin="miter">
-      <path d="M33 476 V33 H167 V476"/>
-      <path d="M33 476 H67 V354 L100 324 L133 354 V476 H167"/>
-      <path d="M100 324 V476"/>
-    </g>
+  <symbol id="investa-symbol" viewBox="0 0 156 270">
+    <path fill="#4CAF50" fill-rule="evenodd" d="M0 0H156V270H117V218.4L105.5 211H102.5V270H77V168L55 182V210.5L40.5 218.4V270H0Z M11 12V258H32V212.4L47 203.5V180.4L76 156.5L107 180.4V201.5L125 212.4V258H145V12Z"/>
   </symbol>
 </svg>
 
@@ -634,7 +630,7 @@ h1 { letter-spacing: -0.02em; }
 <!-- ============ AUTH ============ -->
 <div class="auth-wrap" id="auth">
   <div class="logo-login">
-    <svg class="logo-symbol-lg" viewBox="0 0 200 500"><use href="#investa-symbol"></use></svg>
+    <svg class="logo-symbol-lg" viewBox="0 0 156 270"><use href="#investa-symbol"></use></svg>
     <div class="logo-login-texte">
       <div class="logo-login-nom">INVESTA</div>
       <div class="logo-login-baseline">Gestion immobilière</div>
@@ -654,7 +650,7 @@ h1 { letter-spacing: -0.02em; }
 
 <div class="auth-wrap" id="reinitMdp" style="display:none;">
   <div class="logo-login">
-    <svg class="logo-symbol-lg" viewBox="0 0 200 500"><use href="#investa-symbol"></use></svg>
+    <svg class="logo-symbol-lg" viewBox="0 0 156 270"><use href="#investa-symbol"></use></svg>
     <div class="logo-login-texte"><div class="logo-login-nom">INVESTA</div></div>
   </div>
   <h3 style="text-align:center; margin-top:0;">Nouveau mot de passe</h3>
@@ -666,7 +662,7 @@ h1 { letter-spacing: -0.02em; }
 <!-- ============ SÉLECTEUR DE RÔLE (double compte) ============ -->
 <div class="auth-wrap" id="selecteurRole" style="display:none;">
   <div class="logo-login">
-    <svg class="logo-symbol-lg" viewBox="0 0 200 500"><use href="#investa-symbol"></use></svg>
+    <svg class="logo-symbol-lg" viewBox="0 0 156 270"><use href="#investa-symbol"></use></svg>
     <div class="logo-login-texte"><div class="logo-login-nom">INVESTA</div></div>
   </div>
   <p class="small" id="selecteurRoleTexte" style="text-align:center; margin:0 0 16px;">Tu es à la fois propriétaire et locataire. Comment veux-tu continuer ?</p>
@@ -699,7 +695,7 @@ h1 { letter-spacing: -0.02em; }
     <!-- SIDEBAR -->
     <div class="sidebar">
       <div class="brand">
-        <svg class="logo-symbol-sidebar" viewBox="0 0 200 500"><use href="#investa-symbol"></use></svg>
+        <svg class="logo-symbol-sidebar" viewBox="0 0 156 270"><use href="#investa-symbol"></use></svg>
         <span class="logo-sidebar-texte">INVESTA</span>
       </div>
 
