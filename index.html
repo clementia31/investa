@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>Investa — Gestion immobilière</title>
 <script>
   // Applique le thème avant le premier affichage (aucun flash). Clé partagée avec l'espace locataire.
@@ -11,6 +11,8 @@
     try { var v = localStorage.getItem('investa-theme'); pref = (v === 'light' || v === 'clair') ? 'clair' : (v === 'auto' ? 'auto' : 'sombre'); } catch (e) {}
     var sombre = pref === 'sombre' || (pref === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
     document.documentElement.setAttribute('data-theme', sombre ? 'sombre' : 'clair');
+    // Dans l'app iPhone : comportement d'app native (pas de sélection de texte au toucher prolongé).
+    try { if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) document.documentElement.classList.add('app-native'); } catch (e) {}
   })();
 </script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 500'%3E%3Cg fill='none' stroke='%234CAF50' stroke-width='18' stroke-linecap='square' stroke-linejoin='miter'%3E%3Cpath d='M33 476 V33 H167 V476'/%3E%3Cpath d='M33 476 H67 V354 L100 324 L133 354 V476 H167'/%3E%3Cpath d='M100 324 V476'/%3E%3C/g%3E%3C/svg%3E">
@@ -508,6 +510,38 @@
     .sidebar { height: 100vh; height: 100dvh; overflow-y: auto; -webkit-overflow-scrolling: touch;
       padding-top: calc(20px + env(safe-area-inset-top)); padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
   }
+
+/* iPhone : un champ en dessous de 16 px déclenche un zoom automatique de la page qui ne se défait pas. */
+@media (max-width: 900px) { input, select, textarea { font-size: 16px !important; } }
+/* App iPhone : pas de sélection de texte ni de menu « Copier » au toucher prolongé, sauf dans les champs de saisie. */
+html.app-native body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+html.app-native input, html.app-native textarea, html.app-native [contenteditable="true"] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+
+/* === Finition visuelle (validée le 1er nov. 2026) === */
+/* 1. Ordinateur : le contenu ne s'étire plus sur tout l'écran */
+.main > * { max-width: 1080px; margin-left: auto; margin-right: auto; }
+/* 2. Cartes : relief léger, coins plus doux */
+.card, .stat-card { background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0) 60%), var(--panel); border-radius: 16px; box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 8px 24px rgba(0,0,0,0.22); }
+:root[data-theme="clair"] .card, :root[data-theme="clair"] .stat-card { background: var(--panel); box-shadow: 0 6px 20px rgba(60,100,180,0.10); }
+.stat-card .val { font-size: 1.7rem; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+h1 { letter-spacing: -0.02em; }
+/* 3. Adresses sous les noms : plus de soulignement « années 2000 » */
+.loyer-item-souttitre a { text-decoration: none; color: var(--text-dim) !important; }
+.loyer-item-souttitre a:hover { text-decoration: underline; }
+/* 4. Graphique : barres arrondies, mois passés atténués, mois en cours mis en avant */
+.bar-chart { gap: 8px; height: 150px; }
+.bar-chart .bar { border-radius: 7px 7px 3px 3px; background: linear-gradient(180deg, #60a5fa, #2563eb); opacity: .55; }
+.bar-chart .bar-col:last-child .bar { opacity: 1; box-shadow: 0 0 18px rgba(59,130,246,.45); }
+.bar-chart .bar-col:last-child .bar-label { color: var(--text); font-weight: 700; }
+/* 5. Lignes de loyer : survol et respiration */
+.loyer-item-row { transition: background .15s; border-radius: 0; }
+.loyer-item-row:hover { background: rgba(255,255,255,0.03); }
+@media (min-width: 900px) {
+  /* 6. Boutons à leur taille naturelle sur ordinateur, au lieu de barres de 500 px */
+  #btnPreparerRelances { width: auto !important; display: inline-flex !important; padding: 9px 16px; }
+  .loyer-actions button { flex: 0 0 auto; padding: 8px 16px; }
+  .btn-ajout-replie { width: auto; padding: 10px 18px; }
+}
 </style>
 </head>
 <body>
@@ -673,7 +707,7 @@
         <span class="ic-recherche"><svg class="ic-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></span><span>Rechercher...</span><span class="cp-kbd">⌘K</span>
       </button>
 
-      <div class="nav-item active" id="nav-dashboard" onclick="allerDashboard()"><span class="tuile-nav" style="background:#3b82f6"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.8"/></svg></span>Dashboard</div>
+      <div class="nav-item active" id="nav-dashboard" onclick="allerDashboard()"><span class="tuile-nav" style="background:#3b82f6"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.8"/></svg></span>Tableau de bord</div>
       <div class="nav-item" id="nav-patrimoine" onclick="allerPatrimoine()"><span class="tuile-nav" style="background:#6366f1"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V5.5A1.5 1.5 0 0 1 6.5 4h7A1.5 1.5 0 0 1 15 5.5V21z"/><path d="M15 9.5h3.5A1.5 1.5 0 0 1 20 11v10h-5z"/><path d="M8 8h1.5M10.5 8H12M8 11.5h1.5M10.5 11.5H12M8 15h1.5M10.5 15H12M3 21h18"/></svg></span>Patrimoine</div>
       <div class="nav-item" id="nav-locataires" onclick="allerLocataires()"><span class="tuile-nav" style="background:#0284c7"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.2" r="3.8"/><path d="M4.5 20.5c.6-4 3.8-6.5 7.5-6.5s6.9 2.5 7.5 6.5z"/></svg></span>Locataires</div>
       <div class="nav-item" id="nav-loyers" onclick="allerLoyers()"><span class="tuile-nav" style="background:#15803d"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.2"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14h3M8 17h6"/></svg></span>Loyers</div>
@@ -1950,7 +1984,7 @@
   <!-- Barre de navigation du bas (téléphone uniquement, <900px) -->
   <div class="owner-tabbar">
     <div class="owner-tabbar-item active" id="tabNav-dashboard" onclick="allerDashboard()">
-      <span class="ic-wrap"><span class="ic"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.8"/></svg></span></span>Dashboard
+      <span class="ic-wrap"><span class="ic"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.8"/></svg></span></span>Accueil
     </div>
     <div class="owner-tabbar-item" id="tabNav-loyers" onclick="allerLoyers()">
       <span class="ic-wrap"><span class="ic"><svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.2"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14h3M8 17h6"/></svg></span></span>Loyers
