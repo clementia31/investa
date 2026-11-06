@@ -1,134 +1,132 @@
-### https://files.data.gouv.fr/geo-dvf/
-<!DOCTYPE html><html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title></title>
-</head>
-<body>
-<h1>Index of /</h1>
-<hr>
-<table id="list">
-<thead><tr>
-<th style="text-align: left; width:55%">Filename
-                            </th>
-<th style="text-align: left; width:20%">File Size
-                            </th>
-<th style="text-align: left; width:25%">Date</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><a href="/geo-dvf/2025-12/">2025-12/</a></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><a href="/geo-dvf/latest/">latest/</a></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-</body>
-</html>
-
-
-### https://files.data.gouv.fr/geo-dvf/latest/csv/
-<!DOCTYPE html><html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>latest/csv/</title>
-</head>
-<body>
-<h1>Index of /latest/csv/</h1>
-<hr>
-<table id="list">
-<thead><tr>
-<th style="text-align: left; width:55%">Filename
-                            </th>
-<th style="text-align: left; width:20%">File Size
-                            </th>
-<th style="text-align: left; width:25%">Date</th>
-</tr></thead>
-<tbody>
-<tr><td><a href="../">..</a></td></tr>
-<tr>
-<td><a href="/geo-dvf/latest/csv/2021/">2021/</a></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><a href="/geo-dvf/latest/csv/2022/">2022/</a></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><a href="/geo-dvf/latest/csv/2023/">2023/</a></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><a href="/geo-dvf/latest/csv/2024/">2024/</a></td>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><a href="/geo-dvf/latest/csv/2025/">2025/</a></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-</body>
-</html>
-
-
-### https://data.cquest.org/dgfip_dvf/
+### https://data.cquest.org/dgfip_dvf/201904/
 <html>
-<head><title>Index of /dgfip_dvf/</title></head>
+<head><title>Index of /dgfip_dvf/201904/</title></head>
 <body>
-<h1>Index of /dgfip_dvf/</h1><hr><pre><a href="../">../</a>
-<a href="201904/">201904/</a>                                            21-Sep-2024 15:37                   -
-<a href="201910/">201910/</a>                                            31-Oct-2019 17:50                   -
-<a href="202004/">202004/</a>                                            21-Sep-2024 15:37                   -
-<a href="202010/">202010/</a>                                            05-Feb-2021 14:43                   -
-<a href="202104/">202104/</a>                                            27-Sep-2021 11:27                   -
-<a href="202110/">202110/</a>                                            15-Apr-2022 17:05                   -
-<a href="202204/">202204/</a>                                            15-Apr-2022 16:28                   -
-<a href="202304/">202304/</a>                                            13-May-2023 17:54                   -
-<a href="202404/">202404/</a>                                            21-Sep-2024 15:36                   -
-<a href="202410/">202410/</a>                                            09-Mar-2025 13:21                   -
-<a href="202504/">202504/</a>                                            05-Jul-2025 15:19                   -
-<a href="dvfplus_cerema/">dvfplus_cerema/</a>                                    17-Sep-2019 10:18                   -
-<a href="LISEZ_MOI.txt">LISEZ_MOI.txt</a>                                      09-Mar-2025 13:25                2091
-<a href="conditions-generales-dutilisation-20201016.pdf">conditions-generales-dutilisation-20201016.pdf</a>     26-Oct-2020 16:24               82775
-<a href="conditions-generales-dutilisation.pdf">conditions-generales-dutilisation.pdf</a>              19-Apr-2019 07:16               81611
-<a href="dvf-2014-2018.csv.gz">dvf-2014-2018.csv.gz</a>                               24-Apr-2019 07:54           294035483
-<a href="faq-20221017.pdf">faq-20221017.pdf</a>                                   17-Oct-2022 13:32               73665
-<a href="information-des-personnes-concernees-par-le-traitement-informatique-20201016.pdf">information-des-personnes-concernees-par-le-tra..&gt;</a> 26-Oct-2020 16:26               64249
-<a href="information-des-personnes-concernees-par-le-traitement-informatique.pdf">information-des-personnes-concernees-par-le-tra..&gt;</a> 19-Apr-2019 11:55               25415
-<a href="notice-descriptive-du-fichier-dvf-20221017.pdf">notice-descriptive-du-fichier-dvf-20221017.pdf</a>     17-Oct-2022 13:33              117377
-<a href="notice-descriptive-du-fichier-dvf.pdf">notice-descriptive-du-fichier-dvf.pdf</a>              19-Apr-2019 07:17              154406
-<a href="tables-cultures-speciales.csv">tables-cultures-speciales.csv</a>                      23-Apr-2019 16:47                2994
-<a href="tables-cultures.csv">tables-cultures.csv</a>                                23-Apr-2019 16:47                 446
-<a href="tables-de-reference-nature-de-culture.pdf">tables-de-reference-nature-de-culture.pdf</a>          19-Apr-2019 07:18               51508
-<a href="tree.json">tree.json</a>                                          05-Jul-2025 15:19               22727
-<a href="tree.xml">tree.xml</a>                                           05-Jul-2025 15:19               15365
-<a href="update.sh">update.sh</a>                                          21-Sep-2024 15:35                 544
+<h1>Index of /dgfip_dvf/201904/</h1><hr><pre><a href="../">../</a>
+<a href="valeursfoncieres-2014.txt">valeursfoncieres-2014.txt</a>                          23-Apr-2019 16:48           333151629
+<a href="valeursfoncieres-2015.txt">valeursfoncieres-2015.txt</a>                          23-Apr-2019 16:49           365246929
+<a href="valeursfoncieres-2016.txt">valeursfoncieres-2016.txt</a>                          23-Apr-2019 16:50           391138651
+<a href="valeursfoncieres-2017.txt">valeursfoncieres-2017.txt</a>                          23-Apr-2019 16:52           449120707
+<a href="valeursfoncieres-2018.txt">valeursfoncieres-2018.txt</a>                          23-Apr-2019 16:53           311574861
 </pre><hr></body>
 </html>
 
 
-### https://data.cquest.org/geo_dvf/
-ERREUR HTTP Error 404: Not Found
+### https://data.cquest.org/dgfip_dvf/202110/
+<html>
+<head><title>Index of /dgfip_dvf/202110/</title></head>
+<body>
+<h1>Index of /dgfip_dvf/202110/</h1><hr><pre><a href="../">../</a>
+<a href="valeursfoncieres-2016-s2.txt">valeursfoncieres-2016-s2.txt</a>                       20-Oct-2021 08:59           216179653
+<a href="valeursfoncieres-2016.txt">valeursfoncieres-2016.txt</a>                          19-Oct-2021 13:15           391608477
+<a href="valeursfoncieres-2017.txt">valeursfoncieres-2017.txt</a>                          20-Oct-2021 09:02           452792860
+<a href="valeursfoncieres-2018.txt">valeursfoncieres-2018.txt</a>                          20-Oct-2021 09:06           445692815
+<a href="valeursfoncieres-2019.txt">valeursfoncieres-2019.txt</a>                          20-Oct-2021 09:08           482835967
+<a href="valeursfoncieres-2020.txt">valeursfoncieres-2020.txt</a>                          20-Oct-2021 09:11           420343957
+<a href="valeursfoncieres-2021-s1.txt">valeursfoncieres-2021-s1.txt</a>                       20-Oct-2021 09:17           161724375
+</pre><hr></body>
+</html>
 
-### https://opendata.caissedesdepots.fr/api/explore/v2.1/catalog/datasets/donnees-valeurs-foncieres-a-la-commune/records?limit=3
-{"total_count": 175418, "results": [{"anneemut": "2020", "reg_name": "Normandie", "dep_name": "Orne", "com_arm_name_upper": "BAGNOLES DE L'ORNE NORMANDIE", "com_arm_cateaav2020_name": "Autre commune du p\u00f4le principal", "epci_name": "CC Andaine - Passais", "codgeo_2020": "61483", "nbmut": 134, "nbmut_vente": 134, "nbmut_ventem": 33, "nbmut_ventea": 20, "nbmut_vefa": null, "nbmut_vefam": 0, "nbmut_vefaa": 0, "nbmut_tab": null, "nbmut_adj": null, "nbmut_expro": null, "nbmut_ech": null, "nbmut_act": 6, "nbmut_maison": 35, "nbmut_appart": 77, "nbmut_dep": null, "nbmut_batind": null, "nbmut_batimix": null, "nbmut_terrain": 8, "vf_ventem": 5009500.0, "vf_vefam": 0, "vf_ventea": 1080240, "vf_vefaa": 0, "vfmed_ventem": 155000.0, "vfmed_ventem_inf500": 65500.0, "vfmed_ventem_500_1000": 132000.0, "vfmed_ventem_sup1000": 155000.0, "vfmed_vefam": null, "vfmed_vefam_inf500": null, "vfmed_vefam_500_1000": null, "vfmed_vefam_sup1000": null, "vfmed_ventea": 53500, "vfmed_ventea_t1": 53500, "vfmed_ventea_t2": 31000, "vfmed_ventea_t3": null, "vfmed_ventea_t4": 146000, "vfmed_ventea_t5": null, "vfm2_ventea": 1773, "vfm2_ventea_t1": 1940, "vfm2_ventea_t2": 1214, "vfm2_ventea_t3": null, "vfm2_ventea_t4": 2085, "vfm2_ventea_t5": null, "vfmed_vefaa": null, "vfmed_vefaa_t1": null, "vfmed_vefaa_t2": null, "vfmed_vefaa_t3": null, "vfmed_vefaa_t4": null, "vfmed_vefaa_t5": null, "vfm2_vefaa": null, "vfm2_vefaa_t1": null, "vfm2_vefaa_t2": null, "vfm2_vefaa_t3": null, "vfm2_vefaa_t4": null, "vfm2_vefaa_t5": null, "dep_code": "61", "epci_code": "200068443", "reg_code": "28", "geo_point_2d": {"lon": -0.42072807135, "lat": 48.5668459543}, "geo_shape": {"type": "Feature", "geometry": {"coordinates": [[[-0.442552, 48.542355], [-0.438679, 48.541969], [-0.437161, 48.541495], [-0.435798, 48.541347], [-0.432326, 48.541408], [-0.430613, 48.541927], [-0.427291, 48.542719], [-0.427052, 48.542973], [-0.425198, 48.54317], [-0.424671, 48.54355], [-0.423221, 48.543468], [-0.42287, 48.543935], [-0.420687, 48.544171], [-0.42058, 48.543865], [-0.419654, 48.543473], [-0.418415, 48.543525], [-0.418043, 48.543428], [-0.417447, 48.543037], [-0.417433, 48.542544], [-0.417261, 48.542421], [-0.417228, 48.541951], [-0.416348, 48.541534], [-0.416444, 48.541199], [-0.415962, 48.540271], [-0.415722, 48.540297], [-0.414732, 48.540496], [-0.414005, 48.540035], [-0.413379, 48.539363], [-0.411605, 48.539148], [-0.411067, 48.537704], [-0.410773, 48.537743], [-0.408262, 48.540495], [-0.409709, 48.540935], [-0.407519, 48.543593], [-0.406597, 48.544514], [-0.40595, 48.545704], [-0.404214, 48.547097], [-0.40202, 48.548104], [-0.400915, 48.548864], [-0.399705, 48.549204], [-0.39901, 48.549609], [-0.397689, 48.549921], [-0.397106, 48.550346], [-0.395065, 48.549811], [-0.394889, 48.549848], [-0.393704, 48.54957], [-0.392842, 48.553317], [-0.392364, 48.554127], [-0.390117, 48.556164], [-0.388803, 48.55784], [-0.405498, 48.566888], [-0.407131, 48.567902], [-0.407371, 48.567933], [-0.40811, 48.568317], [-0.407577, 48.574312], [-0.409728, 48.576872], [-0.409757, 48.577232], [-0.408947, 48.577695], [-0.408852, 48.577864], [-0.407265, 48.578435], [-0.408252, 48.579418], [-0.406489, 48.580122], [-0.406395, 48.580348], [-0.404269, 48.58067], [-0.404137, 48.580207], [-0.403884, 48.580034], [-0.403305, 48.579968], [-0.402672, 48.580073], [-0.402729, 48.580424], [-0.402613, 48.581221], [-0.401761, 48.582985], [-0.401414, 48.583972], [-0.401406, 48.584349], [-0.402305, 48.586433], [-0.403274, 48.587267], [-0.404691, 48.588179], [-0.405537, 48.588947], [-0.406006, 48.588874], [-0.4066, 48.589195], [-0.406722, 48.588818], [-0.407538, 48.588149], [-0.408705, 48.587616], [-0.409141, 48.587305], [-0.409588, 48.58743], [-0.410246, 48.587168], [-0.410954, 48.587429], [-0.412687, 48.58864], [-0.413491, 48.588241], [-0.414582, 48.589326], [-0.414684, 48.589728], [-0.414186, 48.590219], [-0.414527, 48.590508], [-0.414508, 48.590976], [-0.414774, 48.591891], [-0.414895, 48.592004], [-0.41602, 48.591027], [-0.416363, 48.591101], [-0.417126, 48.590875], [-0.417431, 48.590888], [-0.418994, 48.591541], [-0.419428, 48.59368], [-0.420048, 48.59558], [-0.419872, 48.596216], [-0.419153, 48.597074], [-0.418987, 48.597521], [-0.420163, 48.598723], [-0.420163, 48.598988], [-0.420853, 48.599973], [-0.420927, 48.600294], [-0.422076, 48.601589], [-0.422222, 48.601583], [-0.423862, 48.600962], [-0.431824, 48.599468], [-0.443918, 48.597025], [-0.439048, 48.588518], [-0.436165, 48.586894], [-0.433375, 48.585165], [-0.432493, 48.584837], [-0.433134, 48.583646], [-0.433086, 48.583112], [-0.433403, 48.582859], [-0.432761, 48.582353], [-0.43346, 48.582025], [-0.433725, 48.581558], [-0.433998, 48.58035], [-0.43246, 48.580806], [-0.431967, 48.580787], [-0.430557, 48.580076], [-0.429147, 48.579165], [-0.42825, 48.578709], [-0.428205, 48.57841], [-0.428275, 48.576828], [-0.430817, 48.575971], [-0.431159, 48.574584], [-0.432767, 48.572325], [-0.435046, 48.569019], [-0.436282, 48.568165], [-0.436027, 48.567809], [-0.436386, 48.567556], [-0.437246, 48.567553], [-0.437929, 48.567086], [-0.438119, 48.5668], [-0.445985, 48.561357], [-0.445992, 48.561162], [-0.441126, 48.561184], [-0.440365, 48.558759], [-0.440272, 48.557924], [-0.440077, 48.557471], [-0.439967, 48.556566], [-0.440281, 48.556248], [-0.441092, 48.554721], [-0.440567, 48.554292], [-0.440657, 48.553227], [-0.441103, 48.552055], [-0.44244, 48.550394], [-0.44242, 48.550224], [-0.44174, 48.549898], [-0.441923, 48.548865], [-0.443223, 48.54702], [-0.44581, 48.542845], [-0.445526, 48.542677], [-0.444271, 48.542533], [-0.44262, 48.54257], [-0.442552, 48.542355]]], "type": "Polygon"}, "properties": {}}, "com_arm_cateaav2020_code": "12", "com_code": "61483", "com_name": "Bagnoles de l'Orne Normandie", "pop_2018": 2713.0, "nbre_menages_2018": 1432.0, "logement_2018": 3257.22351275708, "nbmut_ventevefa": 53.0, "vf_ventevefa": 6089740.0}, {"anneemut": "2017", "reg_name": "\u00cele-de-France", "dep_name": "Essonne", "com_arm_name_upper": "LINAS", "com_arm_
 
-### https://opendata.caissedesdepots.fr/api/explore/v2.1/catalog/datasets?where=search(%22valeurs%20foncieres%22)&limit=10&select=dataset_id
-{"total_count": 2, "results": [{"dataset_id": "donnees-valeurs-foncieres-a-la-commune-par-periode"}, {"dataset_id": "donnees-valeurs-foncieres-a-la-commune"}]}
+### https://data.cquest.org/dgfip_dvf/202504/
+<html>
+<head><title>Index of /dgfip_dvf/202504/</title></head>
+<body>
+<h1>Index of /dgfip_dvf/202504/</h1><hr><pre><a href="../">../</a>
+<a href="valeursfoncieres-2020.txt.zip">valeursfoncieres-2020.txt.zip</a>                      06-Apr-2025 00:29            68539642
+<a href="valeursfoncieres-2021.txt.zip">valeursfoncieres-2021.txt.zip</a>                      06-Apr-2025 00:29            86795661
+<a href="valeursfoncieres-2022.txt.zip">valeursfoncieres-2022.txt.zip</a>                      06-Apr-2025 00:30            87153720
+<a href="valeursfoncieres-2023.txt.zip">valeursfoncieres-2023.txt.zip</a>                      06-Apr-2025 00:30            71497148
+<a href="valeursfoncieres-2024.txt.zip">valeursfoncieres-2024.txt.zip</a>                      06-Apr-2025 00:30            64633591
+</pre><hr></body>
+</html>
 
-### https://www.data.gouv.fr/api/1/datasets/demandes-de-valeurs-foncieres/
-{"access_audiences": [], "access_type": "open", "access_type_reason": null, "access_type_reason_category": null, "acronym": "DVF", "archived": null, "authorization_request_url": null, "badges": [], "contact_points": [], "created_at": "2019-01-25T11:30:50.573000+00:00", "deleted": null, "description": "### Propos liminaires\n\nConform\u00e9ment au d\u00e9cret n\u00b0\u00a02018\u20111350 du 28\u00a0d\u00e9cembre\u00a02018 relatif \u00e0 la publication sous forme \u00e9lectronique des informations portant sur les valeurs fonci\u00e8res d\u00e9clar\u00e9es \u00e0 l\u2019occasion des mutations immobili\u00e8res, le pr\u00e9sent fichier DVF est d\u00e9sormais disponible en open data.\nLa publication de ces donn\u00e9es r\u00e9pond \u00e0 l\u2019objectif de transparence des march\u00e9s fonciers et immobiliers.\n\n**Le fichier DVF contient des donn\u00e9es \u00e0 caract\u00e8re personnel et la DGFiP attire votre attention sur les obligations l\u00e9gales qui en d\u00e9coulent :**\n\u2022 L\u2019article R112 A-3 du Livre des proc\u00e9dures fiscales pr\u00e9voit que l\u2019utilisation de ces fichiers ne doit pas permettre la r\u00e9-identification des personnes concern\u00e9es, de mani\u00e8re indirecte.\n\u2022 La r\u00e9utilisation des donn\u00e9es ne doit pas permettre l\u2019indexation des donn\u00e9es depuis les moteurs de recherche externes.\n\nVeuillez lire attentivement les Conditions g\u00e9n\u00e9rales d\u2019utilisation.\n\n### Qu\u2019est-ce que DVF\u00a0?\n\nLe pr\u00e9sent jeu de donn\u00e9es \u00ab\u00a0Demandes de valeurs fonci\u00e8res\u00a0\u00bb, publi\u00e9 et produit par la direction g\u00e9n\u00e9rale des finances publiques, permet de conna\u00eetre les transactions immobili\u00e8res intervenues au cours des cinq derni\u00e8res ann\u00e9es sur le territoire m\u00e9tropolitain et les DOM-TOM, **\u00e0 l\u2019exception de l\u2019Alsace, de la Moselle et de Mayotte**. Les donn\u00e9es contenues sont issues des actes notari\u00e9s et des informations cadastrales\n\n### Pr\u00e9sentation des fichiers\n\nLes fichiers correspondant chacun \u00e0 un mill\u00e9sime sont mis \u00e0 disposition au format.txt. sur cinq ans. Ils peuvent \u00eatre lus par deux logiciels\u00a0:\n\u2022 Notepad++\n\u2022 Classeur excel ou calc avec le s\u00e9parateur suivant\u00a0: | (CTRL 6)\nUne notice explicative accompagne les fichiers, ainsi que les conditions g\u00e9n\u00e9rales d\u2019utilisation et un document d\u2019information \u00e0 l\u2019attention des acqu\u00e9reurs.\n\n\u26a0 Attention, les fichiers sont volumineux.\n\n### Mise \u00e0 jour des fichiers\n\nLes fichiers mis \u00e0 disposition font l\u2019objet d\u2019une mise \u00e0 jour semestrielle, en avril et en octobre.\nChaque mise \u00e0 jour supprime puis remplace la totalit\u00e9 des fichiers pr\u00e9c\u00e9demment publi\u00e9s.\n\n\u26a0 Point d\u2019attention\u00a0: les fichiers sont aliment\u00e9s par les donn\u00e9es saisies dans les services de la publicit\u00e9 fonci\u00e8re de la DGFiP et \u00e0 chaque mise \u00e0 jour de nouvelles transactions sont susceptibles d\u2019\u00eatre ajout\u00e9es dans tous les mill\u00e9simes en fonction de la date de mutation.\n\nLa derni\u00e8re mise \u00e0 jour date du **12 octobre 2026**.\n\n### Contact\n\nPour toute demande d\u2019information ou toute erreur d\u00e9tect\u00e9e, veuillez envoyer un courriel \u00e0 l\u2019adresse suivante\u00a0: **dvf\\[at]dgfip.finances.gouv.fr**\n", "description_short": null, "doi": null, "extras": {"recommendations-externals": [{"id": "https://explore.data.gouv.fr/immobilier", "messages": {"en": {"button": "Visit the \u00ab\u00a0Demandes de valeur fonci\u00e8re (DVF)\u00a0\u00bb app", "message": "The \u00ab\u00a0Donn\u00e9es de valeur fonci\u00e8re (DVF)\u00a0\u00bb app allows you to easily find information on sold properties from the Direction g\u00e9n\u00e9rale des finances publiques base.", "title": "Are you looking for a property\u2019s sale price\u00a0?"}, "fr": {"button": "Consulter l\u2019application \u00ab\u00a0Donn\u00e9es de valeur fonci\u00e8re (DVF)\u00a0\u00bb", "message": "L\u2019application \u00ab\u00a0Donn\u00e9es de valeur fonci\u00e8re (DVF)\u00a0\u00bb vous permet d\u2019acc\u00e9der \u00e0 une information claire sur les biens vendus issus de la base de la Direction g\u00e9n\u00e9rale des finances publiques.", "title": "Vous cherchez le prix de vente d\u2019un bien immobilier\u00a0ou d\u2019un terrain ?"}}, "score": 50, "source": "edito"}, {"id": "https://app.dvf.etalab.gouv.fr/", "messages": {"en": {"button": "Visit the \u00ab\u00a0Demandes de valeur fonci\u00e8re (DVF)\u00a0\u00bb app", "message": "The \u00ab\u00a0Donn\u00e9es de valeur fonci\u00e8re (DVF)\u00a0\u00bb app allows you to easily find information on sold properties from the Direction g\u00e9n\u00e9rale des finances publiques base.", "title": "Are you looking for a property\u2019s sale price\u00a0?"}, "fr": {"button": "Consulter l\u2019application \u00ab\u00a0Donn\u00e9es de valeur fonci\u00e8re (DVF)\u00a0\u00bb", "message": "L\u2019application \u00ab\u00a0Donn\u00e9es de valeur fonci\u00e8re (DVF)\u00a0\u00bb vous permet d\u2019acc\u00e9der \u00e0 une information claire sur les biens vendus issus de la base de la Direction g\u00e9n\u00e9rale des finances publiques.", "title": "Vous cherchez le prix de vente d\u2019un bien immobilier\u00a0ou d\u2019un terrain ?"}}, "score": 50, "source": "edito"}], "recommendations:sources": ["edito"]}, "featured": true, "frequency": "semiannual", "frequency_date": "2022-04-08T18:00:00+00:00", "geopf": null, "harvest": null, "id": "5c4ae55a634f4117716d5656", "internal": {"created_at_internal": "2019-01-25T11:30:50.573000+00:00", "last_modified_internal": "2026-10-21T15:26:17.334000+00:00"}, "last_modified": "2026-10-21T15:26:17.334000+00:00", "last_update": "2026-10-12T17:16:52.659000+00:00", "license": "lov2", "metrics": {"dataservices": 1, "discussions": 125, "discussions_open": 17, "followers": 137, "followers_by_months": {"2025-10": 0, "2
 
-### https://www.data.gouv.fr/api/1/datasets/?q=dvf%202014&page_size=10
-{"data": [{"access_audiences": [], "access_type": "open", "access_type_reason": null, "access_type_reason_category": null, "acronym": "Prix communes", "archived": null, "authorization_request_url": null, "badges": [], "contact_points": [{"contact_form": "https://terralyse.fr", "email": "contact@terralyse.fr", "id": "6a9be1666eb89eb6c16459b9", "name": "Terralyse", "organization": {"acronym": null, "badges": [], "class": "Organization", "id": "6a9aefae8b0e7038fcc11a61", "logo": "https://udata-avatars.s3.rbx.io.cloud.ovh.net/ce/79136799c24dd88f9fa12e9234ee9e.jpg", "logo_thumbnail": "https://udata-avatars.s3.rbx.io.cloud.ovh.net/ce/79136799c24dd88f9fa12e9234ee9e-100.jpg", "name": "Terralyse", "page": "https://www.data.gouv.fr/organizations/terralyse", "permissions": {"delete": false, "edit": false, "harvest": false, "members": false, "private": false}, "slug": "terralyse", "uri": "https://www.data.gouv.fr/api/1/organizations/terralyse/"}, "owner": null, "role": "contact"}], "created_at": "2026-09-08T12:59:23.762000+00:00", "deleted": null, "description": "Pour 5\u202f255 communes fran\u00e7aises, ce jeu de donn\u00e9es donne le prix m\u00e9dian au m\u00b2 des logements anciens vendus chaque ann\u00e9e depuis 2014, appartements et maisons, le neuf \u00e0 part, avec le nombre de ventes, et une synth\u00e8se par commune : prix de la derni\u00e8re ann\u00e9e, \u00e9volution depuis 2021, \u00e9cart au d\u00e9partement, \u00e0 la r\u00e9gion et \u00e0 la France.\n\nM\u00e9thode. Les ventes proviennent des demandes de valeurs fonci\u00e8res (DVF) publi\u00e9es par la DGFiP. Terralyse regroupe les lignes par acte, retient les ventes de logements dont la surface est comprise entre 20 et 500 m\u00b2 et le prix entre 1 000 et 50 000 \u20ac par m\u00b2, et calcule pour chaque commune et chaque ann\u00e9e le prix m\u00e9dian au m\u00b2 : la moiti\u00e9 des ventes se sont faites au-dessus, l'autre en dessous. Les prix du d\u00e9partement, de la r\u00e9gion et de la France sont calcul\u00e9s de la m\u00eame fa\u00e7on sur l'ensemble de leurs ventes de l'ann\u00e9e de r\u00e9f\u00e9rence, jamais comme une moyenne de prix communaux.\n\nP\u00e9rim\u00e8tre. Les 5\u202f255 communes qui ont une page prix immobilier sur terralyse.fr, soit 676\u202f888 logements vendus en 2025. Une m\u00e9diane n'est pas publi\u00e9e quand l'ann\u00e9e compte moins de 5 ventes. L'Alsace et la Moselle, hors DVF, sont absentes. Aucune donn\u00e9e individuelle : ni adresse, ni parcelle, ni vente isol\u00e9e.\n\nFichiers. Les s\u00e9ries annuelles, une ligne par commune et par ann\u00e9e, en un fichier national et un fichier par d\u00e9partement dans une archive. Une synth\u00e8se, une ligne par commune. Format CSV, UTF-8, s\u00e9parateur virgule, d\u00e9cimales avec un point, code INSEE de chaque commune. Un dictionnaire des donn\u00e9es d\u00e9crit chaque colonne.\n\nLes m\u00eames chiffres sont consultables commune par commune sur les pages \u00ab prix immobilier \u00bb de terralyse.fr.\n\nMise \u00e0 jour du 26 octobre 2026 : le neuf \u00e0 part. Les ventes sur plan (en l'\u00e9tat futur d'ach\u00e8vement) ne comptent plus dans les prix et les nombres de ventes des logements, des appartements et des maisons, comme sur terralyse.fr depuis le 23 octobre. Les ann\u00e9es 2014 \u00e0 2020 les excluaient d\u00e9j\u00e0.\n\nSource amont : DVF, demandes de valeurs fonci\u00e8res (DGFiP), Licence Ouverte 2.0.\nProduit par Terralyse, terralyse.fr. Mise \u00e0 jour semestrielle. Contact : contact@terralyse.fr.\nLicence : Licence Ouverte / Open Licence 2.0 (Etalab). Toute r\u00e9utilisation mentionne \u00ab Source : Terralyse \u00bb.", "description_short": "Prix m\u00e9dian au m\u00b2 par commune et par ann\u00e9e depuis 2014, nombre de ventes, \u00e9volution depuis 2021 et \u00e9cart au d\u00e9partement, calcul\u00e9s par Terralyse sur les ventes DVF. 5\u202f255 communes.", "doi": null, "extras": {"publish_source": "data.gouv.fr:new"}, "featured": false, "frequency": "semiannual", "frequency_date": null, "geopf": null, "harvest": null, "id": "6aa006abb2dbfaef3caa5e8a", "internal": {"created_at_internal": "2026-09-08T12:59:23.762000+00:00", "last_modified_internal": "2026-10-26T11:27:38.705000+00:00"}, "last_modified": "2026-10-26T11:27:38.705000+00:00", "last_update": "2026-10-26T11:27:38.705000+00:00", "license": "lov2", "metrics": {"dataservices": 1, "discussions": 0, "discussions_open": 0, "followers": 0, "followers_by_months": 0, "resources_downloads": 1138, "reuses": 4, "reuses_by_months": {"2025-10": 0, "2025-11": 0, "2025-12": 0, "2026-01": 0, "2026-02": 0, "2026-03": 0, "2026-04": 0, "2026-05": 0, "2026-06": 0, "2026-07": 0, "2026-08": 0, "2026-09": 3, "2026-10": 1}, "views": 3786}, "organization": {"acronym": null, "badges": [], "class": "Organization", "id": "6a9aefae8b0e7038fcc11a61", "logo": "https://udata-avatars.s3.rbx.io.cloud.ovh.net/ce/79136799c24dd88f9fa12e9234ee9e.jpg", "logo_thumbnail": "https://udata-avatars.s3.rbx.io.cloud.ovh.net/ce/79136799c24dd88f9fa12e9234ee9e-100.jpg", "name": "Terralyse", "page": "https://www.data.gouv.fr/organizations/terralyse", "permissions": {"delete": false, "edit": false, "harvest": false, "members": false, "private": false}, "slug": "terralyse", "uri": "https://www.data.gouv.fr/api/1/organizations/terralyse/"}, "owner": null, "page": "https://www.data.gouv.fr/datasets/prix-immobilier-par-commune-ventes-2014-a-2025-dvf-millesime-2026", "permissions": {"delete": false, "edit": false, "edit_resources": false}, "private": false, "quality": {"all_resources_available": true, "dataset_description_quality": true, "has_open_format": true, "has_resources": true, "license": true, "resources_documentation": true, "score": 1.0, "spatial": true, "temporal_coverage": true, "update_frequency": true, "update_fulfilled_in_time": true}, "resources": [{"checksum": {"type": "sha1", "value": "9442a911156b8f6c80d3d82d82922a2f00e178c3"}, "created_at": "2026-09-08T13:10:46.854000+00:00", "description": "La docume
+### https://data.cquest.org/dgfip_dvf/LISEZ_MOI.txt
+# Données DVF (Demande de Valeur Foncière)
+
+ATTENTION, les conditions d'utilisation de ces données sont particulières !
+
+Veuillez lire les limites figurant dans 'conditions-generales-dutilisation.pdf'
+
+
+## Fichier DVF au format CSV
+
+Le fichier a été agrégé, reformatté et amélioré:
+- code_commune reconstitué (5 caractères)
+- identifiant de parcelle reconstitué (dep + commune + prefix + section + numero)
+- dates remise au format ISO (AAAA-MM-JJ)
+
+Les virgules décimales ont été remplacées par des points, le séparateur du fichier est donc la virgule, avec quote si nécessaire pour certain libellés.
+
+
+## Tables de référence des natures de terrains non bâtis
+
+Pour faciliter la réutilisation, le PDF d'origine a été transformé en 2 fichiers CSV à l'aide de Tabula.
+
+
+## API : http://api.cquest.org/dvf
+
+Il s'agit d'une micro API de démonstration qui permet d'interroger la contenu de la base DVF.
+
+Les critères de recherche:
+- code_commune = code INSEE de la commune (ex: 94068)
+- section = section cadastrale (ex: 94068000CQ)
+- numero_plan = identifiant de la parcelle, (ex: 94068000CQ0110)
+- lat + lon + dist (optionnel): pour une recherche géographique, dist est par défaut un rayon de 500m
+- code_postal
+
+Les filtres de sélection complémentaires:
+- nature_mutation (Vente, etc)
+- type_local (Maison, Appartement, Local, Dépendance)
+
+Exemples:
+
+- http://api.cquest.org/dvf?code_commune=94068
+- http://api.cquest.org/dvf?section=94068000CQ
+- http://api.cquest.org/dvf?numero_plan=94068000CQ0110
+- http://api.cquest.org/dvf?lat=48.85&lon=2.35&dist=200
+- http://api.cquest.org/dvf?code_postal=89110&type_local=Maison
+
+Le résultat est retourné au format JSON et GeoJSON pour la recherche géographique.
+
+L'API est aussi accessible en HTTPS.
+
+
+## Exemple d'utilisation de l'API: carte uMap
+
+Carte dynamique disponible sur:
+
+https://umap.openstreetmap.fr/fr/map/exploration-donnees-dvf_318471
+
+Elle est alimentée en interrogeant l'API pour récupérer les maisons, appartements et locaux dans un rayon de 500m autour du centre de la carte.
+
+ 
+2019-04-25
+
+
+### https://data.cquest.org/dgfip_dvf/dvf-2014-2018.csv.gz
+code_service_ch,reference_document,articles_1,articles_2,articles_3,articles_4,articles_5,numero_disposition,date_mutation,nature_mutation,valeur_fonciere,numero_voie,suffixe_numero,type_voie,code_voie,voie,code_postal,commune,code_departement,code_commune,prefixe_section,section,numero_plan,numero_volume,lot_1,surface_lot_1,lot_2,surface_lot_2,lot_3,surface_lot_3,lot_4,surface_lot_4,lot_5,surface_lot_51,nombre_lots,code_type_local,type_local,identifiant_local,surface_relle_bati,nombre_pieces_principales,nature_culture,nature_culture_speciale,surface_terrain
+,,,,,,,000001,2014-01-07,Vente,167500,,,,,,,ROQUEMAURE,30,30221,,AH,30221000AH1463,2,,,,,,,,,,,0,,,,,,,,
+,,,,,,,000005,2015-08-04,Vente,159451,,,,,,,VOLX,04,04245,,AK,04245000AK0488,1,,,,,,,,,,,0,,,,,,,,
+,,,,,,,000001,2015-12-11,Vente,85000,,,,,,,LE TEIL,07,07319,,BD,07319000BD0376,2,,,,,,,,,,,0,,,,,,,,
+,,,,,,,000001,2016-05-27,Vente,141000,,,,,,,DIJON,21,21231,,CY,21231000CY0343,4,,,,,,,,,,,0,,,,,,,,
+,,,,,,,000001,2016-08-24,Vente,1,,,,,,,LIMERAY,37,37131,,B,371310000B2378,3,,,,,,,,,,,0,,,,,,,,
+,,,,,,,000001,2016-07-22,Vente,450000,,,,,,,CHATEAU GONTIER,53,53062,,AM,53062000AM1164,3,,,,,,,,,,,0,,,,,,,,
+,,,,,,,000001,2016-12-22,Vente,1200541,,,,,,,CHAMALIERES,63,63075,,AH,63075000AH0068,1,,,,,,,,,,,0,,,,,,,,
+,,,,,,,000001,2017-08-08,Vente,105000,,,,,,,CALMONT,31,31100,,AK,31100000AK0507,2,,,,,,,,,,,0,,,,,,,,
+,,,,,,,000001,2017-06-02,Vente,353507.56,,,,,,,MERIGNAC,33,33281,,AS,33281000AS0179,4,,,,,,,,,,,0,,,,,,,,
+,,,,,,,000001,2017-01-04,Vente,,,,,,,,RENNES,35,35238,,BY,35238000BY0049,40,,,,,,,,,,,0,,,,,,,,
+,,,,,,,000001,2018-03-29,Vente,61300,,,,,,,BRIVE LA GAILLARDE,19,19031,,BM,19031000BM0033,7,,,,,,,,,,,0,,,,,,,,
+,,,,,,,000001,2018-02-27,Vente,1550139.6,,,,,,,MARZY,58,58160,,AS,58160000AS0010,22,,,,,,,,,,,0,,,,,,,,
+,,,,,,,000001,2018-01-19,Vente,50000,,,,B033,VAUX,69840,JULIENAS,69,69103,,A,691030000A1411,2,,,,,,,,,,,0,,,,,,,,
+,,,,,,,000001,2014-09-16,Vente,10000,,,,B029,,,,07,07336,,B,073360000B0602,,,,,,,,,,,,0,,,,,,VI,,3790
+,,,,,,,000001,2014-02-10,Vente,59400,,,,B136,LE POTAY,1370,MEILLONNAS,01,01241,,F,012410000F0768,,,,,,,,,,,,0,,,,,,P,,594
+,,,,,,,000001,2014-02-27,Vente,73000,,,,B026,PILLEBOIS,1340,MALAFRETAZ,01,01229,,B,012290000B1215,,,,,,,,,,,,0,,,,,,AB,,750
+,,,,,,,000001,2014-10-02,Vente,7385,,,,B055,,,,07,07230,,B,072300000B0605,,,,,,,,,,,,0,,,,,,L,,2250
+,,,,,,,000001,2014-06-02,Vente,72000,,,,B037,LA JAYR,1250,MONTAGNAT,01,01254,,BK,01254000BK0014,,,,,,,,,,,,0,,,,,,T,,936
+,,,,,,,000001,2014-06-03,Vente,96720,,,,B044,CORNANT,1190,ST ETIENNE-SUR-REYSSOUZE,01,01352,,A,013520000A0771,,,,,,,,,,,,0,,,,,,S,,1114
+,,,,,,,000001,2014-07-11,Vente,8000,,,,B100,RIVET,1270,DOMSURE,01,01147,,ZK,01147000ZK0113,,,,,,,,,,,,0,,,,,,T,,2675
+,,,,,,,000001,2014-09-03,Vente,5346,,,,B008,BEAU SERIN,1190,ARBIGNY,01,01016,,ZH,01016000ZH0187,,,,,,,,,,,,0,,,,,,T,,6620
+,,,,,,,000001,2014-10-02,Vente,49000,,,,B013,LA GOUILLE,1380,SAINT-ANDRE-DE-BAGE,01,01332,,A,013320000A1799,,,,,,,,,,,,0,,,,,,AB,,348
+,,,,,
