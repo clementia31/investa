@@ -1,0 +1,3372 @@
+{
+ "datagouv": {
+  "statistiques dvf": [
+   {
+    "title": "Statistiques DVF",
+    "slug": "statistiques-dvf",
+    "org": "data.gouv.fr",
+    "updated": "2026-10-21T10:26:57+00:00",
+    "resources": [
+     {
+      "title": "Statistiques totales DVF",
+      "url": "https://data-pipeline-open.s3.sbg.io.cloud.ovh.net/dvf/stats_whole_period.csv",
+      "format": "csv",
+      "size": 30643518
+     },
+     {
+      "title": "Statistiques mensuelles DVF",
+      "url": "https://data-pipeline-open.s3.sbg.io.cloud.ovh.net/dvf/stats_dvf.csv",
+      "format": "csv",
+      "size": 271826428
+     }
+    ]
+   },
+   {
+    "title": "Statistiques des mutations immobilières à la commune et au sous-quartier (DVF)",
+    "slug": "statistiques-des-mutations-immobilieres-a-la-commune-et-au-sous-quartier-dvf",
+    "org": "Rennes Métropole en accès libre",
+    "updated": "2023-06-01T00:00:00+00:00",
+    "resources": [
+     {
+      "title": "statistique_mutation_immobiliere_dvf_rm.csv",
+      "url": "https://data.rennesmetropole.fr/api/explore/v2.1/catalog/datasets/statistique_mutation_immobiliere_dvf_rm/exports/csv?use_labels=true",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "statistique_mutation_immobiliere_dvf_rm.json",
+      "url": "https://data.rennesmetropole.fr/api/explore/v2.1/catalog/datasets/statistique_mutation_immobiliere_dvf_rm/exports/json",
+      "format": "json",
+      "size": null
+     },
+     {
+      "title": "statistique_mutation_immobiliere_dvf_rm.geojson",
+      "url": "https://data.rennesmetropole.fr/api/explore/v2.1/catalog/datasets/statistique_mutation_immobiliere_dvf_rm/exports/geojson",
+      "format": "json",
+      "size": null
+     },
+     {
+      "title": "statistique_mutation_immobiliere_dvf_rm.zip",
+      "url": "https://data.rennesmetropole.fr/api/explore/v2.1/catalog/datasets/statistique_mutation_immobiliere_dvf_rm/exports/shp",
+      "format": "zip",
+      "size": null
+     }
+    ]
+   }
+  ],
+  "demandes de valeurs foncieres geolocalisees": [
+   {
+    "title": "Demandes de valeurs foncières géolocalisées sur le territoire de Saintes Grandes Rives, l'Agglo",
+    "slug": "demandes-de-valeurs-foncieres-geolocalisees-sur-le-territoire-de-saintes-grandes-rives-lagglo",
+    "org": "Saintes Grandes Rives, l'Agglo",
+    "updated": "2026-11-06T16:39:39.900000+00:00",
+    "resources": [
+     {
+      "title": "Consultez les données",
+      "url": "https://opendata.agglo-saintes.fr/datasets/demandes-de-valeurs-foncieres-geolocalisees",
+      "format": "page web",
+      "size": null
+     },
+     {
+      "title": "Documentation de l'API",
+      "url": "https://opendata.agglo-saintes.fr/datasets/demandes-de-valeurs-foncieres-geolocalisees/api-doc",
+      "format": "page web",
+      "size": null
+     }
+    ]
+   },
+   {
+    "title": "Demandes de valeurs foncières géolocalisées",
+    "slug": "demandes-de-valeurs-foncieres-geolocalisees",
+    "org": "data.gouv.fr",
+    "updated": "2026-10-29T15:45:06.762000+00:00",
+    "resources": [
+     {
+      "title": "DVF 2021 (2nd semestre)",
+      "url": "https://static.data.gouv.fr/resources/demandes-de-valeurs-foncieres-geolocalisees/20261020-113024/full-2021-s2.csv.gz",
+      "format": "csv.gz",
+      "size": 75478922
+     },
+     {
+      "title": "DVF 2022",
+      "url": "https://static.data.gouv.fr/resources/demandes-de-valeurs-foncieres-geolocalisees/20261020-114218/full-2022.csv.gz",
+      "format": "csv.gz",
+      "size": 141270325
+     },
+     {
+      "title": "DVF 2023",
+      "url": "https://static.data.gouv.fr/resources/demandes-de-valeurs-foncieres-geolocalisees/20261020-114336/full-2023.csv.gz",
+      "format": "csv.gz",
+      "size": 117378804
+     },
+     {
+      "title": "DVF 2024",
+      "url": "https://static.data.gouv.fr/resources/demandes-de-valeurs-foncieres-geolocalisees/20261020-114532/full-2024.csv.gz",
+      "format": "csv.gz",
+      "size": 107356846
+     },
+     {
+      "title": "DVF 2025",
+      "url": "https://static.data.gouv.fr/resources/demandes-de-valeurs-foncieres-geolocalisees/20261020-114721/full-2025.csv.gz",
+      "format": "csv.gz",
+      "size": 116267867
+     },
+     {
+      "title": "DVF 2026 (1er semestre)",
+      "url": "https://static.data.gouv.fr/resources/demandes-de-valeurs-foncieres-geolocalisees/20261020-114825/full-2026-s1.csv.gz",
+      "format": "csv.gz",
+      "size": 51711646
+     },
+     {
+      "title": "DVF juillet 2021 - juin 2026 - fichier unique",
+      "url": "https://static.data.gouv.fr/resources/demandes-de-valeurs-foncieres-geolocalisees/20261021-085741/dvf.csv.gz",
+      "format": "csv.gz",
+      "size": 609458453
+     },
+     {
+      "title": "Documentation des données sources",
+      "url": "https://www.data.gouv.fr/fr/datasets/demandes-de-valeurs-foncieres/#/resources/d573456c-76eb-4276-b91c-e6b9c89d6656",
+      "format": "url",
+      "size": null
+     },
+     {
+      "title": "[ARCHIVE] Données au format CSV - livraison avril - suppression au 31/11/2026",
+      "url": "https://files.data.gouv.fr/geo-dvf/latest/csv/",
+      "format": "url",
+      "size": null
+     }
+    ]
+   }
+  ],
+  "carte des loyers": [
+   {
+    "title": "\"Carte des loyers\" - Indicateurs de loyers d'annonce par commune en 2025",
+    "slug": "carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2025",
+    "org": "Ministère de la Transition écologique",
+    "updated": "2025-12-11T14:58:19.899000+00:00",
+    "resources": [
+     {
+      "title": "Note méthodologique",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2025/20251211-145128/note-methodologique.pdf",
+      "format": "pdf",
+      "size": 1387581
+     },
+     {
+      "title": "Guide d'utilisation des données - Dictionnaire de variables",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2025/20251211-145105/guide-dutilisation-des-donnees.pdf",
+      "format": "pdf",
+      "size": 203461
+     },
+     {
+      "title": "Indicateurs de loyer appartement",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2025/20251211-145010/pred-app-mef-dhup.csv",
+      "format": "csv",
+      "size": 4774352
+     },
+     {
+      "title": "Indicateur de loyer appartement de 1 ou 2 pièces",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2025/20251211-144934/pred-app12-mef-dhup.csv",
+      "format": "csv",
+      "size": 4754556
+     },
+     {
+      "title": "Indicateur de loyer appartement de 3 pièces ou plus",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2025/20251211-144951/pred-app3-mef-dhup.csv",
+      "format": "csv",
+      "size": 4757613
+     },
+     {
+      "title": "Indicateurs de loyer maison",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2025/20251211-145039/pred-mai-mef-dhup.csv",
+      "format": "csv",
+      "size": 4763456
+     }
+    ]
+   },
+   {
+    "title": "\"Carte des loyers\" - Indicateurs de loyers d'annonce par commune en 2023",
+    "slug": "carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2023",
+    "org": "Ministère de la Transition écologique",
+    "updated": "2024-01-15T15:25:55.784000+00:00",
+    "resources": [
+     {
+      "title": "FAQ - la carte des loyers en 5 questions",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2023/20231219-154701/la-carte-des-loyers-en-5-questions.pdf",
+      "format": "pdf",
+      "size": 113932
+     },
+     {
+      "title": "Indicateurs de loyer maison",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2023/20240115-134640/pred-mai-mef-dhup.csv",
+      "format": "csv",
+      "size": 4771387
+     },
+     {
+      "title": "Indicateurs de loyer appartement de 3 pièces et plus",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2023/20240115-134704/pred-app3-mef-dhup.csv",
+      "format": "csv",
+      "size": 4765662
+     },
+     {
+      "title": "Indicateurs de loyer appartement de 1 ou 2 pièces",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2023/20240115-134722/pred-app12-mef-dhup.csv",
+      "format": "csv",
+      "size": 4761305
+     },
+     {
+      "title": "Indicateurs de loyer appartement",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2023/20240115-134743/pred-app-mef-dhup.csv",
+      "format": "csv",
+      "size": 4781973
+     },
+     {
+      "title": "Note méthodologique détaillée",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2023/20231219-155221/note-methodologique-loyers.pdf",
+      "format": "pdf",
+      "size": 2137488
+     },
+     {
+      "title": "Guide d'utilisation des données - dictionnaire des variables",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2023/20231219-155251/guide-dutilisation-des-donnees.pdf",
+      "format": "pdf",
+      "size": 586455
+     }
+    ]
+   },
+   {
+    "title": " \"Carte des loyers\" - Indicateurs de loyers d'annonce par commune en 2022",
+    "slug": "carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2022",
+    "org": "Ministère de la Transition écologique",
+    "updated": "2023-01-10T16:45:28.635000+00:00",
+    "resources": [
+     {
+      "title": "FAQ - la carte des loyers en 5 questions",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2022/20221223-114653/faq-la-carte-des-loyers-en-5-questions.pdf",
+      "format": "pdf",
+      "size": 437034
+     },
+     {
+      "title": "Indicateurs de loyer maison",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2022/20221216-154025/pred-mai-mef-dhup.csv",
+      "format": "csv",
+      "size": 4768542
+     },
+     {
+      "title": "Indicateurs de loyer appartement de 3 pièces et plus",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2022/20221216-154012/pred-app3-mef-dhup.csv",
+      "format": "csv",
+      "size": 4764073
+     },
+     {
+      "title": "Indicateurs de loyer appartement de 1 ou 2 pièces",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2022/20221216-154001/pred-app12-mef-dhup.csv",
+      "format": "csv",
+      "size": 4759897
+     },
+     {
+      "title": "Indicateurs de loyer appartement",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2022/20221216-153948/pred-app-mef-dhup.csv",
+      "format": "csv",
+      "size": 4780034
+     },
+     {
+      "title": "Note méthodologique détaillée",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2022/20221216-153508/note-methodologique-loyers-2022.pdf",
+      "format": "pdf",
+      "size": 1972569
+     },
+     {
+      "title": "Guide d'utilisation des données - dictionnaire des variables",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2022/20230110-164455/guide-dutilisation-des-donnees-dictionnaire-des-variables.pdf",
+      "format": "pdf",
+      "size": 586589
+     }
+    ]
+   },
+   {
+    "title": "\"Carte des loyers\" - Indicateurs de loyers d'annonce par commune en 2018",
+    "slug": "carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2018",
+    "org": "Ministère de la Transition écologique",
+    "updated": "2020-12-03T11:46:19.622000+00:00",
+    "resources": [
+     {
+      "title": "indicateurs-loyers-appartements.csv",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2018/20201203-114600/indicateurs-loyers-appartements.csv",
+      "format": "csv",
+      "size": 3600417
+     },
+     {
+      "title": "indicateurs-loyers-maisons.csv",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2018/20201203-114457/indicateurs-loyers-maisons.csv",
+      "format": "csv",
+      "size": 3570356
+     },
+     {
+      "title": "note-methodologique-loyers.pdf",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2018/20201202-171816/note-methodologique-loyers.pdf",
+      "format": "pdf",
+      "size": 1727913
+     },
+     {
+      "title": "dictionnaire-variables.pdf",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2018/20201202-171450/dictionnaire-variables.pdf",
+      "format": "pdf",
+      "size": 233905
+     }
+    ]
+   },
+   {
+    "title": "\"Carte des loyers\" - Indicateurs de loyers d'annonce par commune en 2024",
+    "slug": "carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2024",
+    "org": "Ministère de la Transition écologique",
+    "updated": "2024-12-23T09:20:47.479000+00:00",
+    "resources": [
+     {
+      "title": "Indicateurs de loyer appartement",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2024/20241205-153050/pred-app-mef-dhup.csv",
+      "format": "csv",
+      "size": 4784475
+     },
+     {
+      "title": "Indicateurs de loyer appartement de 1 ou 2 pièces",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2024/20241205-153048/pred-app12-mef-dhup.csv",
+      "format": "csv",
+      "size": 4763223
+     },
+     {
+      "title": "Indicateur de loyer maison",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2024/20241205-145700/pred-mai-mef-dhup.csv",
+      "format": "csv",
+      "size": 4774721
+     },
+     {
+      "title": "Indicateur de loyer appartement de 3 pièces ou plus",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2024/20241205-145658/pred-app3-mef-dhup.csv",
+      "format": "csv",
+      "size": 4769052
+     },
+     {
+      "title": "Guide d'utilisation des données - dictionnaire des variables",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2024/20241205-145624/guide-dutilisation-des-donnees.pdf",
+      "format": "pdf",
+      "size": 586361
+     },
+     {
+      "title": "Note méthodologique détaillée",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2024/20241205-145552/note-methodologique-loyers-vf.pdf",
+      "format": "pdf",
+      "size": 2235502
+     },
+     {
+      "title": "FAQ - la carte des loyers en 5 questions",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2024/20241223-092028/la-carte-des-loyers-en-5-questions-vf.pdf",
+      "format": "pdf",
+      "size": 112857
+     }
+    ]
+   }
+  ],
+  "indicateurs de loyers": [
+   {
+    "title": "\"Carte des loyers\" - Indicateurs de loyers d'annonce par commune en 2018",
+    "slug": "carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2018",
+    "org": "Ministère de la Transition écologique",
+    "updated": "2020-12-03T11:46:19.622000+00:00",
+    "resources": [
+     {
+      "title": "indicateurs-loyers-appartements.csv",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2018/20201203-114600/indicateurs-loyers-appartements.csv",
+      "format": "csv",
+      "size": 3600417
+     },
+     {
+      "title": "indicateurs-loyers-maisons.csv",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2018/20201203-114457/indicateurs-loyers-maisons.csv",
+      "format": "csv",
+      "size": 3570356
+     },
+     {
+      "title": "note-methodologique-loyers.pdf",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2018/20201202-171816/note-methodologique-loyers.pdf",
+      "format": "pdf",
+      "size": 1727913
+     },
+     {
+      "title": "dictionnaire-variables.pdf",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2018/20201202-171450/dictionnaire-variables.pdf",
+      "format": "pdf",
+      "size": 233905
+     }
+    ]
+   },
+   {
+    "title": "\"Carte des loyers\" - Indicateurs de loyers d'annonce par commune en 2024",
+    "slug": "carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2024",
+    "org": "Ministère de la Transition écologique",
+    "updated": "2024-12-23T09:20:47.479000+00:00",
+    "resources": [
+     {
+      "title": "Indicateurs de loyer appartement",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2024/20241205-153050/pred-app-mef-dhup.csv",
+      "format": "csv",
+      "size": 4784475
+     },
+     {
+      "title": "Indicateurs de loyer appartement de 1 ou 2 pièces",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2024/20241205-153048/pred-app12-mef-dhup.csv",
+      "format": "csv",
+      "size": 4763223
+     },
+     {
+      "title": "Indicateur de loyer maison",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2024/20241205-145700/pred-mai-mef-dhup.csv",
+      "format": "csv",
+      "size": 4774721
+     },
+     {
+      "title": "Indicateur de loyer appartement de 3 pièces ou plus",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2024/20241205-145658/pred-app3-mef-dhup.csv",
+      "format": "csv",
+      "size": 4769052
+     },
+     {
+      "title": "Guide d'utilisation des données - dictionnaire des variables",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2024/20241205-145624/guide-dutilisation-des-donnees.pdf",
+      "format": "pdf",
+      "size": 586361
+     },
+     {
+      "title": "Note méthodologique détaillée",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2024/20241205-145552/note-methodologique-loyers-vf.pdf",
+      "format": "pdf",
+      "size": 2235502
+     },
+     {
+      "title": "FAQ - la carte des loyers en 5 questions",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2024/20241223-092028/la-carte-des-loyers-en-5-questions-vf.pdf",
+      "format": "pdf",
+      "size": 112857
+     }
+    ]
+   },
+   {
+    "title": " \"Carte des loyers\" - Indicateurs de loyers d'annonce par commune en 2022",
+    "slug": "carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2022",
+    "org": "Ministère de la Transition écologique",
+    "updated": "2023-01-10T16:45:28.635000+00:00",
+    "resources": [
+     {
+      "title": "FAQ - la carte des loyers en 5 questions",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2022/20221223-114653/faq-la-carte-des-loyers-en-5-questions.pdf",
+      "format": "pdf",
+      "size": 437034
+     },
+     {
+      "title": "Indicateurs de loyer maison",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2022/20221216-154025/pred-mai-mef-dhup.csv",
+      "format": "csv",
+      "size": 4768542
+     },
+     {
+      "title": "Indicateurs de loyer appartement de 3 pièces et plus",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2022/20221216-154012/pred-app3-mef-dhup.csv",
+      "format": "csv",
+      "size": 4764073
+     },
+     {
+      "title": "Indicateurs de loyer appartement de 1 ou 2 pièces",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2022/20221216-154001/pred-app12-mef-dhup.csv",
+      "format": "csv",
+      "size": 4759897
+     },
+     {
+      "title": "Indicateurs de loyer appartement",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2022/20221216-153948/pred-app-mef-dhup.csv",
+      "format": "csv",
+      "size": 4780034
+     },
+     {
+      "title": "Note méthodologique détaillée",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2022/20221216-153508/note-methodologique-loyers-2022.pdf",
+      "format": "pdf",
+      "size": 1972569
+     },
+     {
+      "title": "Guide d'utilisation des données - dictionnaire des variables",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2022/20230110-164455/guide-dutilisation-des-donnees-dictionnaire-des-variables.pdf",
+      "format": "pdf",
+      "size": 586589
+     }
+    ]
+   },
+   {
+    "title": "\"Carte des loyers\" - Indicateurs de loyers d'annonce par commune en 2023",
+    "slug": "carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2023",
+    "org": "Ministère de la Transition écologique",
+    "updated": "2024-01-15T15:25:55.784000+00:00",
+    "resources": [
+     {
+      "title": "FAQ - la carte des loyers en 5 questions",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2023/20231219-154701/la-carte-des-loyers-en-5-questions.pdf",
+      "format": "pdf",
+      "size": 113932
+     },
+     {
+      "title": "Indicateurs de loyer maison",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2023/20240115-134640/pred-mai-mef-dhup.csv",
+      "format": "csv",
+      "size": 4771387
+     },
+     {
+      "title": "Indicateurs de loyer appartement de 3 pièces et plus",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2023/20240115-134704/pred-app3-mef-dhup.csv",
+      "format": "csv",
+      "size": 4765662
+     },
+     {
+      "title": "Indicateurs de loyer appartement de 1 ou 2 pièces",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2023/20240115-134722/pred-app12-mef-dhup.csv",
+      "format": "csv",
+      "size": 4761305
+     },
+     {
+      "title": "Indicateurs de loyer appartement",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2023/20240115-134743/pred-app-mef-dhup.csv",
+      "format": "csv",
+      "size": 4781973
+     },
+     {
+      "title": "Note méthodologique détaillée",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2023/20231219-155221/note-methodologique-loyers.pdf",
+      "format": "pdf",
+      "size": 2137488
+     },
+     {
+      "title": "Guide d'utilisation des données - dictionnaire des variables",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2023/20231219-155251/guide-dutilisation-des-donnees.pdf",
+      "format": "pdf",
+      "size": 586455
+     }
+    ]
+   },
+   {
+    "title": "\"Carte des loyers\" - Indicateurs de loyers d'annonce par commune en 2025",
+    "slug": "carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2025",
+    "org": "Ministère de la Transition écologique",
+    "updated": "2025-12-11T14:58:19.899000+00:00",
+    "resources": [
+     {
+      "title": "Note méthodologique",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2025/20251211-145128/note-methodologique.pdf",
+      "format": "pdf",
+      "size": 1387581
+     },
+     {
+      "title": "Guide d'utilisation des données - Dictionnaire de variables",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2025/20251211-145105/guide-dutilisation-des-donnees.pdf",
+      "format": "pdf",
+      "size": 203461
+     },
+     {
+      "title": "Indicateurs de loyer appartement",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2025/20251211-145010/pred-app-mef-dhup.csv",
+      "format": "csv",
+      "size": 4774352
+     },
+     {
+      "title": "Indicateur de loyer appartement de 1 ou 2 pièces",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2025/20251211-144934/pred-app12-mef-dhup.csv",
+      "format": "csv",
+      "size": 4754556
+     },
+     {
+      "title": "Indicateur de loyer appartement de 3 pièces ou plus",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2025/20251211-144951/pred-app3-mef-dhup.csv",
+      "format": "csv",
+      "size": 4757613
+     },
+     {
+      "title": "Indicateurs de loyer maison",
+      "url": "https://static.data.gouv.fr/resources/carte-des-loyers-indicateurs-de-loyers-dannonce-par-commune-en-2025/20251211-145039/pred-mai-mef-dhup.csv",
+      "format": "csv",
+      "size": 4763456
+     }
+    ]
+   },
+   {
+    "title": "Indicateurs loyers des maisons 76 par commune 2023",
+    "slug": "indicateurs-loyers-des-maisons-76-par-commune-2023",
+    "org": "Département de la Seine-Maritime",
+    "updated": "2023-12-20T00:00:00+00:00",
+    "resources": [
+     {
+      "title": "ArcGIS Hub Dataset",
+      "url": "https://www.opendata76.fr/maps/seine-maritime::indicateurs-loyers-des-maisons-76-par-commune-2023",
+      "format": "web page",
+      "size": null
+     },
+     {
+      "title": "ArcGIS GeoService",
+      "url": "https://services-eu1.arcgis.com/Nt9PzCzX9tz2k5Lq/arcgis/rest/services/Indicateurs_loyers_maisons_76_par_commune_2023/FeatureServer/0",
+      "format": "arcgis geoservices rest api",
+      "size": null
+     },
+     {
+      "title": "CSV",
+      "url": "https://www.opendata76.fr/datasets/seine-maritime::indicateurs-loyers-des-maisons-76-par-commune-2023.csv?where=1=1&outSR=%7B%22latestWkid%22%3A3857%2C%22wkid%22%3A102100%7D",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "GeoJSON",
+      "url": "https://www.opendata76.fr/datasets/seine-maritime::indicateurs-loyers-des-maisons-76-par-commune-2023.geojson?where=1=1&outSR=%7B%22latestWkid%22%3A3857%2C%22wkid%22%3A102100%7D",
+      "format": "geojson",
+      "size": null
+     },
+     {
+      "title": "Shapefile",
+      "url": "https://www.opendata76.fr/datasets/seine-maritime::indicateurs-loyers-des-maisons-76-par-commune-2023.zip?where=1=1&outSR=%7B%22latestWkid%22%3A3857%2C%22wkid%22%3A102100%7D",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "KML",
+      "url": "https://www.opendata76.fr/datasets/seine-maritime::indicateurs-loyers-des-maisons-76-par-commune-2023.kml?where=1=1&outSR=%7B%22latestWkid%22%3A3857%2C%22wkid%22%3A102100%7D",
+      "format": "kml",
+      "size": null
+     },
+     {
+      "title": "CSV",
+      "url": "https://www.opendata76.fr/api/download/v1/items/361704571e554c6f95b22cb21176aa73/csv?layers=0",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "GeoJSON",
+      "url": "https://www.opendata76.fr/api/download/v1/items/361704571e554c6f95b22cb21176aa73/geojson?layers=0",
+      "format": "geojson",
+      "size": null
+     },
+     {
+      "title": "Shapefile",
+      "url": "https://www.opendata76.fr/api/download/v1/items/361704571e554c6f95b22cb21176aa73/shapefile?layers=0",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "KML",
+      "url": "https://www.opendata76.fr/api/download/v1/items/361704571e554c6f95b22cb21176aa73/kml?layers=0",
+      "format": "kml",
+      "size": null
+     },
+     {
+      "title": "ArcGIS Hub Dataset",
+      "url": "https://www.opendata76.fr/datasets/seine-maritime::indicateurs-loyers-des-maisons-76-par-commune-2023",
+      "format": "web page",
+      "size": null
+     }
+    ]
+   }
+  ],
+  "taux taxe fonciere communes": [
+   {
+    "title": "Taxe foncière 2025 : taux global réel des 1 266 communes d'Île-de-France",
+    "slug": "taxe-fonciere-2025-taux-global-reel-des-1-266-communes-dile-de-france",
+    "org": null,
+    "updated": "2026-08-20T11:43:28+00:00",
+    "resources": [
+     {
+      "title": "Taxe foncière 2025 — 1 266 communes d'Île-de-France (CSV)",
+      "url": "https://decodeur-taxe-fonciere.fr/taxe-fonciere-idf-2025.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Dictionnaire des colonnes (CSV)",
+      "url": "https://decodeur-taxe-fonciere.fr/taxe-fonciere-idf-2025-description.csv",
+      "format": "csv",
+      "size": null
+     }
+    ]
+   }
+  ],
+  "fiscalite locale des particuliers": [
+   {
+    "title": "Fiscalité locale des particuliers",
+    "slug": "fiscalite-locale-des-particuliers",
+    "org": "Ministères économiques et financiers",
+    "updated": "2026-05-21T15:52:39.774000+00:00",
+    "resources": [
+     {
+      "title": "fiscalite-locale-des-particuliers.csv",
+      "url": "https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/fiscalite-locale-des-particuliers/exports/csv?use_labels=true",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "fiscalite-locale-des-particuliers.json",
+      "url": "https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/fiscalite-locale-des-particuliers/exports/json",
+      "format": "json",
+      "size": null
+     }
+    ]
+   },
+   {
+    "title": "Fiscalité locale des particuliers - Géo",
+    "slug": "fiscalite-locale-des-particuliers-geo",
+    "org": "Ministères économiques et financiers",
+    "updated": "2026-05-21T17:58:01.508000+00:00",
+    "resources": [
+     {
+      "title": "fiscalite-locale-des-particuliers-geo.csv",
+      "url": "https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/fiscalite-locale-des-particuliers-geo/exports/csv?use_labels=true",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "fiscalite-locale-des-particuliers-geo.json",
+      "url": "https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/fiscalite-locale-des-particuliers-geo/exports/json",
+      "format": "json",
+      "size": null
+     },
+     {
+      "title": "fiscalite-locale-des-particuliers-geo.geojson",
+      "url": "https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/fiscalite-locale-des-particuliers-geo/exports/geojson",
+      "format": "json",
+      "size": null
+     },
+     {
+      "title": "fiscalite-locale-des-particuliers-geo.zip",
+      "url": "https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/fiscalite-locale-des-particuliers-geo/exports/shp",
+      "format": "zip",
+      "size": null
+     }
+    ]
+   }
+  ],
+  "logements vacants": [
+   {
+    "title": "Nombre de Logements vacants",
+    "slug": "nombre-de-logements-vacants-idf",
+    "org": "Région Île-de-France",
+    "updated": "2014-04-22T07:38:53.897000+00:00",
+    "resources": [
+     {
+      "title": "Fichier CSV",
+      "url": "http://data.iledefrance.fr/explore/dataset/idf_RGP_logement_vacant/download?format=csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Fichier JSON",
+      "url": "http://data.iledefrance.fr/explore/dataset/idf_RGP_logement_vacant/download?format=json",
+      "format": "json",
+      "size": null
+     },
+     {
+      "title": "Fichier XLS",
+      "url": "http://data.iledefrance.fr/explore/dataset/idf_RGP_logement_vacant/download?format=xls",
+      "format": "xls",
+      "size": null
+     },
+     {
+      "title": "Fichier SHAPEFILE",
+      "url": "http://data.iledefrance.fr/explore/dataset/idf_RGP_logement_vacant/download?format=shp",
+      "format": "shp",
+      "size": null
+     }
+    ]
+   },
+   {
+    "title": "Ressources / logements vacants recensés sur oqp.io",
+    "slug": "ressources-logements-vacants-recenses-sur-oqp-io",
+    "org": null,
+    "updated": "2023-12-29T11:31:02+00:00",
+    "resources": [
+     {
+      "title": "Ressources oqp.io - HTML",
+      "url": "https://oqp.io/resources",
+      "format": null,
+      "size": null
+     },
+     {
+      "title": "Ressources oqp.io - JSON",
+      "url": "https://oqp.io/rest/resources?_format=json",
+      "format": null,
+      "size": null
+     },
+     {
+      "title": "Ressources oqp.io - HAL",
+      "url": "https://oqp.io/rest/resources?_format=hal_json",
+      "format": null,
+      "size": null
+     },
+     {
+      "title": "Ressources oqp.io - XML",
+      "url": "https://oqp.io/rest/resources?_format=xml",
+      "format": null,
+      "size": null
+     }
+    ]
+   },
+   {
+    "title": "Logements vacants de la commune - Sailly-Lez-Lannoy",
+    "slug": "logements-vacants-de-la-commune-sailly-lez-lannoy",
+    "org": "Sailly-Lez-Lannoy",
+    "updated": "2022-11-24T14:50:06.706000+00:00",
+    "resources": [
+     {
+      "title": "logements-vacants_sailly-lez-lannoy.xlsx",
+      "url": "https://static.data.gouv.fr/resources/logements-vacants-de-la-commune-sailly-lez-lannoy/20221124-144843/copie-de-logements-vacants-59522.xlsx",
+      "format": "xlsx",
+      "size": 9129
+     },
+     {
+      "title": "logements-vacants_sailly-lez-lannoy.csv",
+      "url": "https://static.data.gouv.fr/resources/logements-vacants-de-la-commune-de-sailly-lez-lannoy/20221124-142909/ot-logements-vacants.csv",
+      "format": "csv",
+      "size": 346
+     }
+    ]
+   },
+   {
+    "title": "Communes appliquant la taxe annuelle sur les logements vacants (TLV/THLV)",
+    "slug": "communes-appliquant-la-taxe-annuelle-sur-les-logements-vacants-tlv-thlv",
+    "org": "Territoire Circulaire",
+    "updated": "2023-03-21T15:47:01.303000+00:00",
+    "resources": [
+     {
+      "title": "Communes appliquant la TLV",
+      "url": "https://static.data.gouv.fr/resources/communes-appliquant-la-taxe-annuelle-sur-les-logements-vacants/20220622-155917/tlv-com-22.csv",
+      "format": "csv",
+      "size": 2291653
+     }
+    ]
+   },
+   {
+    "title": "Référentiel des établissements pouvant accéder aux données des logements vacants - 2025",
+    "slug": "referentiel-des-etablissements-pouvant-acceder-aux-donnees-des-logements-vacants-2025",
+    "org": "Zéro Logement Vacant",
+    "updated": "2026-01-22T16:21:44.675000+00:00",
+    "resources": [
+     {
+      "title": "ref-collectivites-territoriales_zlv-25.csv",
+      "url": "https://static.data.gouv.fr/resources/referentiel-des-etablissements-pouvant-acceder-aux-donnees-des-logements-vacants-2025/20260122-150155/ref-collectivites-territoriales-zlv-25.csv",
+      "format": "csv",
+      "size": 7553600
+     },
+     {
+      "title": "ref-entites-etat_zlv-25.csv",
+      "url": "https://static.data.gouv.fr/resources/referentiel-des-etablissements-pouvant-acceder-aux-donnees-des-logements-vacants-2025/20260122-150140/ref-services-etat-zlv-25.csv",
+      "format": "csv",
+      "size": 3554166
+     },
+     {
+      "title": "dico-donnees_zlv-25.csv",
+      "url": "https://static.data.gouv.fr/resources/referentiel-des-etablissements-pouvant-acceder-aux-donnees-des-logements-vacants-2025/20260122-150135/dico-donnees-zlv-25.csv",
+      "format": "csv",
+      "size": 1698
+     }
+    ]
+   },
+   {
+    "title": "Nouvelle-Aquitaine partiel : Communes soumises à la Taxe sur les Logements Vacants (TLV) (surfacique)",
+    "slug": "nouvelle-aquitaine-partiel-communes-soumises-a-la-taxe-sur-les-logements-vacants-tlv-surfacique-2",
+    "org": "DREAL Nouvelle Aquitaine",
+    "updated": "2017-05-24T23:37:29+00:00",
+    "resources": [
+     {
+      "title": "Accès au téléchargement des données",
+      "url": "https://telechargement.sigena.fr/download/a5927edc-8591-4a1e-81b7-88e7808fc010",
+      "format": "esri shapefile (shp)",
+      "size": null
+     }
+    ]
+   },
+   {
+    "title": "Logements vacants du parc privé par commune, département, région, France, de 2020 à 2026",
+    "slug": "logements-vacants-du-parc-prive-par-commune-departement-region-france-de-2020-a-2026",
+    "org": "Ministère de la Transition écologique",
+    "updated": "2026-06-25T16:37:37.802000+00:00",
+    "resources": [
+     {
+      "title": "LOVAC open data 2020 à 2026 version xlsx",
+      "url": "https://static.data.gouv.fr/resources/logements-vacants-du-parc-prive-par-commune-departement-region-france/20260625-161303/lovac-open-data-2020-a-2026.xlsx",
+      "format": "xlsx",
+      "size": 5241537
+     },
+     {
+      "title": "Lovac_opendata_schema.csv",
+      "url": "https://static.data.gouv.fr/resources/logements-vacants-du-parc-prive-par-commune-departement-region-france/20260625-162628/lovac-opendata-metadonnees26.csv",
+      "format": "csv",
+      "size": 4096
+     },
+     {
+      "title": "Lovac_opendata_Communes.csv",
+      "url": "https://static.data.gouv.fr/resources/logements-vacants-du-parc-prive-par-commune-departement-region-france/20260625-163627/lovac-opendata-communes26.csv",
+      "format": "csv",
+      "size": 7628201
+     },
+     {
+      "title": "Lovac_opendata_Departements.csv",
+      "url": "https://static.data.gouv.fr/resources/logements-vacants-du-parc-prive-par-commune-departement-region-france/20260625-163652/lovac-opendata-departements26.csv",
+      "format": "csv",
+      "size": 31224
+     },
+     {
+      "title": "Lovac_opendata_Regions.csv",
+      "url": "https://static.data.gouv.fr/resources/logements-vacants-du-parc-prive-par-commune-departement-region-france/20260625-163718/lovac-opendata-regions26.csv",
+      "format": "csv",
+      "size": 6291
+     },
+     {
+      "title": "Lovac_opendata_France.csv",
+      "url": "https://static.data.gouv.fr/resources/logements-vacants-du-parc-prive-par-commune-departement-region-france/20260625-163737/lovac-opendata-france26.csv",
+      "format": "csv",
+      "size": 470
+     }
+    ]
+   },
+   {
+    "title": "MARCHÉ DE SERVICE DE RÉINSERTION PROFESSIONNELLE AYANT NOTAMMENT COMME SUPPORT PÉDAGOGIQUE LA RÉFECTION DE LOGEMENTS VACANTS. SUR LE TERRITOIRE DE LA COMMUNAUTÉ URBAINE D'ARRAS",
+    "slug": "marche-de-service-de-reinsertion-professionnelle-ayant-notamment-comme-support-pedagogique-la-refection-de-logements-vacants-sur-le-territoire-de-la-communaute-urbaine-darras",
+    "org": "PAS-DE-CALAIS HABITAT",
+    "updated": "2024-01-02T15:25:35.858000+00:00",
+    "resources": [
+     {
+      "title": "decp.csv",
+      "url": "https://static.data.gouv.fr/resources/marche-de-service-de-reinsertion-professionnelle-ayant-notamment-comme-support-pedagogique-la-refection-de-logements-vacants-sur-le-territoire-de-la-communaute-urbaine-darras/20240102-152533/decp.csv",
+      "format": "csv",
+      "size": 122
+     }
+    ]
+   }
+  ],
+  "code officiel geographique": [
+   {
+    "title": "Code officiel géographique",
+    "slug": "code-officiel-geographique",
+    "org": null,
+    "updated": "2015-05-30T20:59:51.273000+00:00",
+    "resources": [
+     {
+      "title": "Code officiel géographique au format datapackage",
+      "url": "https://raw.githubusercontent.com/abonnasseau/code_officiel_geographique/master/datapackage.json",
+      "format": "datapackage",
+      "size": null
+     }
+    ]
+   },
+   {
+    "title": "Code officiel géographique",
+    "slug": "code-officiel-geographique-1",
+    "org": "Institut national de la statistique et des études économiques (Insee)",
+    "updated": "2026-10-06T15:51:01.915000+00:00",
+    "resources": [
+     {
+      "title": "Millésime 2026 : Liste des modalités des fichiers téléchargeables du COG",
+      "url": "https://www.insee.fr/fr/information/8740218",
+      "format": "html",
+      "size": null
+     },
+     {
+      "title": "Millésime 2026 : Communes des collectivités et territoires français d’outre-mer depuis 1943",
+      "url": "https://www.insee.fr/fr/statistiques/fichier/8740222/v_commune_outremer_depuis_1943.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Millésime 2026 : Liste des communes des collectivités et territoires français d'outre-mer au 01/01/2026",
+      "url": "https://www.insee.fr/fr/statistiques/fichier/8740222/v_commune_comer_2026.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Millésime 2026 : Collectivités et territoires français d’outre-mer depuis 1943",
+      "url": "https://www.insee.fr/fr/statistiques/fichier/8740222/v_tom_depuis_1943.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Millésime 2026 : Liste des collectivités et territoires français d'outre-mer au 01/01/2026",
+      "url": "https://www.insee.fr/fr/statistiques/fichier/8740222/v_comer_2026.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Millésime 2026 : Communes depuis 1943",
+      "url": "https://www.insee.fr/fr/statistiques/fichier/8740222/v_commune_depuis_1943.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Millésime 2026 : Liste des événements survenus aux communes, arrondissements municipaux, communes associées et communes déléguées depuis 1943",
+      "url": "https://www.insee.fr/fr/statistiques/fichier/8740222/v_mvt_commune_2026.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Millésime 2026 : Codes extension et territoire de rattachement",
+      "url": "https://www.insee.fr/fr/statistiques/fichier/8740222/v_codes_extension_2026.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Millésime 2026 : Pays et territoires étrangers depuis 1943",
+      "url": "https://www.insee.fr/fr/statistiques/fichier/8740222/v_pays_et_territoire_depuis_1943.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Millésime 2026 : Pays et territoires étrangers au 01/01/2026",
+      "url": "https://www.insee.fr/fr/statistiques/fichier/8740222/v_pays_territoire_2026.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Millésime 2026 : Liste des collectivités territoriales ayant les compétences départementales au 01/01/2026",
+      "url": "https://www.insee.fr/fr/statistiques/fichier/8740222/v_ctcd_2026.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Millésime 2026 : Liste des régions au 01/01/2026",
+      "url": "https://www.insee.fr/fr/statistiques/fichier/8740222/v_region_2026.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Millésime 2026 : Liste des départements au 01/01/2026",
+      "url": "https://www.insee.fr/fr/statistiques/fichier/8740222/v_departement_2026.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Millésime 2026 : Liste des arrondissements au 01/01/2026",
+      "url": "https://www.insee.fr/fr/statistiques/fichier/8740222/v_arrondissement_2026.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Millésime 2026 : Liste des cantons (et pseudo-cantons) au 01/01/2026",
+      "url": "https://www.insee.fr/fr/statistiques/fichier/8740222/v_canton_2026.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Millésime 2026 : Liste des communes, arrondissements municipaux, communes déléguées et communes associées au 01/01/2026",
+      "url": "https://www.insee.fr/fr/statistiques/fichier/8740222/v_commune_2026.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Millésime 2025 : Liste des modalités des fichiers téléchargeables du COG",
+      "url": "https://www.insee.fr/fr/information/8377252",
+      "format": "html",
+      "size": null
+     },
+     {
+      "title": "Millésime 2025 : Communes des collectivités et territoires français d’outre-mer depuis 1943",
+      "url": "https://www.insee.fr/fr/statistiques/fichier/8377162/v_commune_outremer_depuis_1943.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Millésime 2025 : Liste des communes des collectivités et territoires français d'outre-mer au 01/01/2025",
+      "url": "https://www.insee.fr/fr/statistiques/fichier/8377162/v_commune_comer_2025.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Millésime 2025 : Collectivités et territoires français d’outre-mer depuis 1943",
+      "url": "https://www.insee.fr/fr/statistiques/fichier/8377162/v_tom_depuis_1943.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Millésime 2025 : Liste des collectivités et territoires français d'outre-mer au 01/01/2025",
+      "url": "https://www.insee.fr/fr/statistiques/fichier/8377162/v_comer_2025.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Millésime 2025 : Communes depuis 1943",
+      "url": "https://www.insee.fr/fr/statistiques/fichier/8377162/v_commune_depuis_1943.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Millésime 2025 : Liste des événements survenus aux communes, arrondissements municipaux, communes associées et communes déléguées depuis 1943",
+      "url": "https://www.insee.fr/fr/statistiques/fichier/8377162/v_mvt_commune_2025.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Millésime 2025 : Codes extension et territoire de rattachement",
+      "url": "https://www.insee.fr/fr/statistiques/fichier/8377162/v_codes_extension_2025.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Millésime 2025 : Pays et territoires étrangers depuis 1943",
+      "url": "https://www.insee.fr/fr/statistiques/fichier/8377162/v_pays_et_territoire_depuis_1943.csv",
+      "format": "csv",
+      "size": null
+     }
+    ]
+   },
+   {
+    "title": "Code Officiel Géographique 2024",
+    "slug": "code-officiel-geographique-2024",
+    "org": "Marc Le Bihan",
+    "updated": "2024-12-30T05:49:41.336000+00:00",
+    "resources": [
+     {
+      "title": "cog-communes-filtre-annee-2024-comd-coma-true-partition-departement-tri-commune.csv",
+      "url": "https://static.data.gouv.fr/resources/code-officiel-geographique-1/20241230-054700/cog-communes-filtre-annee-2024-comd-coma-true-partition-departement-tri-commune.csv",
+      "format": "csv",
+      "size": 6568652
+     },
+     {
+      "title": "cog-communes-filtre-annee-2024-comd-coma-true-partition-departement-tri-commune.zip",
+      "url": "https://static.data.gouv.fr/resources/code-officiel-geographique-1/20241225-112311/cog-communes-filtre-annee-2024-comd-coma-true-partition-departement-tri-commune.zip",
+      "format": "zip",
+      "size": 2248004
+     }
+    ]
+   },
+   {
+    "title": "Code officiel géographique 2018 (Bêta // PostgreSQL)",
+    "slug": "code-officiel-geographique-2018-beta-postgresql",
+    "org": null,
+    "updated": "2019-03-30T18:13:28.677000+00:00",
+    "resources": []
+   },
+   {
+    "title": "Code officiel géographique Insee 2022 : Haute-Garonne",
+    "slug": "code-officiel-geographique-insee-2022-haute-garonne",
+    "org": "Conseil départemental de la Haute-Garonne - Haute-Garonne Open Data",
+    "updated": "2022-06-07T13:22:26+00:00",
+    "resources": [
+     {
+      "title": "collectivite-territoriale-cd-haute-garonne-insee-2022.csv",
+      "url": "https://data.haute-garonne.fr/api/explore/v2.1/catalog/datasets/collectivite-territoriale-cd-haute-garonne-insee-2022/exports/csv?use_labels=true",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "collectivite-territoriale-cd-haute-garonne-insee-2022.json",
+      "url": "https://data.haute-garonne.fr/api/explore/v2.1/catalog/datasets/collectivite-territoriale-cd-haute-garonne-insee-2022/exports/json",
+      "format": "json",
+      "size": null
+     }
+    ]
+   },
+   {
+    "title": "Communes de la loi Montagne au Code Officiel Géographique (COG 2020->2022)",
+    "slug": "communes-de-la-loi-montagne-au-code-officiel-geographique-cog-2020-2022",
+    "org": "Ministère de la Cohésion des territoires",
+    "updated": "2022-04-11T14:49:01.515000+00:00",
+    "resources": [
+     {
+      "title": "Communes concernées par la loi montagne (1985) au COG 2022",
+      "url": "https://static.data.gouv.fr/resources/communes-de-la-loi-montagne-au-code-officiel-geographique-cog-2020-2022/20220323-152301/dgaln-icapp-sidauh-opendata-loi-montagne-1985-cog-2022.xlsx",
+      "format": "xlsx",
+      "size": 257936
+     },
+     {
+      "title": "Communes concernées par la loi montagne (1985) au COG 2021",
+      "url": "https://static.data.gouv.fr/resources/communes-de-la-loi-montagne-au-code-officiel-geographique-cog-2020-2022/20220323-152213/dgaln-icapp-sidauh-opendata-loi-montagne-1985-cog-2021.xlsx",
+      "format": "xlsx",
+      "size": 257852
+     },
+     {
+      "title": "Communes concernées par la loi montagne (1985) au COG 2020",
+      "url": "https://static.data.gouv.fr/resources/communes-de-la-loi-montagne-au-code-officiel-geographique-cog-2020-2022/20220323-152053/dgaln-icapp-sidauh-opendata-loi-montagne-1985-cog-2020.xlsx",
+      "format": "xlsx",
+      "size": 259753
+     },
+     {
+      "title": "Table géographique des communes concernées par la loi montagne (1985) au COG 2022",
+      "url": "https://static.data.gouv.fr/resources/communes-de-la-loi-montagne-au-code-officiel-geographique-cog-2020-2022/20220411-144742/icapp-sidauh-opendata-loi-montagne-1985-cog-2022.gpkg",
+      "format": "gpkg",
+      "size": 102518784
+     },
+     {
+      "title": "Table géographique des communes concernées par la loi montagne (1985) au COG 2021",
+      "url": "https://static.data.gouv.fr/resources/communes-de-la-loi-montagne-au-code-officiel-geographique-cog-2020-2022/20220324-104709/icapp-sidauh-opendata-loi-montagne-1985-cog-2021.gpkg",
+      "format": "gpkg",
+      "size": 30887936
+     },
+     {
+      "title": "Table géographique des communes concernées par la loi montagne (1985) au COG 2020",
+      "url": "https://static.data.gouv.fr/resources/communes-de-la-loi-montagne-au-code-officiel-geographique-cog-2020/20210122-094729/dgaln-bcsi-opendata-loi-montagne-1985-cog-2020.gpkg",
+      "format": "gpkg",
+      "size": 11272192
+     }
+    ]
+   },
+   {
+    "title": "Délimitation communale des massifs selon le décret n° 2004-69 du 16 janvier 2004 au Code Officiel Géographique (COG 2020->2022)",
+    "slug": "delimitation-communale-des-massifs-selon-le-decret-ndeg-2004-69-du-16-janvier-2004-au-code-officiel-geographique-cog-2020-2022",
+    "org": "Ministère de la Cohésion des territoires",
+    "updated": "2022-04-12T09:42:49.247000+00:00",
+    "resources": [
+     {
+      "title": "Composition communale des massifs  au COG 2022",
+      "url": "https://static.data.gouv.fr/resources/delimitation-des-massifs-selon-le-decret-ndeg-2004-69-du-16-janvier-2004-au-code-officiel-geographique-cog-2020-2022/20220323-162745/dgaln-icapp-sidauh-opendata-massif-1985-cog-2022.xlsx",
+      "format": "xlsx",
+      "size": 435708
+     },
+     {
+      "title": "Composition communale des massifs  au COG 2021",
+      "url": "https://static.data.gouv.fr/resources/delimitation-des-massifs-selon-le-decret-ndeg-2004-69-du-16-janvier-2004-au-code-officiel-geographique-cog-2020-2022/20220323-162658/dgaln-icapp-sidauh-opendata-massif-1985-cog-2021.xlsx",
+      "format": "xlsx",
+      "size": 436752
+     },
+     {
+      "title": "Composition communale des massifs  au COG 2020",
+      "url": "https://static.data.gouv.fr/resources/delimitation-des-massifs-selon-le-decret-ndeg-2004-69-du-16-janvier-2004-au-code-officiel-geographique-cog-2020-2022/20220323-162051/dgaln-icapp-sidauh-opendata-massif-1985-cog-2020.xlsx",
+      "format": "xlsx",
+      "size": 436556
+     },
+     {
+      "title": "Table géographique des communes de massif au COG 2022",
+      "url": "https://static.data.gouv.fr/resources/delimitation-communale-des-massifs-selon-le-decret-ndeg-2004-69-du-16-janvier-2004-au-code-officiel-geographique-cog-2020-2022/20220412-093952/icapp-sidauh-opendata-massifs-1985-cog-2022.gpkg",
+      "format": "gpkg",
+      "size": 145043456
+     },
+     {
+      "title": "Table géographique des communes de massif au COG 2021",
+      "url": "https://static.data.gouv.fr/resources/delimitation-communale-des-massifs-selon-le-decret-ndeg-2004-69-du-16-janvier-2004-au-code-officiel-geographique-cog-2020-2022/20220324-113145/icapp-sidauh-opendata-massifs-1985-cog-2021.gpkg",
+      "format": "gpkg",
+      "size": 45236224
+     },
+     {
+      "title": "Table géographique des communes de massif au COG 2020",
+      "url": "https://static.data.gouv.fr/resources/delimitation-communale-des-massifs-selon-le-decret-ndeg-2004-69-du-16-janvier-2004-au-code-officiel-geographique-cog-2020-2022/20220324-112946/icapp-sidauh-opendata-massifs-1985-cog-2020.gpkg",
+      "format": "gpkg",
+      "size": 16916480
+     }
+    ]
+   }
+  ],
+  "populations legales communes": [
+   {
+    "title": "Populations légales Communes et Arrondissements Municipaux - Millésimé - France",
+    "slug": "populations-legales-communes-et-arrondissements-municipaux-millesime-france",
+    "org": "Conseil départemental de l'Isère",
+    "updated": "2026-06-17T12:30:58+00:00",
+    "resources": [
+     {
+      "title": "populations-legales-communes-et-arrondissements-municipaux-millesime-france.csv",
+      "url": "https://opendata.isere.fr/api/explore/v2.1/catalog/datasets/populations-legales-communes-et-arrondissements-municipaux-millesime-france/exports/csv?use_labels=true",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "populations-legales-communes-et-arrondissements-municipaux-millesime-france.json",
+      "url": "https://opendata.isere.fr/api/explore/v2.1/catalog/datasets/populations-legales-communes-et-arrondissements-municipaux-millesime-france/exports/json",
+      "format": "json",
+      "size": null
+     }
+    ]
+   }
+  ],
+  "base permanente des equipements": [
+   {
+    "title": "Base Permanente des Equipements",
+    "slug": "base-permanente-des-equipements-3",
+    "org": "Mobility",
+    "updated": "2026-03-30T14:54:09.198000+00:00",
+    "resources": [
+     {
+      "title": "BPE24.parquet",
+      "url": "https://static.data.gouv.fr/resources/base-permanente-des-equipements-3/20260330-145351/bpe24.parquet",
+      "format": "parquet",
+      "size": 183478878
+     }
+    ]
+   },
+   {
+    "title": "Base Permanente des Equipements géolocalisée - GrandSoissons Agglomération",
+    "slug": "base-permanente-des-equipements-geolocalisee-grandsoissons-agglomeration",
+    "org": "GrandSoissons Agglomération",
+    "updated": "2025-06-27T09:48:15.219000+00:00",
+    "resources": [
+     {
+      "title": "base-permanente-des-equipements-geolocalisee-grandsoissons-agglomeration.geojson",
+      "url": "https://static.data.gouv.fr/resources/base-permanente-des-equipements-geolocalisee-grandsoissons-agglomeration/20250627-094814/base-permanente-des-equipements-geolocalisee-grandsoissons-agglomeration.geojson",
+      "format": "geojson",
+      "size": 878473
+     },
+     {
+      "title": "base-permanente-des-equipements-geolocalisee-grandsoissons-agglomeration.csv",
+      "url": "https://static.data.gouv.fr/resources/base-permanente-des-equipements-geolocalisee-grandsoissons-agglomeration/20250627-094814/base-permanente-des-equipements-geolocalisee-grandsoissons-agglomeration.csv",
+      "format": "csv",
+      "size": 414130
+     }
+    ]
+   },
+   {
+    "title": "Base Permanente des Equipements (Ensemble) géolocalisée - Orléans métropole",
+    "slug": "base-permanente-des-equipements-ensemble-geolocalisee-orleans-metropole",
+    "org": "Orléans Métropole",
+    "updated": "2020-12-01T07:54:49+00:00",
+    "resources": [
+     {
+      "title": "base-permanente-des-equipements-ensemble-geolocalisee-orleans-metropole.csv",
+      "url": "https://data.orleans-metropole.fr/api/explore/v2.1/catalog/datasets/base-permanente-des-equipements-ensemble-geolocalisee-orleans-metropole/exports/csv?use_labels=true",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "base-permanente-des-equipements-ensemble-geolocalisee-orleans-metropole.json",
+      "url": "https://data.orleans-metropole.fr/api/explore/v2.1/catalog/datasets/base-permanente-des-equipements-ensemble-geolocalisee-orleans-metropole/exports/json",
+      "format": "json",
+      "size": null
+     },
+     {
+      "title": "base-permanente-des-equipements-ensemble-geolocalisee-orleans-metropole.geojson",
+      "url": "https://data.orleans-metropole.fr/api/explore/v2.1/catalog/datasets/base-permanente-des-equipements-ensemble-geolocalisee-orleans-metropole/exports/geojson",
+      "format": "json",
+      "size": null
+     },
+     {
+      "title": "base-permanente-des-equipements-ensemble-geolocalisee-orleans-metropole.zip",
+      "url": "https://data.orleans-metropole.fr/api/explore/v2.1/catalog/datasets/base-permanente-des-equipements-ensemble-geolocalisee-orleans-metropole/exports/shp",
+      "format": "zip",
+      "size": null
+     }
+    ]
+   },
+   {
+    "title": "Base Permanente des Equipements géolocalisée - Pays de la Loire",
+    "slug": "base-permanente-des-equipements-geolocalisee-pays-de-la-loire",
+    "org": "Région des Pays de la Loire",
+    "updated": "2020-12-04T13:06:42.246000+00:00",
+    "resources": [
+     {
+      "title": "base-permanente-des-equipements-ensemble-geolocalisee-france0.csv",
+      "url": "https://data.paysdelaloire.fr/api/explore/v2.1/catalog/datasets/base-permanente-des-equipements-ensemble-geolocalisee-france0/exports/csv?use_labels=true",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "base-permanente-des-equipements-ensemble-geolocalisee-france0.json",
+      "url": "https://data.paysdelaloire.fr/api/explore/v2.1/catalog/datasets/base-permanente-des-equipements-ensemble-geolocalisee-france0/exports/json",
+      "format": "json",
+      "size": null
+     },
+     {
+      "title": "base-permanente-des-equipements-ensemble-geolocalisee-france0.geojson",
+      "url": "https://data.paysdelaloire.fr/api/explore/v2.1/catalog/datasets/base-permanente-des-equipements-ensemble-geolocalisee-france0/exports/geojson",
+      "format": "json",
+      "size": null
+     },
+     {
+      "title": "Export au format Shapefile",
+      "url": "https://data.paysdelaloire.fr/explore/dataset/base-permanente-des-equipements-ensemble-geolocalisee-france0/download?format=shp&timezone=Europe/Berlin&use_labels_for_header=false",
+      "format": "shp",
+      "size": null
+     },
+     {
+      "title": "base-permanente-des-equipements-ensemble-geolocalisee-france0.zip",
+      "url": "https://data.paysdelaloire.fr/api/explore/v2.1/catalog/datasets/base-permanente-des-equipements-ensemble-geolocalisee-france0/exports/shp",
+      "format": "zip",
+      "size": null
+     }
+    ]
+   },
+   {
+    "title": "Base Permanente des Equipements BPE 2023 Sport Loisir Culture CD76",
+    "slug": "base-permanente-des-equipements-bpe-2023-sport-loisir-culture-cd76",
+    "org": "Département de la Seine-Maritime",
+    "updated": "2024-09-11T00:00:00+00:00",
+    "resources": [
+     {
+      "title": "ArcGIS Hub Dataset",
+      "url": "https://www.opendata76.fr/datasets/seine-maritime::base-permanente-des-equipements-bpe-2023-sport-loisir-culture-cd76",
+      "format": "web page",
+      "size": null
+     },
+     {
+      "title": "ArcGIS GeoService",
+      "url": "https://services-eu1.arcgis.com/Nt9PzCzX9tz2k5Lq/arcgis/rest/services/BPE76_2023_traduite_Sport_Loisir_Culture_V3/FeatureServer/0",
+      "format": "arcgis geoservices rest api",
+      "size": null
+     },
+     {
+      "title": "CSV",
+      "url": "https://www.opendata76.fr/api/download/v1/items/8379ba73c014463784a5cca9d040b3c6/csv?layers=0",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "GeoJSON",
+      "url": "https://www.opendata76.fr/api/download/v1/items/8379ba73c014463784a5cca9d040b3c6/geojson?layers=0",
+      "format": "geojson",
+      "size": null
+     },
+     {
+      "title": "Shapefile",
+      "url": "https://www.opendata76.fr/api/download/v1/items/8379ba73c014463784a5cca9d040b3c6/shapefile?layers=0",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "KML",
+      "url": "https://www.opendata76.fr/api/download/v1/items/8379ba73c014463784a5cca9d040b3c6/kml?layers=0",
+      "format": "kml",
+      "size": null
+     },
+     {
+      "title": "File Geodatabase",
+      "url": "https://www.opendata76.fr/api/download/v1/items/8379ba73c014463784a5cca9d040b3c6/filegdb?layers=0",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Feature Collection",
+      "url": "https://www.opendata76.fr/api/download/v1/items/8379ba73c014463784a5cca9d040b3c6/featureCollection?layers=0",
+      "format": "txt",
+      "size": null
+     },
+     {
+      "title": "Excel",
+      "url": "https://www.opendata76.fr/api/download/v1/items/8379ba73c014463784a5cca9d040b3c6/excel?layers=0",
+      "format": "xlsx",
+      "size": null
+     },
+     {
+      "title": "GeoPackage",
+      "url": "https://www.opendata76.fr/api/download/v1/items/8379ba73c014463784a5cca9d040b3c6/geoPackage?layers=0",
+      "format": "gpkg",
+      "size": null
+     },
+     {
+      "title": "SQLite Geodatabase",
+      "url": "https://www.opendata76.fr/api/download/v1/items/8379ba73c014463784a5cca9d040b3c6/sqlite?layers=0",
+      "format": "gdb",
+      "size": null
+     }
+    ]
+   },
+   {
+    "title": "Base Permanente des Equipements - INSEE - 76 - Sports et Loisirs - 2020",
+    "slug": "base-permanente-des-equipements-insee-76-sports-et-loisirs-2020",
+    "org": "Département de la Seine-Maritime",
+    "updated": "2022-06-16T00:00:00+00:00",
+    "resources": [
+     {
+      "title": "ArcGIS Hub Dataset",
+      "url": "https://www.opendata76.fr/maps/seine-maritime::base-permanente-des-equipements-insee-76-sports-et-loisirs-2020",
+      "format": "web page",
+      "size": null
+     },
+     {
+      "title": "ArcGIS GeoService",
+      "url": "https://services-eu1.arcgis.com/Nt9PzCzX9tz2k5Lq/arcgis/rest/services/bpe20_76_sport_loisir_xy/FeatureServer/0",
+      "format": "arcgis geoservices rest api",
+      "size": null
+     },
+     {
+      "title": "GeoJSON",
+      "url": "https://www.opendata76.fr/datasets/seine-maritime::base-permanente-des-equipements-insee-76-sports-et-loisirs-2020.geojson?outSR=%7B%22latestWkid%22%3A3857%2C%22wkid%22%3A102100%7D",
+      "format": "geojson",
+      "size": null
+     },
+     {
+      "title": "CSV",
+      "url": "https://www.opendata76.fr/datasets/seine-maritime::base-permanente-des-equipements-insee-76-sports-et-loisirs-2020.csv?outSR=%7B%22latestWkid%22%3A3857%2C%22wkid%22%3A102100%7D",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "KML",
+      "url": "https://www.opendata76.fr/datasets/seine-maritime::base-permanente-des-equipements-insee-76-sports-et-loisirs-2020.kml?outSR=%7B%22latestWkid%22%3A3857%2C%22wkid%22%3A102100%7D",
+      "format": "kml",
+      "size": null
+     },
+     {
+      "title": "Shapefile",
+      "url": "https://www.opendata76.fr/datasets/seine-maritime::base-permanente-des-equipements-insee-76-sports-et-loisirs-2020.zip?outSR=%7B%22latestWkid%22%3A3857%2C%22wkid%22%3A102100%7D",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "CSV",
+      "url": "https://www.opendata76.fr/datasets/seine-maritime::base-permanente-des-equipements-insee-76-sports-et-loisirs-2020.csv?where=1=1&outSR=%7B%22latestWkid%22%3A3857%2C%22wkid%22%3A102100%7D",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "GeoJSON",
+      "url": "https://www.opendata76.fr/datasets/seine-maritime::base-permanente-des-equipements-insee-76-sports-et-loisirs-2020.geojson?where=1=1&outSR=%7B%22latestWkid%22%3A3857%2C%22wkid%22%3A102100%7D",
+      "format": "geojson",
+      "size": null
+     },
+     {
+      "title": "Shapefile",
+      "url": "https://www.opendata76.fr/datasets/seine-maritime::base-permanente-des-equipements-insee-76-sports-et-loisirs-2020.zip?where=1=1&outSR=%7B%22latestWkid%22%3A3857%2C%22wkid%22%3A102100%7D",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "KML",
+      "url": "https://www.opendata76.fr/datasets/seine-maritime::base-permanente-des-equipements-insee-76-sports-et-loisirs-2020.kml?where=1=1&outSR=%7B%22latestWkid%22%3A3857%2C%22wkid%22%3A102100%7D",
+      "format": "kml",
+      "size": null
+     },
+     {
+      "title": "CSV",
+      "url": "https://www.opendata76.fr/api/download/v1/items/eae3566249054fbbacd026fb57e91bd7/csv?layers=0",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "GeoJSON",
+      "url": "https://www.opendata76.fr/api/download/v1/items/eae3566249054fbbacd026fb57e91bd7/geojson?layers=0",
+      "format": "geojson",
+      "size": null
+     },
+     {
+      "title": "Shapefile",
+      "url": "https://www.opendata76.fr/api/download/v1/items/eae3566249054fbbacd026fb57e91bd7/shapefile?layers=0",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "KML",
+      "url": "https://www.opendata76.fr/api/download/v1/items/eae3566249054fbbacd026fb57e91bd7/kml?layers=0",
+      "format": "kml",
+      "size": null
+     },
+     {
+      "title": "ArcGIS Hub Dataset",
+      "url": "https://www.opendata76.fr/datasets/seine-maritime::base-permanente-des-equipements-insee-76-sports-et-loisirs-2020",
+      "format": "web page",
+      "size": null
+     },
+     {
+      "title": "File Geodatabase",
+      "url": "https://www.opendata76.fr/api/download/v1/items/eae3566249054fbbacd026fb57e91bd7/filegdb?layers=0",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Feature Collection",
+      "url": "https://www.opendata76.fr/api/download/v1/items/eae3566249054fbbacd026fb57e91bd7/featureCollection?layers=0",
+      "format": "txt",
+      "size": null
+     },
+     {
+      "title": "Excel",
+      "url": "https://www.opendata76.fr/api/download/v1/items/eae3566249054fbbacd026fb57e91bd7/excel?layers=0",
+      "format": "xlsx",
+      "size": null
+     },
+     {
+      "title": "GeoPackage",
+      "url": "https://www.opendata76.fr/api/download/v1/items/eae3566249054fbbacd026fb57e91bd7/geoPackage?layers=0",
+      "format": "gpkg",
+      "size": null
+     },
+     {
+      "title": "SQLite Geodatabase",
+      "url": "https://www.opendata76.fr/api/download/v1/items/eae3566249054fbbacd026fb57e91bd7/sqlite?layers=0",
+      "format": "gdb",
+      "size": null
+     }
+    ]
+   },
+   {
+    "title": "Carte Base Permanente des Equipements - INSEE - 76 - Sports et Loisirs - 2020",
+    "slug": "carte-base-permanente-des-equipements-insee-76-sports-et-loisirs-2020",
+    "org": "Département de la Seine-Maritime",
+    "updated": "2022-01-13T00:00:00+00:00",
+    "resources": [
+     {
+      "title": "ArcGIS Hub Dataset",
+      "url": "https://www.opendata76.fr/maps/seine-maritime::carte-base-permanente-des-equipements-insee-76-sports-et-loisirs-2020",
+      "format": "web page",
+      "size": null
+     }
+    ]
+   },
+   {
+    "title": "TbInt Base Permanente des Equipements - INSEE - 76 - Sports et Loisirs - 2020",
+    "slug": "tbint-base-permanente-des-equipements-insee-76-sports-et-loisirs-2020",
+    "org": "Département de la Seine-Maritime",
+    "updated": "2024-09-04T00:00:00+00:00",
+    "resources": [
+     {
+      "title": "ArcGIS Hub Dataset",
+      "url": "https://www.opendata76.fr/apps/seine-maritime::tbint-base-permanente-des-equipements-insee-76-sports-et-loisirs-2020",
+      "format": "web page",
+      "size": null
+     }
+    ]
+   }
+  ],
+  "observatoire des loyers": [
+   {
+    "title": "Résultats nationaux des observatoires locaux des loyers",
+    "slug": "resultats-nationaux-des-observatoires-locaux-des-loyers",
+    "org": "Observatoires Locaux des Loyers",
+    "updated": "2026-10-28T15:13:11+00:00",
+    "resources": [
+     {
+      "title": "Loyers 2025 dans les agglomérations observées par les observatoires du réseau",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2025/Base_OP_2025_Nationale.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Loyers 2024 dans les agglomérations observées par les observatoires du réseau",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2024/Base_OP_2024_Nationale.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Loyers 2023 dans les agglomérations observées par les observatoires du réseau",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2023/Base_OP_2023_Nationale.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Loyers 2022 dans les agglomérations observées par les observatoires du réseau",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2022/Base_OP_2022_Nationale.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Loyers 2021 dans les agglomérations observées par les observatoires du réseau",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2021/Base_OP_2021_Nationale.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Loyers 2020 dans les agglomérations observées par les observatoires du réseau",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2020/Base_OP_2020_Nationale.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Loyers 2019 dans les agglomérations observées par les observatoires du réseau",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2019/Base_OP_2019_Nationale.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Loyers 2018 dans les agglomérations observées par les observatoires du réseau",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2018/Base_OP_2018_Nationale.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Loyers 2017 dans les agglomérations observées par les observatoires du réseau",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2017/Base_OP_2017_Nationale.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Loyers 2016 dans les agglomérations observées par les observatoires du réseau",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2016/Base_OP_2016_Nationale.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Loyers 2015 dans les agglomérations observées par les observatoires du réseau",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2015/Base_OP_2015_Nationale.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Loyers 2014 dans les agglomérations observées par les observatoires du réseau",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2014/Base_OP_2014_Nationale.csv",
+      "format": "csv",
+      "size": null
+     }
+    ]
+   },
+   {
+    "title": "Résultats des observatoires locaux des loyers par agglomération",
+    "slug": "resultats-des-observatoires-locaux-des-loyers-par-agglomeration",
+    "org": "Observatoires Locaux des Loyers",
+    "updated": "2026-10-28T15:12:45+00:00",
+    "resources": [
+     {
+      "title": "Niveau des loyers en 2025 pour l'agglomérations d'Aix-Marseille et d'Arles",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2025/Base_OP_2025_L1300.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2025 pour l'agglomération de Bastia",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2025/Base_OP_2025_L2B00.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2025 pour l'Pays Basque et Sud Landes",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2025/Base_OP_2025_L6400.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2025 pour l'agglomération de Bordeaux",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2025/Base_OP_2025_L3300.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2025 pour l'Pays de Saint Gilles Croix de Vie",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2025/Base_OP_2025_L8503.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2025 pour l'Challans-Gois Communauté",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2025/Base_OP_2025_L8502.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2025 pour l'Les Sables d'Olonne agglomération",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2025/Base_OP_2025_L8501.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2025 pour l'La Roche-sur-Yon agglomération",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2025/Base_OP_2025_L8500.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2025 pour l'Eurométropole de Strasbourg",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2025/Base_OP_2025_L6700.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2025 pour l'agglomération de Nancy",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2025/Base_OP_2025_L5400.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2025 pour l'agglomération de Tours",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2025/Base_OP_2025_L3700.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2025 pour l'agglomération de Saint Malo",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2025/Base_OP_2025_L3502.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2025 pour l'agglomération de Vitré",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2025/Base_OP_2025_L3501.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2025 pour l'agglomération de Rennes",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2025/Base_OP_2025_L3500.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2024 pour l'Pays de Saint Gilles Croix de Vie",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2024/Base_OP_2024_L8503.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2024 pour l'Challans-Gois Communauté",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2024/Base_OP_2024_L8502.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2024 pour l'Les Sables d'Olonne agglomération",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2024/Base_OP_2024_L8501.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2024 pour l'La Roche-sur-Yon agglomération",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2024/Base_OP_2024_L8500.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2025 pour l'agglomération parisienne (hors Paris)",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2025/Base_OP_2025_L7502.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2025 pour l'Paris intra-muros",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2025/Base_OP_2025_L7501.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2025 pour l'agglomération parisienne ",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2025/Base_OP_2025_L7500.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2025 pour l'agglomération d'Aix-les-Bains",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2025/Base_OP_2025_L7300.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2025 pour l'Haut Var",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2025/Base_OP_2025_L8306.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2025 pour l'Golfe de Saint-Tropez",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2025/Base_OP_2025_L8305.zip",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "Niveau des loyers en 2025 pour l'Porte des Maures et Moyen Var",
+      "url": "https://www.observatoires-des-loyers.org/datagouv/2025/Base_OP_2025_L8304.zip",
+      "format": "zip",
+      "size": null
+     }
+    ]
+   }
+  ],
+  "prix immobilier notaires": [],
+  "zonage abc": [
+   {
+    "title": "Zonages logement ABC et zonages I - II - III",
+    "slug": "zonages-logement-abc-et-zonages-i-ii-iii-1",
+    "org": "Direction Départementale des Territoires du Haut-Rhin (68)",
+    "updated": "2026-06-23T00:00:00+00:00",
+    "resources": [
+     {
+      "title": "Téléchargement simple (Atom) du jeu et des documents associés via internet",
+      "url": "https://atom.geo-ide.developpement-durable.gouv.fr/atomArchive/GetResource?id=d49778ad-538d-434c-9164-c2b214759a0e&dataType=dataset",
+      "format": "esri shapefile (shp)",
+      "size": null
+     },
+     {
+      "title": "Téléchargement simple (Atom) du jeu et des documents associés via intranet",
+      "url": "https://atom.geo-ide.e2.rie.gouv.fr/atomArchive/GetResource?id=d49778ad-538d-434c-9164-c2b214759a0e&dataType=dataset",
+      "format": "esri shapefile (shp)",
+      "size": null
+     },
+     {
+      "title": "URL du GetCapabilities du service wms sur internet",
+      "url": "https://ogc.geo-ide.developpement-durable.gouv.fr/wxs?map=/opt/data/stack/mapfiles/1.4/org_38078/d49778ad-538d-434c-9164-c2b214759a0e.internet.map&SERVICE=WMS&REQUEST=GetCapabilities",
+      "format": "wms",
+      "size": null
+     },
+     {
+      "title": "URL du GetCapabilities du service wfs sur internet",
+      "url": "https://ogc.geo-ide.developpement-durable.gouv.fr/wxs?map=/opt/data/stack/mapfiles/1.4/org_38078/d49778ad-538d-434c-9164-c2b214759a0e.internet.map&SERVICE=WFS&REQUEST=GetCapabilities",
+      "format": "wfs",
+      "size": null
+     },
+     {
+      "title": "URL du GetCapabilities du service wms sur intranet",
+      "url": "https://ogc.geo-ide.e2.rie.gouv.fr/wxs?map=/opt/data/stack/mapfiles/1.4/org_38078/d49778ad-538d-434c-9164-c2b214759a0e.intranet.map&SERVICE=WMS&REQUEST=GetCapabilities",
+      "format": "wms",
+      "size": null
+     },
+     {
+      "title": "URL du GetCapabilities du service wfs sur intranet",
+      "url": "https://ogc.geo-ide.e2.rie.gouv.fr/wxs?map=/opt/data/stack/mapfiles/1.4/org_38078/d49778ad-538d-434c-9164-c2b214759a0e.intranet.map&SERVICE=WFS&REQUEST=GetCapabilities",
+      "format": "wfs",
+      "size": null
+     }
+    ]
+   },
+   {
+    "title": "Zonage ABC en Bretagne",
+    "slug": "zonage-abc-en-bretagne",
+    "org": "Direction régionale de l'environnement, de l'aménagement et du logement de Bretagne",
+    "updated": "2026-10-21T03:08:51.898000+00:00",
+    "resources": [
+     {
+      "title": "dreal_b:l_zonage_abc",
+      "url": "https://geobretagne.fr/geoserver/dreal_b/l_zonage_abc/wms?SERVICE=WMS&REQUEST=GetCapabilities",
+      "format": "wms",
+      "size": null
+     },
+     {
+      "title": "dreal_b:l_zonage_abc",
+      "url": "https://geobretagne.fr/geoserver/dreal_b/l_zonage_abc/wfs?SERVICE=WFS&REQUEST=GetCapabilities",
+      "format": "wfs",
+      "size": null
+     }
+    ]
+   },
+   {
+    "title": "Liste des communes selon le zonage ABC",
+    "slug": "liste-des-communes-selon-le-zonage-abc",
+    "org": "Ministère de la Transition écologique",
+    "updated": "2026-07-03T09:13:28.285000+00:00",
+    "resources": [
+     {
+      "title": "Liste ensemble des communes - Zonage ABC en vigueur 26 juin 2026.csv",
+      "url": "https://static.data.gouv.fr/resources/liste-des-communes-selon-le-zonage-abc/20260703-091314/liste-ensemble-des-communes-zonage-abc-en-vigueur-26-juin-2026.csv",
+      "format": "csv",
+      "size": 878908
+     },
+     {
+      "title": "Liste ensemble des communes - Zonage ABC en vigueur 26 juin 2026.xlsx",
+      "url": "https://static.data.gouv.fr/resources/liste-des-communes-selon-le-zonage-abc/20260703-091327/liste-ensemble-des-communes-zonage-abc-en-vigueur-26-juin-2026.xlsx",
+      "format": "xlsx",
+      "size": 1106950
+     },
+     {
+      "title": "Liste des 468 communes reclassées - Zonage ABC 5 septembre 2025.csv",
+      "url": "https://static.data.gouv.fr/resources/liste-des-communes-selon-le-zonage-abc/20250910-150536/liste-des-468-communes-reclassees-zonage-abc-5-septembre-2025-1-.csv",
+      "format": "csv",
+      "size": 20636
+     },
+     {
+      "title": "Liste des 468 communes reclassées - Zonage ABC 5 septembre 2025.xlsx",
+      "url": "https://static.data.gouv.fr/resources/liste-des-communes-selon-le-zonage-abc/20250908-122705/liste-des-468-communes-reclassees-zonage-abc-5-septembre-2025.xlsx",
+      "format": "xlsx",
+      "size": 31374
+     },
+     {
+      "title": "Liste des 19 communes déclassées - Zonage ABC 5 septembre 2025.csv",
+      "url": "https://static.data.gouv.fr/resources/liste-des-communes-selon-le-zonage-abc/20250910-150554/liste-des-19-communes-declassees-zonage-abc-5-septembre-2025.csv",
+      "format": "csv",
+      "size": 942
+     },
+     {
+      "title": "Liste des 19 communes déclassées - Zonage ABC 5 septembre 2025.xlsx",
+      "url": "https://static.data.gouv.fr/resources/liste-des-communes-selon-le-zonage-abc/20250908-122608/liste-des-19-communes-declassees-zonage-abc-5-septembre-2025.xlsx",
+      "format": "xlsx",
+      "size": 10319
+     },
+     {
+      "title": "Arrêté du 23 juin 2026 modifiant l'arrêté du 1er août 2014 pris en application de l'article D. 304-1 du code de la construction et de l'habitation.pdf",
+      "url": "https://static.data.gouv.fr/resources/liste-des-communes-selon-le-zonage-abc/20260626-083844/arrete-reclassement-alfortville-23-juin-2026.pdf",
+      "format": "pdf",
+      "size": 140287
+     },
+     {
+      "title": "Arrêté du 5 septembre 2025 modifiant l’arrêté du 1er août 2014 pris en application de l’article D. 304-1 du code de la construction et de l’habitation",
+      "url": "https://static.data.gouv.fr/resources/liste-des-communes-selon-le-zonage-abc/20250908-122056/arrete-du-5-septembre-2025.pdf",
+      "format": "pdf",
+      "size": 1254164
+     },
+     {
+      "title": "Arrêté du 5 juillet 2024 modifiant l’arrêté du 1er août 2014 pris en application de l’article D. 304-1 du code de la construction et de l’habitation",
+      "url": "https://static.data.gouv.fr/resources/liste-des-communes-selon-le-zonage-abc/20240722-102354/joe-20240711-0164-0041.pdf",
+      "format": "pdf",
+      "size": 652108
+     }
+    ]
+   },
+   {
+    "title": "Logement - Liste des communes selon le zonage ABC",
+    "slug": "logement-liste-des-communes-selon-le-zonage-abc",
+    "org": "Région Île-de-France",
+    "updated": "2026-06-05T16:22:24.268000+00:00",
+    "resources": [
+     {
+      "title": "logement-liste-des-communes-selon-le-zonage-abc.csv",
+      "url": "https://data.iledefrance.fr/api/explore/v2.1/catalog/datasets/logement-liste-des-communes-selon-le-zonage-abc/exports/csv?use_labels=true",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "logement-liste-des-communes-selon-le-zonage-abc.json",
+      "url": "https://data.iledefrance.fr/api/explore/v2.1/catalog/datasets/logement-liste-des-communes-selon-le-zonage-abc/exports/json",
+      "format": "json",
+      "size": null
+     },
+     {
+      "title": "logement-liste-des-communes-selon-le-zonage-abc.geojson",
+      "url": "https://data.iledefrance.fr/api/explore/v2.1/catalog/datasets/logement-liste-des-communes-selon-le-zonage-abc/exports/geojson",
+      "format": "json",
+      "size": null
+     },
+     {
+      "title": "logement-liste-des-communes-selon-le-zonage-abc.zip",
+      "url": "https://data.iledefrance.fr/api/explore/v2.1/catalog/datasets/logement-liste-des-communes-selon-le-zonage-abc/exports/shp",
+      "format": "zip",
+      "size": null
+     }
+    ]
+   },
+   {
+    "title": "Zonage ABC des communes - Tension du marché des logements",
+    "slug": "zonage-abc-des-communes-tension-du-marche-des-logements",
+    "org": "Kadata",
+    "updated": "2023-06-30T09:43:28.329000+00:00",
+    "resources": [
+     {
+      "title": "zonage-abc-communes-2022.xlsx",
+      "url": "https://static.data.gouv.fr/resources/zonage-abc-des-communes-tension-du-marche-des-logements/20230630-094302/zonage-abc-communes-2022.xlsx",
+      "format": "xlsx",
+      "size": 990738
+     },
+     {
+      "title": "zonage-abc-communes-2022.csv",
+      "url": "https://static.data.gouv.fr/resources/zonage-abc-des-communes-tension-du-marche-des-logements/20230630-094202/zonage-abc-communes-2022.csv",
+      "format": "csv",
+      "size": 809544
+     }
+    ]
+   },
+   {
+    "title": "Données selon le zonage ABC sur la commercialisation des logements neufs",
+    "slug": "donnees-selon-le-zonage-abc-sur-la-commercialisation-des-logements-neufs",
+    "org": "Service des données et études statistiques (SDES)",
+    "updated": "2026-11-06T17:32:50+00:00",
+    "resources": [
+     {
+      "title": "1 - Ventes aux particuliers - Tous logements neufs - Données trimestrielles brutes",
+      "url": "https://www.statistiques.developpement-durable.gouv.fr/catalogue?page=datafile&datafileRid=13c97935-0ea4-4181-88ab-f3357241c399",
+      "format": "html",
+      "size": null
+     },
+     {
+      "title": "1 - Ventes aux particuliers - Tous logements neufs - Données trimestrielles brutes",
+      "url": "https://data.statistiques.developpement-durable.gouv.fr/dido/api/v1/datafiles/13c97935-0ea4-4181-88ab-f3357241c399/csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "2 - Ventes aux particuliers - Tous logements neufs - Données trimestrielles CVS-CJO",
+      "url": "https://www.statistiques.developpement-durable.gouv.fr/catalogue?page=datafile&datafileRid=0dcbc5ca-8397-46eb-8554-b3a4b07f6b57",
+      "format": "html",
+      "size": null
+     },
+     {
+      "title": "2 - Ventes aux particuliers - Tous logements neufs - Données trimestrielles CVS-CJO",
+      "url": "https://data.statistiques.developpement-durable.gouv.fr/dido/api/v1/datafiles/0dcbc5ca-8397-46eb-8554-b3a4b07f6b57/csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "3 - Ventes aux particuliers - Logements individuels neufs - Données trimestrielles brutes",
+      "url": "https://www.statistiques.developpement-durable.gouv.fr/catalogue?page=datafile&datafileRid=45411359-bcea-4d88-a513-1d655215fed5",
+      "format": "html",
+      "size": null
+     },
+     {
+      "title": "3 - Ventes aux particuliers - Logements individuels neufs - Données trimestrielles brutes",
+      "url": "https://data.statistiques.developpement-durable.gouv.fr/dido/api/v1/datafiles/45411359-bcea-4d88-a513-1d655215fed5/csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "4 - Ventes aux particuliers - Logements collectifs neufs - Données trimestrielles brutes",
+      "url": "https://www.statistiques.developpement-durable.gouv.fr/catalogue?page=datafile&datafileRid=c763a374-39b3-44c0-b46a-a381bc9ca3c7",
+      "format": "html",
+      "size": null
+     },
+     {
+      "title": "4 - Ventes aux particuliers - Logements collectifs neufs - Données trimestrielles brutes",
+      "url": "https://data.statistiques.developpement-durable.gouv.fr/dido/api/v1/datafiles/c763a374-39b3-44c0-b46a-a381bc9ca3c7/csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "5 - Ventes aux institutionnels (ventes en bloc) - Données trimestrielles brutes",
+      "url": "https://www.statistiques.developpement-durable.gouv.fr/catalogue?page=datafile&datafileRid=039fb42a-e06a-46a0-bacc-8e47f57f3483",
+      "format": "html",
+      "size": null
+     },
+     {
+      "title": "5 - Ventes aux institutionnels (ventes en bloc) - Données trimestrielles brutes",
+      "url": "https://data.statistiques.developpement-durable.gouv.fr/dido/api/v1/datafiles/039fb42a-e06a-46a0-bacc-8e47f57f3483/csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "6 - Ventes aux institutionnels (ventes en bloc) - Données trimestrielles CVS-CJO",
+      "url": "https://www.statistiques.developpement-durable.gouv.fr/catalogue?page=datafile&datafileRid=9cbf90ed-d50d-4f03-b19e-9c21616c9098",
+      "format": "html",
+      "size": null
+     },
+     {
+      "title": "6 - Ventes aux institutionnels (ventes en bloc) - Données trimestrielles CVS-CJO",
+      "url": "https://data.statistiques.developpement-durable.gouv.fr/dido/api/v1/datafiles/9cbf90ed-d50d-4f03-b19e-9c21616c9098/csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Note méthodologique ECLN",
+      "url": "https://data.statistiques.developpement-durable.gouv.fr/dido/api/files/5e8848bb-cc93-40ee-a544-ec5130d5be22",
+      "format": "pdf",
+      "size": 145489
+     },
+     {
+      "title": "Dictionnaire des variables ECLN",
+      "url": "https://data.statistiques.developpement-durable.gouv.fr/dido/api/files/71b55854-dd69-44df-aa93-d185639ab761",
+      "format": "pdf",
+      "size": 28476
+     }
+    ]
+   },
+   {
+    "title": "Zonage ABC pour les communes de la région Auvergne-Rhône-Alpes - Pinel 2025",
+    "slug": "zonage-abc-pour-les-communes-de-la-region-auvergne-rhone-alpes-pinel-2025",
+    "org": "DREAL Auvergne-Rhône-Alpes",
+    "updated": "2025-09-23T09:47:19+00:00",
+    "resources": [
+     {
+      "title": "Accès au lien ATOM de téléchargement",
+      "url": "https://catalogue.open-datara.fr/rss/atomfeed/atomdataset/dc05d76b-7097-4e49-adaf-c88812c9733a",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "l_zonage_abc_s_r84",
+      "url": "https://datacarto.open-datara.fr/wms?service=WMS&request=GetCapabilities",
+      "format": "wms",
+      "size": null
+     },
+     {
+      "title": "Accès au téléchargement des données",
+      "url": "https://telechargement.open-datara.fr/download/dc05d76b-7097-4e49-adaf-c88812c9733a",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "API Geojson",
+      "url": "https://catalogue.open-datara.fr/api/data/dc05d76b-7097-4e49-adaf-c88812c9733a?srs=EPSG:4326",
+      "format": "zip",
+      "size": null
+     },
+     {
+      "title": "l_zonage_abc_s_r84",
+      "url": "https://datacarto.open-datara.fr/wfs?service=WFS&request=GetCapabilities",
+      "format": "wfs",
+      "size": null
+     },
+     {
+      "title": "l_zonage_abc_s_r84",
+      "url": "https://datacarto.open-datara.fr/wfs/1402d531-17df-4579-8e7d-829d94ca82cd?service=WFS&request=GetCapabilities",
+      "format": "wfs",
+      "size": null
+     }
+    ]
+   }
+  ],
+  "zone tendue": [
+   {
+    "title": "Simulateur des ZONES TENDUES",
+    "slug": "simulateur-des-zones-tendues",
+    "org": "Premier ministre",
+    "updated": "2026-10-30T06:46:43.043000+00:00",
+    "resources": [
+     {
+      "title": "Présentation du simulateur des zones tendues",
+      "url": "https://echanges.dila.gouv.fr/OPENDATA/DILA_Simulateur_zone_tendue_Presentation_20181002.pdf",
+      "format": "pdf",
+      "size": null
+     },
+     {
+      "title": "Règles de calcul du simulateur des zones tendues",
+      "url": "https://gitlab.com/pidila/sp-simulateurs-data/blob/master/definitions-des-simulateurs/zones-tendues.xml",
+      "format": "xml",
+      "size": null
+     },
+     {
+      "title": " Feuille de style du simulateur des zones tendues",
+      "url": "https://gitlab.com/pidila/sp-simulateurs-data/blob/master/feuilles-de-styles/zones-tendues.css",
+      "format": "css",
+      "size": null
+     },
+     {
+      "title": "Données de référence du simulateur des zones tendues  (JSON)",
+      "url": "https://gitlab.com/pidila/sp-simulateurs-data/-/blob/master/donnees-de-reference/TaxeLogementVacant.json",
+      "format": "json",
+      "size": null
+     },
+     {
+      "title": "Schéma des données de référence (Schéma JSON) du simulateur des zones tendues",
+      "url": "https://gitlab.com/pidila/sp-simulateurs-data/-/blob/master/donnees-de-reference/TaxeLogementVacant.schema.json",
+      "format": "schema.json",
+      "size": null
+     }
+    ]
+   },
+   {
+    "title": "[Observatoire habitat] Communes situées en zone tendue",
+    "slug": "observatoire-habitat-communes-situees-en-zone-tendue",
+    "org": "Métropole d'Aix-Marseille-Provence",
+    "updated": "2022-04-19T14:50:32+00:00",
+    "resources": [
+     {
+      "title": "zone-tendue-taxe-annuelle-sur-les-logements-vacants.csv",
+      "url": "https://data.ampmetropole.fr/api/explore/v2.1/catalog/datasets/zone-tendue-taxe-annuelle-sur-les-logements-vacants/exports/csv?use_labels=true",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "zone-tendue-taxe-annuelle-sur-les-logements-vacants.json",
+      "url": "https://data.ampmetropole.fr/api/explore/v2.1/catalog/datasets/zone-tendue-taxe-annuelle-sur-les-logements-vacants/exports/json",
+      "format": "json",
+      "size": null
+     },
+     {
+      "title": "zone-tendue-taxe-annuelle-sur-les-logements-vacants.geojson",
+      "url": "https://data.ampmetropole.fr/api/explore/v2.1/catalog/datasets/zone-tendue-taxe-annuelle-sur-les-logements-vacants/exports/geojson",
+      "format": "json",
+      "size": null
+     },
+     {
+      "title": "zone-tendue-taxe-annuelle-sur-les-logements-vacants.zip",
+      "url": "https://data.ampmetropole.fr/api/explore/v2.1/catalog/datasets/zone-tendue-taxe-annuelle-sur-les-logements-vacants/exports/shp",
+      "format": "zip",
+      "size": null
+     }
+    ]
+   },
+   {
+    "title": "Zone étendue de la pratique des sports nautiques dans le périmètre du Parc naturel marin \"estuaire de la Gironde - mer des Pertuis\"",
+    "slug": "zone-etendue-de-la-pratique-des-sports-nautiques-dans-le-perimetre-du-parc-naturel-marin-estuaire-de-la-gironde-mer-des-pertuis",
+    "org": "Office Français de la Biodiversité",
+    "updated": "2018-02-06T00:00:00+00:00",
+    "resources": []
+   }
+  ],
+  "dpe logements": [
+   {
+    "title": "DPE Logements (avant juillet 2021)",
+    "slug": "dpe-logements-avant-juillet-2021",
+    "org": "ADEME",
+    "updated": "2026-10-27T01:35:28.562000+00:00",
+    "resources": [
+     {
+      "title": "Consultez les données",
+      "url": "https://data.ademe.fr/datasets/dpe-france",
+      "format": "url",
+      "size": null
+     },
+     {
+      "title": "Description des champs",
+      "url": "https://data.ademe.fr/datasets/dpe-france",
+      "format": "url",
+      "size": null
+     }
+    ]
+   },
+   {
+    "title": "DPE Logements existants (depuis juillet 2021)",
+    "slug": "dpe-logements-existants-depuis-juillet-2021",
+    "org": "ADEME",
+    "updated": "2026-11-03T00:49:42.547000+00:00",
+    "resources": [
+     {
+      "title": "Consultez les données",
+      "url": "https://data.ademe.fr/datasets/dpe03existant",
+      "format": "url",
+      "size": null
+     },
+     {
+      "title": "Description des champs",
+      "url": "https://data.ademe.fr/datasets/dpe03existant",
+      "format": "url",
+      "size": null
+     }
+    ]
+   },
+   {
+    "title": "DPE Logements neufs  (depuis juillet 2021)",
+    "slug": "dpe-logements-neufs-depuis-juillet-2021",
+    "org": "ADEME",
+    "updated": "2026-11-02T13:41:36.229000+00:00",
+    "resources": [
+     {
+      "title": "Consultez les données",
+      "url": "https://data.ademe.fr/datasets/dpe02neuf",
+      "format": "url",
+      "size": null
+     },
+     {
+      "title": "Description des champs",
+      "url": "https://data.ademe.fr/datasets/dpe02neuf",
+      "format": "url",
+      "size": null
+     }
+    ]
+   },
+   {
+    "title": "[Observatoire habitat] ADEME - DPE des logements neufs (depuis juillet 2021)",
+    "slug": "observatoire-habitat-ademe-dpe-des-logements-neufs-depuis-juillet-2021",
+    "org": "Métropole d'Aix-Marseille-Provence",
+    "updated": "2026-07-07T16:57:41+00:00",
+    "resources": [
+     {
+      "title": "observatoire-habitat-ademe-dpe-des-logements-neufs.csv",
+      "url": "https://data.ampmetropole.fr/api/explore/v2.1/catalog/datasets/observatoire-habitat-ademe-dpe-des-logements-neufs/exports/csv?use_labels=true",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "observatoire-habitat-ademe-dpe-des-logements-neufs.json",
+      "url": "https://data.ampmetropole.fr/api/explore/v2.1/catalog/datasets/observatoire-habitat-ademe-dpe-des-logements-neufs/exports/json",
+      "format": "json",
+      "size": null
+     },
+     {
+      "title": "observatoire-habitat-ademe-dpe-des-logements-neufs.geojson",
+      "url": "https://data.ampmetropole.fr/api/explore/v2.1/catalog/datasets/observatoire-habitat-ademe-dpe-des-logements-neufs/exports/geojson",
+      "format": "json",
+      "size": null
+     },
+     {
+      "title": "observatoire-habitat-ademe-dpe-des-logements-neufs.zip",
+      "url": "https://data.ampmetropole.fr/api/explore/v2.1/catalog/datasets/observatoire-habitat-ademe-dpe-des-logements-neufs/exports/shp",
+      "format": "zip",
+      "size": null
+     }
+    ]
+   },
+   {
+    "title": "Performance énergétique du parc de logements par commune (DPE), millésime 2026",
+    "slug": "performance-energetique-du-parc-de-logements-par-commune-dpe-millesime-2026",
+    "org": "Terralyse",
+    "updated": "2026-09-09T09:16:53.385000+00:00",
+    "resources": [
+     {
+      "title": "Dictionnaire des données",
+      "url": "https://static.data.gouv.fr/resources/performance-energetique-du-parc-de-logements-par-commune-dpe-millesime-2026/20260905-102218/dictionnaire-des-donnees.csv",
+      "format": "csv",
+      "size": 2711
+     },
+     {
+      "title": "Données par commune, France entière",
+      "url": "https://static.data.gouv.fr/resources/performance-energetique-du-parc-de-logements-par-commune-dpe-millesime-2026/20260909-090706/dpe-parc-communes-2026.csv",
+      "format": "csv",
+      "size": 1375373
+     },
+     {
+      "title": "Classeur Excel de lecture",
+      "url": "https://static.data.gouv.fr/resources/performance-energetique-du-parc-de-logements-par-commune-dpe-millesime-2026/20260909-091652/dpe-parc-communes-2026.xlsx",
+      "format": "xlsx",
+      "size": 621797
+     },
+     {
+      "title": "Fichiers par département",
+      "url": "https://static.data.gouv.fr/resources/performance-energetique-du-parc-de-logements-par-commune-dpe-millesime-2026/20260909-090802/dpe-parc-communes-2026-par-departement.zip",
+      "format": "zip",
+      "size": 335543
+     },
+     {
+      "title": "Documentation",
+      "url": "https://static.data.gouv.fr/resources/performance-energetique-du-parc-de-logements-par-commune-dpe-millesime-2026/20260905-101314/documentation.pdf",
+      "format": "pdf",
+      "size": 6176
+     }
+    ]
+   },
+   {
+    "title": "Énergie de chauffage et époque de construction des logements diagnostiqués (DPE), par commune",
+    "slug": "energie-de-chauffage-et-epoque-de-construction-des-logements-diagnostiques-dpe-par-commune",
+    "org": "MonsieurDPE",
+    "updated": "2026-10-31T09:02:49.257000+00:00",
+    "resources": [
+     {
+      "title": "Logements diagnostiqués par commune",
+      "url": "https://static.data.gouv.fr/resources/energie-de-chauffage-et-epoque-de-construction-des-logements-diagnostiques-dpe-par-commune/20261031-090159/logements-diagnostiques-communes.csv",
+      "format": "csv",
+      "size": 246760
+     },
+     {
+      "title": "Logements diagnostiqués par département",
+      "url": "https://static.data.gouv.fr/resources/energie-de-chauffage-et-epoque-de-construction-des-logements-diagnostiques-dpe-par-commune/20261031-090219/logements-diagnostiques-departements.csv",
+      "format": "csv",
+      "size": 13953
+     },
+     {
+      "title": "Dictionnaire des colonnes",
+      "url": "https://static.data.gouv.fr/resources/energie-de-chauffage-et-epoque-de-construction-des-logements-diagnostiques-dpe-par-commune/20261031-090231/dictionnaire-des-colonnes.csv",
+      "format": "csv",
+      "size": 8421
+     }
+    ]
+   },
+   {
+    "title": "Diagnostics de performance énergétique (DPE) des logements en France — Agrégats par commune, département et région 2026",
+    "slug": "diagnostics-de-performance-energetique-dpe-des-logements-en-france-agregats-par-commune-departement-et-region-2026",
+    "org": null,
+    "updated": "2026-06-11T08:05:02.260000+00:00",
+    "resources": [
+     {
+      "title": "dpe-france-regions-2026.csv",
+      "url": "https://static.data.gouv.fr/resources/diagnostics-de-performance-energetique-dpe-des-logements-en-france-agregats-par-commune-departement-et-region-2026/20260611-080501/dpe-france-regions-2026.csv",
+      "format": "csv",
+      "size": 613
+     },
+     {
+      "title": "dpe-france-departements-2026.csv",
+      "url": "https://static.data.gouv.fr/resources/diagnostics-de-performance-energetique-dpe-des-logements-en-france-agregats-par-commune-departement-et-region-2026/20260611-080501/dpe-france-departements-2026.csv",
+      "format": "csv",
+      "size": 3134
+     },
+     {
+      "title": "dpe-france-communes-2026.csv",
+      "url": "https://static.data.gouv.fr/resources/diagnostics-de-performance-energetique-dpe-des-logements-en-france-agregats-par-commune-departement-et-region-2026/20260611-080500/dpe-france-communes-2026.csv",
+      "format": "csv",
+      "size": 1601738
+     }
+    ]
+   },
+   {
+    "title": "Valeur verte des logements : écarts de prix par étiquette DPE (610 000 ventes DVF x ADEME)",
+    "slug": "valeur-verte-des-logements-ecarts-de-prix-par-etiquette-dpe-610-000-ventes-dvf-x-ademe",
+    "org": null,
+    "updated": "2026-10-12T07:03:04+00:00",
+    "resources": [
+     {
+      "title": "Écarts de prix par département et classe DPE (CSV)",
+      "url": "https://france-dpe.fr/datasets/decote-dpe-par-departement.csv",
+      "format": "csv",
+      "size": null
+     },
+     {
+      "title": "Écarts de prix par classe DPE, France entière (CSV)",
+      "url": "https://france-dpe.fr/datasets/decote-dpe-par-classe-france.csv",
+      "format": "csv",
+      "size": null
+     }
+    ]
+   }
+  ],
+  "communes de france base de donnees": []
+ },
+ "insee_dataflows": [
+  [
+   "BALANCE-PAIEMENTS",
+   "Balance des paiements"
+  ],
+  [
+   "CHOMAGE-TRIM-NATIONAL",
+   "Chômage, taux de chômage par sexe et âge (sens BIT)"
+  ],
+  [
+   "CLIMAT-AFFAIRES",
+   "Indicateurs synthétiques du climat des affaires"
+  ],
+  [
+   "CNA-2010-CONSO-MEN",
+   "Consommation des ménages - Résultats par produit, fonction et durabilité"
+  ],
+  [
+   "CNA-2010-CONSO-SI",
+   "Dépenses de consommation finale par secteur institutionnel - Résultats par opération et produit"
+  ],
+  [
+   "CNA-2010-CPEB",
+   "Comptes de production et d’exploitation par branche"
+  ],
+  [
+   "CNA-2010-CSI",
+   "Comptes des secteurs institutionnels - Résultats annuels"
+  ],
+  [
+   "CNA-2010-DEP-APU",
+   "Dépenses des administrations publiques - Résultats par fonction et opération"
+  ],
+  [
+   "CNA-2010-DETTE-APU",
+   "Dette et déficit des administrations publiques au sens de Maastricht"
+  ],
+  [
+   "CNA-2010-EMPLOI",
+   "Emploi intérieur, durée effective travaillée et productivité horaire"
+  ],
+  [
+   "CNA-2010-ERE",
+   "Équilibre ressources-emplois (ERE) - Résultats par opération et produit"
+  ],
+  [
+   "CNA-2010-FBCF-BRANCHE",
+   "Formation brute de capital fixe (FBCF) par branche"
+  ],
+  [
+   "CNA-2010-FBCF-SI",
+   "Formation brute de capital fixe (FBCF) par secteur institutionnel - Résultats par produit"
+  ],
+  [
+   "CNA-2010-PAT-NF",
+   "Comptes de patrimoine non financier - Encours, consommation de capital fixe"
+  ],
+  [
+   "CNA-2010-PIB",
+   "Produit intérieur brut (PIB) et ses composantes - Résultats annuels"
+  ],
+  [
+   "CNA-2010-RDB",
+   "Revenu et pouvoir d’achat des ménages - Résultats par ménage, personne et unité de consommation"
+  ],
+  [
+   "CNA-2010-TEI",
+   "Tableau des entrées intermédiaires - Résultats par secteur et produit"
+  ],
+  [
+   "CNA-2010-TOF",
+   "Comptes financiers - Flux et encours d’actifs, variation de patrimoine par secteur institutionnel"
+  ],
+  [
+   "CNA-2014-CONSO-MEN",
+   "Consommation des ménages"
+  ],
+  [
+   "CNA-2014-CONSO-SI",
+   "Dépenses de consommation finale par secteur institutionnel"
+  ],
+  [
+   "CNA-2014-CPEB",
+   "Comptes de production et d’exploitation par branche"
+  ],
+  [
+   "CNA-2014-CSI",
+   "Comptes des secteurs institutionnels"
+  ],
+  [
+   "CNA-2014-DEP-APU",
+   "Dépenses des administrations publiques"
+  ],
+  [
+   "CNA-2014-DETTE-APU",
+   "Dette et déficit des administrations publiques au sens de Maastricht"
+  ],
+  [
+   "CNA-2014-EMPLOI",
+   "Emploi intérieur, durée effective travaillée et productivité horaire"
+  ],
+  [
+   "CNA-2014-ERE",
+   "Équilibre ressources-emplois (ERE)"
+  ],
+  [
+   "CNA-2014-FBCF-BRANCHE",
+   "Formation brute de capital fixe (FBCF) par branche"
+  ],
+  [
+   "CNA-2014-FBCF-SI",
+   "Formation brute de capital fixe (FBCF) par secteur institutionnel"
+  ],
+  [
+   "CNA-2014-PAT-NF",
+   "Comptes de patrimoine non financier"
+  ],
+  [
+   "CNA-2014-PIB",
+   "Produit intérieur brut (PIB) et ses composantes"
+  ],
+  [
+   "CNA-2014-RDB",
+   "Revenu et pouvoir d’achat des ménages"
+  ],
+  [
+   "CNA-2014-TEI",
+   "Tableau des entrées intermédiaires"
+  ],
+  [
+   "CNA-2014-TOF",
+   "Comptes financiers"
+  ],
+  [
+   "CNA-2020-CONSO-MEN",
+   "Consommation des ménages"
+  ],
+  [
+   "CNA-2020-CONSO-SI",
+   "Dépenses de consommation finale par secteur institutionnel"
+  ],
+  [
+   "CNA-2020-CPEB",
+   "Comptes de production et d’exploitation par branche"
+  ],
+  [
+   "CNA-2020-CSI",
+   "Comptes des secteurs institutionnels"
+  ],
+  [
+   "CNA-2020-EMPLOI",
+   "Emploi intérieur, durée effective travaillée et productivité horaire"
+  ],
+  [
+   "CNA-2020-ERE",
+   "Équilibre ressources-emplois (ERE)"
+  ],
+  [
+   "CNA-2020-FBCF-SI",
+   "Formation brute de capital fixe (FBCF) par secteur institutionnel"
+  ],
+  [
+   "CNA-2020-PIB",
+   "Produit intérieur brut (PIB) et ses composantes"
+  ],
+  [
+   "CNA-2020-TEI",
+   "Tableau des entrées intermédiaires"
+  ],
+  [
+   "CNT-2010-CB",
+   "Comptes des branches - Résultats trimestriels"
+  ],
+  [
+   "CNT-2010-CSI",
+   "Comptes de secteurs institutionnels - Résultats trimestriels"
+  ],
+  [
+   "CNT-2010-OPERATIONS",
+   "Opérations sur biens et services - Résultats trimestriels"
+  ],
+  [
+   "CNT-2010-PIB-EQB-RF",
+   "Équilibre du produit intérieur brut - Résultats trimestriels"
+  ],
+  [
+   "CNT-2014-CB",
+   "Comptes des branches"
+  ],
+  [
+   "CNT-2014-CSI",
+   "Comptes de secteurs institutionnels"
+  ],
+  [
+   "CNT-2014-OPERATIONS",
+   "Opérations sur biens et services"
+  ],
+  [
+   "CNT-2014-PIB-EQB-RF",
+   "Équilibre du produit intérieur brut"
+  ],
+  [
+   "CNT-2020-CB",
+   "Comptes des branches"
+  ],
+  [
+   "CNT-2020-CSI",
+   "Comptes de secteurs institutionnels"
+  ],
+  [
+   "CNT-2020-OPERATIONS",
+   "Opérations sur biens et services"
+  ],
+  [
+   "CNT-2020-PIB-EQB-RF",
+   "Équilibre du produit intérieur brut"
+  ],
+  [
+   "COEFF-EURO-FRANC",
+   "Coefficient de transformation de la monnaie"
+  ],
+  [
+   "COM-EXT",
+   "Commerce extérieur de la France"
+  ],
+  [
+   "COMPTES-ETAT",
+   "Budget de l’État"
+  ],
+  [
+   "CONSO-MENAGES-2010",
+   "Consommation des ménages en biens - Résultats mensuels"
+  ],
+  [
+   "CONSO-MENAGES-2014",
+   "Consommation des ménages en biens"
+  ],
+  [
+   "CONSO-MENAGES-2020",
+   "Consommation des ménages en biens"
+  ],
+  [
+   "CONSTRUCTION-LOCAUX",
+   "Construction de locaux non résidentiels"
+  ],
+  [
+   "CONSTRUCTION-LOGEMENTS",
+   "Construction de logements"
+  ],
+  [
+   "CREATIONS-ENTREPRISES",
+   "Créations d’entreprises"
+  ],
+  [
+   "CREATIONS-ENTREPRISES-METHODE-2022",
+   "Créations d'entreprises - Méthode 2022"
+  ],
+  [
+   "DECES-MORTALITE",
+   "Décès et mortalité"
+  ],
+  [
+   "DEFAILLANCES-ENTREPRISES",
+   "Défaillances d’entreprises"
+  ],
+  [
+   "DEMANDES-EMPLOIS-NATIONALES",
+   "Demandeurs d'emploi inscrits à Pôle Emploi"
+  ],
+  [
+   "DETTE-NEGOCIABLE-ETAT",
+   "Dette négociable de l’État"
+  ],
+  [
+   "DETTE-TRIM-APU",
+   "Dette des administrations publiques au sens de Maastricht"
+  ],
+  [
+   "DETTE-TRIM-APU-2014",
+   "Dette des administrations publiques au sens de Maastricht"
+  ],
+  [
+   "DETTE-TRIM-APU-2020",
+   "Dette des administrations publiques au sens de Maastricht"
+  ],
+  [
+   "EMPLOI-BIT-TRIM",
+   "Activité, emploi, sous-emploi au sens du BIT et autres indicateurs"
+  ],
+  [
+   "EMPLOI-SALARIE-TRIM-NATIONAL",
+   "Estimations d'emploi salarié par secteur d'activité"
+  ],
+  [
+   "ENQ-CONJ-ACT-IND",
+   "Conjoncture dans l’industrie"
+  ],
+  [
+   "ENQ-CONJ-ART-BAT",
+   "Conjoncture dans l’artisanat du bâtiment"
+  ],
+  [
+   "ENQ-CONJ-COM-DET",
+   "Conjoncture dans le commerce de détail et le commerce et la réparation automobile"
+  ],
+  [
+   "ENQ-CONJ-COM-GROS",
+   "Conjoncture dans le commerce de gros"
+  ],
+  [
+   "ENQ-CONJ-IND-BAT",
+   "Conjoncture dans l'industrie du bâtiment"
+  ],
+  [
+   "ENQ-CONJ-INV-IND",
+   "Investissements dans l’industrie"
+  ],
+  [
+   "ENQ-CONJ-MENAGES",
+   "Conjoncture auprès des ménages"
+  ],
+  [
+   "ENQ-CONJ-PROMO-IMMO",
+   "Conjoncture dans la promotion immobilière"
+  ],
+  [
+   "ENQ-CONJ-SERV",
+   "Conjoncture dans les services"
+  ],
+  [
+   "ENQ-CONJ-TP",
+   "Conjoncture dans les travaux publics"
+  ],
+  [
+   "ENQ-CONJ-TRES-IND",
+   "Enquête de conjoncture de trésorerie dans l'industrie"
+  ],
+  [
+   "ERI-ACTIVITE-PARTIELLE",
+   "TdB - ERI - Activité partielle dans les établissements"
+  ],
+  [
+   "IC-PROD-CONS-2010",
+   "Indices des coûts de production dans la construction - Résultats par secteur d'activité"
+  ],
+  [
+   "IC-PROD-CONS-2015",
+   "Indices des coûts de production dans la construction"
+  ],
+  [
+   "IC-PROD-CONS-2021",
+   "Indices des coûts de production dans la construction"
+  ],
+  [
+   "ICA-2005-COM-SERV",
+   "Indice de chiffre d'affaires dans le commerce et les services"
+  ],
+  [
+   "ICA-2005-EMAGSA",
+   "Indice de chiffre d'affaire dans les grandes surfaces alimentaires (EMAGSA)"
+  ],
+  [
+   "ICA-2005-IND-CONS",
+   "Indice de chiffre d'affaire dans l'industrie et la construction - Secteurs d'activités regroupés et détaillés"
+  ],
+  [
+   "ICA-2010-COMMERCE",
+   "Volume des ventes dans le commerce - Commerce de gros, détail, réparation d'automobiles et motocycles"
+  ],
+  [
+   "ICA-2010-EMAGSA",
+   "Indice de chiffre d’affaires dans les grandes surfaces alimentaires (EMAGSA)"
+  ],
+  [
+   "ICA-2010-IND-CONS",
+   "Indice de chiffre d’affaires dans l’industrie et la construction - Secteurs d'activités regroupés et détaillés"
+  ],
+  [
+   "ICA-2010-SERVICE",
+   "Indice de production dans les services"
+  ],
+  [
+   "ICA-2015-COMMERCE",
+   "Indices de chiffre d'affaires dans le commerce"
+  ],
+  [
+   "ICA-2015-EMAGSA",
+   "Indices de chiffre d'affaires dans les grandes surfaces alimentaires"
+  ],
+  [
+   "ICA-2015-IND-CONS",
+   "Indices de chiffre d'affaires dans l'industrie et la construction"
+  ],
+  [
+   "ICA-2015-SERVICES",
+   "Indices de chiffre d'affaires dans les services"
+  ],
+  [
+   "ICA-2021-COMMERCE",
+   "Indices de chiffre d'affaires dans le commerce"
+  ],
+  [
+   "ICA-2021-IND-CONS",
+   "Indices de chiffre d'affaires dans l'industrie et la construction"
+  ],
+  [
+   "ICA-2021-SERVICES",
+   "Indices de chiffre d'affaires dans les services"
+  ],
+  [
+   "ICHT-2008",
+   "Indice du coût horaire du travail"
+  ],
+  [
+   "ICT-2012",
+   "Indice du coût du travail (ICT) - Résultats détaillés"
+  ],
+  [
+   "ICT-2016",
+   "Indice du coût du travail"
+  ],
+  [
+   "ICT-2020",
+   "Indice du coût du travail"
+  ],
+  [
+   "ILC-ILAT-ICC",
+   "Indices pour la révision d’un bail commercial ou professionnel"
+  ],
+  [
+   "INDEX-BT-TP-DIV-ANCIENNES-BASES",
+   "Index bâtiment, travaux publics et divers de la construction"
+  ],
+  [
+   "INDEX-BT-TP-DIV-IM-2010",
+   "Index bâtiment, travaux publics et divers de la construction"
+  ],
+  [
+   "INDICE-TRAITEMENT-FP",
+   "Indice de traitement brut dans la fonction publique de l'État"
+  ],
+  [
+   "INDICES_LOYERS",
+   "Indices des loyers - Base 2019"
+  ],
+  [
+   "IP-PROD-CONS-N-HAB-2010",
+   "Indice des prix de production de la construction neuve à usage d’habitation"
+  ],
+  [
+   "IP-PROD-CONS-N-HAB-2015",
+   "Indice des prix de production de la construction neuve à usage d'habitation"
+  ],
+  [
+   "IP-PROD-CONS-N-HAB-2021",
+   "Indice des prix de production de la construction neuve à usage d'habitation"
+  ],
+  [
+   "IPAGRI",
+   "Indices des prix dans l’agriculture - IPPAP, IPGA, IPAMPA"
+  ],
+  [
+   "IPAGRI-BASE-2015",
+   "Indices des prix dans l'agriculture"
+  ],
+  [
+   "IPAGRI-BASE-2020",
+   "Indices des prix dans l'agriculture"
+  ],
+  [
+   "IPC-1970-1980",
+   "Indices des prix à la consommation"
+  ],
+  [
+   "IPC-1990",
+   "Indices des prix à la consommation"
+  ],
+  [
+   "IPC-1998",
+   "Indices des prix à la consommation - Résultats par regroupement de produits"
+  ],
+  [
+   "IPC-2015",
+   "Indices des prix à la consommation"
+  ],
+  [
+   "IPC-2025",
+   "Indices des prix à la consommation"
+  ],
+  [
+   "IPC-PM-2015",
+   "Prix moyens de vente de détail"
+  ],
+  [
+   "IPCH-2005",
+   "Indices des prix à la consommation harmonisés - Résultats par produit"
+  ],
+  [
+   "IPCH-2015",
+   "Indices des prix à la consommation harmonisés"
+  ],
+  [
+   "IPCH-2025",
+   "Indices des prix à la consommation harmonisés"
+  ],
+  [
+   "IPEA-2010",
+   "Indice des prix d’entretien-amélioration des logements (IPEA) - Prix de production"
+  ],
+  [
+   "IPEA-2015",
+   "Indice des prix d'entretien-amélioration des bâtiments"
+  ],
+  [
+   "IPEA-2021",
+   "Indice des prix d'entretien-amélioration des bâtiments"
+  ],
+  [
+   "IPGD-1998",
+   "Indices des prix dans la grande distribution"
+  ],
+  [
+   "IPGD-2015",
+   "Indice des prix dans la grande distribution"
+  ],
+  [
+   "IPI-1990",
+   "IPI-1990"
+  ],
+  [
+   "IPI-2005",
+   "Indices de la production industrielle - Résultats par secteur d'activité détaillé et regroupements MIG"
+  ],
+  [
+   "IPI-2010",
+   "Indices de la production industrielle - Résultats par secteur d'activité détaillé et regroupements MIG"
+  ],
+  [
+   "IPI-2015",
+   "Indice de la production industrielle"
+  ],
+  [
+   "IPI-2021",
+   "Indice de la production industrielle"
+  ],
+  [
+   "IPLA-IPLNA-2010",
+   "Indices des prix des logements neufs et indices Notaires-Insee des prix des logements anciens"
+  ],
+  [
+   "IPLA-IPLNA-2015",
+   "Indices des prix des logements neufs et Indices Notaires-Insee des prix des logements anciens"
+  ],
+  [
+   "IPPI-2005",
+   "Indices de prix de production et d'importation dans l'industrie"
+  ],
+  [
+   "IPPI-2010",
+   "Indices de prix de production et d'importation dans l'industrie"
+  ],
+  [
+   "IPPI-2015",
+   "Indices de prix de production et d'importation dans l'industrie"
+  ],
+  [
+   "IPPI-2021",
+   "Indices de prix de production et d'importation dans l'industrie"
+  ],
+  [
+   "IPPMP",
+   "Indices de prix et cours des matières premières"
+  ],
+  [
+   "IPPMP-NF",
+   "Indices de prix et cours des matières premières"
+  ],
+  [
+   "IPPS-2010",
+   "Indice des prix de production dans les services"
+  ],
+  [
+   "IPPS-2015",
+   "Indice des prix de production dans les services"
+  ],
+  [
+   "IPPS-2021",
+   "Indice des prix de production dans les services"
+  ],
+  [
+   "IPS-2015-SERVICES",
+   "Indices de production dans les services"
+  ],
+  [
+   "IPS-2021-SERVICES",
+   "Indices de production dans les services"
+  ],
+  [
+   "IRL",
+   "Indice pour la révision d’un loyer d’habitation"
+  ],
+  [
+   "MARIAGES-NUPTIALITE-PACS-DIVORCES",
+   "Mariages, nuptialité et Pactes civils de solidarité (Pacs)"
+  ],
+  [
+   "NAISSANCES-FECONDITE",
+   "Naissances et fécondité"
+  ],
+  [
+   "ODD-CONSOMMATION-PRODUCTION",
+   "Objectif de développement durable n°12 : Consommation et production responsable"
+  ],
+  [
+   "ODD-EAU-PROPRE-ASSAINISSEMENT",
+   "Objectif de développement durable n°6 : Eau propre et assainissement"
+  ],
+  [
+   "ODD-EDUCATION-QUALITE",
+   "Objectif de développement durable n°4 : Education de qualité"
+  ],
+  [
+   "ODD-EGALITE-SEXES",
+   "Objectif de développement durable n°5 : Égalité entre les sexes"
+  ],
+  [
+   "ODD-ENERGIE-PROPRE-COUT-ABORDABLE",
+   "Objectif de développement durable n°7 : Energie propre et d'un coût abordable"
+  ],
+  [
+   "ODD-ERADICATION-PAUVRETE",
+   "Objectif de développement durable n°1 : Éradication de la pauvreté"
+  ],
+  [
+   "ODD-INFRASTRUCTURES-RESILIENTES-INNOVATION",
+   "Objectif de développement durable n°9 : Infrastructures résilientes et innovation"
+  ],
+  [
+   "ODD-LUTTE-CHANGEMENT-CLIMATIQUE",
+   "Objectif de développement durable n°13 : Mesures relatives à la lutte contre le changement climatique"
+  ],
+  [
+   "ODD-PAIX-JUSTICE-INSTITUTIONS-EFFICACES",
+   "Objectif de développement durable n°16 : Paix, justice et institutions efficaces"
+  ],
+  [
+   "ODD-PARTENARIATS-REALISATION",
+   "Objectif de développement durable n°17 : Partenariats pour la réalisation des objectifs"
+  ],
+  [
+   "ODD-REDUCTION-INEGALITES",
+   "Objectif de développement durable n°10 : Réduction des inégalités"
+  ],
+  [
+   "ODD-SANTE-BIEN-ETRE",
+   "Objectif de développement durable n°3 : Santé et bien-être"
+  ],
+  [
+   "ODD-SECURITE-ALIMENTAIRE-AGRICULTURE-DURABLE",
+   "Objectif de développement durable n°2 : Sécurité alimentaire et agriculture durable"
+  ],
+  [
+   "ODD-TRAVAIL-CROISSANCE",
+   "Objectif de développement durable n°8 : Travail décent et croissance durable"
+  ],
+  [
+   "ODD-VIE-AQUATIQUE",
+   "Objectif de développement durable n°14 : Vie aquatique"
+  ],
+  [
+   "ODD-VIE-TERRESTRE",
+   "Objectif de développement durable n°15 : Vie terrestre"
+  ],
+  [
+   "ODD-VILLES-COMMUNAUTES-DURABLES",
+   "Objectif de développement durable n°11 : Villes et communautés durables"
+  ],
+  [
+   "PARC-LOGEMENTS",
+   "Estimations annuelles du parc de logements (EAPL)"
+  ],
+  [
+   "POPULATION-STRUCTURE",
+   "Population et structure de la population"
+  ],
+  [
+   "REVALORISATION-PENSIONS",
+   "IPC utilisés par la calculette de revalorisation des pensions alimentaires"
+  ],
+  [
+   "SALAIRES-ACEMO",
+   "Indices trimestriels de salaires dans le secteur privé - Résultats par secteur d’activité"
+  ],
+  [
+   "SALAIRES-ACEMO-2017",
+   "Indices trimestriels de salaires dans le secteur privé"
+  ],
+  [
+   "SALAIRES-ANNUELS",
+   "Salaires annuels"
+  ],
+  [
+   "SERIES_BDM",
+   "Séries chronologiques de la BDM"
+  ],
+  [
+   "SERIES_LOYERS",
+   "Variation des loyers"
+  ],
+  [
+   "SMIC-COTISATIONS",
+   "Taux de cotisations et salaires minima garantis"
+  ],
+  [
+   "SUIVI-DEMANDE-TOURISTIQUE",
+   "Suivi de la demande touristique"
+  ],
+  [
+   "TAUX-CHOMAGE",
+   "Taux de chômage localisé"
+  ],
+  [
+   "TCRED-AGRICULTURE-CHEP-AGRI",
+   "TCRED - Cheptel présent dans les exploitations agricoles"
+  ],
+  [
+   "TCRED-AGRICULTURE-EXP-AGRI",
+   "TCRED - Exploitations agricoles par superficie"
+  ],
+  [
+   "TCRED-AGRICULTURE-OCC-SOL",
+   "TCRED - Occupation du sol"
+  ],
+  [
+   "TCRED-AGRICULTURE-PROD-VEG",
+   "TCRED - Productions végétales"
+  ],
+  [
+   "TCRED-CONDITIONSDEVIE-APE-PEC",
+   "TCRED - Affaires pénales et population écrouée"
+  ],
+  [
+   "TCRED-CONDITIONSDEVIE-LICENCES-SPORTIVES",
+   "TCRED - Licences sportives de la fédération française"
+  ],
+  [
+   "TCRED-CONDITIONSDEVIE-LOG-SOC",
+   "TCRED - Logements sociaux"
+  ],
+  [
+   "TCRED-CONDITIONSDEVIE-NMU-MOH",
+   "TCRED - Nombre de musées de France et de monuments historiques"
+  ],
+  [
+   "TCRED-CONDITIONSDEVIE-TXP-CDE",
+   "TCRED - Taux de participation au 1er tour des différentes élections"
+  ],
+  [
+   "TCRED-CONSTRUCTION-LOCAUX",
+   "TCRED - Construction de locaux"
+  ],
+  [
+   "TCRED-ECONOMIE-DEP-REC",
+   "TCRED - Dépenses et recettes des régions"
+  ],
+  [
+   "TCRED-ECONOMIE-PIB-REG",
+   "TCRED - Produits intérieurs bruts"
+  ],
+  [
+   "TCRED-ECONOMIE-PIB-REG-2014",
+   "TCRED - Produits intérieurs bruts"
+  ],
+  [
+   "TCRED-ECONOMIE-VAB-REG",
+   "TCRED - Valeurs ajoutées brutes"
+  ],
+  [
+   "TCRED-ECONOMIE-VAB-REG-2014",
+   "TCRED-Valeurs ajoutées brutes"
+  ],
+  [
+   "TCRED-EDUCATION-APP-JEN",
+   "TCRED - Apprentissage chez les jeunes"
+  ],
+  [
+   "TCRED-EDUCATION-DIPLOMES-TECHNIQUES",
+   "TCRED - Réussite aux Brevet, CAP, BEP et BTS"
+  ],
+  [
+   "TCRED-EDUCATION-EFF-PSS",
+   "TCRED - Effectifs scolaires du premier et second degré et du supérieur"
+  ],
+  [
+   "TCRED-EDUCATION-ENS-PSD",
+   "TCRED - Enseignants du premier et du second degrés"
+  ],
+  [
+   "TCRED-EDUCATION-ETAB-SCOL",
+   "TCRED - Établissements scolaires du premier et second degré"
+  ],
+  [
+   "TCRED-EDUCATION-REU-BAC",
+   "TCRED - Réussite aux différents baccalauréats"
+  ],
+  [
+   "TCRED-EMPLOI-31-DECEMBRE",
+   "TCRED - Emploi au 31 décembre"
+  ],
+  [
+   "TCRED-EMPLOI-31-DECEMBRE-BASE-2018",
+   "TCRED - Emploi au 31 décembre - Base 2018"
+  ],
+  [
+   "TCRED-EMPLOI-SALARIE-TRIM",
+   "Estimations d'emploi salarié par secteur d'activité"
+  ],
+  [
+   "TCRED-ENTREPRISES-EFF-OPE",
+   "TCRED - Effectifs de recherche et développement des organismes publics et des entreprises"
+  ],
+  [
+   "TCRED-ENTREPRISES-EMP-SAL-AN-TAILLE",
+   "TCRED - Effectif salarié par catégorie d'entreprise"
+  ],
+  [
+   "TCRED-ESTIMATIONS-POPULATION",
+   "TCRED - Estimations de population"
+  ],
+  [
+   "TCRED-SALAIRES-REVENUS-MEN",
+   "TCRED - Revenus disponibles des ménages"
+  ],
+  [
+   "TCRED-SALAIRES-REVENUS-RET-BEN",
+   "TCRED - Retraités et bénéficiaires du minimum vieillesse"
+  ],
+  [
+   "TCRED-SALAIRES-REVENUS-REV-SAL-SEXE-CS",
+   "TCRED - Revenu salarial annuel moyen selon la catégorie socioprofessionnelle et le sexe"
+  ],
+  [
+   "TCRED-SALAIRES-REVENUS-STRUCTURE-RDB",
+   "TCRED - Structure du revenu disponible"
+  ],
+  [
+   "TCRED-SALAIRES-REVENUS-TAUX-PAUVRETE-AGE",
+   "TCRED - Taux de pauvreté selon l'âge"
+  ],
+  [
+   "TCRED-SALAIRES-REVENUS-TNB",
+   "TCRED - Nombre et taux d'allocataires des différentes prestations sociales"
+  ],
+  [
+   "TCRED-SANTE-ACCUEIL-PERS-AGEES",
+   "TCRED - Accueil des personnes âgées"
+  ],
+  [
+   "TCRED-SANTE-CAUSES-DECES",
+   "TCRED - Causes de décès"
+  ],
+  [
+   "TCRED-SANTE-EQUIP-HOP",
+   "TCRED - Équipements hospitaliers"
+  ],
+  [
+   "TCRED-SANTE-EQUIP-SPE",
+   "TCRED - Ratio d'équipement par spécialité"
+  ],
+  [
+   "TCRED-SANTE-PERSONNELS",
+   "TCRED - Personnels de santé"
+  ],
+  [
+   "TCRED-SERVICES-TOURISME-TRANSPORTS-IMM-VN",
+   "TCRED - Immatriculations de véhicules neufs"
+  ],
+  [
+   "TCRED-SERVICES-TOURISME-TRANSPORTS-RR",
+   "TCRED - Réseau routier"
+  ],
+  [
+   "TCRED-TRAVAIL-EMPLOI-EFF-FP-RATIO",
+   "TCRED - Effectifs de la fonction publique"
+  ],
+  [
+   "TCRED-TRAVAIL-EMPLOI-EFF-FPE",
+   "TCRED - Effectifs de la fonction publique de l'État"
+  ],
+  [
+   "TCRED-TRAVAIL-EMPLOI-EFF-FPH",
+   "TCRED - Effectifs de la fonction publique hospitalière"
+  ],
+  [
+   "TCRED-TRAVAIL-EMPLOI-EFF-FPT",
+   "TCRED - Effectifs de la fonction publique territoriale"
+  ],
+  [
+   "TCRED-TRAVAIL-EMPLOI-TCHOMA-SA",
+   "TCRED - Taux de chômage localisés par sexe et âge, en moyenne annuelle"
+  ],
+  [
+   "TOURISME-FRANCE-METHODE-REDRESSEMENT-2019",
+   "Fréquentation touristique (nuitées, arrivées)"
+  ],
+  [
+   "TRANSPORTS",
+   "Transports de marchandises, voyageurs et autres indicateurs - Immatriculations de véhicules"
+  ],
+  [
+   "VOV-2015-COMMERCE",
+   "Volumes des ventes dans le commerce"
+  ],
+  [
+   "VOV-2021-COMMERCE",
+   "Volumes des ventes dans le commerce"
+  ]
+ ]
+}
