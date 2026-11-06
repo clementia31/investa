@@ -3,7 +3,7 @@
 Produit des CSV propres dans data/immo/ (séparateur ';', point décimal, UTF-8) :
   communes.csv     référentiel des communes (+ arrondissements), population, zonage ABC
   zones.csv        France, régions, départements (codes et noms)
-  prix_dvf.csv     prix au m² (médiane, moyenne) et nombre de ventes, par an, appartements / maisons,
+  prix_dvf.csv     prix au m² (médiane, moyenne) et nombre de ventes, par an depuis 2014, appartements / maisons,
                    à la commune, au département, à la région et pour la France (DVF, DGFiP / Etalab)
   loyers.csv       loyers d'annonce au m² par commune (carte des loyers, ministère du Logement)
   oll.csv          loyers des observatoires locaux des loyers par agglomération (2014 →)
@@ -99,31 +99,84 @@ def build_communes():
 
 
 # --------------------------------------------------------------------------- DVF
+G = "https://static.data.gouv.fr/resources/demandes-de-valeurs-foncieres-geolocalisees/"
+C = "https://data.cquest.org/dgfip_dvf/"   # archives des livraisons DGFiP (format brut, séparateur |)
 DVF = {
-    "2021-S2": "https://static.data.gouv.fr/resources/demandes-de-valeurs-foncieres-geolocalisees/20261020-113024/full-2021-s2.csv.gz",
-    "2022": "https://static.data.gouv.fr/resources/demandes-de-valeurs-foncieres-geolocalisees/20261020-114218/full-2022.csv.gz",
-    "2023": "https://static.data.gouv.fr/resources/demandes-de-valeurs-foncieres-geolocalisees/20261020-114336/full-2023.csv.gz",
-    "2024": "https://static.data.gouv.fr/resources/demandes-de-valeurs-foncieres-geolocalisees/20261020-114532/full-2024.csv.gz",
-    "2025": "https://static.data.gouv.fr/resources/demandes-de-valeurs-foncieres-geolocalisees/20261020-114721/full-2025.csv.gz",
-    "2026-S1": "https://static.data.gouv.fr/resources/demandes-de-valeurs-foncieres-geolocalisees/20261020-114825/full-2026-s1.csv.gz",
+    "2014": [("raw", C + "201904/valeursfoncieres-2014.txt")],
+    "2015": [("raw", C + "201904/valeursfoncieres-2015.txt")],
+    "2016": [("raw", C + "202110/valeursfoncieres-2016.txt")],
+    "2017": [("raw", C + "202110/valeursfoncieres-2017.txt")],
+    "2018": [("raw", C + "202110/valeursfoncieres-2018.txt")],
+    "2019": [("raw", C + "202110/valeursfoncieres-2019.txt")],
+    "2020": [("raw", C + "202110/valeursfoncieres-2020.txt")],
+    "2021": [("raw", C + "202110/valeursfoncieres-2021-s1.txt"), ("geo", G + "20261020-113024/full-2021-s2.csv.gz")],
+    "2022": [("geo", G + "20261020-114218/full-2022.csv.gz")],
+    "2023": [("geo", G + "20261020-114336/full-2023.csv.gz")],
+    "2024": [("geo", G + "20261020-114532/full-2024.csv.gz")],
+    "2025": [("geo", G + "20261020-114721/full-2025.csv.gz")],
+    "2026-S1": [("geo", G + "20261020-114825/full-2026-s1.csv.gz")],
 }
 CITY = {"751": "75056", "132": "13055", "693": "69123"}  # arrondissements -> Paris, Marseille, Lyon
+KEEP = ["Vente", "Vente en l'état futur d'achèvement"]
 
 
-def dvf_period(periode, url, communes):
+def download(url):
+    import shutil, tempfile
+    for i in range(4):
+        try:
+            f = tempfile.NamedTemporaryFile(delete=False, dir="/tmp")
+            with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=900) as r:
+                shutil.copyfileobj(r, f, 1 << 22)
+            f.close()
+            return f.name
+        except Exception as e:
+            log(f"  essai {i + 1} échoué {url[-60:]} : {e}")
+            time.sleep(10 * (i + 1))
+    raise RuntimeError(f"téléchargement impossible : {url}")
+
+
+def sales_geo(url):
     cols = ["id_mutation", "nature_mutation", "valeur_fonciere", "code_commune", "type_local",
             "surface_reelle_bati", "nombre_pieces_principales", "adresse_numero", "adresse_nom_voie", "id_parcelle"]
-    raw = fetch(url)
+    path = download(url)
     parts = []
-    for ch in pd.read_csv(io.BytesIO(raw), compression="gzip", usecols=cols, dtype=str, chunksize=500_000):
-        ch = ch[ch["nature_mutation"].isin(["Vente", "Vente en l'état futur d'achèvement"]) & ch["type_local"].notna()]
-        parts.append(ch)
-    del raw
+    for ch in pd.read_csv(path, compression="gzip", usecols=cols, dtype=str, chunksize=500_000):
+        parts.append(ch[ch["nature_mutation"].isin(KEEP) & ch["type_local"].notna()])
+    os.remove(path)
+    d = pd.concat(parts).rename(columns={"code_commune": "commune"})
+    return d, ["id_mutation", "type_local", "surface_reelle_bati", "nombre_pieces_principales",
+               "adresse_numero", "adresse_nom_voie", "id_parcelle"]
+
+
+def sales_raw(url):
+    path = download(url)
+    head = open(path, encoding="utf-8", errors="ignore").readline().strip().split("|")
+    want = {"No disposition": "dispo", "Date mutation": "date", "Nature mutation": "nature_mutation",
+            "Valeur fonciere": "valeur_fonciere", "No voie": "adresse_numero", "Voie": "adresse_nom_voie",
+            "Code departement": "dep", "Code commune": "com", "Section": "section", "No plan": "plan",
+            "Type local": "type_local", "Surface reelle bati": "surface_reelle_bati",
+            "Nombre pieces principales": "nombre_pieces_principales"}
+    use = [c for c in head if c in want]
+    parts = []
+    for ch in pd.read_csv(path, sep="|", usecols=use, dtype=str, chunksize=500_000, encoding="utf-8",
+                          encoding_errors="ignore"):
+        ch = ch.rename(columns=want)
+        parts.append(ch[ch["nature_mutation"].isin(KEEP) & ch["type_local"].notna()])
+    os.remove(path)
     d = pd.concat(parts)
-    d = d.drop_duplicates(["id_mutation", "type_local", "surface_reelle_bati", "nombre_pieces_principales",
-                           "adresse_numero", "adresse_nom_voie", "id_parcelle"])
+    d["valeur_fonciere"] = d["valeur_fonciere"].str.replace(",", ".", regex=False)
+    d["surface_reelle_bati"] = d["surface_reelle_bati"].str.replace(",", ".", regex=False)
+    d["commune"] = d["dep"].str[:2] + d["com"].str.zfill(3)
+    d["id_mutation"] = d["date"] + "|" + d["valeur_fonciere"].fillna("") + "|" + d["commune"] + "|" + d["dispo"].fillna("")
+    d["id_parcelle"] = d["commune"] + d["section"].fillna("") + d["plan"].fillna("")
+    return d, ["id_mutation", "type_local", "surface_reelle_bati", "nombre_pieces_principales",
+               "adresse_numero", "adresse_nom_voie", "id_parcelle"]
+
+
+def clean_sales(d, dedup):
+    d = d.drop_duplicates(dedup)
     logts = d[d["type_local"].isin(["Appartement", "Maison"])]
-    autres = d[d["type_local"].eq("Local industriel. commercial ou assimilé")]
+    autres = d[d["type_local"].str.startswith("Local industriel")]
     # une seule habitation par mutation (dépendances tolérées), pas de local commercial : méthode Etalab
     n = logts.groupby("id_mutation").size()
     seul = set(n[n == 1].index) - set(autres["id_mutation"])
@@ -134,46 +187,45 @@ def dvf_period(periode, url, communes):
     v["prix_m2"] = v["valeur"] / v["surface"]
     v = v[(v["prix_m2"] >= 150) & (v["prix_m2"] <= 30000)]
     v["type"] = v["type_local"].str.lower()
-    ref = communes.set_index("code")
-    v["commune"] = v["code_commune"]
-    v["departement"] = v["commune"].map(ref["departement"])
-    v["region"] = v["commune"].map(ref["region"])
-    v.loc[v["departement"].isna(), "departement"] = v["commune"].str[:3].where(v["commune"].str[:2].isin(["97"]), v["commune"].str[:2])
-    v["ville"] = v["commune"].str[:3].map(CITY)
-    out = []
+    return v[["commune", "type", "prix_m2"]]
 
-    def agg(niveau, key):
+
+def aggregate(periode, v, communes):
+    ref = communes.set_index("code")
+    v = v.copy()
+    v["departement"] = v["commune"].map(ref["departement"])
+    dep = v["commune"].str[:2].where(~v["commune"].str.startswith("97"), v["commune"].str[:3])
+    v["departement"] = v["departement"].fillna(dep)  # anciennes communes fusionnées depuis
+    dep_reg = communes.dropna(subset=["departement"]).groupby("departement")["region"].first()
+    v["region"] = v["commune"].map(ref["region"]).fillna(v["departement"].map(dep_reg))
+    v["ville"] = v["commune"].str[:3].map(CITY)
+    v["fr"] = "FR"
+    out = []
+    for niveau, key in [("commune", "commune"), ("commune", "ville"), ("departement", "departement"),
+                        ("region", "region"), ("france", "fr")]:
         g = v.dropna(subset=[key]).groupby([key, "type"])["prix_m2"]
         r = pd.DataFrame({"nb_ventes": g.size(), "prix_m2_median": g.median().round(0),
                           "prix_m2_moyen": g.mean().round(0)}).reset_index().rename(columns={key: "code"})
         r.insert(0, "niveau", niveau)
         out.append(r)
-
-    agg("commune", "commune")
-    v2 = v.dropna(subset=["ville"]).copy()
-    if len(v2):  # Paris, Marseille, Lyon dans leur ensemble
-        g = v2.groupby(["ville", "type"])["prix_m2"]
-        out.append(pd.DataFrame({"nb_ventes": g.size(), "prix_m2_median": g.median().round(0),
-                                 "prix_m2_moyen": g.mean().round(0)}).reset_index()
-                   .rename(columns={"ville": "code"}).assign(niveau="commune"))
-    agg("departement", "departement")
-    agg("region", "region")
-    v["fr"] = "FR"
-    agg("france", "fr")
     r = pd.concat(out)
     r.insert(2, "periode", periode)
-    r["nb_ventes"] = r["nb_ventes"].astype(int)
-    r["prix_m2_median"] = r["prix_m2_median"].astype(int)
-    r["prix_m2_moyen"] = r["prix_m2_moyen"].astype(int)
+    for c in ["nb_ventes", "prix_m2_median", "prix_m2_moyen"]:
+        r[c] = r[c].astype(int)
     log(f"  DVF {periode} : {len(v):,} ventes retenues, {len(r):,} lignes")
     return r
 
 
 def build_dvf(communes):
     res = []
-    for p, u in DVF.items():
+    for p, srcs in DVF.items():
         try:
-            res.append(dvf_period(p, u, communes))
+            vs = []
+            for kind, u in srcs:
+                d, dedup = (sales_raw if kind == "raw" else sales_geo)(u)
+                vs.append(clean_sales(d, dedup))
+                del d
+            res.append(aggregate(p, pd.concat(vs), communes))
         except Exception as e:
             log(f"  DVF {p} ÉCHEC : {e}")
             traceback.print_exc()
