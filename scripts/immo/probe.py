@@ -1,11 +1,8 @@
 """Sonde de sources (listes de répertoires, premiers octets) -> data/immo/_probe.txt"""
 import urllib.request
-U = ["https://files.data.gouv.fr/geo-dvf/", "https://files.data.gouv.fr/geo-dvf/latest/csv/",
-     "https://data.cquest.org/dgfip_dvf/", "https://data.cquest.org/geo_dvf/",
-     "https://opendata.caissedesdepots.fr/api/explore/v2.1/catalog/datasets/donnees-valeurs-foncieres-a-la-commune/records?limit=3",
-     "https://opendata.caissedesdepots.fr/api/explore/v2.1/catalog/datasets?where=search(%22valeurs%20foncieres%22)&limit=10&select=dataset_id",
-     "https://www.data.gouv.fr/api/1/datasets/demandes-de-valeurs-foncieres/",
-     "https://www.data.gouv.fr/api/1/datasets/?q=dvf%202014&page_size=10"]
+U = ["https://data.cquest.org/dgfip_dvf/201904/", "https://data.cquest.org/dgfip_dvf/202110/",
+     "https://data.cquest.org/dgfip_dvf/202504/", "https://data.cquest.org/dgfip_dvf/LISEZ_MOI.txt"]
+GZ = ["https://data.cquest.org/dgfip_dvf/dvf-2014-2018.csv.gz"]
 out = []
 for u in U:
     try:
@@ -13,4 +10,11 @@ for u in U:
         out.append(f"### {u}\n{b[:6000].decode('utf-8', 'ignore')}\n")
     except Exception as e:
         out.append(f"### {u}\nERREUR {e}\n")
+import zlib
+for u in GZ:
+    try:
+        b = urllib.request.urlopen(urllib.request.Request(u, headers={"User-Agent": "x", "Range": "bytes=0-200000"}), timeout=60).read()
+        out.append(f"### {u}\n" + zlib.decompressobj(31).decompress(b)[:3000].decode("utf-8", "ignore"))
+    except Exception as e:
+        out.append(f"### {u}\nERREUR {e}")
 open("data/immo/_probe.txt", "w").write("\n".join(out))
