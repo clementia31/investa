@@ -117,7 +117,7 @@ DVF = {
     "2026-S1": [("geo", G + "20261020-114825/full-2026-s1.csv.gz")],
 }
 CITY = {"751": "75056", "132": "13055", "693": "69123"}  # arrondissements -> Paris, Marseille, Lyon
-KEEP = ["Vente", "Vente en l'état futur d'achèvement"]
+KEEP = ["Vente"]  # logements anciens uniquement (les ventes sur plan, VEFA, faussent les comparaisons)
 
 
 def download(url):
