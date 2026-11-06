@@ -2,67 +2,17 @@
   -> zones.csv : 120 lignes, 0.0 Mo
   -> communes.csv : 35,014 lignes, 2.0 Mo
 == dvf
-  DVF 2021-S2 : 572,530 ventes retenues, 35,660 lignes
+  DVF 2014 : 644,518 ventes retenues, 36,914 lignes
+  DVF 2015 : 729,664 ventes retenues, 37,603 lignes
+  DVF 2016 : 769,592 ventes retenues, 37,592 lignes
+  DVF 2017 : 880,865 ventes retenues, 37,536 lignes
+  DVF 2018 : 875,146 ventes retenues, 37,580 lignes
+  DVF 2019 : 938,254 ventes retenues, 37,993 lignes
+  DVF 2020 : 823,869 ventes retenues, 37,415 lignes
+  DVF 2021 : 883,596 ventes retenues, 37,979 lignes
   DVF 2022 : 1,028,539 ventes retenues, 38,962 lignes
   DVF 2023 : 807,406 ventes retenues, 37,870 lignes
   DVF 2024 : 731,039 ventes retenues, 37,265 lignes
   DVF 2025 : 829,205 ventes retenues, 37,924 lignes
   DVF 2026-S1 : 366,322 ventes retenues, 32,005 lignes
-  -> prix_dvf.csv : 219,686 lignes, 8.8 Mo
-== loyers
-  loyers 2018 appartement : 35,441
-  loyers 2018 maison : 35,441
-  loyers 2022 maison : 34,980
-  loyers 2022 appartement_3p_plus : 34,980
-  loyers 2022 appartement_1_2p : 34,980
-  loyers 2022 appartement : 34,980
-  loyers 2023 maison : 34,970
-  loyers 2023 appartement_3p_plus : 34,970
-  loyers 2023 appartement_1_2p : 34,970
-  loyers 2023 appartement : 34,970
-  loyers 2024 appartement : 34,960
-  loyers 2024 appartement_1_2p : 34,960
-  loyers 2024 maison : 34,960
-  loyers 2024 appartement_3p_plus : 34,960
-  loyers 2025 appartement : 34,900
-  loyers 2025 appartement_1_2p : 34,900
-  loyers 2025 appartement_3p_plus : 34,900
-  loyers 2025 maison : 34,900
-  -> loyers.csv : 630,122 lignes, 31.5 Mo
-== oll
-  OLL 2014 : 3,820
-  OLL 2015 : 6,287
-  OLL 2016 : 8,387
-  OLL 2017 : 10,031
-  OLL 2018 : 14,637
-  OLL 2019 : 11,716
-  OLL 2020 : 10,423
-  OLL 2021 : 10,782
-  OLL 2022 : 11,711
-  OLL 2023 : 12,597
-  OLL 2024 : 12,033
-  OLL 2025 : 10,104
-  essai 1 échoué https://www.observatoires-des-loyers.org/datagouv/2026/Base_OP_2026_Nationale.csv : HTTP Error 404: Not Found
-  essai 2 échoué https://www.observatoires-des-loyers.org/datagouv/2026/Base_OP_2026_Nationale.csv : HTTP Error 404: Not Found
-  essai 1 échoué https://www.observatoires-des-loyers.org/datagouv/2027/Base_OP_2027_Nationale.csv : HTTP Error 404: Not Found
-  essai 2 échoué https://www.observatoires-des-loyers.org/datagouv/2027/Base_OP_2027_Nationale.csv : HTTP Error 404: Not Found
-  essai 1 échoué https://www.observatoires-des-loyers.org/datagouv/2028/Base_OP_2028_Nationale.csv : HTTP Error 404: Not Found
-  essai 2 échoué https://www.observatoires-des-loyers.org/datagouv/2028/Base_OP_2028_Nationale.csv : HTTP Error 404: Not Found
-  essai 1 échoué https://www.observatoires-des-loyers.org/datagouv/2029/Base_OP_2029_Nationale.csv : HTTP Error 404: Not Found
-  essai 2 échoué https://www.observatoires-des-loyers.org/datagouv/2029/Base_OP_2029_Nationale.csv : HTTP Error 404: Not Found
-  essai 1 échoué https://www.observatoires-des-loyers.org/datagouv/2030/Base_OP_2030_Nationale.csv : HTTP Error 404: Not Found
-  essai 2 échoué https://www.observatoires-des-loyers.org/datagouv/2030/Base_OP_2030_Nationale.csv : HTTP Error 404: Not Found
-  -> oll.csv : 122,528 lignes, 16.4 Mo
-== fiscalite
-  fiscalité : années 2021–2025
-  -> fiscalite.csv : 174,668 lignes, 5.8 Mo
-== insee
-  INSEE IRL : 8 séries
-  INSEE IPLA-IPLNA-2015 : 142 séries
-  INSEE ILC-ILAT-ICC : 6 séries
-  essai 1 échoué https://bdm.insee.fr/series/sdmx/data/INDICES_LOYERS : <urlopen error [Errno 104] Connection reset by peer>
-  INSEE INDICES_LOYERS : 66 séries
-  INSEE SERIES_LOYERS : 8 séries
-  INSEE PARC-LOGEMENTS : 32 séries
-  -> insee_catalogue.csv : 262 lignes, 0.0 Mo
-  -> insee.csv : 24,887 lignes, 0.6 Mo
+  -> prix_dvf.csv : 484,638 lignes, 19.0 Mo
