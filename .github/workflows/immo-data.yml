@@ -3,7 +3,8 @@ name: Immo data
 on:
   workflow_dispatch:
     inputs:
-      step: {description: "discover | build", required: true, default: build}
+      step: {description: "discover | peek | build", required: true, default: build}
+      only: {description: "build : sources à refaire (communes,dvf,loyers,oll,fiscalite,insee) — vide = tout", required: false, default: ""}
 permissions:
   contents: write
 jobs:
@@ -16,6 +17,7 @@ jobs:
         with: {python-version: "3.12"}
       - run: pip install pandas pyarrow
       - run: python scripts/immo/${{ inputs.step }}.py
+        env: {ONLY: "${{ inputs.only }}"}
       - run: |
           git config user.name "seed-bot"
           git config user.email "seed-bot@users.noreply.github.com"
