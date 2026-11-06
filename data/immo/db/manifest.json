@@ -1,0 +1,34 @@
+{
+ "immo_zones": {
+  "lignes": 120,
+  "morceaux": 1
+ },
+ "immo_communes": {
+  "lignes": 35014,
+  "morceaux": 2
+ },
+ "immo_prix": {
+  "lignes": 219686,
+  "morceaux": 11
+ },
+ "immo_loyers": {
+  "lignes": 157800,
+  "morceaux": 8
+ },
+ "immo_fiscalite": {
+  "lignes": 174668,
+  "morceaux": 9
+ },
+ "immo_oll": {
+  "lignes": 10257,
+  "morceaux": 1
+ },
+ "immo_insee_series": {
+  "lignes": 262,
+  "morceaux": 1
+ },
+ "immo_insee": {
+  "lignes": 24887,
+  "morceaux": 2
+ }
+}
