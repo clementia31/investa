@@ -1,0 +1,263 @@
+idbank;flux;titre;unite;frequence;derniere_maj
+000882470;IRL;Indice de référence des loyers 2005 (IRL 2005) - Série arrêtée;SO;T;2008-02-04
+000882473;IRL;Indice de référence des loyers 2005 (IRL 2005) - Variation annuelle - Série arrêtée;POURCENT;T;2008-02-04
+001515333;IRL;Indice de référence des loyers (IRL);SO;T;2026-10-15
+001515334;IRL;Indice de référence des loyers (IRL) - Variation annuelle;POURCENT;T;2026-10-15
+010760509;IRL;Indice de référence des loyers dans les collectivités régies par l’article 73 de la Constitution (régions et départements d’outre-mer);SO;T;2026-10-15
+010760510;IRL;Indice de référence des loyers dans les collectivités régies par l’article 73 de la Constitution (régions et départements d’outre-mer) - Variation annuelle;POURCENT;T;2026-10-15
+010760507;IRL;Indice de référence des loyers dans la collectivité de Corse;SO;T;2026-10-15
+010760508;IRL;Indice de référence des loyers dans la collectivité de Corse - Variation annuelle;POURCENT;T;2026-10-15
+010567006;IPLA-IPLNA-2015;Indice des prix des logements anciens - Agglomération de Marseille - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567007;IPLA-IPLNA-2015;Indice des prix des logements anciens - Agglomération de Marseille - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567008;IPLA-IPLNA-2015;Indice des prix des logements anciens - Agglomération de Lille - Maisons - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567009;IPLA-IPLNA-2015;Indice des prix des logements anciens - Agglomération de Lille - Maisons - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567010;IPLA-IPLNA-2015;Indice des prix des logements anciens - Agglomération de Lyon - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567011;IPLA-IPLNA-2015;Indice des prix des logements anciens - Agglomération de Lyon - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567012;IPLA-IPLNA-2015;Indice des prix des logements anciens - Paris - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567013;IPLA-IPLNA-2015;Indice des prix des logements anciens - Paris - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567014;IPLA-IPLNA-2015;Indice des prix des logements anciens - Seine-et-Marne - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567015;IPLA-IPLNA-2015;Indice des prix des logements anciens - Seine-et-Marne - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567016;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Seine-et-Marne - Ensemble - Base 100 en moyenne annuelle 2015 - série brute;SO;T;2026-09-08
+010567017;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Seine-et-Marne - Ensemble - Base 100 en moyenne annuelle 2015 - série CVS;SO;T;2026-09-08
+010567018;IPLA-IPLNA-2015;Indice des prix des logements anciens - Seine-et-Marne - Maisons - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567019;IPLA-IPLNA-2015;Indice des prix des logements anciens - Seine-et-Marne - Maisons - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567020;IPLA-IPLNA-2015;Indice des prix des logements anciens - Yvelines - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567021;IPLA-IPLNA-2015;Indice des prix des logements anciens - Yvelines - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567022;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Yvelines - Ensemble - Base 100 en moyenne annuelle 2015 - série brute;SO;T;2026-09-08
+010567023;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Yvelines - Ensemble - Base 100 en moyenne annuelle 2015 - série CVS;SO;T;2026-09-08
+010567024;IPLA-IPLNA-2015;Indice des prix des logements anciens - Yvelines - Maisons - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567025;IPLA-IPLNA-2015;Indice des prix des logements anciens - Yvelines - Maisons - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567026;IPLA-IPLNA-2015;Indice des prix des logements anciens - Essonne - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567027;IPLA-IPLNA-2015;Indice des prix des logements anciens - Essonne - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567028;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Essonne - Ensemble - Base 100 en moyenne annuelle 2015 - série brute;SO;T;2026-09-08
+010567029;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Essonne - Ensemble - Base 100 en moyenne annuelle 2015 - série CVS;SO;T;2026-09-08
+010567030;IPLA-IPLNA-2015;Indice des prix des logements anciens - Essonne - Maisons - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567031;IPLA-IPLNA-2015;Indice des prix des logements anciens - Essonne - Maisons - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567032;IPLA-IPLNA-2015;Indice des prix des logements anciens - Hauts-de-Seine - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567033;IPLA-IPLNA-2015;Indice des prix des logements anciens - Hauts-de-Seine - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567034;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Hauts-de-Seine - Ensemble - Base 100 en moyenne annuelle 2015 - série brute;SO;T;2026-09-08
+010567035;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Hauts-de-Seine - Ensemble - Base 100 en moyenne annuelle 2015 - série CVS;SO;T;2026-09-08
+010567036;IPLA-IPLNA-2015;Indice des prix des logements anciens - Hauts-de-Seine - Maisons - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567037;IPLA-IPLNA-2015;Indice des prix des logements anciens - Hauts-de-Seine - Maisons - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567038;IPLA-IPLNA-2015;Indice des prix des logements anciens - Seine-Saint-Denis - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567039;IPLA-IPLNA-2015;Indice des prix des logements anciens - Seine-Saint-Denis - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567040;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Seine-Saint-Denis - Ensemble - Base 100 en moyenne annuelle 2015 - série brute;SO;T;2026-09-08
+010567041;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Seine-Saint-Denis - Ensemble - Base 100 en moyenne annuelle 2015 - série CVS;SO;T;2026-09-08
+010567042;IPLA-IPLNA-2015;Indice des prix des logements anciens - Seine-Saint-Denis - Maisons - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567043;IPLA-IPLNA-2015;Indice des prix des logements anciens - Seine-Saint-Denis - Maisons - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567044;IPLA-IPLNA-2015;Indice des prix des logements anciens - Val-de-Marne - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567045;IPLA-IPLNA-2015;Indice des prix des logements anciens - Val-de-Marne - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567046;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Val-de-Marne - Ensemble - Base 100 en moyenne annuelle 2015 - série brute;SO;T;2026-09-08
+010567047;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Val-de-Marne - Ensemble - Base 100 en moyenne annuelle 2015 - série CVS;SO;T;2026-09-08
+010567048;IPLA-IPLNA-2015;Indice des prix des logements anciens - Val-de-Marne - Maisons - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567049;IPLA-IPLNA-2015;Indice des prix des logements anciens - Val-de-Marne - Maisons - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567050;IPLA-IPLNA-2015;Indice des prix des logements anciens - Val-d'Oise - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567051;IPLA-IPLNA-2015;Indice des prix des logements anciens - Val-d'Oise - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567052;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Val-d'Oise - Ensemble - Base 100 en moyenne annuelle 2015 - série brute;SO;T;2026-09-08
+010567053;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Val-d'Oise - Ensemble - Série CVS - Base 100 en moyenne annuelle 2015 - série CVS ;SO;T;2026-09-08
+010567054;IPLA-IPLNA-2015;Indice des prix des logements anciens - Val-d'Oise - Maisons - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567055;IPLA-IPLNA-2015;Indice des prix des logements anciens - Val-d'Oise - Maisons - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567116;IPLA-IPLNA-2015;Indice des prix des logements anciens - France (hors Mayotte) - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567117;IPLA-IPLNA-2015;Indice des prix des logements anciens - France (hors Mayotte) - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567118;IPLA-IPLNA-2015;Indice des prix des logements anciens - France (hors Mayotte) - Ensemble - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567119;IPLA-IPLNA-2015;Indice des prix des logements anciens - France (hors Mayotte) - Ensemble - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567120;IPLA-IPLNA-2015;Indice des prix des logements anciens - France (hors Mayotte) - Maisons - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567121;IPLA-IPLNA-2015;Indice des prix des logements anciens - France (hors Mayotte) - Maisons - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567056;IPLA-IPLNA-2015;Indice des prix des logements anciens - France métropolitaine - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567057;IPLA-IPLNA-2015;Indice des prix des logements anciens - France métropolitaine - Appartements - Base 100 en moyenne annuelle 2015 - série CVS;SO;T;2026-09-08
+010567058;IPLA-IPLNA-2015;Indice des prix des logements anciens - France métropolitaine - Ensemble - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567059;IPLA-IPLNA-2015;Indice des prix des logements anciens - France métropolitaine - Ensemble - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567060;IPLA-IPLNA-2015;Indice des prix des logements anciens - France métropolitaine - Maisons - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567061;IPLA-IPLNA-2015;Indice des prix des logements anciens - France métropolitaine - Maisons - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567062;IPLA-IPLNA-2015;Indice des prix des logements anciens - Province - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567063;IPLA-IPLNA-2015;Indice des prix des logements anciens - Province - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567072;IPLA-IPLNA-2015;Indice des prix des logements anciens - Province - Ensemble - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567073;IPLA-IPLNA-2015;Indice des prix des logements anciens - Province - Ensemble - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567074;IPLA-IPLNA-2015;Indice des prix des logements anciens - Province - Maisons - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567075;IPLA-IPLNA-2015;Indice des prix des logements anciens - Province - Maisons - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567064;IPLA-IPLNA-2015;Indice des prix des logements anciens - Province : agglomérations de plus de 10 000 habitants - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567065;IPLA-IPLNA-2015;Indice des prix des logements anciens - Province : agglomérations de plus de 10 000 habitants - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567066;IPLA-IPLNA-2015;Indice des prix des logements anciens - Province : agglomérations de plus de 10 000 habitants - Banlieues - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567067;IPLA-IPLNA-2015;Indice des prix des logements anciens - Province : agglomérations de plus de 10 000 habitants - Banlieues - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567070;IPLA-IPLNA-2015;Indice des prix des logements anciens - Province : agglomérations de plus de 10 000 habitants - Villes centres - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567071;IPLA-IPLNA-2015;Indice des prix des logements anciens - Province : agglomérations de plus de 10 000 habitants - Villes centres - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567068;IPLA-IPLNA-2015;Indice des prix des logements anciens - Province : agglomérations de moins de 10 000 habitants et zones rurales - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567069;IPLA-IPLNA-2015;Indice des prix des logements anciens - Province : agglomérations de moins de 10 000 habitants et zones rurales - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567076;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567077;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567078;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Ensemble - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567079;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Ensemble - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567090;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Maisons - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567091;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Maisons - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567080;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Grande couronne - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567081;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Grande couronne - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567082;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Grande couronne - Ensemble - Base 100 en moyenne annuelle 2015 - série brute;SO;T;2026-09-08
+010567083;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Grande couronne - Ensemble - Série CVS - Base 100 en moyenne annuelle 2015 - série CVS;SO;T;2026-09-08
+010567084;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Grande couronne - Maisons - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567085;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Grande couronne - Maisons - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567086;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France, hors Paris - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567087;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France, hors Paris - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567088;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France, hors Paris - Ensemble - Base 100 en moyenne annuelle 2015 - série brute;SO;T;2026-09-08
+010567089;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France, hors Paris - Ensemble - Série CVS - Base 100 en moyenne annuelle 2015 - série CVS;SO;T;2026-09-08
+010567092;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Petite couronne - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567093;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Petite couronne - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567094;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Petite couronne - Ensemble - Base 100 en moyenne annuelle 2015 - série brute;SO;T;2026-09-08
+010567095;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Petite couronne - Ensemble - Série CVS - Base 100 en moyenne annuelle 2015 - série CVS;SO;T;2026-09-08
+010567096;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Petite couronne - Maisons - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567097;IPLA-IPLNA-2015;Indice des prix des logements anciens - Île-de-France : Petite couronne - Maisons - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567098;IPLA-IPLNA-2015;Indice des prix des logements anciens - Nord-Pas-de-Calais - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567099;IPLA-IPLNA-2015;Indice des prix des logements anciens - Nord-Pas-de-Calais - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567100;IPLA-IPLNA-2015;Indice des prix des logements anciens - Nord-Pas-de-Calais - Ensemble - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567101;IPLA-IPLNA-2015;Indice des prix des logements anciens - Nord-Pas-de-Calais - Ensemble - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567102;IPLA-IPLNA-2015;Indice des prix des logements anciens - Nord-Pas-de-Calais - Maisons - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567103;IPLA-IPLNA-2015;Indice des prix des logements anciens - Nord-Pas-de-Calais - Maisons - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567122;IPLA-IPLNA-2015;Indice des prix des logements anciens - Hauts-de-France - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567123;IPLA-IPLNA-2015;Indice des prix des logements anciens - Hauts-de-France - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567124;IPLA-IPLNA-2015;Indice des prix des logements anciens - Hauts-de-France - Ensemble - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567125;IPLA-IPLNA-2015;Indice des prix des logements anciens - Hauts-de-France - Ensemble - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567126;IPLA-IPLNA-2015;Indice des prix des logements anciens - Hauts-de-France - Maisons - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567127;IPLA-IPLNA-2015;Indice des prix des logements anciens - Hauts-de-France - Maisons - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567104;IPLA-IPLNA-2015;Indice des prix des logements anciens - Rhône-Alpes - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567105;IPLA-IPLNA-2015;Indice des prix des logements anciens - Rhône-Alpes - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567106;IPLA-IPLNA-2015;Indice des prix des logements anciens - Rhône-Alpes - Ensemble - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567107;IPLA-IPLNA-2015;Indice des prix des logements anciens - Rhône-Alpes - Ensemble - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567108;IPLA-IPLNA-2015;Indice des prix des logements anciens - Rhône-Alpes - Maisons - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567109;IPLA-IPLNA-2015;Indice des prix des logements anciens - Rhône-Alpes - Maisons - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567128;IPLA-IPLNA-2015;Indice des prix des logements anciens - Auvergne-Rhône-Alpes - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567129;IPLA-IPLNA-2015;Indice des prix des logements anciens - Auvergne-Rhône-Alpes - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567130;IPLA-IPLNA-2015;Indice des prix des logements anciens - Auvergne-Rhône-Alpes - Ensemble - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567131;IPLA-IPLNA-2015;Indice des prix des logements anciens - Auvergne-Rhône-Alpes - Ensemble - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567132;IPLA-IPLNA-2015;Indice des prix des logements anciens - Auvergne-Rhône-Alpes - Maisons - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567133;IPLA-IPLNA-2015;Indice des prix des logements anciens - Auvergne-Rhône-Alpes - Maisons - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567110;IPLA-IPLNA-2015;Indice des prix des logements anciens - Provence-Alpes-Côte d'Azur - Appartements - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567111;IPLA-IPLNA-2015;Indice des prix des logements anciens - Provence-Alpes-Côte d'Azur - Appartements - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567112;IPLA-IPLNA-2015;Indice des prix des logements anciens - Provence-Alpes-Côte d'Azur - Ensemble - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567113;IPLA-IPLNA-2015;Indice des prix des logements anciens - Provence-Alpes-Côte d'Azur - Ensemble - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010567114;IPLA-IPLNA-2015;Indice des prix des logements anciens - Provence-Alpes-Côte d'Azur - Maisons - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010567115;IPLA-IPLNA-2015;Indice des prix des logements anciens - Provence-Alpes-Côte d'Azur - Maisons - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010760740;IPLA-IPLNA-2015;Indice des prix des logements anciens - Zone A du Zonage A, B, C - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010760745;IPLA-IPLNA-2015;Indice des prix des logements anciens - Zone A du Zonage A, B, C - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010760741;IPLA-IPLNA-2015;Indice des prix des logements anciens - Zone A bis du Zonage A, B, C - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010760746;IPLA-IPLNA-2015;Indice des prix des logements anciens - Zone A bis du Zonage A, B, C - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010760742;IPLA-IPLNA-2015;Indice des prix des logements anciens - Zone B1 du Zonage A, B, C - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010760747;IPLA-IPLNA-2015;Indice des prix des logements anciens - Zone B1 du Zonage A, B, C - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010760743;IPLA-IPLNA-2015;Indice des prix des logements anciens - Zone B2 du Zonage A, B, C - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010760748;IPLA-IPLNA-2015;Indice des prix des logements anciens - Zone B2 du Zonage A, B, C - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010760744;IPLA-IPLNA-2015;Indice des prix des logements anciens - Zone C du Zonage A, B, C - Base 100 en moyenne annuelle 2015 - Série brute;SO;T;2026-09-08
+010760749;IPLA-IPLNA-2015;Indice des prix des logements anciens - Zone C du Zonage A, B, C - Base 100 en moyenne annuelle 2015 - Série CVS;SO;T;2026-09-08
+010001868;IPLA-IPLNA-2015;Indice des prix des logements (neufs et anciens) – Brut – Base 100 en moyenne annuelle 2015;SO;T;2026-09-18
+010001869;IPLA-IPLNA-2015;Indice des prix des logements neufs – Brut – Base 100 en moyenne annuelle 2015;SO;T;2026-09-18
+010751596;IPLA-IPLNA-2015;Indice des prix des logements (neufs et anciens) – CVS – Base 100 en moyenne annuelle 2015;SO;T;2026-09-18
+010751595;IPLA-IPLNA-2015;Indice des prix des logements neufs – CVS – Base 100 en moyenne annuelle 2015;SO;T;2026-09-18
+000008630;ILC-ILAT-ICC;Indice du coût de la construction des immeubles à usage d'habitation (ICC);SO;T;2026-09-23
+000604030;ILC-ILAT-ICC;Indice du coût de la construction des immeubles à usage d'habitation (ICC) - Moyenne des 4 derniers indices;SO;T;2026-09-23
+001532540;ILC-ILAT-ICC;Indice des loyers commerciaux (ILC) - Base 100 au 1er trimestre 2008;SO;T;2026-09-23
+001532541;ILC-ILAT-ICC;Indice des loyers commerciaux (ILC) - Variation annuelle;POURCENT;T;2026-09-23
+001617112;ILC-ILAT-ICC;Indice des loyers des activités tertiaires (ILAT) - Base 100 au 1er trimestre 2010;SO;T;2026-09-23
+001617113;ILC-ILAT-ICC;Indice des loyers des activités tertiaires (ILAT) - Variation annuelle;POURCENT;T;2026-09-23
+010600365;INDICES_LOYERS;Indice des loyers – Tous secteurs – France métropolitaine – Base 100 en janvier 2019;SO;T;2026-09-15
+010600366;INDICES_LOYERS;Indice des loyers – Tous secteurs – Agglomération parisienne – Base 100 en janvier 2019;SO;T;2026-09-15
+010600367;INDICES_LOYERS;Indice des loyers – Tous secteurs – Reste de la France métropolitaine – Base 100 en janvier 2019;SO;T;2026-09-15
+010600351;INDICES_LOYERS;Indice des loyers – Secteur libre – France métropolitaine – Base 100 en janvier 2019;SO;T;2026-09-15
+010600352;INDICES_LOYERS;Indice des loyers – Secteur libre – Agglomération parisienne – Base 100 en janvier 2019;SO;T;2026-09-15
+010600353;INDICES_LOYERS;Indice des loyers – Secteur libre – Reste de la France métropolitaine – Base 100 en janvier 2019;SO;T;2026-09-15
+010600358;INDICES_LOYERS;Indice des loyers – Secteur social – France métropolitaine – Base 100 en janvier 2019;SO;T;2026-09-15
+010600359;INDICES_LOYERS;Indice des loyers – Secteur social – Agglomération parisienne – Base 100 en janvier 2019;SO;T;2026-09-15
+010600360;INDICES_LOYERS;Indice des loyers – Secteur social – Reste de la France métropolitaine – Base 100 en janvier 2019;SO;T;2026-09-15
+010600368;INDICES_LOYERS;Indice des loyers – Tous secteurs – Guadeloupe – Base 100 en janvier 2019;SO;T;2026-09-15
+010600354;INDICES_LOYERS;Indice des loyers – Secteur libre – Guadeloupe – Base 100 en janvier 2019;SO;T;2026-09-15
+010600361;INDICES_LOYERS;Indice des loyers – Secteur social – Guadeloupe – Base 100 en janvier 2019;SO;T;2026-09-15
+010600369;INDICES_LOYERS;Indice des loyers – Tous secteurs – Martinique – Base 100 en janvier 2019;SO;T;2026-09-15
+010600355;INDICES_LOYERS;Indice des loyers – Secteur libre – Martinique – Base 100 en janvier 2019;SO;T;2026-09-15
+010600362;INDICES_LOYERS;Indice des loyers – Secteur social – Martinique – Base 100 en janvier 2019;SO;T;2026-09-15
+010600370;INDICES_LOYERS;Indice des loyers – Tous secteurs – Guyane – Base 100 en janvier 2019;SO;T;2026-09-15
+010600371;INDICES_LOYERS;Indice des loyers – Tous secteurs – La Réunion – Base 100 en janvier 2019;SO;T;2026-09-15
+010600357;INDICES_LOYERS;Indice des loyers – Secteur libre – La Réunion – Base 100 en janvier 2019;SO;T;2026-09-15
+010600364;INDICES_LOYERS;Indice des loyers – Secteur social – La Réunion – Base 100 en janvier 2019;SO;T;2026-09-15
+010605026;INDICES_LOYERS;Indice des loyers – Tous secteurs – France (hors Mayotte) – Base 100 en janvier 2019;SO;T;2026-09-15
+010605027;INDICES_LOYERS;Indice des loyers – Secteur libre – France (hors Mayotte) – Base 100 en janvier 2019;SO;T;2026-09-15
+010605028;INDICES_LOYERS;Indice des loyers – Secteur social – France (hors Mayotte) – Base 100 en janvier 2019;SO;T;2026-09-15
+010600386;INDICES_LOYERS;Variation trimestrielle des loyers – Tous secteurs – France métropolitaine;SO;T;2026-09-15
+010600387;INDICES_LOYERS;Variation trimestrielle des loyers – Tous secteurs – Agglomération parisienne;SO;T;2026-09-15
+010600388;INDICES_LOYERS;Variation trimestrielle des loyers – Tous secteurs – Reste de la France métropolitaine;SO;T;2026-09-15
+010600372;INDICES_LOYERS;Variation trimestrielle des loyers – Secteur libre – France métropolitaine;SO;T;2026-09-15
+010600373;INDICES_LOYERS;Variation trimestrielle des loyers – Secteur libre – Agglomération parisienne;SO;T;2026-09-15
+010600374;INDICES_LOYERS;Variation trimestrielle des loyers – Secteur libre – Reste de la France métropolitaine;SO;T;2026-09-15
+010600379;INDICES_LOYERS;Variation trimestrielle des loyers – Secteur social – France métropolitaine;SO;T;2026-09-15
+010600380;INDICES_LOYERS;Variation trimestrielle des loyers – Secteur social – Agglomération parisienne;SO;T;2026-09-15
+010600381;INDICES_LOYERS;Variation trimestrielle des loyers – Secteur social – Reste de la France métropolitaine;SO;T;2026-09-15
+010600389;INDICES_LOYERS;Variation trimestrielle des loyers – Tous secteurs – Guadeloupe;SO;T;2026-09-15
+010600375;INDICES_LOYERS;Variation trimestrielle des loyers – Secteur libre – Guadeloupe;SO;T;2026-09-15
+010600382;INDICES_LOYERS;Variation trimestrielle des loyers – Secteur social – Guadeloupe;SO;T;2026-09-15
+010600390;INDICES_LOYERS;Variation trimestrielle des loyers – Tous secteurs – Martinique;SO;T;2026-09-15
+010600376;INDICES_LOYERS;Variation trimestrielle des loyers – Secteur libre – Martinique;SO;T;2026-09-15
+010600383;INDICES_LOYERS;Variation trimestrielle des loyers – Secteur social – Martinique;SO;T;2026-09-15
+010600391;INDICES_LOYERS;Variation trimestrielle des loyers – Tous secteurs – Guyane;SO;T;2026-09-15
+010600392;INDICES_LOYERS;Variation trimestrielle des loyers – Tous secteurs – La Réunion;SO;T;2026-09-15
+010600378;INDICES_LOYERS;Variation trimestrielle des loyers – Secteur libre – La Réunion;SO;T;2026-09-15
+010600385;INDICES_LOYERS;Variation trimestrielle des loyers – Secteur social – La Réunion;SO;T;2026-09-15
+010605029;INDICES_LOYERS;Variation trimestrielle des loyers – Tous secteurs – France (hors Mayotte);SO;T;2026-09-15
+010605030;INDICES_LOYERS;Variation trimestrielle des loyers – Secteur libre – France (hors Mayotte);SO;T;2026-09-15
+010605031;INDICES_LOYERS;Variation trimestrielle des loyers – Secteur social – France (hors Mayotte);SO;T;2026-09-15
+010600407;INDICES_LOYERS;Variation annuelle des loyers – Tous secteurs – France métropolitaine;SO;T;2026-09-15
+010600408;INDICES_LOYERS;Variation annuelle des loyers – Tous secteurs – Agglomération parisienne;SO;T;2026-09-15
+010600409;INDICES_LOYERS;Variation annuelle des loyers – Tous secteurs – Reste de la France métropolitaine;SO;T;2026-09-15
+010600393;INDICES_LOYERS;Variation annuelle des loyers – Secteur libre – France métropolitaine;SO;T;2026-09-15
+010600394;INDICES_LOYERS;Variation annuelle des loyers – Secteur libre – Agglomération parisienne;SO;T;2026-09-15
+010600395;INDICES_LOYERS;Variation annuelle des loyers – Secteur libre – Reste de la France métropolitaine;SO;T;2026-09-15
+010600400;INDICES_LOYERS;Variation annuelle des loyers – Secteur social – France métropolitaine;SO;T;2026-09-15
+010600401;INDICES_LOYERS;Variation annuelle des loyers – Secteur social – Agglomération parisienne;SO;T;2026-09-15
+010600402;INDICES_LOYERS;Variation annuelle des loyers – Secteur social – Reste de la France métropolitaine;SO;T;2026-09-15
+010600410;INDICES_LOYERS;Variation annuelle des loyers – Tous secteurs – Guadeloupe;SO;T;2026-09-15
+010600396;INDICES_LOYERS;Variation annuelle des loyers – Secteur libre – Guadeloupe;SO;T;2026-09-15
+010600403;INDICES_LOYERS;Variation annuelle des loyers – Secteur social – Guadeloupe;SO;T;2026-09-15
+010600411;INDICES_LOYERS;Variation annuelle des loyers – Tous secteurs – Martinique;SO;T;2026-09-15
+010600397;INDICES_LOYERS;Variation annuelle des loyers – Secteur libre – Martinique;SO;T;2026-09-15
+010600404;INDICES_LOYERS;Variation annuelle des loyers – Secteur social – Martinique;SO;T;2026-09-15
+010600412;INDICES_LOYERS;Variation annuelle des loyers – Tous secteurs – Guyane;SO;T;2026-09-15
+010600413;INDICES_LOYERS;Variation annuelle des loyers – Tous secteurs – La Réunion;SO;T;2026-09-15
+010600399;INDICES_LOYERS;Variation annuelle des loyers – Secteur libre – La Réunion;SO;T;2026-09-15
+010600406;INDICES_LOYERS;Variation annuelle des loyers – Secteur social – La Réunion;SO;T;2026-09-15
+010605032;INDICES_LOYERS;Variation annuelle des loyers – Tous secteurs – France (hors Mayotte);SO;T;2026-09-15
+010605033;INDICES_LOYERS;Variation annuelle des loyers – Secteur libre – France (hors Mayotte);SO;T;2026-09-15
+010605034;INDICES_LOYERS;Variation annuelle des loyers – Secteur social – France (hors Mayotte);SO;T;2026-09-15
+010600343;SERIES_LOYERS;Variation trimestrielle des loyers – Tous secteurs – France métropolitaine – Série arrêtée;SO;T;2019-12-19
+010600344;SERIES_LOYERS;Variation trimestrielle des loyers – Loi 1948 – France métropolitaine – Série arrêtée;SO;T;2019-12-19
+010600345;SERIES_LOYERS;Variation trimestrielle des loyers – Secteur libre – France métropolitaine – Série arrêtée;SO;T;2019-12-19
+010600346;SERIES_LOYERS;Variation trimestrielle des loyers – Secteur social – France métropolitaine – Série arrêtée;SO;T;2019-12-19
+010600347;SERIES_LOYERS;Variation annuelle des loyers – Tous secteurs – France métropolitaine – Série arrêtée;SO;T;2019-12-19
+010600348;SERIES_LOYERS;Variation annuelle des loyers – Loi 1948 – France métropolitaine – Série arrêtée;SO;T;2019-12-19
+010600349;SERIES_LOYERS;Variation annuelle des loyers – Secteur libre – France métropolitaine – Série arrêtée;SO;T;2019-12-19
+010600350;SERIES_LOYERS;Variation annuelle des loyers – Secteur social – France métropolitaine – Série arrêtée;SO;T;2019-12-19
+001791251;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Résidences principales - Proportion de locataires d'un bailleur public - France hors Mayotte;POURCENT;A;2026-09-30
+001791247;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Résidences principales - Proportion de propriétaires - France hors Mayotte;POURCENT;A;2026-09-30
+001687214;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Nombre de logements vacants - France métropolitaine;SO;A;2026-09-30
+001791249;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Résidences principales - Proportion de propriétaires sans charges de remboursement - France hors Mayotte;POURCENT;A;2026-09-30
+001687226;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Résidences principales - Proportion de locataires d'un bailleur privé - France métropolitaine;POURCENT;A;2026-09-30
+001687213;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Nombre de résidences secondaires et logements occasionnels - France métropolitaine;SO;A;2026-09-30
+001687215;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Nombre de résidences principales - Logement individuel - France métropolitaine;SO;A;2026-09-30
+001791246;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Nombre de résidences principales - Logement collectif - France hors Mayotte;SO;A;2026-09-30
+001791250;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Résidences principales - Proportion de locataires - France hors Mayotte;POURCENT;A;2026-09-30
+011818761;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Nombre de logements vacants - Logement individuel - France hors Mayotte;SO;A;2026-09-30
+001687211;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Nombre total de logements - France métropolitaine;SO;A;2026-09-30
+001687225;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Résidences principales - Proportion de locataires d'un bailleur public - France métropolitaine;POURCENT;A;2026-09-30
+011818759;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Nombre de résidences secondaires et logements occasionnels - Logement individuel - France hors Mayotte;SO;A;2026-09-30
+001791243;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Nombre de résidences secondaires et logements occasionnels - France hors Mayotte;SO;A;2026-09-30
+001791253;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Résidences principales - Proportion de logés gratuitement - France hors Mayotte;POURCENT;A;2026-09-30
+001687212;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Nombre de résidences principales - Ensemble - France métropolitaine;SO;A;2026-09-30
+011818757;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Nombre total de logements - Logement individuel - France hors Mayotte;SO;A;2026-09-30
+001791245;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Nombre de résidences principales - Logement individuel - France hors Mayotte;SO;A;2026-09-30
+001687216;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Nombre de résidences principales - Logement collectif - France métropolitaine;SO;A;2026-09-30
+011818760;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Nombre de résidences secondaires et logements occasionnels - Logement collectif - France hors Mayotte;SO;A;2026-09-30
+001687224;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Résidences principales - Proportion de locataires - France métropolitaine;POURCENT;A;2026-09-30
+001687222;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Résidences principales - Proportion de propriétaires accédants - France métropolitaine;POURCENT;A;2026-09-30
+001687221;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Résidences principales - Proportion de propriétaires - France métropolitaine;POURCENT;A;2026-09-30
+001791252;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Résidences principales - Proportion de locataires d'un bailleur privé - France hors Mayotte;POURCENT;A;2026-09-30
+011818762;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Nombre de logements vacants - Logement collectif - France hors Mayotte;SO;A;2026-09-30
+001791244;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Nombre de logements vacants - France hors Mayotte;SO;A;2026-09-30
+011818758;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Nombre total de logements - Logement collectif - France hors Mayotte;SO;A;2026-09-30
+001687227;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Résidences principales - Proportion de logés gratuitement - France métropolitaine;POURCENT;A;2026-09-30
+001791242;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Nombre de résidences principales - Ensemble - France hors Mayotte;SO;A;2026-09-30
+001687223;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Résidences principales - Proportion de propriétaires sans charges de remboursement - France métropolitaine;POURCENT;A;2026-09-30
+001791248;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Résidences principales - Proportion de propriétaires accédants - France hors Mayotte;POURCENT;A;2026-09-30
+001791241;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Nombre total de logements - France hors Mayotte;SO;A;2026-09-30
