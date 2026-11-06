@@ -7,7 +7,12 @@ des indices trimestriels. On prend l'indice le plus proche de la zone :
   région : Île-de-France, Provence-Alpes-Côte d'Azur, Rhône-Alpes, Nord-Pas-de-Calais (2008 →)
   défaut : Province (villes-centres pour les appartements, ensemble pour les maisons)
 Sortie : data/immo/prix_estimes.csv (niveau;code;annee;type;prix_m2_estime;indice;precision)
-precision = ville | departement | region | province — à indiquer dans les visuels (« estimation »)."""
+precision = ville | notaires | departement | region | province — à indiquer dans les visuels (« estimation »).
+
+Pour les grandes villes sans indice INSEE propre (Bordeaux, Toulouse, Nice, Nantes, Montpellier, Rennes, Lille),
+2009-2013 suivent les prix médians au m² des appartements anciens publiés par les Notaires de France
+(notes de conjoncture immobilière de janvier 2011, 2012, 2013 et 2015, 3e trimestre ; les années manquantes
+sont déduites de l'évolution sur un an publiée ; Lille 2011-2012 interpolés). Avant 2009 : indice régional depuis ce point d'ancrage."""
 import pandas as pd
 D = "data/immo"
 ins = pd.read_csv(f"{D}/insee.csv", sep=";", dtype={"idbank": str})
@@ -54,12 +59,32 @@ def choix(niveau, code, typ):
     return B[("prov", "", typ)], "province"
 
 
+# Notaires de France, appartements anciens, prix médian au m² du 3e trimestre
+NOTAIRES = {
+    "33063": {2009: 2481, 2010: 2591, 2011: 2907, 2012: 3040, 2013: 2995, 2014: 3040},  # Bordeaux
+    "31555": {2009: 2262, 2010: 2409, 2011: 2570, 2012: 2500, 2013: 2502, 2014: 2540},  # Toulouse
+    "06088": {2009: 3265, 2010: 3500, 2011: 3773, 2012: 3740, 2013: 3614, 2014: 3560},  # Nice
+    "44109": {2009: 2273, 2010: 2496, 2011: 2696, 2012: 2660, 2013: 2598, 2014: 2650},  # Nantes
+    "34172": {2009: 2396, 2010: 2558, 2011: 2632, 2012: 2680, 2013: 2769, 2014: 2570},  # Montpellier
+    "35238": {2009: 2079, 2010: 2267, 2011: 2333, 2012: 2460, 2013: 2404, 2014: 2430},  # Rennes
+    # Lille : absente des notes 2012 et 2013 -> 2011 et 2012 interpolés entre 2010 et 2013
+    "59350": {2009: 2675, 2010: 2902, 2011: 2981, 2012: 3060, 2013: 3139, 2014: 3010},  # Lille
+}
 big = set(com[(com.population >= 20000) & com.niveau.eq("commune")].code)
 base = p[(p.periode == "2014") & (p.nb_ventes >= 30) & (p.niveau.isin(["france", "region", "departement"]) | p.code.isin(big))]
 rows = []
 for r in base.itertuples():
     idb, prec = choix(r.niveau, r.code, r.type)
     s = ins.loc[idb]
+    n = NOTAIRES.get(r.code) if r.type == "appartement" and r.niveau == "commune" else None
+    if n:
+        anc = {an: r.prix_m2_median * n[an] / n[2014] for an in range(2009, 2014)}
+        for an in range(2009, 2014):
+            rows.append((r.niveau, r.code, an, r.type, round(anc[an]), "notaires-de-france", "notaires"))
+        for an in range(2000, 2009):
+            if an in s.index and 2009 in s.index:
+                rows.append((r.niveau, r.code, an, r.type, round(anc[2009] * s[an] / s[2009]), idb, prec))
+        continue
     for an in range(2000, 2014):
         if an in s.index and 2014 in s.index:
             rows.append((r.niveau, r.code, an, r.type, round(r.prix_m2_median * s[an] / s[2014]), idb, prec))
