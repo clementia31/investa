@@ -10,11 +10,20 @@ F = {
  "ecb_gbp_eur_annuel.csv": "https://data-api.ecb.europa.eu/service/data/EXR/A.GBP.EUR.SP00.A?format=csvdata",
  "it_milano_ckan.json": "https://dati.comune.milano.it/api/3/action/package_search?q=quotazioni%20immobiliari%20omi%20compravendita&rows=200",
  "it_ondata_contents.json": "https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/contents",
- "de_muenchen_gutachter.html": "https://stadt.muenchen.de/infos/gutachterausschuss-jahresbericht.html",
+ "it_milano_omi_riepilogo.csv": "https://dati.comune.milano.it/dataset/1ad8ecfd-5d4a-487d-b2e3-7d45fe9e1274/resource/90df91fa-9bc9-4100-9192-cb3a2f46fd44/download/ds1996_quotazioni_omi_compravendita_e_locazione_riepilogo.csv",
+ "it_ondata_data.json": "https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/contents/data",
+ "it_ondata_rawdata.json": "https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/contents/rawData",
+ "it_ondata_readme.md": "https://raw.githubusercontent.com/ondata/quotazioni-immobiliari-agenzia-entrate/master/README.md",
+ "uk_ons_regional_m2.html": "https://www.ons.gov.uk/economy/inflationandpriceindices/datasets/regionalhousepricelevelestimatespersquaremetre",
 }
+for y in range(2015, 2026):
+    F[f"at_wohnungspreise_{y}.ods"] = f"https://www.statistik.at/fileadmin/pages/222/Wohnungspreise{y}.ods"
+H2 = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
+      "Accept": "*/*", "Referer": "https://www.ons.gov.uk/"}
 for k, u in F.items():
+    if os.path.exists(f"{R}/{k}") and not k.startswith("uk_ons"): continue
     try:
-        b = urllib.request.urlopen(urllib.request.Request(u, headers=H), timeout=180).read()
+        b = urllib.request.urlopen(urllib.request.Request(u, headers=H2 if "ons.gov.uk" in u else H), timeout=180).read()
         open(f"{R}/{k}", "wb").write(b); print("ok", k, len(b))
     except Exception as e:
         print("ERREUR", k, e)
