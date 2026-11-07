@@ -1,0 +1,985 @@
+### http://publicdata.landregistry.gov.uk/market-trend-data/house-price-index-data/Average-prices-2026-08.csv
+OK 7580400 octets
+Date,Region_Name,Area_Code,Average_Price,Monthly_Change,Annual_Change,Average_Price_SA
+1968-04-01,Northern Ireland,N92000002,3465,,,
+1968-04-01,England,E92000001,3218,,,
+1968-04-01,Wales,W92000004,2732,,,
+1968-04-01,Scotland,S92000003,2738,,,
+1968-04-01,London,E12000007,4730,,,
+1968-04-01,East Midlands,E12000004,2914,,,
+1968-04-01,Yorkshire and The Humber,E12000003,2553,,,
+1968-04-01,South West,E12000009,3347,,,
+1968-04-01,West Midlands Region,E12000005,3188,,,
+1968-04-01,United Kingdom,K02000001,3311,,,
+1968-05-01,England,E92000001,3218,,,
+1968-05-01,Northern Ireland,N92000002,3465,,,
+1968-05-01,Wales,W92000004,2732,,,
+1968-05-01,Scotland,S92000003,2738,,,
+1968-05-01,Yorkshire and The Humber,E12000003,2553,,,
+1968-05-01,West Midlands Region,E12000005,3188,,,
+1968-05-01,London,E12000007,4730,,,
+1968-05-01,East Midlands,E12000004,2914,,,
+1968-05-01,South West,E12000009,3347,,,
+1968-05-01,United Kingdom,K02000001,3311,,,
+1968-06-01,Scotland,S92000003,2738,,,
+1968-06-01,Wales,W92000004,2732,,,
+1968-06-01,England,E92000001,3218,,,
+1968-06-01,Northern Ireland,N92000002,3465,,,
+1968-06-01,London,E12000007,4730,,,
+1968-06-01,South West,E12000009,3347,,,
+1968-06-01,Yorkshire and The Humber,E12000003,2553,,,
+1968-06-01,East Midlands,E12000004,2914,,,
+1968-06-01,West Midlands Region,E12000005,3188,,,
+1968-06-01,United Kingdom,K02000001,3311,,,
+1968-07-01,England,E92000001,3327,3.4,,
+1968-07-01,Northern Ireland,N92000002,3326,-4,,
+1968-07-01,Wales,W92000004,2864,4.8,,
+1968-07-01,Scotland,S92000003,3001,9.6,,
+1968-07-01,London,E12000007,4865,2.9,,
+1968-07-01,West Midlands Region,E12000005,3255,2.1,,
+1968-07-01,Yorkshire and The Humber,E12000003,2581,1.1,,
+1968-07-01,East Midlands,E12000004,3057,4.9,,
+1968-07-01,South West,E12000009,3429,2.5,,
+1968-07-01,United Kingdom,K02000001,3424,3.4,,
+1968-08-01,Scotland,S92000003,3001,9.6,,
+1968-08-01,Wales,W92000004,2864,4.8,,
+1968-08-01,Northern Ireland,N92000002,3326,-4,,
+1968-08-01,England,E92000001,3327,3.4,,
+1968-08-01,Yorkshire and The Humber,E12000003,2581,1.1,,
+1968-08-01,London,E12000007,4865,2.9,,
+1968-08-01,East Midlands,E12000004,3057,4.9,,
+1968-08-01,West Midlands Region,E12000005,3255,2.1,,
+1968-08-01,South West,E12000009,3429,2.5,,
+1968-08-01,United Kingdom,K02000001,3424,3.4,,
+1968-09-01,Scotland,S92000003,3001,9.6,,
+1968-09-01,Wales,W92000004,2864,4.8,,
+1968-09-01,Northern Ireland,N92000002,3326,-4,,
+1968-09-01,England,E92000001,3327,3.4,,
+1968-09-01,West Midlands Region,E12000005,3255,2.1,,
+1968-09-01,East Midlands,E12000004,3057,4.9,,
+1968-09-01,South West,E12000009,3429,2.5,,
+1968-09-01,Yorkshire and The Humber,E12000003,2581,1.1,,
+1968-09-01,London,E12000007,4865,2.9,,
+1968-09-01,United Kingdom,K02000001,3424,3.4,,
+1968-10-01,Wales,W92000004,2878,0.5,,
+1968-10-01,England,E92000001,3309,-0.5,,
+1968-10-01,Northern Ireland,N92000002,3704,11.4,,
+1968-10-01,Scotland,S92000003,2811,-6.3,,
+1968-10-01,South West,E12000009,3512,2.4,,
+1968-10-01,East Midlands,E12000004,2961,-3.1,,
+1968-10-01,West Midlands Region,E12000005,3188,-2.1,,
+1968-10-01,London,E12000007,4757,-2.2,,
+1968-10-01,Yorkshire and The Humber,E12000003,2581,0,,
+1968-10-01,United Kingdom,K02000001,3405,-0.5,,
+1968-11-01,England,E92000001,3309,-0.5,,
+1968-11-01,Northern Ireland,N92000002,3704,11.4,,
+1968-11-01,Wales,W92000004,2878,0.5,,
+1968-11-01,Scotland,S92000003,2811,-6.3,,
+1968-11-01,London,E12000007,4757,-2.2,,
+1968-11-01,West Midlands Region,E12000005,3188,-2.1,,
+1968-11-01,Yorkshire and The Humber,E12000003,2581,0,,
+1968-11-01,South West,E12000009,3512,2.4,,
+1968-11-01,East Midlands,E12000004,2961,-3.1,,
+1968-11-01,United Kingdom,K02000001,3405,-0.5,,
+1968-12-01,Scotland,S92000003,2811,-6.3,,
+1968-12-01,Wales,W92000004,2878,0.5,,
+1968-12-01,Northern Ireland,N92000002,3704,11.4,,
+1968-12-01,England,E92000001,3309,-0.5,,
+1968-12-01,London,E12000007,4757,-2.2,,
+1968-12-01,South West,E12000009,3512,2.4,,
+1968-12-01,Yorkshire and The Humber,E12000003,2581,0,,
+1968-12-01,West Midlands Region,E12000005,3188,-2.1,,
+1968-12-01,East Midlands,E12000004,2961,-3.1,,
+1968-12-01,United Kingdom,K02000001,3405,-0.5,,
+1969-01-01,Northern Ireland,N92000002,3485,-5.9,,
+1969-01-01,Scotland,S92000003,3031,7.8,,
+1969-01-01,Wales,W92000004,2878,0,,
+1969-01-01,England,E92000001,3364,1.7,,
+1969-01-01,South West,E12000009,3553,1.2,,
+1969-01-01,London,E12000007,4919,3.4,,
+1969-01-01,West Midlands Region,E12000005,3439,7.9,,
+1969-01-01,East Midlands,E12000004,2995,1.1,,
+1969-01-01,Yorkshire and The Humber,E12000003,2624,1.7,,
+1969-01-01,United Kingdom,K02000001,3461,1.6,,
+1969-02-01,England,E92000001,3364,1.7,,
+1969-02-01,Scotland,S92000003,3031,7.8,,
+1969-02-01,Northern Ireland,N92000002,3485,-5.9,,
+1969-02-01,Wales,W92000004,2878,0,,
+1969-02-01,South West,E12000009,3553,1.2,,
+1969-02-01,West Midlands Region,E12000005,3439,7.9,,
+1969-02-01,East Midlands,E12000004,2995,1.1,,
+1969-02-01,Yorkshire and The Humber,E12000003,2624,1.7,,
+1969-02-01,London,E12000007,4919,3.4,,
+1969-02-01,United Kingdom,K02000001,3461,1.6,,
+1969-03-01,Scotland,S92000003,3031,7.8,,
+1969-03-01,England,E92000001,3364,1.7,,
+1969-03-01,Northern Ireland,N92000002,3485,-5.9,,
+1969-03-01,Wales,W92000004,2878,0,,
+1969-03-01,London,E12000007,4919,3.4,,
+1969-03-01,West Midlands Region,E12000005,3439,7.9,,
+1969-03-01,East Midlands,E12000004,2995,1.1,,
+1969-03-01,Yorkshire and The Humber,E12000003,2624,1.7,,
+1969-03-01,South West,E12000009,3553,1.2,,
+1969-03-01,United Kingdom,K02000001,3461,1.6,,
+1969-04-01,Northern Ireland,N92000002,3684,5.7,6.3,
+1969-04-01,Wales,W92000004,2805,-2.5,2.7,
+1969-04-01,Scotland,S92000003,3060,1,11.8,
+1969-04-01,England,E92000001,3419,1.6,6.2,
+1969-04-01,West Midlands Region,E12000005,3389,-1.5,6.3,
+1969-04-01,Yorkshire and The Humber,E12000003,2695,2.7,5.6,
+1969-04-01,London,E12000007,4811,-2.2,1.7,
+1969-04-01,South West,E12000009,3655,2.9,9.2,
+1969-04-01,East Midlands,E12000004,2995,0,2.8,
+1969-04-01,United Kingdom,K02000001,3517,1.6,6.2,
+1969-05-01,England,E92000001,3419,1.6,6.2,
+1969-05-01,Scotland,S92000003,3060,1,11.8,
+1969-05-01,Wales,W92000004,2805,-2.5,2.7,
+1969-05-01,Northern Ireland,N92000002,3684,5.7,6.3,
+1969-05-01,West Midlands Region,E12000005,3389,-1.5,6.3,
+1969-05-01,London,E12000007,4811,-2.2,1.7,
+1969-05-01,East Midlands,E12000004,2995,0,2.8,
+1969-05-01,Yorkshire and The Humber,E12000003,2695,2.7,5.6,
+1969-05-01,South West,E12000009,3655,2.9,9.2,
+1969-05-01,United Kingdom,K02000001,3517,1.6,6.2,
+1969-06-01,Wales,W92000004,2805,-2.5,2.7,
+1969-06-01,Northern Ireland,N92000002,3684,5.7,6.3,
+1969-06-01,England,E92000001,3419,1.6,6.2,
+1969-06-01,Scotland,S92000003,3060,1,11.8,
+1969-06-01,Yorkshire and The Humber,E12000003,2695,2.7,5.6,
+1969-06-01,West Midlands Region,E12000005,3389,-1.5,6.3,
+1969-06-01,London,E12000007,4811,-2.2,1.7,
+1969-06-01,East Midlands,E12000004,2995,0,2.8,
+1969-06-01,South West,E12000009,3655,2.9,9.2,
+1969-06-01,United Kingdom,K02000001,3517,1.6,6.2,
+1969-07-01,Wales,W92000004,2893,3.1,1,
+1969-07-01,Northern Ireland,N92000002,3425,-7,3,
+1969-07-01,Scotland,S92000003,3031,-1,1,
+1969-07-01,England,E92000001,3474,1.6,4.4,
+1969-07-01,West Midlands Region,E12000005,3305,-2.5,1.5,
+1969-07-01,South West,E12000009,3635,-0.6,6,
+1969-07-01,London,E12000007,4973,3.4,2.2,
+1969-07-01,East Midlands,E12000004,3043,1.6,-0.5,
+1969-07-01,Yorkshire and The Humber,E12000003,2781,3.2,7.7,
+1969-07-01,United Kingdom,K02000001,3554,1.1,3.8,
+1969-08-01,Northern Ireland,N92000002,3425,-7,3,
+1969-08-01,England,E92000001,3474,1.6,4.4,
+1969-08-01,Wales,W92000004,2893,3.1,1,
+1969-08-01,Scotland,S92000003,3031,-1,1,
+1969-08-01,London,E12000007,4973,3.4,2.2,
+1969-08-01,East Midlands,E12000004,3043,1.6,-0.5,
+1969-08-01,Yorkshire and The Humber,E12000003,2781,3.2,7.7,
+1969-08-01,South West,E12000009,3635,-0.6,6,
+1969-08-01,West Midlands Region,E12000005,3305,-2.5,1.5,
+1969-08-01,United Kingdom,K02000001,3554,1.1,3.8,
+1969-09-01,Wales,W92000004,2893,3.1,1,
+1969-09-01,England,E92000001,3474,1.6,4.4,
+1969-09-01,Northern Ireland,N92000002,3425,-7,3,
+1969-09-01,Scotland,S92000
+
+### http://publicdata.landregistry.gov.uk/market-trend-data/house-price-index-data/Average-prices-2026-07.csv
+OK 7559925 octets
+Date,Region_Name,Area_Code,Average_Price,Monthly_Change,Annual_Change,Average_Price_SA
+1968-04-01,Northern Ireland,N92000002,3465,,,
+1968-04-01,England,E92000001,3218,,,
+1968-04-01,Wales,W92000004,2732,,,
+1968-04-01,Scotland,S92000003,2738,,,
+1968-04-01,London,E12000007,4730,,,
+1968-04-01,East Midlands,E12000004,2914,,,
+1968-04-01,Yorkshire and The Humber,E12000003,2553,,,
+1968-04-01,South West,E12000009,3347,,,
+1968-04-01,West Midlands Region,E12000005,3188,,,
+1968-04-01,United Kingdom,K02000001,3311,,,
+1968-05-01,England,E92000001,3218,,,
+1968-05-01,Northern Ireland,N92000002,3465,,,
+1968-05-01,Wales,W92000004,2732,,,
+1968-05-01,Scotland,S92000003,2738,,,
+1968-05-01,Yorkshire and The Humber,E12000003,2553,,,
+1968-05-01,West Midlands Region,E12000005,3188,,,
+1968-05-01,London,E12000007,4730,,,
+1968-05-01,East Midlands,E12000004,2914,,,
+1968-05-01,South West,E12000009,3347,,,
+1968-05-01,United Kingdom,K02000001,3311,,,
+1968-06-01,Scotland,S92000003,2738,,,
+1968-06-01,Wales,W92000004,2732,,,
+1968-06-01,England,E92000001,3218,,,
+1968-06-01,Northern Ireland,N92000002,3465,,,
+1968-06-01,London,E12000007,4730,,,
+1968-06-01,South West,E12000009,3347,,,
+1968-06-01,Yorkshire and The Humber,E12000003,2553,,,
+1968-06-01,East Midlands,E12000004,2914,,,
+1968-06-01,West Midlands Region,E12000005,3188,,,
+1968-06-01,United Kingdom,K02000001,3311,,,
+1968-07-01,England,E92000001,3327,3.4,,
+1968-07-01,Northern Ireland,N92000002,3326,-4,,
+1968-07-01,Wales,W92000004,2864,4.8,,
+1968-07-01,Scotland,S92000003,3001,9.6,,
+1968-07-01,London,E12000007,4865,2.9,,
+1968-07-01,West Midlands Region,E12000005,3255,2.1,,
+1968-07-01,Yorkshire and The Humber,E12000003,2581,1.1,,
+1968-07-01,East Midlands,E12000004,3057,4.9,,
+1968-07-01,South West,E12000009,3429,2.5,,
+1968-07-01,United Kingdom,K02000001,3424,3.4,,
+1968-08-01,Scotland,S92000003,3001,9.6,,
+1968-08-01,Wales,W92000004,2864,4.8,,
+1968-08-01,Northern Ireland,N92000002,3326,-4,,
+1968-08-01,England,E92000001,3327,3.4,,
+1968-08-01,Yorkshire and The Humber,E12000003,2581,1.1,,
+1968-08-01,London,E12000007,4865,2.9,,
+1968-08-01,East Midlands,E12000004,3057,4.9,,
+1968-08-01,West Midlands Region,E12000005,3255,2.1,,
+1968-08-01,South West,E12000009,3429,2.5,,
+1968-08-01,United Kingdom,K02000001,3424,3.4,,
+1968-09-01,Scotland,S92000003,3001,9.6,,
+1968-09-01,Wales,W92000004,2864,4.8,,
+1968-09-01,Northern Ireland,N92000002,3326,-4,,
+1968-09-01,England,E92000001,3327,3.4,,
+1968-09-01,West Midlands Region,E12000005,3255,2.1,,
+1968-09-01,East Midlands,E12000004,3057,4.9,,
+1968-09-01,South West,E12000009,3429,2.5,,
+1968-09-01,Yorkshire and The Humber,E12000003,2581,1.1,,
+1968-09-01,London,E12000007,4865,2.9,,
+1968-09-01,United Kingdom,K02000001,3424,3.4,,
+1968-10-01,Wales,W92000004,2878,0.5,,
+1968-10-01,England,E92000001,3309,-0.5,,
+1968-10-01,Northern Ireland,N92000002,3704,11.4,,
+1968-10-01,Scotland,S92000003,2811,-6.3,,
+1968-10-01,South West,E12000009,3512,2.4,,
+1968-10-01,East Midlands,E12000004,2961,-3.1,,
+1968-10-01,West Midlands Region,E12000005,3188,-2.1,,
+1968-10-01,London,E12000007,4757,-2.2,,
+1968-10-01,Yorkshire and The Humber,E12000003,2581,0,,
+1968-10-01,United Kingdom,K02000001,3405,-0.5,,
+1968-11-01,England,E92000001,3309,-0.5,,
+1968-11-01,Northern Ireland,N92000002,3704,11.4,,
+1968-11-01,Wales,W92000004,2878,0.5,,
+1968-11-01,Scotland,S92000003,2811,-6.3,,
+1968-11-01,London,E12000007,4757,-2.2,,
+1968-11-01,West Midlands Region,E12000005,3188,-2.1,,
+1968-11-01,Yorkshire and The Humber,E12000003,2581,0,,
+1968-11-01,South West,E12000009,3512,2.4,,
+1968-11-01,East Midlands,E12000004,2961,-3.1,,
+1968-11-01,United Kingdom,K02000001,3405,-0.5,,
+1968-12-01,Scotland,S92000003,2811,-6.3,,
+1968-12-01,Wales,W92000004,2878,0.5,,
+1968-12-01,Northern Ireland,N92000002,3704,11.4,,
+1968-12-01,England,E92000001,3309,-0.5,,
+1968-12-01,London,E12000007,4757,-2.2,,
+1968-12-01,South West,E12000009,3512,2.4,,
+1968-12-01,Yorkshire and The Humber,E12000003,2581,0,,
+1968-12-01,West Midlands Region,E12000005,3188,-2.1,,
+1968-12-01,East Midlands,E12000004,2961,-3.1,,
+1968-12-01,United Kingdom,K02000001,3405,-0.5,,
+1969-01-01,Northern Ireland,N92000002,3485,-5.9,,
+1969-01-01,Scotland,S92000003,3031,7.8,,
+1969-01-01,Wales,W92000004,2878,0,,
+1969-01-01,England,E92000001,3364,1.7,,
+1969-01-01,South West,E12000009,3553,1.2,,
+1969-01-01,London,E12000007,4919,3.4,,
+1969-01-01,West Midlands Region,E12000005,3439,7.9,,
+1969-01-01,East Midlands,E12000004,2995,1.1,,
+1969-01-01,Yorkshire and The Humber,E12000003,2624,1.7,,
+1969-01-01,United Kingdom,K02000001,3461,1.6,,
+1969-02-01,England,E92000001,3364,1.7,,
+1969-02-01,Scotland,S92000003,3031,7.8,,
+1969-02-01,Northern Ireland,N92000002,3485,-5.9,,
+1969-02-01,Wales,W92000004,2878,0,,
+1969-02-01,South West,E12000009,3553,1.2,,
+1969-02-01,West Midlands Region,E12000005,3439,7.9,,
+1969-02-01,East Midlands,E12000004,2995,1.1,,
+1969-02-01,Yorkshire and The Humber,E12000003,2624,1.7,,
+1969-02-01,London,E12000007,4919,3.4,,
+1969-02-01,United Kingdom,K02000001,3461,1.6,,
+1969-03-01,Scotland,S92000003,3031,7.8,,
+1969-03-01,England,E92000001,3364,1.7,,
+1969-03-01,Northern Ireland,N92000002,3485,-5.9,,
+1969-03-01,Wales,W92000004,2878,0,,
+1969-03-01,London,E12000007,4919,3.4,,
+1969-03-01,West Midlands Region,E12000005,3439,7.9,,
+1969-03-01,East Midlands,E12000004,2995,1.1,,
+1969-03-01,Yorkshire and The Humber,E12000003,2624,1.7,,
+1969-03-01,South West,E12000009,3553,1.2,,
+1969-03-01,United Kingdom,K02000001,3461,1.6,,
+1969-04-01,Northern Ireland,N92000002,3684,5.7,6.3,
+1969-04-01,Wales,W92000004,2805,-2.5,2.7,
+1969-04-01,Scotland,S92000003,3060,1,11.8,
+1969-04-01,England,E92000001,3419,1.6,6.2,
+1969-04-01,West Midlands Region,E12000005,3389,-1.5,6.3,
+1969-04-01,Yorkshire and The Humber,E12000003,2695,2.7,5.6,
+1969-04-01,London,E12000007,4811,-2.2,1.7,
+1969-04-01,South West,E12000009,3655,2.9,9.2,
+1969-04-01,East Midlands,E12000004,2995,0,2.8,
+1969-04-01,United Kingdom,K02000001,3517,1.6,6.2,
+1969-05-01,England,E92000001,3419,1.6,6.2,
+1969-05-01,Scotland,S92000003,3060,1,11.8,
+1969-05-01,Wales,W92000004,2805,-2.5,2.7,
+1969-05-01,Northern Ireland,N92000002,3684,5.7,6.3,
+1969-05-01,West Midlands Region,E12000005,3389,-1.5,6.3,
+1969-05-01,London,E12000007,4811,-2.2,1.7,
+1969-05-01,East Midlands,E12000004,2995,0,2.8,
+1969-05-01,Yorkshire and The Humber,E12000003,2695,2.7,5.6,
+1969-05-01,South West,E12000009,3655,2.9,9.2,
+1969-05-01,United Kingdom,K02000001,3517,1.6,6.2,
+1969-06-01,Wales,W92000004,2805,-2.5,2.7,
+1969-06-01,Northern Ireland,N92000002,3684,5.7,6.3,
+1969-06-01,England,E92000001,3419,1.6,6.2,
+1969-06-01,Scotland,S92000003,3060,1,11.8,
+1969-06-01,Yorkshire and The Humber,E12000003,2695,2.7,5.6,
+1969-06-01,West Midlands Region,E12000005,3389,-1.5,6.3,
+1969-06-01,London,E12000007,4811,-2.2,1.7,
+1969-06-01,East Midlands,E12000004,2995,0,2.8,
+1969-06-01,South West,E12000009,3655,2.9,9.2,
+1969-06-01,United Kingdom,K02000001,3517,1.6,6.2,
+1969-07-01,Wales,W92000004,2893,3.1,1,
+1969-07-01,Northern Ireland,N92000002,3425,-7,3,
+1969-07-01,Scotland,S92000003,3031,-1,1,
+1969-07-01,England,E92000001,3474,1.6,4.4,
+1969-07-01,West Midlands Region,E12000005,3305,-2.5,1.5,
+1969-07-01,South West,E12000009,3635,-0.6,6,
+1969-07-01,London,E12000007,4973,3.4,2.2,
+1969-07-01,East Midlands,E12000004,3043,1.6,-0.5,
+1969-07-01,Yorkshire and The Humber,E12000003,2781,3.2,7.7,
+1969-07-01,United Kingdom,K02000001,3554,1.1,3.8,
+1969-08-01,Northern Ireland,N92000002,3425,-7,3,
+1969-08-01,England,E92000001,3474,1.6,4.4,
+1969-08-01,Wales,W92000004,2893,3.1,1,
+1969-08-01,Scotland,S92000003,3031,-1,1,
+1969-08-01,London,E12000007,4973,3.4,2.2,
+1969-08-01,East Midlands,E12000004,3043,1.6,-0.5,
+1969-08-01,Yorkshire and The Humber,E12000003,2781,3.2,7.7,
+1969-08-01,South West,E12000009,3635,-0.6,6,
+1969-08-01,West Midlands Region,E12000005,3305,-2.5,1.5,
+1969-08-01,United Kingdom,K02000001,3554,1.1,3.8,
+1969-09-01,Wales,W92000004,2893,3.1,1,
+1969-09-01,England,E92000001,3474,1.6,4.4,
+1969-09-01,Northern Ireland,N92000002,3425,-7,3,
+1969-09-01,Scotland,S92000
+
+### https://www.ons.gov.uk/economy/inflationandpriceindices/datasets/housepricepersquaremetreandhousepriceperroomenglandandwales
+OK 40851 octets
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+  <head>
+    <title>
+      
+        House price per square metre and house price per room, England and Wales
+      - Office for National Statistics
+    </title>
+
+    
+      <meta name="description" content="">
+    
+
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1.0,user-scalable=1" name="viewport">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="theme-color" content="#58595B">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#58595B">
+    
+    
+
+    
+      
+        <link rel="stylesheet" href="https://cdn.ons.gov.uk/sixteens/ef5a1ca/css/main.css">
+      
+    
+
+    
+<script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        
+        
+"name": "House price per square metre and house price per room, England and Wales",
+"publisher": {
+    "@type": "Organization",
+    "name": "Office for National Statistics",
+    "logo": "https://cdn.ons.gov.uk/assets/images/ons-logo/v2/ons-logo.png"
+},
+
+"license": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+"@type": "Dataset",
+
+
+    
+
+
+
+
+    
+        
+        
+        "distribution": [
+         {
+            "@type": "DataDownload",
+            "encodingFormat": "xls",
+            "contentUrl": "https://www.ons.gov.uk/file?uri=/economy/inflationandpriceindices/datasets/housepricepersquaremetreandhousepriceperroomenglandandwales/current/priceperareadata.xls"
+            }
+        
+    ],
+    
+    "url": "https://www.ons.gov.uk/economy/inflationandpriceindices/datasets/housepricepersquaremetreandhousepriceperroomenglandandwales",
+    "datePublished": "2017-10-11T00:00:00Z",
+    "description": ""
+
+    }
+</script>
+
+    
+
+    <script>
+
+    
+    function htmlUnescape(str) {
+        return str.replace(/&#x3D;/g, "=");
+    }
+
+    dataLayer = [{
+        "gtm.whitelist": ["google", "hjtc", "lcl"],
+        "gtm.blacklist": ["customScripts", "sp", "adm", "awct", "k", "d", "j"],
+    
+        "contentTitle": htmlUnescape("House price per square metre and house price per room, England and Wales"),
+    
+    
+    
+    
+    
+        "contentType": "legacy_dataset_landing_page",
+    
+    
+    }];
+
+</script>
+
+    
+    
+
+    
+    
+    <script>
+      function loadGTM(){
+        (function (w, d, s, l, i) {
+          w[l] = w[l] || [];
+          w[l].push({'gtm.start': new Date().getTime(), event: 'gtm.js'});
+          var f = d.getElementsByTagName(s)[0],
+            j = d.createElement(s),
+            dl = l != 'dataLayer'
+              ? '&l=' + l
+              : '';
+          j.async = true;
+          j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+          f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-MBCBVQS');
+      }
+
+      
+      function extractValue(key, extractionString) {
+        const extractionRegex = new RegExp(`'${key}':(.*?)[,}]`)
+        const match = extractionString.match(extractionRegex)
+        if (match) {
+            return match[1]
+        }
+        
+        return null
+      }
+
+      
+      
+      function isUsageCookieAllowed() {
+        var policyCookie = document.cookie.match('(?:^|; )ons_cookie_policy=({.*?})');
+        if (policyCookie) {
+            console.debug('ons_cookie_policy found');
+
+            var usageValue = extractValue("usage", policyCookie[1]);
+            console.debug('usage is', usageValue);
+
+            return (usageValue == "true") ? true : false;
+        }
+        console.debug('no cookie found - opting out');
+        return false;
+      }
+
+      if (isUsageCookieAllowed()) {
+        loadGTM();
+      }
+    </script>
+    
+  </head>
+
+  <body class="page-type--legacy_dataset_landing_page">
+    <script>
+      document.body.className = (
+        (document.body.className)
+        ? document.body.className + ' js js-enabled'
+        : 'js js-enabled');
+    </script>
+
+    
+    <noscript>
+      <iframe
+        src="https://www.googletagmanager.com/ns.html?id=GTM-MBCBVQS"
+        height="0"
+        width="0"
+        style="display:none;visibility:hidden"></iframe>
+    </noscript>
+    
+
+    
+
+    
+        
+          <section>
+    <form action="/cookies/accept-all" method="GET" id="global-cookie-message" class="cookies-banner cookies-banner--hidden js-cookies-banner-form clearfix"
+                aria-label="cookie banner">
+        <div class="cookies-banner__wrapper wrapper js-cookies-banner-inform" role="region" aria-label="Cookies banner">
+            <div>
+                <div class="cookies-banner__message adjust-font-size--18">
+                    <h2 class="cookies-banner__heading font-size--h3">Cookies on ons.gov.uk</h2>
+                    <p class="cookies-banner__body">Cookies are small files stored on your device when you visit a website. We use some essential cookies to make this website work.</p>
+                    <p class="cookies-banner__body">We would like to set <a href="/cookies">additional cookies</a> to remember your settings and understand how you use the site. This helps us to improve our services.</p>
+                </div>
+                <div class="cookies-banner__buttons">
+                    <div class="nojs--hide cookies-banner__button cookies-banner__button--accept">
+                        <button class="btn btn--full-width btn--primary btn--focus margin-right--2 font-weight-700 font-size--17 text-wrap js-accept-cookies" data-gtm-accept-cookies="true" type="submit" data-action="accept" tabindex="0">Accept additional cookies</button>
+                    </div>
+                    <div class="nojs--hide cookies-banner__button cookies-banner__button--reject">
+                        <button class="btn btn--full-width btn--primary btn--focus margin-right--2 font-weight-700 font-size--17 text-wrap js-reject-cookies" data-gtm-accept-cookies="false" type="submit" data-action="reject" tabindex="0">Reject additional cookies</button>
+                    </div>
+                    <div class="cookies-banner__button">
+                        <a href="/cookies">Manage settings</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="hidden js-cookies-banner-confirmation" tabindex="-1">
+            <div class="cookies-banner__wrapper wrapper">
+                <div class="col">
+                    <div class="cookies-banner__message adjust-font-size--18">
+                        <p class="cookies-banner__confirmation-message">
+                            <span class="hidden ons-js-accepted-text">You have accepted all additional cookies.</span>
+                            <span class="hidden ons-js-rejected-text">You have rejected all additional cookies.</span>
+                            <span>You can <a href="/cookies">change your cookie preferences</a> at any time.</span>
+                            <button type="button" class="cookies-banner__button--hide js-hide-cookies-banner">Hide</button>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
+
+        
+        
+          
+  <header>
+    <a class="skiplink" href="#main" tabindex="0">Skip to main content</a>
+    
+    
+    
+    <div id="pagePath" class="hide">/economy/inflationandpriceindices/datasets/housepricepersquaremetreandhousepriceperroomenglandandwales</div>
+    <div class="wrapper">
+        <div class="header col-wrap">
+            <div class="col col--lg-one-third col--md-one-third">
+                <a id="logo-link" href="/">
+                    <img class="logo" src="https://cdn.ons.gov.uk/assets/images/ons-logo/v2/ons-logo.svg" alt="Office for National Statistics logo - Homepage">
+                </a>
+            </div>
+            <div class="col col--lg-two-thirds col--md-two-thirds hide--sm print--hide language--js__container">
+                <div class="language">
+                    
+                        English (EN) |
+               
+
+### https://apps.fomento.gob.es/BoletinOnline2/sedal/35103500.XLS
+OK 4024320 octets
+[feuille T1A2005 (478, 6)]
+      0                                                        1    2    3   4    5
+0   NaN                                                      NaN  NaN  NaN NaN  NaN
+1   NaN                                                      NaN  NaN  NaN NaN  NaN
+2   NaN                                                      NaN  NaN  NaN NaN  NaN
+3   NaN                                                      NaN  NaN  NaN NaN  NaN
+4   NaN                                                      NaN  NaN  NaN NaN  NaN
+5   NaN                                                      NaN  NaN  NaN NaN  NaN
+6   NaN                                                      NaN  NaN  NaN NaN  NaN
+7   NaN                                                 Tabla 5.  NaN  NaN NaN  NaN
+8   NaN  Valor tasado medio de vivienda libre de los municipios   NaN  NaN NaN  NaN
+9   NaN                            mayores de 25.000 habitantes.  NaN  NaN NaN  NaN
+10  NaN                                                      NaN  NaN  NaN NaN  NaN
+11  NaN                                                      NaN  NaN  NaN NaN  NaN
+[feuille T2A2005  (478, 6)]
+      0                                                        1    2    3   4    5
+0   NaN                                                      NaN  NaN  NaN NaN  NaN
+1   NaN                                                      NaN  NaN  NaN NaN  NaN
+2   NaN                                                      NaN  NaN  NaN NaN  NaN
+3   NaN                                                      NaN  NaN  NaN NaN  NaN
+4   NaN                                                      NaN  NaN  NaN NaN  NaN
+5   NaN                                                      NaN  NaN  NaN NaN  NaN
+6   NaN                                                      NaN  NaN  NaN NaN  NaN
+7   NaN                                                 Tabla 5.  NaN  NaN NaN  NaN
+8   NaN  Valor tasado medio de vivienda libre de los municipios   NaN  NaN NaN  NaN
+9   NaN                            mayores de 25.000 habitantes.  NaN  NaN NaN  NaN
+10  NaN                                                      NaN  NaN  NaN NaN  NaN
+11  NaN                                                      NaN  NaN  NaN NaN  NaN
+[feuille T3A2005  (478, 6)]
+      0                                                        1    2    3   4    5
+0   NaN                                                      NaN  NaN  NaN NaN  NaN
+1   NaN                                                      NaN  NaN  NaN NaN  NaN
+2   NaN                                                      NaN  NaN  NaN NaN  NaN
+3   NaN                                                      NaN  NaN  NaN NaN  NaN
+4   NaN                                                      NaN  NaN  NaN NaN  NaN
+5   NaN                                                      NaN  NaN  NaN NaN  NaN
+6   NaN                                                      NaN  NaN  NaN NaN  NaN
+7   NaN                                                 Tabla 5.  NaN  NaN NaN  NaN
+8   NaN  Valor tasado medio de vivienda libre de los municipios   NaN  NaN NaN  NaN
+9   NaN                            mayores de 25.000 habitantes.  NaN  NaN NaN  NaN
+10  NaN                                                      NaN  NaN  NaN NaN  NaN
+11  NaN                                                      NaN  NaN  NaN NaN  NaN
+
+### https://datos.gob.es/apidata/catalog/dataset/a13002908-valor-tasado-de-la-vivienda-libre-por-municipios-de-mas-de-25-00-habitantes-total-base-20054.json
+OK 4931 octets
+{ "format" : "linked-data-api", "version" : "0.2", "result" : {"_about" : "http://datos.gob.es/apidata/catalog/dataset/a13002908-valor-tasado-de-la-vivienda-libre-por-municipios-de-mas-de-25-00-habitantes-total-base-20054.json", "definition" : "http://datos.gob.es/apidata/catalog/meta/dataset/_id.json", "extendedMetadataVersion" : "http://datos.gob.es/apidata/catalog/dataset/a13002908-valor-tasado-de-la-vivienda-libre-por-municipios-de-mas-de-25-00-habitantes-total-base-20054.json?_metadata=all", "first" : "http://datos.gob.es/apidata/catalog/dataset/a13002908-valor-tasado-de-la-vivienda-libre-por-municipios-de-mas-de-25-00-habitantes-total-base-20054.json?_page=0", "hasPart" : "http://datos.gob.es/apidata/catalog/dataset/a13002908-valor-tasado-de-la-vivienda-libre-por-municipios-de-mas-de-25-00-habitantes-total-base-20054.json", "isPartOf" : "http://datos.gob.es/apidata/catalog/dataset/a13002908-valor-tasado-de-la-vivienda-libre-por-municipios-de-mas-de-25-00-habitantes-total-base-20054.json", "items" : [{"_about" : "https://datos.gob.es/catalogo/a13002908-valor-tasado-de-la-vivienda-libre-por-municipios-de-mas-de-25-00-habitantes-total-base-20054", "description" : [{"_value" : "Base 2005.", "_lang" : "es"}
+      ], "distribution" : [{"_about" : "https://datos.gob.es/catalogo/a13002908-valor-tasado-de-la-vivienda-libre-por-municipios-de-mas-de-25-00-habitantes-total-base-20054/resource/481cebff-0f75-4300-93e7-2c5b4d37a2b7", "accessURL" : "https://datos.comunidad.madrid/dataset/8cb70b8c-c1e2-43f7-826a-1a22c573a743/resource/ef4a2c7a-4273-4116-9ff2-d5f77020ca04/download/valor-tasado-de-la-vivienda-libre-por-municipios-de-mas-de-25.00-habitantes.-total-base-2005.-mu.csv", "byteSize" : 189486.0, "format" : {"_about" : "https://datos.gob.es/catalogo/a13002908-valor-tasado-de-la-vivienda-libre-por-municipios-de-mas-de-25-00-habitantes-total-base-20054/resource/481cebff-0f75-4300-93e7-2c5b4d37a2b7/format", "type" : "http://purl.org/dc/terms/IMT", "value" : "text/csv"}
+        , "identifier" : "https://datos.comunidad.madrid/dataset/8cb70b8c-c1e2-43f7-826a-1a22c573a743/resource/ef4a2c7a-4273-4116-9ff2-d5f77020ca04/download/valor-tasado-de-la-vivienda-libre-por-municipios-de-mas-de-25.00-habitantes.-total-base-2005.-mu.csv", "title" : [{"_value" : "Valor tasado de la vivienda libre por municipios de más de 25.00 habitantes. Total (Base 2005).csv", "_lang" : "es"}
+        ], "type" : "http://www.w3.org/ns/dcat#Distribution"}
+      , {"_about" : "https://datos.gob.es/catalogo/a13002908-valor-tasado-de-la-vivienda-libre-por-municipios-de-mas-de-25-00-habitantes-total-base-20054/resource/8044d924-367e-44ba-a068-4fe01afe378d", "accessURL" : "https://datos.comunidad.madrid/dataset/8cb70b8c-c1e2-43f7-826a-1a22c573a743/resource/a6e14d32-9771-4331-abb4-3f2ac763ee51/download/valor-tasado-de-la-vivienda-libre-por-municipios-de-mas-de-25.00-habitantes.-total-base-2005.-m.json", "byteSize" : 645058.0, "format" : {"_about" : "https://datos.gob.es/catalogo/a13002908-valor-tasado-de-la-vivienda-libre-por-municipios-de-mas-de-25-00-habitantes-total-base-20054/resource/8044d924-367e-44ba-a068-4fe01afe378d/format", "type" : "http://purl.org/dc/terms/IMT", "value" : "application/json"}
+        , "identifier" : "https://datos.comunidad.madrid/dataset/8cb70b8c-c1e2-43f7-826a-1a22c573a743/resource/a6e14d32-9771-4331-abb4-3f2ac763ee51/download/valor-tasado-de-la-vivienda-libre-por-municipios-de-mas-de-25.00-habitantes.-total-base-2005.-m.json", "title" : [{"_value" : "Valor tasado de la vivienda libre por municipios de más de 25.00 habitantes. Total (Base 2005). Municipios.json", "_lang" : "es"}
+        ], "type" : "http://www.w3.org/ns/dcat#Distribution"}
+      ], "identifier" : "https://datos.comunidad.madrid/catalogo/dataset/1004050", "issued" : "lun, 02 jun 2025 08:11:24 GMT+0000", "keyword" : [{"_value" : "Libre y protegida", "_lang" : "es"}
+      , {"_value" : "Precios", "_lang" : "es"}
+      , {"_value" : "Urbanismo vivienda y construcción", "_lang" : "es"}
+      , {"_value" : "Valor tasado de la vivienda", "_lang" : "es"}
+      , {"_value" : "Valor tasado de la vivienda libre por municipios de más de 25.000 habitantes. Total Base 2005", "_lang" : "es"}
+      , {"_value" : "Vivienda", "_lang" : "es"}
+      ], "language" : "http://publications.europa.eu/resource/authority/language/SPA", "modified" : "jue, 06 ago 2026 14:35:42 GMT+0000", "publisher" : "http://datos.gob.es/recurso/sector-publico/org/Organismo/A13002908", "theme" : "http://datos.gob.es/kos/sector-publico/sector/sector-publico", "title" : [{"_value" : "Valor tasado de la vivienda libre por municipios de más de 25.000 habitantes. Total (Base 2005). Municipios", "_lang" : "es"}
+      ], "type" : "http://www.w3.org/ns/dcat#Dataset"}
+    ], "itemsPerPage" : 10, "page" : 0, "startIndex" : 1, "type" : ["http://purl.org/linked-data/api/vocab#ListEndpoint", "http://purl.org/linked-data/api/vocab#Page"]}
+}
+
+
+### https://www.data.gv.at/katalog/api/3/action/package_search?q=Immobiliendurchschnittspreise
+ERREUR HTTP Error 404: Not Found
+
+### https://www.data.gv.at/katalog/api/3/action/package_search?q=Wohnimmobilienpreisindex
+ERREUR HTTP Error 404: Not Found
+
+### https://statbel.fgov.be/fr/open-data?category=All&search=immobili
+OK 158670 octets
+<!DOCTYPE html>
+<html  lang="fr" dir="ltr" class="no-js" xml:lang="fr">
+  <head>
+    <meta charset="utf-8" />
+<meta name="Generator" content="Drupal 10 (https://www.drupal.org)" />
+<meta name="MobileOptimized" content="width" />
+<meta name="HandheldFriendly" content="true" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="outdatedbrowser-ieTarget" content="11" />
+<link rel="icon" href="/themes/custom/statbel_theme/favicon.ico" type="image/vnd.microsoft.icon" />
+
+    <title>Open Data | Statbel</title>
+    <link rel="stylesheet" media="all" href="/core/misc/components/progress.module.css?to43um" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/align.module.css?to43um" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/fieldgroup.module.css?to43um" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/container-inline.module.css?to43um" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/clearfix.module.css?to43um" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/details.module.css?to43um" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/hidden.module.css?to43um" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/item-list.module.css?to43um" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/js.module.css?to43um" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/nowrap.module.css?to43um" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/position-container.module.css?to43um" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/reset-appearance.module.css?to43um" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/resize.module.css?to43um" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/system-status-counter.css?to43um" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/system-status-report-counters.css?to43um" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/system-status-report-general-info.css?to43um" />
+<link rel="stylesheet" media="all" href="/core/modules/system/css/components/tablesort.module.css?to43um" />
+<link rel="stylesheet" media="all" href="/modules/contrib/leaflet/js/leaflet/dist/leaflet.css?to43um" />
+<link rel="stylesheet" media="all" href="/modules/contrib/jquery_ui/assets/vendor/jquery.ui/themes/base/core.css?to43um" />
+<link rel="stylesheet" media="all" href="/modules/contrib/jquery_ui/assets/vendor/jquery.ui/themes/base/menu.css?to43um" />
+<link rel="stylesheet" media="all" href="/modules/contrib/jquery_ui/assets/vendor/jquery.ui/themes/base/autocomplete.css?to43um" />
+<link rel="stylesheet" media="all" href="/core/modules/views/css/views.module.css?to43um" />
+<link rel="stylesheet" media="all" href="/modules/contrib/jquery_ui/assets/vendor/jquery.ui/themes/base/theme.css?to43um" />
+<link rel="stylesheet" media="all" href="/modules/contrib/extlink/extlink.css?to43um" />
+<link rel="stylesheet" media="all" href="/core/modules/layout_discovery/layouts/twocol/twocol.css?to43um" />
+<link rel="stylesheet" media="all" href="/modules/contrib/openfed_social/assets/styles/openfed_social.css?to43um" />
+<link rel="stylesheet" media="all" href="/profiles/contrib/openfed/modules/openfed_features/openfed_federalheader/assets/styles/openfed_federalheader.css?to43um" />
+<link rel="stylesheet" media="all" href="/themes/custom/statbel_theme/styles/css/accessibility.css?to43um" />
+<link rel="stylesheet" media="all" href="/themes/custom/statbel_theme/styles/css/styles.css?to43um" />
+<link rel="stylesheet" media="all" href="/themes/custom/statbel_theme/styles/css/custom.css?to43um" />
+<link rel="stylesheet" media="all" href="/themes/custom/statbel_theme/styles/css/bosa.css?to43um" />
+<link rel="stylesheet" media="all" href="/themes/custom/statbel_theme/styles/css/orejime.css?to43um" />
+<link rel="stylesheet" media="all" href="/themes/custom/statbel_theme/styles/css/outdated-browser.css?to43um" />
+
+    
+  </head>
+  <body class="path-open-data has-glyphicons">
+    <a href="#page" class="visually-hidden focusable skip-link">
+      Aller au contenu principal
+    </a>
+    
+      <div class="dialog-off-canvas-main-canvas" data-off-canvas-main-canvas>
+    
+<div id="page">
+        <div class="wrapper-header">
+
+                                        <div  class="navbar navbar-default container" id="navbar">
+                                                      <div class="wrapper-toolbar">
+                  <div class="toolbar">
+                      <div class="region region-tools">
+    <nav class="language-switcher-language-url block block--language block--language--language-interface" id="block-statbel-theme-languageswitcher-2" aria-label="language switcher">
+      <ul class="links menu"><li data-drupal-link-query="{&quot;category&quot;:&quot;All&quot;,&quot;search&quot;:&quot;immobili&quot;}" data-drupal-link-system-path="open-data" class="nl is-active" aria-current="page"><a href="/nl/open-data?category=All&amp;search=immobili" class="language-link" lang="nl" aria-label="NL" hreflang="nl" data-drupal-link-query="{&quot;category&quot;:&quot;All&quot;,&quot;search&quot;:&quot;immobili&quot;}" data-drupal-link-system-path="open-data"><abbr title="NL">NL</abbr></a></li><li data-drupal-link-query="{&quot;category&quot;:&quot;All&quot;,&quot;search&quot;:&quot;immobili&quot;}" data-drupal-link-system-path="open-data" class="fr is-active" aria-current="page"><a href="/fr/open-data?category=All&amp;search=immobili" class="language-link is-active" lang="fr" aria-label="French" hreflang="fr" data-drupal-link-query="{&quot;category&quot;:&quot;All&quot;,&quot;search&quot;:&quot;immobili&quot;}" data-drupal-link-system-path="open-data" aria-current="page"><abbr title="French">FR</abbr></a></li><li data-drupal-link-query="{&quot;category&quot;:&quot;All&quot;,&quot;search&quot;:&quot;immobili&quot;}" data-drupal-link-system-path="open-data" class="de is-active" aria-current="page"><a href="/de/open-data?category=All&amp;search=immobili" class="language-link" lang="de" aria-label="DE" hreflang="de" data-drupal-link-query="{&quot;category&quot;:&quot;All&quot;,&quot;search&quot;:&quot;immobili&quot;}" data-drupal-link-system-path="open-data"><abbr title="DE">DE</abbr></a></li><li data-drupal-link-query="{&quot;category&quot;:&quot;All&quot;,&quot;search&quot;:&quot;immobili&quot;}" data-drupal-link-system-path="open-data" class="en is-active" aria-current="page"><a href="/en/open-data?category=All&amp;search=immobili" class="language-link" lang="en" aria-label="English" hreflang="en" data-drupal-link-query="{&quot;category&quot;:&quot;All&quot;,&quot;search&quot;:&quot;immobili&quot;}" data-drupal-link-system-path="open-data"><abbr title="English">EN</abbr></a></li></ul>
+  </nav>
+<section id="block-statbel-theme-federalheader" class="block block--openfed-federalheader block--openfed-federalheader--">
+  
+    
+
+      <div id="openfed-federal-header-wrapper">
+  <div id="openfed-federal-header-link">
+   Autres informations et services officiels : <span><a href="https://www.belgium.be/fr">www.belgium.be</a></span>
+  </div>
+  <div id="openfed-federal-header-logo">
+    <img src="/themes/custom/statbel_theme/images/logos/logo-federalheader.png" alt="Logo des autorités fédérales belges" width="34" height="25" />
+  </div>
+</div>
+
+  </section>
+
+  </div>
+
+                  </div>
+                </div>
+                                      <header class="wrapper-header-inner clearfix" role="banner">
+                              <div class="navbar-header">
+                                                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
+  
+
+### https://statbel.fgov.be/sites/default/files/files/opendata/immo/vastgoed_2010_9999.zip
+OK 3036866 octets
+ZIP vastgoed_2010_9999.txt
+CD_YEAR|CD_TYPE_NL|CD_TYPE_FR|CD_REFNIS|CD_REFNIS_NL|CD_REFNIS_FR|CD_PERIOD|CD_CLASS_SURFACE|MS_TOTAL_TRANSACTIONS|MS_P_25|MS_P_50_median|MS_P_75|CD_niveau_refnis
+2010|Huizen met 2 of 3 gevels (gesloten + halfopen bebouwing)|Maisons avec 2 ou 3 faades (type ferm + type demi-ferm)|01000|BELGIE|BELGIQUE|Q1|totaal / total|13078|110000|156000|210000|1
+2010|Huizen met 2 of 3 gevels (gesloten + halfopen bebouwing)|Maisons avec 2 ou 3 faades (type ferm + type demi-ferm)|01000|BELGIE|BELGIQUE|Q2|totaal / total|14059|114000|159500|212000|1
+2010|Huizen met 2 of 3 gevels (gesloten + halfopen bebouwing)|Maisons avec 2 ou 3 faades (type ferm + type demi-ferm)|01000|BELGIE|BELGIQUE|Q3|totaal / total|13917|118000|165000|220000|1
+2010|Huizen met 2 of 3 gevels (gesloten + halfopen bebouwing)|Maisons avec 2 ou 3 faades (type ferm + type demi-ferm)|01000|BELGIE|BELGIQUE|Q4|totaal / total|13823|120000|165000|225000|1
+2010|Huizen met 2 of 3 gevels (gesloten + halfopen bebouwing)|Maisons avec 2 ou 3 faades (type ferm + type demi-ferm)|01000|BELGIE|BELGIQUE|S1|totaal / total|27137|112000|158000|210000|1
+2010|Huizen met 2 of 3 gevels (gesloten + halfopen bebouwing)|Maisons avec 2 ou 3 faades (type ferm + type demi-ferm)|01000|BELGIE|BELGIQUE|S2|totaal / total|27740|119000|165000|222500|1
+2010|Huizen met 2 of 3 gevels (gesloten + halfopen bebouwing)|Maisons avec 2 ou 3 faades (type ferm + type demi-ferm)|01000|BELGIE|BELGIQUE|Y|totaal / total|54877|115000|160000|218000|1
+2010|Huizen met 2 of 3 gevels (gesloten + halfopen bebouwing)|Maisons avec 2 ou 3 faades (type ferm + type demi-ferm)|02000|VLAAMS GEWEST|REGION FLAMANDE|Q1|totaal / total|7899|135000|175000|227500|2
+2010|Huizen met 2 of 3 gevels (gesloten + halfopen bebouwing)|Maisons avec 2 ou 3 faades (type ferm + type demi-ferm)|02000|VLAAMS GEWEST|REGION FLAMANDE|Q2|totaal / total|8610|135000|175000|227500|2
+2010|Huizen met 2 of 3 gevels (gesloten + halfopen bebouwing)|Maisons avec 2 ou 3 faades (type ferm + type demi-ferm)|02000|VLAAMS GEWEST|REGION FLAMANDE|Q3|totaal / total|8391|140000|183000|237000|2
+2010|Huizen met 2 of 3 gevels (gesloten + halfopen bebouwing)|Maisons avec 2 ou 3 faades (type ferm + type demi-ferm)|02000|VLAAMS GEWEST|REGION FLAMANDE|Q4|totaal / total|8388|141500|185000|238000|2
+2010|Huizen met 2 of 3 gevels (gesloten + halfopen bebouwing)|Maisons avec 2 ou 3 faades (type ferm + type demi-ferm)|02000|VLAAMS GEWEST|REGION FLAMANDE|S1|totaal / total|16509|135000|175000|227500|2
+2010|Huizen met 2 of 3 gevels (gesloten + halfopen bebouwing)|Maisons avec 2 ou 3 faades (type ferm + type demi-ferm)|02000|VLAAMS GEWEST|REGION FLAMANDE|S2|totaal / total|16779|140000|185000|237500|2
+2010|Huizen met 2 of 3 gevels (gesloten + halfopen bebouwing)|Maisons avec 2 ou 3 faades (type ferm + type demi-ferm)|02000|VLAAMS GEWEST|REGION FLAMANDE|Y|totaal / total|33288|138000|180000|232000|2
+2010|Huizen met 2 of 3 gevels (gesloten + halfopen bebouwing)|Maisons 
+
+### https://dati.comune.milano.it/api/3/action/package_search?q=quotazioni%20immobiliari%20omi%20compravendita&rows=50
+OK 367505 octets
+{"help": "https://dati.comune.milano.it/api/3/action/help_show?name=package_search", "success": true, "result": {"count": 133, "sort": "score desc, metadata_modified desc", "facets": {}, "results": [{"license_title": "Creative Commons Attribution", "maintainer": "Comune di Milano - Unit\u00e0 Analytics e Open Data", "dataset_is_local": true, "private": false, "maintainer_email": "opendatamilano@comune.milano.it", "num_tags": 6, "id": "1ad8ecfd-5d4a-487d-b2e3-7d45fe9e1274", "metadata_created": "2022-10-10T14:03:31.006749", "metadata_modified": "2026-10-28T10:12:21.468069", "author": "", "author_email": "", "state": "active", "version": "", "relationships_as_object": [], "license_id": "cc-by", "type": "dataset", "resources": [{"cache_last_updated": null, "package_id": "1ad8ecfd-5d4a-487d-b2e3-7d45fe9e1274", "distribution_format": "CSV", "datastore_active": true, "id": "90df91fa-9bc9-4100-9192-cb3a2f46fd44", "size": 3664073, "state": "active", "hash": "", "description": "anteprima disponibile", "format": "CSV", "mimetype_inner": null, "url_type": "upload", "mimetype": "text/csv", "cache_url": null, "name": "DS1996_quotazioni_omi_compravendita_e_locazione_riepilogo.csv", "created": "2024-10-23T19:35:13.161088", "url": "https://dati.comune.milano.it/dataset/1ad8ecfd-5d4a-487d-b2e3-7d45fe9e1274/resource/90df91fa-9bc9-4100-9192-cb3a2f46fd44/download/ds1996_quotazioni_omi_compravendita_e_locazione_riepilogo.csv", "last_modified": "2026-10-28T10:12:21.436281", "license_type": "https://w3id.org/italia/controlled-vocabulary/licences/A21_CCBY40", "position": 0, "revision_id": "1f62019b-2f54-4207-a630-960a5730f7fa", "resource_type": null}, {"cache_last_updated": null, "package_id": "1ad8ecfd-5d4a-487d-b2e3-7d45fe9e1274", "distribution_format": "JSON", "datastore_active": false, "id": "c41009ad-e15b-4f2b-9972-f1590e50a227", "size": 16206524, "state": "active", "hash": "", "description": "anteprima disponibile", "format": "JSON", "mimetype_inner": null, "url_type": "upload", "mimetype": "application/json", "cache_url": null, "name": "DS1996_quotazioni_omi_compravendita_e_locazione_riepilogo.json", "created": "2022-11-10T09:25:23.799750", "url": "https://dati.comune.milano.it/dataset/1ad8ecfd-5d4a-487d-b2e3-7d45fe9e1274/resource/c41009ad-e15b-4f2b-9972-f1590e50a227/download/ds1996_quotazioni_omi_compravendita_e_locazione_riepilogo.json", "last_modified": "2026-10-28T10:08:56.394394", "license_type": "https://w3id.org/italia/controlled-vocabulary/licences/A21_CCBY40", "position": 1, "revision_id": "2a405076-2f74-4952-a233-77945ad4f00c", "resource_type": null}], "holder_name": "Comune di Milano", "tags": [{"vocabulary_id": null, "state": "active", "display_name": "OMI", "id": "4cb06e92-262b-47c3-9166-df3cd1aafb84", "name": "OMI"}, {"vocabulary_id": null, "state": "active", "display_name": "anno", "id": "06f45323-db95-4566-a9ed-b1cf032e873f", "name": "anno"}, {"vocabulary_id": null, "state": "active", "display_name": "compravendita OMI", "id": "8f0485ee-28ba-4f36-b0c0-a32d740fe0eb", "name": "compravendita OMI"}, {"vocabulary_id": null, "state": "active", "display_name": "locazione OMI", "id": "359a64db-506c-4c6b-b1c6-01f8dfd0ca24", "name": "locazione OMI"}, {"vocabulary_id": null, "state": "active", "display_name": "serie_pubblicazione", "id": "55a8a82c-eaab-49f6-8579-856e76e52e98", "name": "serie_pubblicazione"}, {"vocabulary_id": null, "state": "active", "display_name": "superficie", "id": "2248feb8-dea9-4cf3-8f3a-7e37d07fcbe1", "name": "superficie"}], "holder_identifier": "c_f205", "groups": [{"display_name": "Economia e finanze", "description": "", "image_display_url": "https://dati.comune.milano.it/uploads/group/2017-11-21-091523.218282economia.png", "title": "Economia e finanze", "id": "4c36407a-c4de-4e28-b74b-5c239389c91b", "name": "econ"}], "creator_user_id": "6ca67bde-4744-4414-9c53-a10b1ea37298", "relationships_as_subject": [], "num_resources": 2, "organization": {"description": "Dataset inseriti dal personale per conto del Comune di Milano", "created": "2017-11-09T11:54:32.736470", "title": "Comune di Milano", "name": "comunedimilano", "is_organization": true, "state": "active", "image_url": "2017-11-15-122315.733556MarchioComuneMilanoVerticale4Colori.png", "revision_id": "b6f66242-d57a-4067-ba80-9501c05bc1b7", "type": "organization", "id": "da720f96-c055-4abb-bcce-d26eb8cf436a", "approval_status": "approved"}, "name": "ds1996-quotazioni-immobiliari-omi-compravendita-e-locazione-riepilogo", "isopen": true, "url": "", "notes": "Il dataset espone il riepilogo delle quotazioni immobiliari, rilevate attraverso l'Osservatorio del Mercato Immobiliare (OMI) gestito dall\u2019Agenzia delle Entrate, che nello specifico elabora e analizza tutti i dati e le informazioni tecnico economiche che riguardano il valore di un immobile e il mercato degli affitti rilevati nel Comune di Milano.\r\n\r\nI dati esposti nel Dataset sono suddivisi in:\r\n\r\n* Lo stato conservativo indicato con lettere maiuscole si riferisce a quello pi\u00f9 frequente di ZONA\r\n* Il Valore di Mercato \u00e8 espresso in Euro/mq riferito alla superficie Netta (N) ovvero Lorda (L)\r\n* Il Valore di Locazione \u00e8 espresso in Euro/mq per mese riferito alla superficie Netta (N) ovvero Lorda (L)\r\n* Per la tipologia Negozi il giudizio O/ N /S \u00e8 da intendersi riferito alla posizione commerciale e non allo stato conservativo dell'unit\u00e0 immobiliare.\r\n\r\nL'OMI \u00e8 da considerarsi come uno strumento a tutti gli effetti, tramite il quale l\u2019Agenzia delle Entrate assicura la trasparenza del mercato immobiliare.\r\n\r\n\r\n\r\nLe informazioni rese sono di propriet\u00e0 esclusiva dell\u2019Agenzia. Non \u00e8 consentito al cliente vendere, affittare, noleggiare, trasferire, cedere i contenuti della Banca Dati o assumere alcune altre obbligazioni verso terzi.\r\n\r\nLe informazioni contenute nella banca dati possono essere utilizzate dal cliente, anche ai fini della loro elaborazione purch\u00e9, nel caso di pubblicazione, venga citata la relativa fonte. Per ogni ulteriore condizione contrattuale e di utilizzo \u00e8 possibile collegarsi al link https://www.agenziaentrate.gov.it/portale/web/guest/schede/fabbricatiterreni/omi/banche-dati/quotazioni-immobiliari/condizioni-contrattuali-qi.", "owner_org": "da720f96-c055-4abb-bcce-d26eb8cf436a", "extras": [{"value": "DS1996", "key": "identifier"}, {"value": "[]", "key": "alternate_identifier"}, {"value": "[{\"subthemes\": [\"http://eurovoc.europa.eu/100186\"], \"theme\": \"ECON\"}]", "key": "theme"}, {"value": "Agenzia delle Entrate", "key": "publisher_name"}, {"value": "06363391001", "key": "publisher_identifier"}, {"value": "", "key": "issued"}, {"value": "26-10-2026", "key": "modified"}, {"value": "ITA_MIL", "key": "geographical_name"}, {"value": "https://www.geonames.org/3173435", "key": "geographical_geonames_url"}, {"value": "ITA", "key": "language"}, {"value": "[{\"temporal_end\": \"2025-12-31\", \"temporal_start\": \"2025-01-01\"}]", "key": "temporal_coverage"}, {"value": "Comune di Milano", "key": "holder_name"}, {"value": "c_f205", "key": "holder_identifier"}, {"value": "ANNUAL_2", "key": "frequency"}, {"value": "https://www1.agenziaentrate.gov.it/servizi/Consultazione/ricerca.htm", "key": "is_version_of"}, {"value": "[]", "key": "conforms_to"}, {"value": "[{\"creator_identifier\": \"01199250158\", \"creator_name\": {\"en\": \"Comune di Milano - Unit\\u00e0 Analytics e Open Data\", \"it\": \"Comune di Milano - Unit\\u00e0 Analytics e Open Data\"}}]", "key": "creator"}], "license_url": "http://www.opendefinition.org/licenses/cc-by", "title": "Quotazioni Immobiliari OMI: Compravendita e Locazione - Riepilogo", "revision_id": "fa8ceabf-ee2d-41ae-b98a-c765552e9a37"}, {"license_title": "Creative Commons Attribution", "maintainer": "Comune di Milano - Unit\u00e0 Analytics e Open Data", "dataset_is_local": true, "private": false, "maintainer_email": "opendatamilano@comune.milano.it", "num_tags": 4, "id": "b4ff0e85-9137-413c-9a70-0a857d08a2a
+
+### https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/contents
+OK 6053 octets
+[{"name":".gitignore","path":".gitignore","sha":"fa2d8176ba60cc6144a7c2461b02d9c87bfdae5d","size":48,"url":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/contents/.gitignore?ref=master","html_url":"https://github.com/ondata/quotazioni-immobiliari-agenzia-entrate/blob/master/.gitignore","git_url":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/git/blobs/fa2d8176ba60cc6144a7c2461b02d9c87bfdae5d","download_url":"https://raw.githubusercontent.com/ondata/quotazioni-immobiliari-agenzia-entrate/master/.gitignore","type":"file","_links":{"self":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/contents/.gitignore?ref=master","git":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/git/blobs/fa2d8176ba60cc6144a7c2461b02d9c87bfdae5d","html":"https://github.com/ondata/quotazioni-immobiliari-agenzia-entrate/blob/master/.gitignore"}},{"name":"README.md","path":"README.md","sha":"060511a24e70b62554e39d73d876dbfd146d030a","size":11205,"url":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/contents/README.md?ref=master","html_url":"https://github.com/ondata/quotazioni-immobiliari-agenzia-entrate/blob/master/README.md","git_url":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/git/blobs/060511a24e70b62554e39d73d876dbfd146d030a","download_url":"https://raw.githubusercontent.com/ondata/quotazioni-immobiliari-agenzia-entrate/master/README.md","type":"file","_links":{"self":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/contents/README.md?ref=master","git":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/git/blobs/060511a24e70b62554e39d73d876dbfd146d030a","html":"https://github.com/ondata/quotazioni-immobiliari-agenzia-entrate/blob/master/README.md"}},{"name":"data","path":"data","sha":"87085b0de2c4f1b905a568858f9f0b4c0252b997","size":0,"url":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/contents/data?ref=master","html_url":"https://github.com/ondata/quotazioni-immobiliari-agenzia-entrate/tree/master/data","git_url":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/git/trees/87085b0de2c4f1b905a568858f9f0b4c0252b997","download_url":null,"type":"dir","_links":{"self":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/contents/data?ref=master","git":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/git/trees/87085b0de2c4f1b905a568858f9f0b4c0252b997","html":"https://github.com/ondata/quotazioni-immobiliari-agenzia-entrate/tree/master/data"}},{"name":"doc","path":"doc","sha":"bec02cdd2d3d5a140a763300e839bc0f05fab06c","size":0,"url":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/contents/doc?ref=master","html_url":"https://github.com/ondata/quotazioni-immobiliari-agenzia-entrate/tree/master/doc","git_url":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/git/trees/bec02cdd2d3d5a140a763300e839bc0f05fab06c","download_url":null,"type":"dir","_links":{"self":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/contents/doc?ref=master","git":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/git/trees/bec02cdd2d3d5a140a763300e839bc0f05fab06c","html":"https://github.com/ondata/quotazioni-immobiliari-agenzia-entrate/tree/master/doc"}},{"name":"kmz","path":"kmz","sha":"3fb2f361117fb8d89db021163f99be94422e007e","size":0,"url":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/contents/kmz?ref=master","html_url":"https://github.com/ondata/quotazioni-immobiliari-agenzia-entrate/tree/master/kmz","git_url":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/git/trees/3fb2f361117fb8d89db021163f99be94422e007e","download_url":null,"type":"dir","_links":{"self":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/contents/kmz?ref=master","git":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/git/trees/3fb2f361117fb8d89db021163f99be94422e007e","html":"https://github.com/ondata/quotazioni-immobiliari-agenzia-entrate/tree/master/kmz"}},{"name":"rawData","path":"rawData","sha":"f84495b82e958c068f3d5022fbfd39214ac105d3","size":0,"url":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/contents/rawData?ref=master","html_url":"https://github.com/ondata/quotazioni-immobiliari-agenzia-entrate/tree/master/rawData","git_url":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/git/trees/f84495b82e958c068f3d5022fbfd39214ac105d3","download_url":null,"type":"dir","_links":{"self":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/contents/rawData?ref=master","git":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/git/trees/f84495b82e958c068f3d5022fbfd39214ac105d3","html":"https://github.com/ondata/quotazioni-immobiliari-agenzia-entrate/tree/master/rawData"}},{"name":"zoneOMI.sh","path":"zoneOMI.sh","sha":"1a6f1c64168f270141d77104d0257b37fc5b212e","size":2153,"url":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/contents/zoneOMI.sh?ref=master","html_url":"https://github.com/ondata/quotazioni-immobiliari-agenzia-entrate/blob/master/zoneOMI.sh","git_url":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/git/blobs/1a6f1c64168f270141d77104d0257b37fc5b212e","download_url":"https://raw.githubusercontent.com/ondata/quotazioni-immobiliari-agenzia-entrate/master/zoneOMI.sh","type":"file","_links":{"self":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/contents/zoneOMI.sh?ref=master","git":"https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/git/blobs/1a6f1c64168f270141d77104d0257b37fc5b212e","html":"https://github.com/ondata/quotazioni-immobiliari-agenzia-entrate/blob/master/zoneOMI.sh"}}]
+
+### https://dati.comune.roma.it/catalog/api/3/action/package_search?q=quotazioni%20omi
+OK 227 octets
+{"help": "https://dati.comune.roma.it/catalog/api/3/action/help_show?name=package_search", "success": true, "result": {"count": 0, "facets": {}, "results": [], "sort": "score desc, metadata_modified desc", "search_facets": {}}}
+
+### https://daten.berlin.de/api/3/action/package_search?q=Immobilienpreise
+ERREUR HTTP Error 403: Forbidden
+
+### https://www.berlin.de/gutachterausschuss/marktinformationen/grundstuecksmarktberichte/
+ERREUR HTTP Error 404: Not Found
+
+### https://stadt.muenchen.de/infos/gutachterausschuss-jahresbericht.html
+OK 118352 octets
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+<html lang="de" >
+<head>
+
+	<meta charset="utf-8" />
+	<title>infos – Landeshauptstadt München</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+	<meta name="keywords" content="" />
+	<meta name="description" content=""/>
+	<meta name="author" content="Landeshauptstadt München, Stadtverwaltung" />
+	<meta name="organization" content="" />
+	<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+	<meta name="rights" content="Landeshauptstadt München, All rights reserved, Alle Rechte vorbehalten" />
+	<meta name="language" content="de" />
+	<meta name="gwt:property" content="locale=de"/>
+	<meta name="theme-color" content="#005a9f">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="default">
+	<meta name="apple-mobile-web-app-title" content="muenchen.de" />
+	<meta name="referrer" content="strict-origin-when-cross-origin" />
+
+	<meta property="og:title" content="infos" />
+	<meta property="og:description" content="" />
+	<meta property="og:type" content="website" />
+
+		<meta property="og:url" content="https://stadt.muenchen.de/infos.html" />
+
+		<link rel="canonical" href="https://stadt.muenchen.de/infos.html" />
+
+
+	<link rel="icon" type="image/svg+xml" href="/.resources/lhmTemplates/themes/lhm/assets/favicon.svg" />
+	<link rel="shortcut icon" href="/.resources/lhmTemplates/themes/lhm/assets/favicon.ico" />
+	<link rel="apple-touch-icon" sizes="180x180" href="/.resources/lhmTemplates/themes/lhm/assets/apple-touch-icon.png" />
+	<link rel="icon" type="image/png" sizes="96x96" href="/.resources/lhmTemplates/themes/lhm/assets/favicon-96x96.png" />
+	<link rel="manifest" href="/dam/lhm/site.webmanifest" />
+
+
+
+			<link rel="stylesheet preload" type="text/css" href="/.resources/lhmTemplates/themes/lhm/css/style~2026-07-02-13-36-52-000~cache.css" as="style"  media="all" crossorigin/>
+			<link rel="stylesheet preload" type="text/css" href="/.resources/lhmTemplates/themes/lhm/css/fonts~2026-07-02-13-36-52-000~cache.css" as="style"  media="all" crossorigin/>
+
+
+		<script  type="module" src="/.resources/lhmTemplates/themes/lhm/js/bundle~2026-07-02-13-36-52-000~cache.js" ></script>
+		<script  type="module" src="/.resources/lhmTemplates/themes/lhm/custom/lhm-custom~2026-07-02-13-36-52-000~cache.js" ></script>
+
+
+
+	<link rel="preconnect" href="//privacy-proxy.usercentrics.eu">
+	<link rel="preload" href="//privacy-proxy.usercentrics.eu/latest/uc-block.bundle.js" as="script">
+	<script type="application/javascript">var UC_UI_SUPPRESS_CMP_DISPLAY=false;</script>
+
+	<script id="usercentrics-cmp" src="https://app.usercentrics.eu/browser-ui/latest/loader.js" data-settings-id="ai9VRsgSOMZyKe" async></script>
+
+	<script type="application/javascript" src="https://privacy-proxy.usercentrics.eu/latest/uc-block.bundle.js" async></script>
+
+
+	<script src="//cdn-eu.readspeaker.com/script/10000/webReader/webReader.js?pids=wr&disable=translation" type="text/javascript" id="rs_req_Init"></script>
+
+
+
+
+	<script type="text/javascript">
+		var et_areas = "";
+		var et_pagename = "";
+	</script>
+
+	<!-- etracker tracklet 4.0 -->
+		<script id="_etLoader" type="text/javascript" charset="UTF-8" data-secure-code="Shbe3K" data-block-cookies="true" data-respect-dnt="true" src="//code.etracker.com/code/e.js" async></script>
+		<noscript><link rel="stylesheet" media="all" href="//www.etracker.de/cnt_css.php?et=Shbe3K&amp;v=4.0&amp;java=n&amp;et_easy=0&amp;et_pagename=&amp;et_areas=&amp;et_ilevel=0&amp;et_target=,0,0,0&amp;et_lpage=0&amp;et_trig=0&amp;et_se=0&amp;et_cust=0&amp;et_basket=&amp;et_url=&amp;et_tag=&amp;et_sub=&amp;et_organisation=&amp;et_demographic=" /></noscript>
+	<!-- etracker tracklet 4.0 end -->
+
+</head>
+
+<body >
+
+<div id="cdp-data" style="display:none"
+	data-cdp-config="eyJzY29wZSI6ImxobS1tZGUiLCJzaXRlIjoibGhtLW1kZSIsImhvc3QiOiJjZHAtZHhwLm11ZW5jaGVuLmRlIiwic2NyaXB0IjoiL2pzL2NkcC9jZHAtZmV0Y2gtdHJhY2tlci5taW4uanMiLCJjb250ZXh0IjoiL3NlcnZpY2UifQ=="
+	data-cdp-host="cdp-dxp.muenchen.de"
+	data-cdp-scope="lhm-mde"
+	data-cdp-siteid="lhm-mde"
+	data-cdp-context="/service"
+	data-cdp-scripturl="/js/cdp/cdp-fetch-tracker.min.js"
+	data-cdp-pageid="infos"
+	data-cdp-pagename="infos"
+	data-cdp-template="article"
+	data-cdp-nodetype="page"
+	data-cdp-iscontent="true"
+	
+	data-cdp-tags=""
+></div>
+
+
+
+<div class="site" id="site">
+	<!-- HeaderArea -->
+<!-- HEADER -->
+
+
+
+
+
+
+<script type="text/javascript" src="https://dbs-login-webcomponent.muenchen.de/loader.js" async></script>
+    <header class="m-page-header m-page-header--is-fixed">
+        <div class="m-page-header__top">
+            <div class="container-fluid">
+                <div class="m-page-header__branding">
+                    <a class="m-page-header__branding-link" href="https://www.muenchen.de/" title="Zur Startseite">
+                        <img class="m-page-header__branding-image" src="/.resources/lhmTemplates/themes/lhm/assets/svg/logo/logo-header-muenchen-de.svg" width="244" height="48" alt="Logo muenchen.de - das offizielle Stadtportal (Zur Startseite)">
+                    </a>
+                </div>
+                
+                <div class="m-page-header__meta">
+                
+                    <button class="mobile-menu-trigger mobile-menu-trigger--search" type="button" data-bs-toggle="offcanvas" data-bs-target="#navSearchContent" aria-controls="navSearchContent">
+                        <svg aria-hidden="true" class="icon">
+                          <use xlink:href="#icon-search"></use>
+                        </svg>
+                        <span class="visually-hidden">Suche einblenden</span>
+                    </button>
+                    
+                    <div class="m-nav-collapse m-nav-collapse--search" id="navSearchContent">
+                    
+                        <button type="button" class="mobile-menu-trigger mobile-menu-trigger--close" data-bs-dismiss="offcanvas" data-bs-target="#navSearchContent">
+                            <svg aria-hidden="true" class="icon">
+                                <use xlink:href="#icon-close"></use>
+                            </svg>
+                            <span class="visually-hidden">Suche schließen</span>
+                        </button>
+
+                        <!-- if you want to activate autocomplete, add the following class -->
+                        <!-- <div class="m-page-header__search-block m-page-header__search-block--autocomplete"> -->
+                        <div class="m-page-header__search-block">
+    
+                            <form action="https://www.muenchen.de/volltextsuche.html" method="get" role="search" class="m-search-block" aria-label="Suche">
+                                <label class="visually-hidden" for="sitesearch-input">Suchbegriff eingeben</label>
+                                <input class="m-search-block__input" type="text" id="sitesearch-input" name="query" placeholder="Suchbegriff eingeben">
+                                <button class="m-search-block__submit" id="sitesearch-submit" type="submit">
+                                    <svg aria-hidden="true" class="icon">
+                                        <use xlink:href="#icon-search"></use>
+                                    </svg>
+                                    <span class="visually-hidden">Suche starten</span>
+                                </button>
+                                <!--{{!-- if you want to activate autocomplete, add the following ul --}}-->
+                                <!--{{!-- <ul class="autocomplete-result-list"></ul> --}}-->
+                            </form>
+                        </div>
+                    </div> 
+                    
+                        <
+
+### https://data-api.ecb.europa.eu/service/data/EXR/A.GBP.EUR.SP00.A?format=csvdata
+OK 6071 octets
+KEY,FREQ,CURRENCY,CURRENCY_DENOM,EXR_TYPE,EXR_SUFFIX,TIME_PERIOD,OBS_VALUE,OBS_STATUS,OBS_CONF,OBS_PRE_BREAK,OBS_COM,TIME_FORMAT,BREAKS,COLLECTION,COMPILING_ORG,DISS_ORG,DOM_SER_IDS,PUBL_ECB,PUBL_MU,PUBL_PUBLIC,UNIT_INDEX_BASE,COMPILATION,COVERAGE,DECIMALS,NAT_TITLE,SOURCE_AGENCY,SOURCE_PUB,TITLE,TITLE_COMPL,UNIT,UNIT_MULT
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,1999,0.6587353281853,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2000,0.6094776470588,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2001,0.621874015748,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2002,0.628831372549,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2003,0.6919933333333,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2004,0.6786586872587,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2005,0.6837963035019,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2006,0.6817303921569,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2007,0.6843367843137,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2008,0.7962845703125,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2009,0.8909395703125,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2010,0.8578439147287,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2011,0.8678844357977,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2012,0.8108705859375,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2013,0.849255254902,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2014,0.8061203137255,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2015,0.725835390625,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2016,0.81948307393,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2017,0.8766743529412,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2018,0.8847057647059,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2019,0.8777705882353,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2020,0.8897040856031,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2021,0.8596035658915,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2022,0.8527608560311,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2023,0.8697865098039,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2024,0.8466166015625,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+EXR.A.GBP.EUR.SP00.A,A,GBP,EUR,SP00,A,2025,0.8567923137255,A,F,,,P1Y,,A,,,,,,,,,,5,,4F0,,Pound sterling/Euro ECB reference exchange rate,"ECB reference exchange rate, Pound sterling/Euro, 2.15 pm (C.E.T.)",GBP,0
+
