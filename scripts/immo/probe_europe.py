@@ -42,4 +42,5 @@ for u in U:
         out.append(f"### {u}\nOK {len(b)} octets\n{t}\n")
     except Exception as e:
         out.append(f"### {u}\nERREUR {e}\n")
+import os; os.makedirs("data/europe", exist_ok=True)
 open("data/europe/_probe.txt", "w").write("\n".join(out)); print("ok")
