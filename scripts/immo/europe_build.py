@@ -13,6 +13,8 @@ Villes et sources
   Barcelone    expertises de logements libres, moyenne des 4 trimestres, 2005 →
   Milan      Agenzia delle Entrate (OMI) : moyenne des cotations « abitazioni civili, état normal » des zones
                de la ville (milieu de fourchette, surface brute), moyenne des 2 semestres, 2004 →
+  Berlin     Comité officiel d'évaluation de Berlin (Gutachterausschuss) : prix moyen au m² de tous les
+               appartements vendus (neuf compris), rapports annuels 2007-2025, 2006 →
   Vienne     Statistik Austria : prix médian au m² des appartements (transactions du registre foncier) 2015 → ;
                avant 2015 : indice OeNB des appartements anciens de Vienne
 """
@@ -112,6 +114,24 @@ for an in range(1999, 2015):
         v = VIENNE[2015] * idx[an] / idx[2015]
         add("Vienne", "Autriche", an, v, v, "EUR", "transactions", "indice officiel (règle de trois)",
             "Statistik Austria (niveau 2015) et OeNB, indice des appartements anciens à Vienne")
+
+# ---------------------------------------------------------------- Berlin
+# Gutachterausschuss für Grundstückswerte in Berlin, Immobilienmarktberichts 2007 à 2025 (prix moyen
+# arithmétique au m² de toutes les Eigentumswohnungen vendues hors ventes en bloc, neuf compris).
+# Extraits par europe_pdf.py ; chaque rapport donne l'année et la précédente (contrôle de cohérence).
+import glob
+berlin = {}
+for f in sorted(glob.glob(f"{R}/pdf/berlin_imb_code_*.txt")):
+    t = re.sub(r"\s+", " ", re.sub(r"-\n", "", open(f).read()))
+    m = re.search(r"aller im Jahr (\d{4}) \((\d{4})\) (?:nicht in Paketen )?veräußerten Eigen ?tums ?wohnungen "
+                  r"(?:lag|liegt) bei (\d[\d\. ]*?) ?€ ?/ ?m² \((\d[\d\. ]*?) ?€ ?/ ?m²\)", t)
+    if m:
+        n = lambda x: int(re.sub(r"\D", "", x))
+        berlin[int(m.group(1))] = n(m.group(3))
+        berlin.setdefault(int(m.group(2)), n(m.group(4)))
+for an, v in sorted(berlin.items()):
+    add("Berlin", "Allemagne", an, v, v, "EUR", "transactions", "direct",
+        "Gutachterausschuss für Grundstückswerte in Berlin, prix moyen des appartements")
 
 out = pd.DataFrame(rows).sort_values(["ville", "annee"])
 out.to_csv("data/europe/prix_villes_europe.csv", sep=";", index=False)

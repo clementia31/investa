@@ -20,6 +20,26 @@ Barcelone;Espagne;2022;3553;3553;EUR;expertises;direct;Ministerio de Vivienda, v
 Barcelone;Espagne;2023;3643;3643;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
 Barcelone;Espagne;2024;3873;3873;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
 Barcelone;Espagne;2025;4340;4340;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Berlin;Allemagne;2006;1479;1479;EUR;transactions;direct;Gutachterausschuss für Grundstückswerte in Berlin, prix moyen des appartements
+Berlin;Allemagne;2007;1558;1558;EUR;transactions;direct;Gutachterausschuss für Grundstückswerte in Berlin, prix moyen des appartements
+Berlin;Allemagne;2008;1534;1534;EUR;transactions;direct;Gutachterausschuss für Grundstückswerte in Berlin, prix moyen des appartements
+Berlin;Allemagne;2009;1587;1587;EUR;transactions;direct;Gutachterausschuss für Grundstückswerte in Berlin, prix moyen des appartements
+Berlin;Allemagne;2010;1653;1653;EUR;transactions;direct;Gutachterausschuss für Grundstückswerte in Berlin, prix moyen des appartements
+Berlin;Allemagne;2011;1757;1757;EUR;transactions;direct;Gutachterausschuss für Grundstückswerte in Berlin, prix moyen des appartements
+Berlin;Allemagne;2012;1954;1954;EUR;transactions;direct;Gutachterausschuss für Grundstückswerte in Berlin, prix moyen des appartements
+Berlin;Allemagne;2013;2260;2260;EUR;transactions;direct;Gutachterausschuss für Grundstückswerte in Berlin, prix moyen des appartements
+Berlin;Allemagne;2014;2491;2491;EUR;transactions;direct;Gutachterausschuss für Grundstückswerte in Berlin, prix moyen des appartements
+Berlin;Allemagne;2015;2851;2851;EUR;transactions;direct;Gutachterausschuss für Grundstückswerte in Berlin, prix moyen des appartements
+Berlin;Allemagne;2016;3204;3204;EUR;transactions;direct;Gutachterausschuss für Grundstückswerte in Berlin, prix moyen des appartements
+Berlin;Allemagne;2017;3626;3626;EUR;transactions;direct;Gutachterausschuss für Grundstückswerte in Berlin, prix moyen des appartements
+Berlin;Allemagne;2018;4017;4017;EUR;transactions;direct;Gutachterausschuss für Grundstückswerte in Berlin, prix moyen des appartements
+Berlin;Allemagne;2019;4446;4446;EUR;transactions;direct;Gutachterausschuss für Grundstückswerte in Berlin, prix moyen des appartements
+Berlin;Allemagne;2020;4735;4735;EUR;transactions;direct;Gutachterausschuss für Grundstückswerte in Berlin, prix moyen des appartements
+Berlin;Allemagne;2021;5379;5379;EUR;transactions;direct;Gutachterausschuss für Grundstückswerte in Berlin, prix moyen des appartements
+Berlin;Allemagne;2022;5646;5646;EUR;transactions;direct;Gutachterausschuss für Grundstückswerte in Berlin, prix moyen des appartements
+Berlin;Allemagne;2023;5322;5322;EUR;transactions;direct;Gutachterausschuss für Grundstückswerte in Berlin, prix moyen des appartements
+Berlin;Allemagne;2024;5251;5251;EUR;transactions;direct;Gutachterausschuss für Grundstückswerte in Berlin, prix moyen des appartements
+Berlin;Allemagne;2025;5511;5511;EUR;transactions;direct;Gutachterausschuss für Grundstückswerte in Berlin, prix moyen des appartements
 Londres;Royaume-Uni;1999;1920;1265;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
 Londres;Royaume-Uni;2000;2566;1564;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
 Londres;Royaume-Uni;2001;2848;1771;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
