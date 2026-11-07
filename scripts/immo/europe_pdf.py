@@ -6,9 +6,11 @@ P = {
  "berlin_imb_2024_2025": "https://www.berlin.de/gutachterausschuss/_assets/amarktinformationen/amarktanalyse/04-03-010-2400.pdf",
  "berlin_imb_2022_2023": "https://www.berlin.de/gutachterausschuss/_assets/amarktinformationen/amarktanalyse/04-03-010-2200.pdf",
  "berlin_imb_2021_2022": "https://www.berlin.de/gutachterausschuss/_assets/amarktinformationen/amarktanalyse/04-03-010-2100.pdf",
+ "omi_ri2025_residenziale": "https://www.informazionefiscale.it/IMG/pdf/ri2025_residenziale20250520.pdf",
  "roma_mercato_immobiliare_2018": "https://www.comune.roma.it/web-resources/cms/documents/11_MercatoImmobiliare_2018DEF_CMRC.pdf",
 }
 for k, u in P.items():
+    if os.path.exists(f"{R}/{k}.txt"): continue
     try:
         b = urllib.request.urlopen(urllib.request.Request(u, headers=H), timeout=180).read()
         out = []
