@@ -43,3 +43,14 @@ try:
     open(f"{R}/at_oenb_wohnimmobilienpreisindex.csv", "wb").write(b); print("ok oenb", len(b))
 except Exception as e:
     print("ERREUR oenb", e)
+
+# UK HPI complet (prix moyen des appartements par zone) : on ne garde que Londres et Manchester
+try:
+    import pandas as pd
+    if not os.path.exists(f"{R}/uk_hpi_flats_london_manchester.csv"):
+        d = pd.read_csv("http://publicdata.landregistry.gov.uk/market-trend-data/house-price-index-data/UK-HPI-full-file-2026-08.csv",
+                        storage_options=H)
+        d = d[d.RegionName.isin(["London", "Manchester"])][["Date", "RegionName", "AreaCode", "AveragePrice", "FlatPrice", "FlatIndex"]]
+        d.to_csv(f"{R}/uk_hpi_flats_london_manchester.csv", index=False); print("ok uk full", len(d))
+except Exception as e:
+    print("ERREUR uk full", e)
