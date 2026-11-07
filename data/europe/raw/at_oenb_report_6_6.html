@@ -1,0 +1,3221 @@
+<!DOCTYPE HTML>
+<html lang="de" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
+	<link rel="shortcut icon" href="/isawebstat/img/fav-icon_logo_data_prod.png" />
+	
+
+    <link rel="stylesheet" href="/isawebstat/webjars/jquery-ui/1.14.2/jquery-ui.css"/>
+    <link rel="stylesheet" href="/isawebstat/webjars/bootstrap/5.3.8/css/bootstrap.min.css" type="text/css"/>
+    <link rel="stylesheet" href="/isawebstat/webjars/bootstrap-icons/1.7.2/font/bootstrap-icons.css" type="text/css"/>
+<!--    <link rel="stylesheet" th:href="@{/webjars/datatables/css/jquery.dataTables.css}" type="text/css"/> -->
+<!--    <link rel="stylesheet" th:href="@{/webjars/datatables-select/css/select.dataTables.css}" type="text/css"/> -->
+<!--    <link rel="stylesheet" th:href="@{/webjars/datatables-fixedheader/fixedHeader.dataTables.min.css}" type="text/css"/> -->
+<!--<link rel="stylesheet" th:href="@{/webjars/font-awesome.min.css/font-awesome.min.css}" type="text/css"/>-->
+<!--   <link rel="stylesheet" th:href="@{/css/oenb.css}"/> -->
+    <link rel="stylesheet" href="/isawebstat/css/isaNew.css"/>
+
+    <!-- <link rel="stylesheet" href="https://cdn.datatables.net/2.3.8/css/dataTables.dataTables.css"/> -->
+    <link rel="stylesheet" href="/isawebstat/webjars/datatables/2.3.7/css/dataTables.dataTables.css" type="text/css"/>
+    <!--  <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/4.0.6/css/fixedHeader.dataTables.css"/> -->
+    <link rel="stylesheet" href="/isawebstat/webjars/datatables-fixedheader/3.2.4/fixedHeader.dataTables.min.css" type="text/css"/>
+    <link rel="stylesheet" href="/isawebstat/css/stAbfrage.css"/>
+    <link rel="stylesheet" href="/isawebstat/css/tablestyles.css"/>
+
+ <!--   <link rel="stylesheet" th:href="@{/css/fixedHeader.dataTables.min.css}"/> -->
+
+    <!-- Schriftart Lato lokal geladen -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>DATA - Wohnimmobilienpreisindex</title>
+    <style>
+        /* Lato Font Faces - lokal geladen */
+        @font-face {
+            font-family: 'Lato';
+           /* src: url('./static/fonts/Lato-Light.woff') format('woff'); */
+            font-weight: 300;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'Lato';
+            /*src: url('./static/fonts/Lato-Regular.woff') format('woff'); */
+            font-weight: 400;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'Lato';
+            /*src: url('./static/fonts/Lato-Bold.woff') format('woff'); */
+            font-weight: 700;
+            font-display: swap;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.6rem;
+            color: #333;
+        }
+
+        h1, h2, h3 {
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            font-weight: 400;
+        }
+    </style>
+    
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="format-detection" content="telephone=no"/>
+
+</head>
+
+<body>
+	<!-- Matomo Code -->
+	<script type="text/javascript" class="cmplazyload" data-cmp-vendor="s974">
+      var _paq = window._paq = window._paq || [];
+      /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+      _paq.push(['trackPageView']);
+      _paq.push(['enableLinkTracking']);
+      (function() {
+        var u="//www.oenb.at/analytics/";
+        _paq.push(['setTrackerUrl', u+'matomo.php']);
+        _paq.push(['setSiteId', '1']);
+        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+        g.async=true; 
+        g.setAttribute('data-cmp-ab', '1'); 
+        g.src=u+'matomo.js'; 
+        s.parentNode.insertBefore(g,s);
+      })();
+    </script>
+    <!-- End Matomo Code -->
+
+    <!-- fuer iFrame -->
+    <script src="https://www.oenb.at/docroot/oenb25/utils/oenb-iframe-child-embed.js"></script>
+    <!-- Ende iFrame -->
+
+<!--  Logo raus
+<div class="container container-header text-end padding-top-md padding-bottom-md container-no-border-top" id="header">
+    <img class="float-start" height="100" th:src="@{/img/Logo_Data.png}" alt="Logo Data">
+    <img alt="OeNB Logo" height="90" th:src="@{/img/logo.png}" width="308">
+</div>
+-->
+<!-- Header Sprachumschalter raus
+<nav class="navbar navbar-light navbar-expand-md margin-top-md">
+    <div class="container no-vertical-padding">
+          <button aria-controls="collapsibleNavbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
+                data-bs-target="#collapsibleNavbar" data-bs-toggle="collapse" type="button">
+            <span class="navbar-toggler-icon"></span>Toggle navigation
+        </button>
+        
+        <div class="collapse navbar-collapse navbar-primary" id="collapsibleNavbar">
+        
+        	<ul id="langnav">
+  				<li class="first"><a th:if="${lang eq 'EN'}" th:href="@{/stabfrage/createReport(lang=DE,report=${staResultModel.reportNummer})}" th:aria-label="#{text.sprache.de.tooltip}">DE</a><span th:unless="${lang eq 'EN'}">DE</span></li>
+  				<li class="last"><a th:if="${lang eq 'DE'}" th:href="@{/stabfrage/createReport(lang=EN,report=${staResultModel.reportNummer})}" th:aria-label="#{text.sprache.en.tooltip}">EN</a><span th:unless="${lang eq 'DE'}">EN</span></li>
+			</ul>
+			<ul class="navbar-nav right"> 
+			 	<li class="nav-item">
+		         	<a class="nav-link" target="_blank" th:href="@{/dynabfrage(lang=${lang})}" th:text="#{text.link.zurDynAbfrage}"></a>
+		        </li>
+			</ul>
+			
+        </div>
+        
+    </div>
+</nav>
+-->
+
+<div class="container">
+
+    <div id="content-container">
+
+	<style type="text/css">
+		
+		.isa fieldset {
+			border: none
+		}
+	</style>
+
+<!-- Modaler Dialog fuer Metadaten -->
+<div class="modal fade" id="metadataModal" tabindex="-1" aria-labelledby="metadataModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="metadataModalLabel">Metadaten</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <dl class="dl-horizontal">
+	       <dt class="meta"><p id="metadataTitelLabel" value="TitelLabel"></p></dt>
+	       <dd class="clearfix meta"><p id="metadataTitelValue" value="TitelValue"></p></dd>
+	       <dt class="meta"><p id="metadataRegionlLabel" value="RegionLabel"></p></dt>
+	       <dd class="clearfix meta"><p id="metadataRegionValue" value="RegionLabel"></p></dd>
+	       <dt class="meta"><p id="metadataEinheitLabel" value="EinheitLabel"></p></dt>
+	       <dd class="clearfix meta"><p id="metadataEinheitValue" value="EinheitValue"></p></dd>
+	       <dt class="meta"><p id="metadataUnitMultLabel" value="UnitMultLabel"></p></dt>
+	       <dd class="clearfix meta"><p id="metadataUnitMultValue" value="UnitMultValue"></p></dd>
+	       <dt class="meta"><p id="metadataKommentarLabel" value="KommentarLabel"></p></dt>
+	       <dd class="clearfix meta"><p id="metadataKommentarValue" value="KommentarValue"></p></dd>
+	       <dt class="meta"><p id="metadataKlassifikationLabel" value="KlassifikationLabel"></p></dt>
+	       <dd class="clearfix meta"><p id="metadataKlassifikationValue" value="KlassifikationValue"></p></dd>
+	       <dt class="meta"><p id="metadataBreakLabel" value="BreakLabel"></p></dt>
+	       <dd class="clearfix meta"><p id="metadataBreakValue" value="BreakValue"></p></dd>
+	       <dt class="meta"><p id="metadataFreqLabel" value="FreqLabel"></p></dt>
+	       <dd class="clearfix meta"><p id="metadataFreqValue" value="FreqValue"></p></dd>
+
+	       <dt class="meta"><p id="metadataDatenverfuegbarkeitLabel" value="DatenverfuegbarkeitLabel"></p></dt>
+	       <dd class="clearfix meta"><p id="metadataDatenverfuegbarkeitValue" value="DatenverfuegbarkeitValue"></p></dd>
+	       <dt class="meta"><p id="metadataLetzteAktualisierungLabel" value="LetzteAktualisierungLabel"></p></dt>
+	       <dd class="clearfix meta"><p id="metadataLetzteAktualisierungValue" value="LetzteAktualisierungValue"></p></dd>
+	       
+	       <dt class="meta"><p id="metadataQuelleLabel" value="QuelleLabel"></p></dt>
+	       <dd class="clearfix meta"><p id="metadataQuelleValue" value="QuelleValue"></p></dd>
+	       <dt class="meta"><p id="metadataLagLabel" value="LagLabel"></p></dt>
+	       <dd class="clearfix meta"><p id="metadataLagValue" value="LagValue"></p></dd>
+	       
+	       <dt class="meta"><p id="metadataVeroeffentlichungsKalenderLabel" value="VeroeffentlichungsKalenderLabel"></p></dt>
+	       <dd class="clearfix meta"><p id="metadataVeroeffentlichungsKalenderValue" value="VeroeffentlichungsKalenderValue"></p></dd>
+	       
+       </dl>
+         
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+	<form name="resultForm" action="/isawebstat/stabfrage/" method="POST">
+	
+	<ul class="navbar-nav direct-row">
+		
+		<!-- <th:li th:if=${staResultModel.defaultChartNummer} class="nav-item">
+			<a class="nav-link" th:href="@{/createChart(lang=${lang},chart=${staResultModel.defaultChartNummer})}" th:title="#{text.stabfrage.button.chart.tooltip}"><i class="bi bi-graph-up"></i></a>
+		</th:li> -->
+
+		<li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="downloadDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-download" ></i>    
+          </a>
+		  <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+	            <li><button class="dropdown-item" formaction="/isawebstat/stabfrage/downloadResult?lang=DE&amp;exportTyp=Excel&amp;report=6.6" onclick="document.resultForm.submit()" formtarget="_blank">Excel</button></li>
+	            <li><button class="dropdown-item" formaction="/isawebstat/stabfrage/downloadResult?lang=DE&amp;exportTyp=CSV&amp;report=6.6" onclick="document.resultForm.submit()" formtarget="_blank">CSV</button></li>
+		  </ul>
+		</li> 
+
+	</ul>
+	
+
+
+
+	
+	
+	<!-- Report content -->
+	<div><div style="overflow-y:auto; padding-right: 1 rem;">
+	<input type="hidden" id="metaDataUrl" data-url="/isawebstat/showMetadatenStAbfrage?lang=DE&amp;report=6.6">
+
+			<table class="popup resultTable oenb-table" border="0" cellpadding="0" cellspacing="0" id="dataTable">
+			<caption>
+			<!-- Überschrift -->
+				<span class="title">Wohnimmobilienpreisindex</span>
+				
+			</caption>
+			<!-- Tableheader -->
+			<thead>
+			
+				
+					<tr>
+						 
+									
+												
+								<th rowspan="1" colspan="1" scope="col"  
+									class="left-align colHeader1" id="tab1ColHeaderZ1S1">
+									<span>&#160;</span>
+									
+								</th>	
+									
+						 
+									
+												
+								<th rowspan="1" colspan="1" scope="col"  
+									class="colHeader4" id="tab1ColHeaderZ1S2">
+									<span>Österreich</span>
+									
+								</th>	
+									
+						 
+									
+												
+								<th rowspan="1" colspan="5" scope="col"  
+									class="colHeader4" id="tab1ColHeaderZ1S3">
+									<span>Wien</span>
+									
+								</th>	
+									
+						 
+									
+												
+								<th rowspan="1" colspan="5" scope="col"  
+									class="colHeader3" id="tab1ColHeaderZ1S8">
+									<span>Österreich ohne Wien</span>
+									
+								</th>	
+									
+						
+					</tr>
+				
+			
+				
+					<tr>
+						 
+									
+												
+								<th rowspan="1" colspan="1" scope="col"  
+									class="left-align colHeader1" id="tab1ColHeaderZ2S1">
+									<span>&#160;</span>
+									
+								</th>	
+									
+						 
+									
+												
+								<th rowspan="2" colspan="1" scope="col"  
+									class="colHeader2" id="tab1ColHeaderZ2S2">
+									<span>Gesamt<sup>1</sup></span>
+									
+								</th>	
+									
+						 
+									
+												
+								<th rowspan="2" colspan="1" scope="col"  
+									class="colHeader2" id="tab1ColHeaderZ2S3">
+									<span>Gesamt</span>
+									
+								</th>	
+									
+						 
+									
+												
+								<th rowspan="2" colspan="1" scope="col"  
+									class="colHeader2" id="tab1ColHeaderZ2S4">
+									<span>Einfamilienhäuser</span>
+									
+								</th>	
+									
+						 
+									
+												
+								<th rowspan="1" colspan="3" scope="col"  
+									class="left-align colHeader4" id="tab1ColHeaderZ2S5">
+									<span>Eigentumswohnungen</span>
+									
+								</th>	
+									
+						 
+									
+												
+								<th rowspan="2" colspan="1" scope="col"  
+									class="colHeader2" id="tab1ColHeaderZ2S8">
+									<span>Gesamt</span>
+									
+								</th>	
+									
+						 
+									
+												
+								<th rowspan="2" colspan="1" scope="col"  
+									class="colHeader2" id="tab1ColHeaderZ2S9">
+									<span>Einfamilienhäuser</span>
+									
+								</th>	
+									
+						 
+									
+												
+								<th rowspan="1" colspan="3" scope="col"  
+									class="left-align colHeader3" id="tab1ColHeaderZ2S10">
+									<span>Eigentumswohnungen</span>
+									
+								</th>	
+									
+						
+					</tr>
+				
+			
+				
+					<tr>
+						 
+									
+												
+								<th rowspan="1" colspan="1" scope="col"  
+									class="left-align colHeader1" id="tab1ColHeaderZ3S1">
+									<span>&#160;</span>
+									
+								</th>	
+									
+						 
+									
+												
+								<th rowspan="1" colspan="1" scope="col"  
+									class="colHeader2" id="tab1ColHeaderZ3S2">
+									<span>Gesamt</span>
+									
+								</th>	
+									
+						 
+									
+												
+								<th rowspan="1" colspan="1" scope="col"  
+									class="colHeader2" id="tab1ColHeaderZ3S3">
+									<span>Neue</span>
+									
+								</th>	
+									
+						 
+									
+												
+								<th rowspan="1" colspan="1" scope="col"  
+									class="colHeader2" id="tab1ColHeaderZ3S4">
+									<span>Gebrauchte</span>
+									
+								</th>	
+									
+						 
+									
+												
+								<th rowspan="1" colspan="1" scope="col"  
+									class="colHeader2" id="tab1ColHeaderZ3S5">
+									<span>Gesamt</span>
+									
+								</th>	
+									
+						 
+									
+												
+								<th rowspan="1" colspan="1" scope="col"  
+									class="colHeader2" id="tab1ColHeaderZ3S6">
+									<span>Neue</span>
+									
+								</th>	
+									
+						 
+									
+												
+								<th rowspan="1" colspan="1" scope="col"  
+									class="colHeader1" id="tab1ColHeaderZ3S7">
+									<span>Gebrauchte</span>
+									
+								</th>	
+									
+						
+					</tr>
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+				
+			
+			</thead>
+			<!-- Tablebody -->
+			<tbody>
+			
+				
+			
+				
+			
+				
+			
+				
+					<tr>
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="bold rowHeader4">
+									<span>Index 2000 = 100</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="num1">
+									<span>&#160;</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="num1">
+									<span>&#160;</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="num1">
+									<span>&#160;</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="num1">
+									<span>&#160;</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="num1">
+									<span>&#160;</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="num1">
+									<span>&#160;</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="num1">
+									<span>&#160;</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="num1">
+									<span>&#160;</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="num1">
+									<span>&#160;</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="num1">
+									<span>&#160;</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="num1">
+									<span>&#160;</span>
+									
+								</td>
+							
+						
+					</tr>
+				
+			
+				
+					<tr>
+						
+							
+									
+								
+								<th rowspan="1" colspan="1" scope="row" 
+									class="rowHeader4" id="tab1RowHeaderZ2S1">
+									<span>2023</span>
+									
+								</th>
+								
+							
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S2 tab1ColHeaderZ2S2 tab1ColHeaderZ3S2" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>269,9</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S3 tab1ColHeaderZ3S3" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>308,2</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S4 tab1ColHeaderZ3S4" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>242,6</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S5" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>313,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S6" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>285,8</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S7" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>307,3</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S8" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>259,0</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S9" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>228,8</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>271,0</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>193,9</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>278,1</span>
+									
+								</td>
+							
+						
+					</tr>
+				
+			
+				
+					<tr>
+						
+							
+									
+								
+								<th rowspan="1" colspan="1" scope="row" 
+									class="rowHeader4" id="tab1RowHeaderZ2S1">
+									<span>2024</span>
+									
+								</th>
+								
+							
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S2 tab1ColHeaderZ2S2 tab1ColHeaderZ3S2" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>264,3</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S3 tab1ColHeaderZ3S3" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>297,6</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S4 tab1ColHeaderZ3S4" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>235,4</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S5" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>302,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S6" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>281,0</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S7" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>294,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S8" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>256,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S9" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>226,9</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>267,5</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>197,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>271,2</span>
+									
+								</td>
+							
+						
+					</tr>
+				
+			
+				
+					<tr>
+						
+							
+									
+								
+								<th rowspan="1" colspan="1" scope="row" 
+									class="rowHeader4" id="tab1RowHeaderZ2S1">
+									<span>2025</span>
+									
+								</th>
+								
+							
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S2 tab1ColHeaderZ2S2 tab1ColHeaderZ3S2" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>266,9</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S3 tab1ColHeaderZ3S3" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>301,9</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S4 tab1ColHeaderZ3S4" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>234,7</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S5" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>306,8</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S6" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>288,0</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S7" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>297,5</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S8" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>257,8</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S9" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>226,9</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>270,6</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>203,6</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ2S1 tab1RowHeaderZ2S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>272,2</span>
+									
+								</td>
+							
+						
+					</tr>
+				
+			
+				
+					
+				
+			
+				
+					<tr>
+						
+							
+									
+								
+								<th rowspan="1" colspan="1" scope="row" 
+									class="rowHeader4" id="tab1RowHeaderZ4S1">
+									<span>Q2 25</span>
+									
+								</th>
+								
+							
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S2 tab1ColHeaderZ2S2 tab1ColHeaderZ3S2" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>264,5</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S3 tab1ColHeaderZ3S3" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>299,2</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S4 tab1ColHeaderZ3S4" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>233,7</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S5" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>304,0</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S6" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>285,7</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S7" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>294,6</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S8" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>255,5</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S9" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>225,0</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>268,2</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>203,0</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>269,0</span>
+									
+								</td>
+							
+						
+					</tr>
+				
+			
+				
+					<tr>
+						
+							
+									
+								
+								<th rowspan="1" colspan="1" scope="row" 
+									class="rowHeader4" id="tab1RowHeaderZ4S1">
+									<span>Q3 25</span>
+									
+								</th>
+								
+							
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S2 tab1ColHeaderZ2S2 tab1ColHeaderZ3S2" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>268,0</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S3 tab1ColHeaderZ3S3" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>302,2</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S4 tab1ColHeaderZ3S4" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>233,2</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S5" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>307,4</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S6" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>287,6</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S7" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>298,5</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S8" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>259,4</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S9" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>229,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>271,6</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>204,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>273,3</span>
+									
+								</td>
+							
+						
+					</tr>
+				
+			
+				
+					<tr>
+						
+							
+									
+								
+								<th rowspan="1" colspan="1" scope="row" 
+									class="rowHeader4" id="tab1RowHeaderZ4S1">
+									<span>Q4 25</span>
+									
+								</th>
+								
+							
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S2 tab1ColHeaderZ2S2 tab1ColHeaderZ3S2" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>269,2</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S3 tab1ColHeaderZ3S3" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>305,6</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S4 tab1ColHeaderZ3S4" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>236,3</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S5" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>310,8</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S6" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>291,6</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S7" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>301,4</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S8" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>259,4</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S9" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>229,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>271,7</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>202,9</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>274,1</span>
+									
+								</td>
+							
+						
+					</tr>
+				
+			
+				
+					<tr>
+						
+							
+									
+								
+								<th rowspan="1" colspan="1" scope="row" 
+									class="rowHeader4" id="tab1RowHeaderZ4S1">
+									<span>Q1 26</span>
+									
+								</th>
+								
+							
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S2 tab1ColHeaderZ2S2 tab1ColHeaderZ3S2" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>272,2</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S3 tab1ColHeaderZ3S3" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>307,3</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S4 tab1ColHeaderZ3S4" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>236,7</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S5" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>312,6</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S6" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>296,4</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S7" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>301,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S8" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>263,5</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S9" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>231,5</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>276,8</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>210,2</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>276,9</span>
+									
+								</td>
+							
+						
+					</tr>
+				
+			
+				
+					<tr>
+						
+							
+									
+								
+								<th rowspan="1" colspan="1" scope="row" 
+									class="rowHeader4" id="tab1RowHeaderZ4S1">
+									<span>Q2 26</span>
+									
+								</th>
+								
+							
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S2 tab1ColHeaderZ2S2 tab1ColHeaderZ3S2" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>274,0</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S3 tab1ColHeaderZ3S3" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>307,8</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S4 tab1ColHeaderZ3S4" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>247,5</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S5" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>312,2</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S6" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>294,4</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S7" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>301,6</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S8" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>266,2</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S9" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>234,0</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>279,6</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>211,3</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>280,2</span>
+									
+								</td>
+							
+						
+					</tr>
+				
+			
+				
+					<tr>
+						
+							
+									
+								
+								<th rowspan="1" colspan="1" scope="row" 
+									class="rowHeader4" id="tab1RowHeaderZ4S1">
+									<span>Q3 26</span>
+									
+								</th>
+								
+							
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S2 tab1ColHeaderZ2S2 tab1ColHeaderZ3S2" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>273,4</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S3 tab1ColHeaderZ3S3" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>308,0</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S4 tab1ColHeaderZ3S4" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>242,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S5" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>312,8</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S6" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>295,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S7" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>302,3</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S8" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>265,3</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S9" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>230,5</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>280,9</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>212,3</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ4S1 tab1RowHeaderZ4S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>281,5</span>
+									
+								</td>
+							
+						
+					</tr>
+				
+			
+				
+					
+				
+			
+				
+					<tr>
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="bold rowHeader4">
+									<span>Veränderung zum Vorjahr in %</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="num1">
+									<span>&#160;</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="num1">
+									<span>&#160;</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="num1">
+									<span>&#160;</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="num1">
+									<span>&#160;</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="num1">
+									<span>&#160;</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="num1">
+									<span>&#160;</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="num1">
+									<span>&#160;</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="num1">
+									<span>&#160;</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="num1">
+									<span>&#160;</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="num1">
+									<span>&#160;</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" colspan="1" scope="row" 
+									class="num1">
+									<span>&#160;</span>
+									
+								</td>
+							
+						
+					</tr>
+				
+			
+				
+					<tr>
+						
+							
+									
+								
+								<th rowspan="1" colspan="1" scope="row" 
+									class="rowHeader4" id="tab1RowHeaderZ7S1">
+									<span>2023</span>
+									
+								</th>
+								
+							
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S2 tab1ColHeaderZ2S2 tab1ColHeaderZ3S2" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>&#8722;1,6</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S3 tab1ColHeaderZ3S3" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>&#8722;2,3</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S4 tab1ColHeaderZ3S4" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>&#8722;3,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S5" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>&#8722;2,3</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S6" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>2,5</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S7" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>&#8722;4,8</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S8" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>&#8722;1,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S9" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>&#8722;2,2</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>&#8722;0,4</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>4,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>&#8722;2,3</span>
+									
+								</td>
+							
+						
+					</tr>
+				
+			
+				
+					<tr>
+						
+							
+									
+								
+								<th rowspan="1" colspan="1" scope="row" 
+									class="rowHeader4" id="tab1RowHeaderZ7S1">
+									<span>2024</span>
+									
+								</th>
+								
+							
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S2 tab1ColHeaderZ2S2 tab1ColHeaderZ3S2" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>&#8722;2,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S3 tab1ColHeaderZ3S3" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>&#8722;3,4</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S4 tab1ColHeaderZ3S4" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>&#8722;3,0</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S5" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>&#8722;3,5</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S6" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>&#8722;1,7</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S7" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>&#8722;4,3</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S8" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>&#8722;1,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S9" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>&#8722;0,8</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>&#8722;1,3</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>1,7</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>&#8722;2,5</span>
+									
+								</td>
+							
+						
+					</tr>
+				
+			
+				
+					<tr>
+						
+							
+									
+								
+								<th rowspan="1" colspan="1" scope="row" 
+									class="rowHeader4" id="tab1RowHeaderZ7S1">
+									<span>2025</span>
+									
+								</th>
+								
+							
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S2 tab1ColHeaderZ2S2 tab1ColHeaderZ3S2" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>1,0</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S3 tab1ColHeaderZ3S3" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>1,4</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S4 tab1ColHeaderZ3S4" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>&#8722;0,3</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S5" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>1,5</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S6" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>2,5</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S7" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>1,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S8" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>0,7</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S9" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>0,0</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>1,2</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>3,3</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ7S1 tab1RowHeaderZ7S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>0,4</span>
+									
+								</td>
+							
+						
+					</tr>
+				
+			
+				
+					
+				
+			
+				
+					<tr>
+						
+							
+									
+								
+								<th rowspan="1" colspan="1" scope="row" 
+									class="rowHeader4" id="tab1RowHeaderZ9S1">
+									<span>Q2 25</span>
+									
+								</th>
+								
+							
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S2 tab1ColHeaderZ2S2 tab1ColHeaderZ3S2" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>0,0</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S3 tab1ColHeaderZ3S3" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>&#8722;0,3</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S4 tab1ColHeaderZ3S4" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>&#8722;1,8</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S5" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>&#8722;0,2</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S6" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>1,2</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S7" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>&#8722;0,7</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S8" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>0,2</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S9" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>&#8722;1,0</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>1,0</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>4,5</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>&#8722;0,3</span>
+									
+								</td>
+							
+						
+					</tr>
+				
+			
+				
+					<tr>
+						
+							
+									
+								
+								<th rowspan="1" colspan="1" scope="row" 
+									class="rowHeader4" id="tab1RowHeaderZ9S1">
+									<span>Q3 25</span>
+									
+								</th>
+								
+							
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S2 tab1ColHeaderZ2S2 tab1ColHeaderZ3S2" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>1,5</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S3 tab1ColHeaderZ3S3" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>1,8</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S4 tab1ColHeaderZ3S4" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>&#8722;0,5</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S5" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>2,0</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S6" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>2,4</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S7" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>1,8</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S8" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>1,2</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S9" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>0,0</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>2,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>3,3</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>1,6</span>
+									
+								</td>
+							
+						
+					</tr>
+				
+			
+				
+					<tr>
+						
+							
+									
+								
+								<th rowspan="1" colspan="1" scope="row" 
+									class="rowHeader4" id="tab1RowHeaderZ9S1">
+									<span>Q4 25</span>
+									
+								</th>
+								
+							
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S2 tab1ColHeaderZ2S2 tab1ColHeaderZ3S2" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>2,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S3 tab1ColHeaderZ3S3" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>2,9</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S4 tab1ColHeaderZ3S4" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>1,3</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S5" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>3,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S6" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>3,0</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S7" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>3,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S8" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>1,6</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S9" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>2,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>1,2</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>2,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>0,9</span>
+									
+								</td>
+							
+						
+					</tr>
+				
+			
+				
+					<tr>
+						
+							
+									
+								
+								<th rowspan="1" colspan="1" scope="row" 
+									class="rowHeader4" id="tab1RowHeaderZ9S1">
+									<span>Q1 26</span>
+									
+								</th>
+								
+							
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S2 tab1ColHeaderZ2S2 tab1ColHeaderZ3S2" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>2,4</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S3 tab1ColHeaderZ3S3" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>2,3</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S4 tab1ColHeaderZ3S4" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>0,4</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S5" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>2,5</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S6" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>3,3</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S7" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>1,9</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S8" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>2,5</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S9" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>3,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>2,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>2,8</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>1,7</span>
+									
+								</td>
+							
+						
+					</tr>
+				
+			
+				
+					<tr>
+						
+							
+									
+								
+								<th rowspan="1" colspan="1" scope="row" 
+									class="rowHeader4" id="tab1RowHeaderZ9S1">
+									<span>Q2 26</span>
+									
+								</th>
+								
+							
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S2 tab1ColHeaderZ2S2 tab1ColHeaderZ3S2" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>3,6</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S3 tab1ColHeaderZ3S3" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>2,9</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S4 tab1ColHeaderZ3S4" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>5,9</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S5" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>2,7</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S6" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>3,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S7" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>2,4</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S8" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>4,2</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S9" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>4,0</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>4,3</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>4,1</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>4,2</span>
+									
+								</td>
+							
+						
+					</tr>
+				
+			
+				
+					<tr>
+						
+							
+									
+								
+								<th rowspan="1" colspan="1" scope="row" 
+									class="rowHeader4" id="tab1RowHeaderZ9S1">
+									<span>Q3 26</span>
+									
+								</th>
+								
+							
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S2 tab1ColHeaderZ2S2 tab1ColHeaderZ3S2" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>2,0</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S3 tab1ColHeaderZ3S3" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>1,9</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S4 tab1ColHeaderZ3S4" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>3,8</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S5" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>1,8</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S6" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>2,6</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S3 tab1ColHeaderZ2S5 tab1ColHeaderZ3S7" colspan="1" scope="row" 
+									class="num1 alignRight">
+									<span>1,3</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S8" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>2,3</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S9" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>0,6</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>3,4</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>4,0</span>
+									
+								</td>
+							
+						
+							
+							
+								<td rowspan="1" headers="tab1RowHeaderZ9S1 tab1RowHeaderZ9S1 tab1ColHeaderZ1S8 tab1ColHeaderZ2S10" colspan="1" scope="row" 
+									class="num3 alignRight">
+									<span>3,0</span>
+									
+								</td>
+							
+						
+					</tr>
+				
+				
+			</tbody>
+			</table>
+
+			<!-- Footer -->
+			<table class="popup resultTable oenb-table" border="0" cellpadding="0" cellspacing="0" id="footerTable">
+			<tfoot>
+				<tr class="leer7"><td colspan="12">&nbsp;</td></tr>
+				<!-- Referenzliste -->
+				<tr>
+					<td class="footer quelle" colspan="12">
+						<span>Quelle: 
+						 
+							OeNB, DataScience Service GmbH (DSS), TU Wien, Prof. Feilmayr. 
+							
+							
+						
+						</span>
+					</td>
+				</tr>
+				<tr class="leer7"><td colspan="12">&nbsp;</td></tr>
+				<!-- Fusszeilen -->
+				
+					
+					<tr>
+					 <td class="footer" colspan="12">
+						Der gegenständliche Index wird ausschließlich im Rahmen der Bewertung der Preisstabilität zu statistischen Zwecken erstellt und eignet sich nicht als Referenzwert für Finanzinstrumente und Finanzkontrakte. Für die Richtigkeit der veröffentlichten Werte wird keine Haftung übernommen. Eine Revision der Werte ist jederzeit möglich.
+					</td>		
+					</tr>	
+					
+					<tr>
+					 <td class="footer" colspan="12">
+						Daten von Beginn der Zeitreihen bis einschließlich der Daten für das Jahr 2024 stehen allen Nutzer:innen zur freien Nutzung zur Verfügung. Für die Daten der Zeitreihen vom Jahr 2025 an gilt eine Einschränkung hinsichtlich ihrer Nutzung für die gewerbliche Bewertung von Immobilien-(Portfolios); für diese bedarf es einer Lizenz des Anbieters. 
+					</td>		
+					</tr>	
+					
+				
+ 				<!-- Fussnoten -->
+				
+					
+					<tr>
+					 <td class="footer footnote" colspan="12">
+					 	<sup>1</sup>&#160;Aggregiert auf Basis der Indizes für Wien und Österreich ohne Wien. Diese Reihe ist auch im Statistical Data Warehouse der EZB abrufbar.
+					</td>		
+					</tr>	
+					
+				
+			</tfoot>
+		</table>
+</div></div>
+	
+	
+		
+
+<!-- Optionen -->
+<label>Tabelle anpassen:</label>
+
+<input type="hidden" value="true" id="fixedHeaderFlag">
+<input type="hidden" value="false" id="dataTableSortFlag">
+<input type="hidden" value="false" id="dataTableFilterFlag">
+<div>
+
+	<div class="zeit-container" >
+
+    	
+       		<div class="input-container" id="container_J">
+       			<span class="input-1">
+	 				<input id="periodizitaet_J" value="true" class='options' type='checkbox' name="zeitElementeList[0].checked" checked="checked"><input type="hidden" name="_zeitElementeList[0].checked" value="on"/>
+	 				<label id="labelPeriodizitaet_J" for="periodizitaet_J">Jahre</label>
+	  					
+	 				
+	  					
+	 				
+	  					
+	 				
+	  					
+	 				
+	  					
+	 				
+				 
+				 </span> 
+     			<input value="J" type='hidden' id="zeitElementeList0.periodizitaet" name="zeitElementeList[0].periodizitaet">
+      			<input value="true" type='hidden'>
+		
+				<span class="input-2u1">
+		      				<label id="label_jahrVon_J" for="jahrVon_J">von</label>
+					<select id="jahrVon_J" aria-labelledby="labelPeriodizitaet_J label_jahrVon_J" name="zeitElementeList[0].vonJahrSelected">
+						<option value="1986" >1986</option>
+						<option value="1987" >1987</option>
+						<option value="1988" >1988</option>
+						<option value="1989" >1989</option>
+						<option value="1990" >1990</option>
+						<option value="1991" >1991</option>
+						<option value="1992" >1992</option>
+						<option value="1993" >1993</option>
+						<option value="1994" >1994</option>
+						<option value="1995" >1995</option>
+						<option value="1996" >1996</option>
+						<option value="1997" >1997</option>
+						<option value="1998" >1998</option>
+						<option value="1999" >1999</option>
+						<option value="2000" >2000</option>
+						<option value="2001" >2001</option>
+						<option value="2002" >2002</option>
+						<option value="2003" >2003</option>
+						<option value="2004" >2004</option>
+						<option value="2005" >2005</option>
+						<option value="2006" >2006</option>
+						<option value="2007" >2007</option>
+						<option value="2008" >2008</option>
+						<option value="2009" >2009</option>
+						<option value="2010" >2010</option>
+						<option value="2011" >2011</option>
+						<option value="2012" >2012</option>
+						<option value="2013" >2013</option>
+						<option value="2014" >2014</option>
+						<option value="2015" >2015</option>
+						<option value="2016" >2016</option>
+						<option value="2017" >2017</option>
+						<option value="2018" >2018</option>
+						<option value="2019" >2019</option>
+						<option value="2020" >2020</option>
+						<option value="2021" >2021</option>
+						<option value="2022" >2022</option>
+						<option value="2023" selected="selected" >2023</option>
+						<option value="2024" >2024</option>
+						<option value="2025" >2025</option>
+					</select>
+					
+					
+					
+					
+				</span>
+				
+				<span class="input-2u1">
+					<label for="jahrBis_J">bis</label>
+					<select name="zeitElementeList[0].bisJahrSelected" id="jahrBis_J" aria-labelledby="labelPeriodizitaet_J label_jahrBis_J">
+						<option value="1986" >1986</option>
+						<option value="1987" >1987</option>
+						<option value="1988" >1988</option>
+						<option value="1989" >1989</option>
+						<option value="1990" >1990</option>
+						<option value="1991" >1991</option>
+						<option value="1992" >1992</option>
+						<option value="1993" >1993</option>
+						<option value="1994" >1994</option>
+						<option value="1995" >1995</option>
+						<option value="1996" >1996</option>
+						<option value="1997" >1997</option>
+						<option value="1998" >1998</option>
+						<option value="1999" >1999</option>
+						<option value="2000" >2000</option>
+						<option value="2001" >2001</option>
+						<option value="2002" >2002</option>
+						<option value="2003" >2003</option>
+						<option value="2004" >2004</option>
+						<option value="2005" >2005</option>
+						<option value="2006" >2006</option>
+						<option value="2007" >2007</option>
+						<option value="2008" >2008</option>
+						<option value="2009" >2009</option>
+						<option value="2010" >2010</option>
+						<option value="2011" >2011</option>
+						<option value="2012" >2012</option>
+						<option value="2013" >2013</option>
+						<option value="2014" >2014</option>
+						<option value="2015" >2015</option>
+						<option value="2016" >2016</option>
+						<option value="2017" >2017</option>
+						<option value="2018" >2018</option>
+						<option value="2019" >2019</option>
+						<option value="2020" >2020</option>
+						<option value="2021" >2021</option>
+						<option value="2022" >2022</option>
+						<option value="2023" >2023</option>
+						<option value="2024" >2024</option>
+						<option value="2025" selected="selected" >2025</option>
+					</select>
+					
+					
+				</span>
+				
+			</div>
+       		<div class="input-container" id="container_Q">
+       			<span class="input-1">
+	 				
+	 				
+	  					
+	 				
+	  					<input id="periodizitaet_Q" value="true" class='options' type='checkbox' name="zeitElementeList[1].checked" checked="checked"><input type="hidden" name="_zeitElementeList[1].checked" value="on"/>
+	 				<label id="labelPeriodizitaet_Q" for="periodizitaet_Q">Quartale</label>
+	  					
+	 				
+	  					
+	 				
+	  					
+	 				
+				 
+				 </span> 
+     			<input value="Q" type='hidden' id="zeitElementeList1.periodizitaet" name="zeitElementeList[1].periodizitaet">
+      			<input value="true" type='hidden'>
+		
+				<span class="input-2u1">
+		      				<label id="label_jahrVon_Q" for="jahrVon_Q">von</label>
+					<select id="jahrVon_Q" aria-labelledby="labelPeriodizitaet_Q label_jahrVon_Q" name="zeitElementeList[1].vonJahrSelected">
+						<option value="1986" >1986</option>
+						<option value="1987" >1987</option>
+						<option value="1988" >1988</option>
+						<option value="1989" >1989</option>
+						<option value="1990" >1990</option>
+						<option value="1991" >1991</option>
+						<option value="1992" >1992</option>
+						<option value="1993" >1993</option>
+						<option value="1994" >1994</option>
+						<option value="1995" >1995</option>
+						<option value="1996" >1996</option>
+						<option value="1997" >1997</option>
+						<option value="1998" >1998</option>
+						<option value="1999" >1999</option>
+						<option value="2000" >2000</option>
+						<option value="2001" >2001</option>
+						<option value="2002" >2002</option>
+						<option value="2003" >2003</option>
+						<option value="2004" >2004</option>
+						<option value="2005" >2005</option>
+						<option value="2006" >2006</option>
+						<option value="2007" >2007</option>
+						<option value="2008" >2008</option>
+						<option value="2009" >2009</option>
+						<option value="2010" >2010</option>
+						<option value="2011" >2011</option>
+						<option value="2012" >2012</option>
+						<option value="2013" >2013</option>
+						<option value="2014" >2014</option>
+						<option value="2015" >2015</option>
+						<option value="2016" >2016</option>
+						<option value="2017" >2017</option>
+						<option value="2018" >2018</option>
+						<option value="2019" >2019</option>
+						<option value="2020" >2020</option>
+						<option value="2021" >2021</option>
+						<option value="2022" >2022</option>
+						<option value="2023" >2023</option>
+						<option value="2024" >2024</option>
+						<option value="2025" selected="selected" >2025</option>
+						<option value="2026" >2026</option>
+					</select>
+					
+					
+					<!-- Halbjahr, Quartal, Monat, Tage -->
+					<select id="monatVon_Q" aria-labelledby="labelPeriodizitaet_Q label_jahrVon_Q" name="zeitElementeList[1].vonMonatSelected">
+						<option value="1">1</option>
+						<option value="2" selected="selected">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+					</select>
+					
+					
+					
+				</span>
+				
+				<span class="input-2u1">
+					<label for="jahrBis_Q">bis</label>
+					<select name="zeitElementeList[1].bisJahrSelected" id="jahrBis_Q" aria-labelledby="labelPeriodizitaet_Q label_jahrBis_Q">
+						<option value="1986" >1986</option>
+						<option value="1987" >1987</option>
+						<option value="1988" >1988</option>
+						<option value="1989" >1989</option>
+						<option value="1990" >1990</option>
+						<option value="1991" >1991</option>
+						<option value="1992" >1992</option>
+						<option value="1993" >1993</option>
+						<option value="1994" >1994</option>
+						<option value="1995" >1995</option>
+						<option value="1996" >1996</option>
+						<option value="1997" >1997</option>
+						<option value="1998" >1998</option>
+						<option value="1999" >1999</option>
+						<option value="2000" >2000</option>
+						<option value="2001" >2001</option>
+						<option value="2002" >2002</option>
+						<option value="2003" >2003</option>
+						<option value="2004" >2004</option>
+						<option value="2005" >2005</option>
+						<option value="2006" >2006</option>
+						<option value="2007" >2007</option>
+						<option value="2008" >2008</option>
+						<option value="2009" >2009</option>
+						<option value="2010" >2010</option>
+						<option value="2011" >2011</option>
+						<option value="2012" >2012</option>
+						<option value="2013" >2013</option>
+						<option value="2014" >2014</option>
+						<option value="2015" >2015</option>
+						<option value="2016" >2016</option>
+						<option value="2017" >2017</option>
+						<option value="2018" >2018</option>
+						<option value="2019" >2019</option>
+						<option value="2020" >2020</option>
+						<option value="2021" >2021</option>
+						<option value="2022" >2022</option>
+						<option value="2023" >2023</option>
+						<option value="2024" >2024</option>
+						<option value="2025" >2025</option>
+						<option value="2026" selected="selected" >2026</option>
+					</select>
+					
+						<!-- Halbjahr, Quartal, Monat, Tage -->
+						<select name="zeitElementeList[1].bisMonatSelected" id="monatBis_Q" aria-labelledby="labelPeriodizitaet_Q label_jahrBis_Q">
+							<option value="1" >1</option>
+							<option value="2" >2</option>
+							<option value="3" selected="selected" >3</option>
+							<option value="4" >4</option>
+						</select>
+					
+					
+				</span>
+				
+			</div>
+		
+		
+		
+		<!-- fixer Header -->  <!-- temp. rausgenommen da datatable drinnen ist -->
+	<!--	<th:block th:if="${staOptionenModel.tabellenkopfFixierenOptEnabled}">
+		<div class="input-container">
+			<span class="input-1" th:text="#{text.stabfrage.optionen.fixHeader}"></span>
+			<span class="input-2">	
+				<input th:field="${staOptionenModel.tabellenkopfFixieren}" id="fixHeader" th:value="${staOptionenModel.tabellenkopfFixieren}" class='options' type='checkbox'>
+			</span>
+		</div>
+		</th:block>
+	-->
+			
+		<!-- dyn Dimension -->
+		
+	</div>	
+		
+</div>
+		
+	<div class="btn-group" role="group" aria-label="Buttonbar">
+		<button id="refreshTable" type="submit" class="btn btn-primary rounded-0 btn-text" formaction="/isawebstat/stabfrage/createReport?lang=DE&amp;original=false&amp;report=6.6" title="Tabelle aktualisieren" style="margin-right:15px"><i class="bi bi-table"></i><span style="margin-left:10px">Tabelle aktualisieren</span></button>
+		<button id="showOriginal" type="submit" class="btn btn-primary rounded-0 btn-text" formaction="/isawebstat/stabfrage/createReport?lang=DE&amp;original=true&amp;report=6.6" title="Originaltabelle anzeigen"><i class="bi bi-bootstrap-reboot"></i><span style="margin-left:10px">Original-Tabelle anzeigen</span></button>
+	</div>
+
+</form>
+
+<span class="lastChange">Letzte Änderung am 03.11.2026 09:20</span>	
+
+</div>
+    
+</div>
+
+ 
+<script id="jquery" src="/isawebstat/webjars/jquery/4.0.0/jquery.js"></script>
+<script id="jquery-ui" src="/isawebstat/webjars/jquery-ui/1.14.2/jquery-ui.js"></script>
+<!--<script id="jquery-dataTables" th:attr="nonce=${nonce}" th:src="@{/webjars/datatables/js/jquery.dataTables.js}"></script> -->
+<!--<script id="dataTables-bootstrap" th:attr="nonce=${nonce}" th:src="@{/webjars/datatables/js/dataTables.bootstrap.js}"></script> -->
+<script id="bootstrap-notify" src="/isawebstat/webjars/bootstrap-notify/3.1.3-1/bootstrap-notify.min.js"></script>
+<script id="bootstrap-bundle" src="/isawebstat/webjars/bootstrap/5.3.8/js/bootstrap.bundle.min.js"></script>
+
+<!--<script id="test1" src="https://cdn.datatables.net/2.3.8/js/dataTables.js"></script> -->
+<script id="jquery-dataTables" src="/isawebstat/webjars/datatables/2.3.7/js/dataTables.js"></script>
+<!--    <script id="test2" src="https://cdn.datatables.net/fixedheader/4.0.6/js/dataTables.fixedHeader.js"></script> -->
+<script id="dataTables-fixedheader" src="/isawebstat/webjars/datatables-fixedheader/3.2.4/js/fixedHeader.dataTables.js"></script>
+<!--<script id="test3" src="https://cdn.datatables.net/fixedheader/4.0.6/js/fixedHeader.dataTables.js"></script> -->
+
+<script id="oenbJS" src="/isawebstat/js/oenb.js"></script>
+<script id="datatableJS" src="/isawebstat/js/datatables-script.js"></script>
+<script id="datatableFixHeader" src="/isawebstat/webjars/datatables-fixedheader/3.2.4/dataTables.fixedHeader.min.js"></script>
+
+
+<div id="javascripts">
+	<script id="isaJs" src="/isawebstat/js/isa.js"></script>
+<!--	<script id="fxheaderJs" th:attr="nonce=${nonce}" th:src="@{/js/fxheader.js}"></script>
+	<th:block th:if="${staOptionenModel.tabellenkopfFixieren}">
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+		fxheaderInitDyn('dataTable',0.6, 0, /*3*/);
+		
+		//fxheaderInitDyn('dataTable',0.6, 0, 4);
+		/*]]>*/
+	</script>
+	</th:block>
+	-->
+</div>
+
+<!-- Footer content -->
+<!-- Footer raus
+<div  th:insert="~{fragmente.html :: oenbFooter}"> </div>
+-->
+
+</body>
+</html>
