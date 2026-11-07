@@ -351,6 +351,25 @@ def build_insee():
                     obs.append({"idbank": idb, "periode": b["TIME_PERIOD"], "valeur": b["OBS_VALUE"]})
             n += 1
         log(f"  INSEE {fl} : {n} séries")
+    # IPC (inflation) : indices d'ensemble « Ensemble des ménages - France », mensuels et annuels
+    try:
+        x = dec(fetch("https://bdm.insee.fr/series/sdmx/data/IPC-2015?lastNObservations=1"))
+        keep = []
+        for m in re.finditer(r"<Series ([^>]*)>", x):
+            a = dict(re.findall(r'(\w+)="([^"]*)"', m.group(1)))
+            t = a.get("TITLE_FR", "")
+            if "Ensemble des ménages" in t and "France" in t and re.search(r"- Ensemble$|Ensemble hors tabac$", t):
+                keep.append((a["IDBANK"], t, a.get("FREQ", "")))
+        log(f"  IPC : {len(keep)} séries retenues")
+        for idb, t, fq in keep:
+            xs = dec(fetch(f"https://bdm.insee.fr/series/sdmx/data/SERIES_BDM/{idb}"))
+            cat.append({"idbank": idb, "flux": "IPC-2015", "titre": t, "unite": "", "frequence": fq, "derniere_maj": ""})
+            for o in re.finditer(r"<Obs ([^>]*)/>", xs):
+                b = dict(re.findall(r'(\w+)="([^"]*)"', o.group(1)))
+                if b.get("OBS_VALUE") not in (None, "", "NaN"):
+                    obs.append({"idbank": idb, "periode": b["TIME_PERIOD"], "valeur": b["OBS_VALUE"]})
+    except Exception as e:
+        log(f"  IPC ÉCHEC : {e}")
     save(pd.DataFrame(cat).drop_duplicates("idbank"), "insee_catalogue.csv")
     save(pd.DataFrame(obs).drop_duplicates(["idbank", "periode"]).sort_values(["idbank", "periode"]), "insee.csv")
 
