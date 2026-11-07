@@ -14,6 +14,8 @@ F = {
  "it_ondata_data.json": "https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/contents/data",
  "it_ondata_rawdata.json": "https://api.github.com/repos/ondata/quotazioni-immobiliari-agenzia-entrate/contents/rawData",
  "it_ondata_readme.md": "https://raw.githubusercontent.com/ondata/quotazioni-immobiliari-agenzia-entrate/master/README.md",
+ "uk_ons_regional_m2.xlsx": "https://www.ons.gov.uk/file?uri=/economy/inflationandpriceindices/datasets/regionalhousepricelevelestimatespersquaremetre/current/regionalhousepricelevels.xlsx",
+ "at_oenb_report_6_6.html": "https://www.oenb.at/isawebstat/stabfrage/createReport?report=6.6",
  "uk_ons_regional_m2.html": "https://www.ons.gov.uk/economy/inflationandpriceindices/datasets/regionalhousepricelevelestimatespersquaremetre",
 }
 for y in range(2015, 2026):
