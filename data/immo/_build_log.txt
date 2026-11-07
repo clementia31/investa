@@ -1,18 +1,15 @@
-== communes
-  -> zones.csv : 120 lignes, 0.0 Mo
-  -> communes.csv : 35,014 lignes, 2.0 Mo
-== dvf
-  DVF 2014 : 598,862 ventes retenues, 36,854 lignes
-  DVF 2015 : 680,035 ventes retenues, 37,567 lignes
-  DVF 2016 : 725,576 ventes retenues, 37,556 lignes
-  DVF 2017 : 825,607 ventes retenues, 37,488 lignes
-  DVF 2018 : 823,920 ventes retenues, 37,549 lignes
-  DVF 2019 : 909,332 ventes retenues, 37,965 lignes
-  DVF 2020 : 815,473 ventes retenues, 37,401 lignes
-  DVF 2021 : 864,316 ventes retenues, 37,958 lignes
-  DVF 2022 : 996,363 ventes retenues, 38,935 lignes
-  DVF 2023 : 788,558 ventes retenues, 37,846 lignes
-  DVF 2024 : 716,345 ventes retenues, 37,245 lignes
-  DVF 2025 : 821,376 ventes retenues, 37,910 lignes
-  DVF 2026-S1 : 364,782 ventes retenues, 31,992 lignes
-  -> prix_dvf.csv : 484,266 lignes, 19.0 Mo
+== insee
+  INSEE IRL : 8 séries
+  essai 1 échoué https://bdm.insee.fr/series/sdmx/data/IPLA-IPLNA-2015 : <urlopen error [Errno 104] Connection reset by peer>
+  INSEE IPLA-IPLNA-2015 : 142 séries
+  INSEE ILC-ILAT-ICC : 6 séries
+  INSEE INDICES_LOYERS : 66 séries
+  INSEE SERIES_LOYERS : 8 séries
+  INSEE PARC-LOGEMENTS : 32 séries
+  essai 1 échoué https://bdm.insee.fr/series/sdmx/data/IPC-2015?lastNObservations=1 : HTTP Error 413: 
+  essai 2 échoué https://bdm.insee.fr/series/sdmx/data/IPC-2015?lastNObservations=1 : HTTP Error 413: 
+  essai 3 échoué https://bdm.insee.fr/series/sdmx/data/IPC-2015?lastNObservations=1 : HTTP Error 413: 
+  essai 4 échoué https://bdm.insee.fr/series/sdmx/data/IPC-2015?lastNObservations=1 : HTTP Error 413: 
+  IPC ÉCHEC : téléchargement impossible : https://bdm.insee.fr/series/sdmx/data/IPC-2015?lastNObservations=1
+  -> insee_catalogue.csv : 262 lignes, 0.0 Mo
+  -> insee.csv : 24,887 lignes, 0.6 Mo
