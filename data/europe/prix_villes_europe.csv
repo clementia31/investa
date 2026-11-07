@@ -1,0 +1,172 @@
+ville;pays;annee;prix_m2_eur;prix_m2_local;devise;nature;methode;source
+Barcelone;Espagne;2005;3087;3087;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Barcelone;Espagne;2006;3471;3471;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Barcelone;Espagne;2007;3699;3699;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Barcelone;Espagne;2008;3811;3811;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Barcelone;Espagne;2009;3511;3511;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Barcelone;Espagne;2010;3367;3367;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Barcelone;Espagne;2011;3021;3021;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Barcelone;Espagne;2012;2670;2670;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Barcelone;Espagne;2013;2447;2447;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Barcelone;Espagne;2014;2398;2398;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Barcelone;Espagne;2015;2499;2499;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Barcelone;Espagne;2016;2697;2697;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Barcelone;Espagne;2017;2933;2933;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Barcelone;Espagne;2018;3261;3261;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Barcelone;Espagne;2019;3399;3399;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Barcelone;Espagne;2020;3299;3299;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Barcelone;Espagne;2021;3379;3379;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Barcelone;Espagne;2022;3553;3553;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Barcelone;Espagne;2023;3643;3643;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Barcelone;Espagne;2024;3873;3873;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Barcelone;Espagne;2025;4340;4340;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Londres;Royaume-Uni;1999;1920;1265;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Londres;Royaume-Uni;2000;2566;1564;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Londres;Royaume-Uni;2001;2848;1771;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Londres;Royaume-Uni;2002;3333;2096;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Londres;Royaume-Uni;2003;3375;2336;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Londres;Royaume-Uni;2004;3717;2522;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Londres;Royaume-Uni;2005;3816;2609;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Londres;Royaume-Uni;2006;4081;2782;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Londres;Royaume-Uni;2007;4553;3116;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Londres;Royaume-Uni;2008;3853;3068;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Londres;Royaume-Uni;2009;3235;2882;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Londres;Royaume-Uni;2010;3776;3239;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Londres;Royaume-Uni;2011;3791;3290;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Londres;Royaume-Uni;2012;4191;3398;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Londres;Royaume-Uni;2013;4281;3636;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Londres;Royaume-Uni;2014;5132;4137;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Londres;Royaume-Uni;2015;6288;4564;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Londres;Royaume-Uni;2016;6229;5105;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Londres;Royaume-Uni;2017;6011;5270;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Londres;Royaume-Uni;2018;5857;5182;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Londres;Royaume-Uni;2019;5782;5076;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Londres;Royaume-Uni;2020;5795;5156;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Londres;Royaume-Uni;2021;6173;5306;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Londres;Royaume-Uni;2022;6427;5481;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Londres;Royaume-Uni;2023;6184;5379;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Londres;Royaume-Uni;2024;6312;5343;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Londres;Royaume-Uni;2025;6210;5320;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Madrid;Espagne;2005;3504;3504;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Madrid;Espagne;2006;3701;3701;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Madrid;Espagne;2007;3845;3845;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Madrid;Espagne;2008;3775;3775;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Madrid;Espagne;2009;3422;3422;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Madrid;Espagne;2010;3205;3205;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Madrid;Espagne;2011;2883;2883;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Madrid;Espagne;2012;2582;2582;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Madrid;Espagne;2013;2432;2432;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Madrid;Espagne;2014;2382;2382;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Madrid;Espagne;2015;2468;2468;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Madrid;Espagne;2016;2580;2580;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Madrid;Espagne;2017;2735;2735;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Madrid;Espagne;2018;3014;3014;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Madrid;Espagne;2019;3256;3256;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Madrid;Espagne;2020;3190;3190;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Madrid;Espagne;2021;3310;3310;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Madrid;Espagne;2022;3591;3591;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Madrid;Espagne;2023;3782;3782;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Madrid;Espagne;2024;4225;4225;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Madrid;Espagne;2025;4995;4995;EUR;expertises;direct;Ministerio de Vivienda, valor tasado medio de vivienda libre
+Manchester;Royaume-Uni;1999;611;403;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Manchester;Royaume-Uni;2000;716;437;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Manchester;Royaume-Uni;2001;801;498;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Manchester;Royaume-Uni;2002;934;587;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Manchester;Royaume-Uni;2003;1019;705;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Manchester;Royaume-Uni;2004;1332;904;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Manchester;Royaume-Uni;2005;1603;1096;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Manchester;Royaume-Uni;2006;1925;1312;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Manchester;Royaume-Uni;2007;2077;1421;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Manchester;Royaume-Uni;2008;1689;1345;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Manchester;Royaume-Uni;2009;1416;1262;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Manchester;Royaume-Uni;2010;1533;1315;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Manchester;Royaume-Uni;2011;1492;1295;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Manchester;Royaume-Uni;2012;1626;1319;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Manchester;Royaume-Uni;2013;1568;1332;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Manchester;Royaume-Uni;2014;1781;1436;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Manchester;Royaume-Uni;2015;2108;1530;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Manchester;Royaume-Uni;2016;2003;1642;GBP;transactions;direct;"ONS, prix au m² des appartements ; taux de change BCE"
+Manchester;Royaume-Uni;2017;2060;1806;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Manchester;Royaume-Uni;2018;2133;1887;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Manchester;Royaume-Uni;2019;2200;1931;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Manchester;Royaume-Uni;2020;2187;1946;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Manchester;Royaume-Uni;2021;2661;2288;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Manchester;Royaume-Uni;2022;2879;2455;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Manchester;Royaume-Uni;2023;2836;2467;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Manchester;Royaume-Uni;2024;3030;2565;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Manchester;Royaume-Uni;2025;3016;2584;GBP;transactions;indice officiel (règle de trois);"ONS (niveau) et UK HPI / HM Land Registry (évolution du prix des appartements) ; taux de change BCE"
+Milan;Italie;2004;2818;2818;EUR;cotations officielles;moyenne des zones;Agenzia delle Entrate (OMI), abitazioni civili, état normal
+Milan;Italie;2005;2915;2915;EUR;cotations officielles;moyenne des zones;Agenzia delle Entrate (OMI), abitazioni civili, état normal
+Milan;Italie;2006;3016;3016;EUR;cotations officielles;moyenne des zones;Agenzia delle Entrate (OMI), abitazioni civili, état normal
+Milan;Italie;2007;3098;3098;EUR;cotations officielles;moyenne des zones;Agenzia delle Entrate (OMI), abitazioni civili, état normal
+Milan;Italie;2008;3103;3103;EUR;cotations officielles;moyenne des zones;Agenzia delle Entrate (OMI), abitazioni civili, état normal
+Milan;Italie;2009;3048;3048;EUR;cotations officielles;moyenne des zones;Agenzia delle Entrate (OMI), abitazioni civili, état normal
+Milan;Italie;2010;3105;3105;EUR;cotations officielles;moyenne des zones;Agenzia delle Entrate (OMI), abitazioni civili, état normal
+Milan;Italie;2011;3178;3178;EUR;cotations officielles;moyenne des zones;Agenzia delle Entrate (OMI), abitazioni civili, état normal
+Milan;Italie;2012;3191;3191;EUR;cotations officielles;moyenne des zones;Agenzia delle Entrate (OMI), abitazioni civili, état normal
+Milan;Italie;2013;3133;3133;EUR;cotations officielles;moyenne des zones;Agenzia delle Entrate (OMI), abitazioni civili, état normal
+Milan;Italie;2014;3281;3281;EUR;cotations officielles;moyenne des zones;Agenzia delle Entrate (OMI), abitazioni civili, état normal
+Milan;Italie;2015;3302;3302;EUR;cotations officielles;moyenne des zones;Agenzia delle Entrate (OMI), abitazioni civili, état normal
+Milan;Italie;2016;3290;3290;EUR;cotations officielles;moyenne des zones;Agenzia delle Entrate (OMI), abitazioni civili, état normal
+Milan;Italie;2017;3306;3306;EUR;cotations officielles;moyenne des zones;Agenzia delle Entrate (OMI), abitazioni civili, état normal
+Milan;Italie;2018;3353;3353;EUR;cotations officielles;moyenne des zones;Agenzia delle Entrate (OMI), abitazioni civili, état normal
+Milan;Italie;2019;3442;3442;EUR;cotations officielles;moyenne des zones;Agenzia delle Entrate (OMI), abitazioni civili, état normal
+Milan;Italie;2020;3469;3469;EUR;cotations officielles;moyenne des zones;Agenzia delle Entrate (OMI), abitazioni civili, état normal
+Milan;Italie;2021;3537;3537;EUR;cotations officielles;moyenne des zones;Agenzia delle Entrate (OMI), abitazioni civili, état normal
+Milan;Italie;2022;3872;3872;EUR;cotations officielles;moyenne des zones;Agenzia delle Entrate (OMI), abitazioni civili, état normal
+Milan;Italie;2023;4239;4239;EUR;cotations officielles;moyenne des zones;Agenzia delle Entrate (OMI), abitazioni civili, état normal
+Milan;Italie;2024;4543;4543;EUR;cotations officielles;moyenne des zones;Agenzia delle Entrate (OMI), abitazioni civili, état normal
+Milan;Italie;2025;4816;4816;EUR;cotations officielles;moyenne des zones;Agenzia delle Entrate (OMI), abitazioni civili, état normal
+Paris;France;2000;2865;2865;EUR;transactions;indice officiel (règle de trois);Notaires-INSEE, indice des prix des appartements anciens à Paris
+Paris;France;2001;3135;3135;EUR;transactions;indice officiel (règle de trois);Notaires-INSEE, indice des prix des appartements anciens à Paris
+Paris;France;2002;3410;3410;EUR;transactions;indice officiel (règle de trois);Notaires-INSEE, indice des prix des appartements anciens à Paris
+Paris;France;2003;3839;3839;EUR;transactions;indice officiel (règle de trois);Notaires-INSEE, indice des prix des appartements anciens à Paris
+Paris;France;2004;4357;4357;EUR;transactions;indice officiel (règle de trois);Notaires-INSEE, indice des prix des appartements anciens à Paris
+Paris;France;2005;4979;4979;EUR;transactions;indice officiel (règle de trois);Notaires-INSEE, indice des prix des appartements anciens à Paris
+Paris;France;2006;5548;5548;EUR;transactions;indice officiel (règle de trois);Notaires-INSEE, indice des prix des appartements anciens à Paris
+Paris;France;2007;6058;6058;EUR;transactions;indice officiel (règle de trois);Notaires-INSEE, indice des prix des appartements anciens à Paris
+Paris;France;2008;6481;6481;EUR;transactions;indice officiel (règle de trois);Notaires-INSEE, indice des prix des appartements anciens à Paris
+Paris;France;2009;6156;6156;EUR;transactions;indice officiel (règle de trois);Notaires-INSEE, indice des prix des appartements anciens à Paris
+Paris;France;2010;6855;6855;EUR;transactions;indice officiel (règle de trois);Notaires-INSEE, indice des prix des appartements anciens à Paris
+Paris;France;2011;8141;8141;EUR;transactions;indice officiel (règle de trois);Notaires-INSEE, indice des prix des appartements anciens à Paris
+Paris;France;2012;8325;8325;EUR;transactions;indice officiel (règle de trois);Notaires-INSEE, indice des prix des appartements anciens à Paris
+Paris;France;2013;8224;8224;EUR;transactions;indice officiel (règle de trois);Notaires-INSEE, indice des prix des appartements anciens à Paris
+Paris;France;2014;8077;8077;EUR;transactions;direct;DVF (DGFiP), médiane des ventes d'appartements anciens
+Paris;France;2015;8001;8001;EUR;transactions;direct;DVF (DGFiP), médiane des ventes d'appartements anciens
+Paris;France;2016;8228;8228;EUR;transactions;direct;DVF (DGFiP), médiane des ventes d'appartements anciens
+Paris;France;2017;8846;8846;EUR;transactions;direct;DVF (DGFiP), médiane des ventes d'appartements anciens
+Paris;France;2018;9483;9483;EUR;transactions;direct;DVF (DGFiP), médiane des ventes d'appartements anciens
+Paris;France;2019;10115;10115;EUR;transactions;direct;DVF (DGFiP), médiane des ventes d'appartements anciens
+Paris;France;2020;10833;10833;EUR;transactions;direct;DVF (DGFiP), médiane des ventes d'appartements anciens
+Paris;France;2021;10854;10854;EUR;transactions;direct;DVF (DGFiP), médiane des ventes d'appartements anciens
+Paris;France;2022;10714;10714;EUR;transactions;direct;DVF (DGFiP), médiane des ventes d'appartements anciens
+Paris;France;2023;10143;10143;EUR;transactions;direct;DVF (DGFiP), médiane des ventes d'appartements anciens
+Paris;France;2024;9569;9569;EUR;transactions;direct;DVF (DGFiP), médiane des ventes d'appartements anciens
+Paris;France;2025;9701;9701;EUR;transactions;direct;DVF (DGFiP), médiane des ventes d'appartements anciens
+Vienne;Autriche;1999;1545;1545;EUR;transactions;indice officiel (règle de trois);Statistik Austria (niveau 2015) et OeNB, indice des appartements anciens à Vienne
+Vienne;Autriche;2000;1523;1523;EUR;transactions;indice officiel (règle de trois);Statistik Austria (niveau 2015) et OeNB, indice des appartements anciens à Vienne
+Vienne;Autriche;2001;1462;1462;EUR;transactions;indice officiel (règle de trois);Statistik Austria (niveau 2015) et OeNB, indice des appartements anciens à Vienne
+Vienne;Autriche;2002;1478;1478;EUR;transactions;indice officiel (règle de trois);Statistik Austria (niveau 2015) et OeNB, indice des appartements anciens à Vienne
+Vienne;Autriche;2003;1478;1478;EUR;transactions;indice officiel (règle de trois);Statistik Austria (niveau 2015) et OeNB, indice des appartements anciens à Vienne
+Vienne;Autriche;2004;1503;1503;EUR;transactions;indice officiel (règle de trois);Statistik Austria (niveau 2015) et OeNB, indice des appartements anciens à Vienne
+Vienne;Autriche;2005;1599;1599;EUR;transactions;indice officiel (règle de trois);Statistik Austria (niveau 2015) et OeNB, indice des appartements anciens à Vienne
+Vienne;Autriche;2006;1725;1725;EUR;transactions;indice officiel (règle de trois);Statistik Austria (niveau 2015) et OeNB, indice des appartements anciens à Vienne
+Vienne;Autriche;2007;1820;1820;EUR;transactions;indice officiel (règle de trois);Statistik Austria (niveau 2015) et OeNB, indice des appartements anciens à Vienne
+Vienne;Autriche;2008;1890;1890;EUR;transactions;indice officiel (règle de trois);Statistik Austria (niveau 2015) et OeNB, indice des appartements anciens à Vienne
+Vienne;Autriche;2009;2037;2037;EUR;transactions;indice officiel (règle de trois);Statistik Austria (niveau 2015) et OeNB, indice des appartements anciens à Vienne
+Vienne;Autriche;2010;2196;2196;EUR;transactions;indice officiel (règle de trois);Statistik Austria (niveau 2015) et OeNB, indice des appartements anciens à Vienne
+Vienne;Autriche;2011;2395;2395;EUR;transactions;indice officiel (règle de trois);Statistik Austria (niveau 2015) et OeNB, indice des appartements anciens à Vienne
+Vienne;Autriche;2012;2831;2831;EUR;transactions;indice officiel (règle de trois);Statistik Austria (niveau 2015) et OeNB, indice des appartements anciens à Vienne
+Vienne;Autriche;2013;3109;3109;EUR;transactions;indice officiel (règle de trois);Statistik Austria (niveau 2015) et OeNB, indice des appartements anciens à Vienne
+Vienne;Autriche;2014;3272;3272;EUR;transactions;indice officiel (règle de trois);Statistik Austria (niveau 2015) et OeNB, indice des appartements anciens à Vienne
+Vienne;Autriche;2015;3333;3333;EUR;transactions;direct;Statistik Austria, prix médian des appartements (registre foncier)
+Vienne;Autriche;2016;3624;3624;EUR;transactions;direct;Statistik Austria, prix médian des appartements (registre foncier)
+Vienne;Autriche;2017;3828;3828;EUR;transactions;direct;Statistik Austria, prix médian des appartements (registre foncier)
+Vienne;Autriche;2018;4007;4007;EUR;transactions;direct;Statistik Austria, prix médian des appartements (registre foncier)
+Vienne;Autriche;2019;4217;4217;EUR;transactions;direct;Statistik Austria, prix médian des appartements (registre foncier)
+Vienne;Autriche;2020;4538;4538;EUR;transactions;direct;Statistik Austria, prix médian des appartements (registre foncier)
+Vienne;Autriche;2021;5009;5009;EUR;transactions;direct;Statistik Austria, prix médian des appartements (registre foncier)
+Vienne;Autriche;2022;5516;5516;EUR;transactions;direct;Statistik Austria, prix médian des appartements (registre foncier)
+Vienne;Autriche;2023;5000;5000;EUR;transactions;direct;Statistik Austria, prix médian des appartements (registre foncier)
+Vienne;Autriche;2024;4940;4940;EUR;transactions;direct;Statistik Austria, prix médian des appartements (registre foncier)
+Vienne;Autriche;2025;5212;5212;EUR;transactions;direct;Statistik Austria, prix médian des appartements (registre foncier)
