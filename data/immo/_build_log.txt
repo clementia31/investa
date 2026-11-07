@@ -6,10 +6,7 @@
   INSEE INDICES_LOYERS : 66 séries
   INSEE SERIES_LOYERS : 8 séries
   INSEE PARC-LOGEMENTS : 32 séries
-  essai 1 échoué https://bdm.insee.fr/series/sdmx/data/IPC-2015?lastNObservations=1 : HTTP Error 413: 
-  essai 2 échoué https://bdm.insee.fr/series/sdmx/data/IPC-2015?lastNObservations=1 : HTTP Error 413: 
-  essai 3 échoué https://bdm.insee.fr/series/sdmx/data/IPC-2015?lastNObservations=1 : HTTP Error 413: 
-  essai 4 échoué https://bdm.insee.fr/series/sdmx/data/IPC-2015?lastNObservations=1 : HTTP Error 413: 
-  IPC ÉCHEC : téléchargement impossible : https://bdm.insee.fr/series/sdmx/data/IPC-2015?lastNObservations=1
-  -> insee_catalogue.csv : 262 lignes, 0.0 Mo
-  -> insee.csv : 24,887 lignes, 0.6 Mo
+  essai 1 échoué https://bdm.insee.fr/series/sdmx/data/SERIES_BDM/001759970?lastNObservations=1 : <urlopen error [Errno 104] Connection reset by peer>
+  IPC : 4 séries retenues
+  -> insee_catalogue.csv : 266 lignes, 0.0 Mo
+  -> insee.csv : 26,129 lignes, 0.6 Mo

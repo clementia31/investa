@@ -261,3 +261,7 @@ idbank;flux;titre;unite;frequence;derniere_maj
 001687223;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Résidences principales - Proportion de propriétaires sans charges de remboursement - France métropolitaine;POURCENT;A;2026-09-30
 001791248;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Résidences principales - Proportion de propriétaires accédants - France hors Mayotte;POURCENT;A;2026-09-30
 001791241;PARC-LOGEMENTS;Estimation annuelle du parc de logements - Nombre total de logements - France hors Mayotte;SO;A;2026-09-30
+001759970;IPC-2015;Indice des prix à la consommation - Base 2015 - Ensemble des ménages - France - Ensemble - Séries arrêtées;;M;
+001759971;IPC-2015;Indice des prix à la consommation harmonisé - Base 2015 - Ensemble des ménages - France - Nomenclature Coicop : Ensemble harmonisé - Séries arrêtées;;M;
+001761313;IPC-2015;Indice des prix à la consommation - Base 2015 - Glissement annuel - Ensemble des ménages - France - Ensemble - Séries arrêtées;;M;
+001762489;IPC-2015;Indice des prix à la consommation harmonisé annuel - Base 2015 - Ensemble des ménages - France - Nomenclature Coicop : Ensemble harmonisé - Séries arrêtées;;A;
