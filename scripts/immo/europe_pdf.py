@@ -9,6 +9,8 @@ P = {
  "omi_ri2025_residenziale": "https://www.informazionefiscale.it/IMG/pdf/ri2025_residenziale20250520.pdf",
  "roma_mercato_immobiliare_2018": "https://www.comune.roma.it/web-resources/cms/documents/11_MercatoImmobiliare_2018DEF_CMRC.pdf",
 }
+for yy in range(5, 26):  # toutes les éditions du rapport du comité d'évaluation de Berlin
+    P.setdefault(f"berlin_imb_code_{yy:02d}00", f"https://www.berlin.de/gutachterausschuss/_assets/amarktinformationen/amarktanalyse/04-03-010-{yy:02d}00.pdf")
 for k, u in P.items():
     if os.path.exists(f"{R}/{k}.txt"): continue
     try:
