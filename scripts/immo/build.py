@@ -353,13 +353,13 @@ def build_insee():
         log(f"  INSEE {fl} : {n} séries")
     # IPC (inflation) : indices d'ensemble « Ensemble des ménages - France », mensuels et annuels
     try:
-        x = dec(fetch("https://bdm.insee.fr/series/sdmx/data/IPC-2015?lastNObservations=1"))
         keep = []
-        for m in re.finditer(r"<Series ([^>]*)>", x):
-            a = dict(re.findall(r'(\w+)="([^"]*)"', m.group(1)))
-            t = a.get("TITLE_FR", "")
-            if "Ensemble des ménages" in t and "France" in t and re.search(r"- Ensemble$|Ensemble hors tabac$", t):
-                keep.append((a["IDBANK"], t, a.get("FREQ", "")))
+        for idb in ["001759970", "001759971", "001761313", "001762489"]:  # vérifiés par leur titre ci-dessous
+            xs = dec(fetch(f"https://bdm.insee.fr/series/sdmx/data/SERIES_BDM/{idb}?lastNObservations=1"))
+            m = re.search(r"<Series ([^>]*)>", xs)
+            if m:
+                a = dict(re.findall(r'(\w+)="([^"]*)"', m.group(1)))
+                keep.append((idb, a.get("TITLE_FR", ""), a.get("FREQ", "")))
         log(f"  IPC : {len(keep)} séries retenues")
         for idb, t, fq in keep:
             xs = dec(fetch(f"https://bdm.insee.fr/series/sdmx/data/SERIES_BDM/{idb}"))
