@@ -3,7 +3,7 @@ name: Immo data
 on:
   workflow_dispatch:
     inputs:
-      step: {description: "discover | peek | build", required: true, default: build}
+      step: {description: "discover | peek | build | probe_europe | europe", required: true, default: build}
       only: {description: "build : sources à refaire (communes,dvf,loyers,oll,fiscalite,insee) — vide = tout", required: false, default: ""}
 permissions:
   contents: write
@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "3.12"}
-      - run: pip install pandas pyarrow
+      - run: pip install pandas pyarrow xlrd openpyxl pdfplumber
       - run: python scripts/immo/${{ inputs.step }}.py
         env: {ONLY: "${{ inputs.only }}"}
       - if: inputs.step == 'build'
@@ -23,6 +23,6 @@ jobs:
       - run: |
           git config user.name "seed-bot"
           git config user.email "seed-bot@users.noreply.github.com"
-          git add data/immo
+          git add data/immo data/europe
           git commit -m "Données immo : ${{ inputs.step }}" || echo "Rien de nouveau"
           git pull --rebase -X theirs && git push
